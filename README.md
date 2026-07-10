@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Finance Hub
 
-## Getting Started
+Aplicación web de finanzas personales para centralizar ingresos, gastos y transferencias de una persona, pareja o grupo familiar.
 
-First, run the development server:
+## Documentación
+
+Fuente de verdad en [`docs/`](./docs/README.md):
+
+| Doc | Tema |
+|-----|------|
+| [docs/stack.md](./docs/stack.md) | Stack (Siturn / Better Auth / Prisma / Supabase) |
+| [docs/architecture.md](./docs/architecture.md) | Capas y carpetas |
+| [docs/specs/](./docs/specs/) | Specs SDD por funcionalidad |
+| [docs/tdd-workflow.md](./docs/tdd-workflow.md) | TDD de lógica de negocio |
+| [AGENTS.md](./AGENTS.md) | Guía del agente |
+| [DESIGN.md](./DESIGN.md) | UI |
+
+## Stack (resumen)
+
+- Next.js 16 · React 19 · TypeScript · Tailwind 4 · shadcn
+- Better Auth · Prisma · PostgreSQL (Supabase)
+- Zod · React Hook Form · TanStack Query · Zustand (UI)
+- Vitest para TDD de dominio (no UI)
+
+Detalle: [docs/stack.md](./docs/stack.md).
+
+## Desarrollo
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abrir [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Cuando la infra Siturn esté cableada: `supabase:start` → `auth:generate` → `db:migrate` → `dev` (ver stack.md).
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Convenciones del agente
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Implementar contra specs en `docs/specs/`
+- **TDD obligatorio** para dominio; **no** testear UI
+- Seguir `docs/architecture.md` (features + lib, no microservicios)

@@ -1,0 +1,26 @@
+---
+description: TDD obligatorio para lógica de negocio; no testear UI
+alwaysApply: true
+---
+
+# TDD — Lógica de negocio
+
+Siempre: red → green → refactor en dominio.
+
+## Se testea
+
+- `src/domain/**`
+- `src/features/*/domain/**`
+- Cálculos: saldos, transferencias, splits, presupuestos, objetivos
+
+## No se testea
+
+- Componentes React, estilos, layout, snapshots
+
+## Flujo
+
+```
+spec (docs/specs) → test Vitest → domain → services/actions → UI
+```
+
+Detalle: `docs/tdd-workflow.md`.

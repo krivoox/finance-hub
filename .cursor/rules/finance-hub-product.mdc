@@ -1,0 +1,27 @@
+---
+description: Visión Finance Hub, stack Siturn y fuente de verdad en docs/
+alwaysApply: true
+---
+
+# Finance Hub — Producto y stack
+
+Finanzas personales/familiares: cuentas, movimientos, presupuestos, objetivos y grupos.
+
+## Docs
+
+1. `docs/stack.md` — stack fijado (Better Auth, Prisma, Supabase Postgres, shadcn…)
+2. Spec en `docs/specs/` + `docs/domain-model.md`
+3. `docs/architecture.md` — features/, lib/, TDD
+
+## Stack (no sustituir)
+
+- Better Auth para login — **no** Supabase Auth
+- Prisma + Postgres (Supabase)
+- UI: Server Components default; Zod en actions; Zustand solo UI
+
+## Capas
+
+- `src/domain/**` y `features/*/domain/**` — lógica pura (TDD)
+- `features/*/services|actions` — servidor
+- `src/lib/**` — env, auth, prisma
+- `src/app/**` — rutas delgadas

@@ -1,0 +1,16 @@
+---
+description: Convenciones del dominio financiero y stack Siturn
+globs: src/domain/**/*.{ts,tsx},src/features/**/*.{ts,tsx},src/lib/**/*.{ts,tsx},src/services/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Dominio y servidor
+
+- Montos: enteros en centavos; no floats.
+- Fechas: ISO 8601; periodos con timezone.
+- Tenancy: todo con `workspaceId` + membership.
+- Domain puro: sin Next, React ni Prisma.
+- Prisma solo en `services/` / `lib/prisma.ts`.
+- Server Actions: `getSession()` + Zod + authz.
+- Env solo vía `src/lib/env.ts`.
+- Specs: `docs/specs/`; stack: `docs/stack.md`.
