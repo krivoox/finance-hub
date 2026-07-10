@@ -1,0 +1,51 @@
+---
+description: Design system Finance Hub — tokens, variantes shadcn, shell Dub-like. Obliga a no hardcodear colores.
+globs: src/app/**/*.{tsx,css},src/components/**/*.{tsx,css}
+alwaysApply: false
+---
+
+# UI — Finance Hub
+
+Fuente de verdad: `DESIGN.md`. Theme: `src/app/globals.css`.
+
+## Antes de escribir UI
+
+1. Leer `DESIGN.md` (shell, tokens, do/don't).
+2. Reutilizar `src/components/ui/*` (shadcn). Extender con CVA `variant` / `size`.
+3. No inventar reglas de negocio en React.
+
+## Colores — obligatorio
+
+- Usar solo clases semánticas: `bg-background`, `bg-card`, `text-foreground`, `text-muted-foreground`, `bg-primary`, `bg-info-muted`, `text-income`, `border-border`, `ring-ring`, tokens `sidebar-*` / `sidebar-rail-*`.
+- **Prohibido** en UI de producto: hex (`#2563eb`), RGB sueltos, escalas Tailwind de color (`bg-zinc-50`, `text-blue-600`, `border-gray-200`).
+- Colores nuevos → añadir token en `:root` / `.dark` y mapear en `@theme inline`. Nunca en el JSX.
+
+## Variantes
+
+```tsx
+// ✅
+<Badge variant="expense">- $42.00</Badge>
+<Button variant="outline">Cancelar</Button>
+
+// ❌
+<span className="text-red-600 bg-red-50">- $42.00</span>
+```
+
+Si un estilo se repite 2+ veces, extraer variante CVA o componente de producto en `src/components/`.
+
+## Shell
+
+- Canvas: `bg-background`
+- Rail iconos: `bg-sidebar-rail`
+- Nav: `bg-sidebar` + item activo `bg-sidebar-accent text-sidebar-accent-foreground`
+- Contenido: `bg-card rounded-2xl border-border`
+
+## Datos financieros
+
+- Montos con `tabular-nums`
+- Tipo de movimiento → variantes `income` | `expense` | `transfer`
+
+## Motion / a11y
+
+- Estados: hover, focus-visible, disabled, loading, empty, error
+- Animar solo transform/opacity; &lt; 300ms; respetar `prefers-reduced-motion`
