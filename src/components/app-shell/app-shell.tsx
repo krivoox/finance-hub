@@ -1,22 +1,40 @@
-import { IconRail } from "./icon-rail";
-import { MobileNav } from "./mobile-nav";
-import { SecondaryNav } from "./secondary-nav";
+"use client";
+
+import { usePathname } from "next/navigation";
+
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
+
+import { AppSidebar } from "./app-sidebar";
+import { getPageTitle } from "./nav-config";
 
 type AppShellProps = {
   children: React.ReactNode;
 };
 
 export function AppShell({ children }: AppShellProps) {
+  const pathname = usePathname();
+  const title = getPageTitle(pathname);
+
   return (
-    <div className="flex h-dvh min-h-0 flex-col bg-background md:flex-row">
-      <IconRail />
-      <SecondaryNav />
-      <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-        <MobileNav />
-        <div className="flex min-h-0 flex-1 flex-col md:p-3 md:pl-0">
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset className="min-h-svh overflow-hidden md:max-h-svh">
+        <header className="flex h-12 shrink-0 items-center gap-2 border-b border-border px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-1 h-4" />
+          <p className="truncate text-sm font-medium text-foreground">
+            {title}
+          </p>
+        </header>
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden p-0 md:p-3">
           {children}
         </div>
-      </div>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }

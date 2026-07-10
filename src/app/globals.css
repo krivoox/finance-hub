@@ -138,13 +138,13 @@
   --transfer-foreground: var(--info-foreground);
   --transfer-muted: var(--info-muted);
 
-  /* Secondary nav (light) */
-  --sidebar: oklch(0.97 0 0);
+  /* Single sidebar (neutral active, like shadcn dashboard) */
+  --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.37 0 0);
-  --sidebar-primary: var(--info);
-  --sidebar-primary-foreground: var(--info-foreground);
-  --sidebar-accent: var(--info-muted);
-  --sidebar-accent-foreground: var(--info-muted-foreground);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.94 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.9 0 0);
   --sidebar-ring: var(--ring);
 
@@ -206,10 +206,10 @@
 
   --sidebar: oklch(0.18 0 0);
   --sidebar-foreground: oklch(0.78 0 0);
-  --sidebar-primary: var(--info);
-  --sidebar-primary-foreground: var(--info-foreground);
-  --sidebar-accent: var(--info-muted);
-  --sidebar-accent-foreground: var(--info-muted-foreground);
+  --sidebar-primary: oklch(0.985 0 0);
+  --sidebar-primary-foreground: oklch(0.205 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: var(--ring);
 

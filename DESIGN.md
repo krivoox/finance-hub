@@ -16,7 +16,7 @@
 
 **Dominio (metáforas):** ledger, saldos, flujo de caja, presupuestos, objetivos, splits compartidos.  
 **Mundo de color:** papel blanco, tinta negra, gris frío de escritorio, azul de acción (selección), verde ingreso, rojo egreso.  
-**Firma:** shell de **doble sidebar** (rail de iconos oscuro + nav secundaria clara) + **panel de contenido flotante** blanco con radio grande sobre canvas gris.  
+**Firma:** sidebar único (workspace + CTA + nav agrupada + usuario) + panel de contenido; sin franja de iconos oscura.  
 **Defaults que rechazamos:** cards genéricas en grid 3×N, purple-indigo SaaS, cream+serif terracotta, dark-mode-first, hex sueltos en componentes.
 
 ---
@@ -35,30 +35,31 @@
 
 ## 3. App shell (layout firma)
 
-Inspirado en el dashboard de Dub:
+Sidebar único estilo dashboard (shadcn inset) — **sin** rail de iconos oscuro.
 
 ```
-┌──────┬─────────────────┬──────────────────────────────────────┐
-│ Rail │  Nav secundaria │  Content panel (card flotante)       │
-│ dark │  light / gray   │  bg-card · rounded-2xl · border      │
-│ icons│  groups + items │  título · filtros · tabla / vista    │
-└──────┴─────────────────┴──────────────────────────────────────┘
-         ← bg-background (canvas gris) →
+┌────────────────────┬──────────────────────────────────────────┐
+│ Sidebar            │  Header (trigger + título de página)     │
+│ · workspace        ├──────────────────────────────────────────┤
+│ · Registrar + CTA  │  Content panel (card)                    │
+│ · nav principal    │  título · filtros · tabla / vista        │
+│ · grupos           │                                          │
+│ · user / ajustes   │                                          │
+└────────────────────┴──────────────────────────────────────────┘
 ```
 
 | Zona | Token / clase | Notas |
 |------|---------------|--------|
-| Canvas app | `bg-background` | Gris frío suave (`oklch ~0.97`) |
-| Rail de iconos | `bg-sidebar-rail` · `text-sidebar-rail-foreground` | Franja estrecha (~56–64px), iconos lineales |
-| Icono activo (rail) | `bg-sidebar-rail-accent` · `text-sidebar-rail` | Disco/cuadrado claro sobre rail oscuro |
-| Nav secundaria | `bg-sidebar` · `text-sidebar-foreground` | Ancho ~220–260px; grupos con label `text-xs` muted |
-| Item nav idle | `text-sidebar-foreground` | Icono stroke + label |
-| Item nav active / hover | `bg-sidebar-accent` · `text-sidebar-accent-foreground` | Soft blue + texto azul (Dub) |
-| Badge de conteo | `Badge variant="info"` o `secondary` | Pill pequeño a la derecha del item |
-| Content panel | `bg-card` · `border-border` · `rounded-2xl` | Flota sobre el canvas; padding generoso |
-| Título de página | `text-2xl font-semibold tracking-tight` | Un solo focal por vista |
+| Sidebar | `bg-sidebar` | Un solo panel; collapsible a iconos |
+| Workspace header | logo + nombre + chevron | Arriba del todo |
+| CTA rápida | `Button` pill “Registrar” + icon button | Fila bajo el workspace |
+| Item nav idle | `SidebarMenuButton` | Icono stroke + label |
+| Item nav active | `data-active` → `bg-sidebar-accent` | Highlight neutro (no azul) |
+| Grupos | `SidebarGroupLabel` | Ej. Planificación, Compartido |
+| Header app | `SidebarTrigger` + título | Barra superior del inset |
+| Content panel | `bg-card` · `rounded-xl` · `border` | Dentro de `SidebarInset` |
 
-**Mobile:** rail + nav colapsan a sheet / drawer (`Sidebar` shadcn). El content panel ocupa el viewport sin “card flotante” forzada.
+**Mobile:** el sidebar shadcn abre como sheet.
 
 ---
 
@@ -276,11 +277,10 @@ Luego alinear variantes a este documento (nunca dejar colores de demo).
 
 ```txt
 Canvas          bg-background
-Panel           bg-card border-border rounded-2xl
+Sidebar         bg-sidebar · active: bg-sidebar-accent
+Panel           bg-card border-border rounded-xl
 Texto           text-foreground | text-muted-foreground
 CTA             bg-primary text-primary-foreground
-Nav activa      bg-sidebar-accent text-sidebar-accent-foreground
-Rail            bg-sidebar-rail text-sidebar-rail-foreground
 Ingreso         text-income | bg-income-muted
 Gasto           text-expense | bg-expense-muted
 Transferencia   text-transfer | bg-transfer-muted

@@ -35,10 +35,10 @@ Si un estilo se repite 2+ veces, extraer variante CVA o componente de producto e
 
 ## Shell
 
-- Canvas: `bg-background`
-- Rail iconos: `bg-sidebar-rail`
-- Nav: `bg-sidebar` + item activo `bg-sidebar-accent text-sidebar-accent-foreground`
-- Contenido: `bg-card rounded-2xl border-border`
+- Un solo `Sidebar` shadcn (`variant="inset"`, collapsible)
+- Workspace arriba · CTA “Registrar” · nav principal · grupos · footer user
+- Active: `bg-sidebar-accent` (neutro). Sin rail oscuro de iconos
+- Contenido en `SidebarInset` + `ContentPanel`
 
 ## Datos financieros
 

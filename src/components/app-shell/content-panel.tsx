@@ -18,7 +18,7 @@ export function ContentPanel({
   return (
     <section
       className={cn(
-        "flex min-h-0 flex-1 flex-col overflow-hidden rounded-none border-0 bg-card md:rounded-2xl md:border md:border-border md:shadow-sm",
+        "flex min-h-0 flex-1 flex-col overflow-hidden bg-card md:rounded-xl md:border md:border-border md:shadow-sm",
         className
       )}
     >
