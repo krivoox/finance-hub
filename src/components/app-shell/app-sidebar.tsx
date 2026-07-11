@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ChevronsUpDown, Plus, Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -20,15 +20,30 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from "@/components/ui/sidebar";
+import {
+  WorkspaceSwitcher,
+  type WorkspaceOption,
+} from "@/features/workspaces/components/workspace-switcher";
 
 import {
   footerNavItems,
   isNavItemActive,
   mainNavItems,
-  mockWorkspace,
   navGroups,
   type NavItem,
 } from "./nav-config";
+
+export type SidebarUser = {
+  displayName: string;
+  email: string;
+  initials: string;
+};
+
+export type AppSidebarProps = {
+  user: SidebarUser;
+  workspaces: readonly WorkspaceOption[];
+  activeWorkspace: WorkspaceOption | null;
+};
 
 function NavMenuItems({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
@@ -57,32 +72,18 @@ function NavMenuItems({ items }: { items: NavItem[] }) {
   );
 }
 
-export function AppSidebar() {
+export function AppSidebar({
+  user,
+  workspaces,
+  activeWorkspace,
+}: AppSidebarProps) {
   return (
     <Sidebar collapsible="icon" variant="inset">
       <SidebarHeader className="gap-3">
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton
-              size="lg"
-              className="data-active:bg-transparent"
-              tooltip={mockWorkspace.name}
-            >
-              <div className="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary text-xs font-semibold text-sidebar-primary-foreground">
-                {mockWorkspace.initials}
-              </div>
-              <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-semibold text-sidebar-accent-foreground">
-                  {mockWorkspace.name}
-                </span>
-                <span className="truncate text-xs text-muted-foreground">
-                  Finance Hub
-                </span>
-              </div>
-              <ChevronsUpDown className="ml-auto size-4 text-muted-foreground" />
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <WorkspaceSwitcher
+          active={activeWorkspace}
+          workspaces={workspaces}
+        />
 
         <div className="flex items-center gap-2 px-0.5 group-data-[collapsible=icon]:flex-col">
           <Button
@@ -137,15 +138,18 @@ export function AppSidebar() {
 
         <SidebarMenu>
           <SidebarMenuItem>
-            {/* TODO: replace with authenticated user */}
-            <SidebarMenuButton size="lg" tooltip="Ana">
+            <SidebarMenuButton size="lg" tooltip={user.displayName}>
               <Avatar size="sm" className="size-8">
-                <AvatarFallback className="bg-muted text-xs">AN</AvatarFallback>
+                <AvatarFallback className="bg-muted text-xs">
+                  {user.initials}
+                </AvatarFallback>
               </Avatar>
               <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">Ana</span>
+                <span className="truncate font-medium">
+                  {user.displayName}
+                </span>
                 <span className="truncate text-xs text-muted-foreground">
-                  ana@example.com
+                  {user.email}
                 </span>
               </div>
             </SidebarMenuButton>

@@ -1,82 +1,158 @@
+import { redirect } from "next/navigation";
+
 import { ContentPanel } from "@/components/app-shell/content-panel";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { formatMoney } from "@/lib/format-money";
+import { getSession } from "@/lib/session";
+import { getActiveWorkspaceForUser } from "@/features/workspaces/services";
+import { listBudgetsWithStatus } from "@/features/budgets/services";
+import { listCategories } from "@/features/categories/services";
+import { NewBudgetForm } from "@/features/budgets/components/new-budget-form";
+import { BUDGET_PERIOD_LABEL_ES } from "@/features/budgets/components/period-labels";
 
-// TODO: replace with ListBudgets use case — delete inline mock
-const mockBudgets = [
-  {
-    id: "b1",
-    name: "Comida",
-    spentCents: 92_000_00,
-    limitCents: 100_000_00,
-    status: "warning" as const,
-  },
-  {
-    id: "b2",
-    name: "Transporte",
-    spentCents: 28_000_00,
-    limitCents: 50_000_00,
-    status: "ok" as const,
-  },
-  {
-    id: "b3",
-    name: "Ocio",
-    spentCents: 45_000_00,
-    limitCents: 40_000_00,
-    status: "exceeded" as const,
-  },
-];
+function formatDateEs(date: Date): string {
+  return date.toLocaleDateString("es-AR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: "UTC",
+  });
+}
 
-export default function BudgetsPage() {
+export default async function BudgetsPage() {
+  const session = await getSession();
+  if (!session?.user?.id) {
+    redirect("/login");
+  }
+
+  const workspace = await getActiveWorkspaceForUser(session.user.id);
+  if (!workspace) {
+    return (
+      <ContentPanel
+        title="Presupuestos"
+        description="Límites del periodo en curso."
+      >
+        <p className="text-sm text-muted-foreground">
+          Todavía no tenés un workspace. Creá uno para empezar a definir
+          presupuestos.
+        </p>
+      </ContentPanel>
+    );
+  }
+
+  const [budgets, categories] = await Promise.all([
+    listBudgetsWithStatus({
+      userId: session.user.id,
+      workspaceId: workspace.id,
+    }),
+    listCategories({
+      userId: session.user.id,
+      workspaceId: workspace.id,
+    }),
+  ]);
+
+  const expenseCategories = categories.filter((c) => c.kind === "expense");
+  const canMutate = workspace.role !== "viewer";
+
   return (
     <ContentPanel
       title="Presupuestos"
-      description="Límites del mes en curso."
-      actions={<Button>Nuevo presupuesto</Button>}
+      description={`Límites del periodo en curso en ${workspace.name}.`}
     >
-      <ul className="divide-y divide-border">
-        {mockBudgets.map((budget) => {
-          const pct = Math.round((budget.spentCents / budget.limitCents) * 100);
-          return (
-            <li
-              key={budget.id}
-              className="flex flex-col gap-2 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
-            >
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                  <p className="font-medium text-foreground">{budget.name}</p>
-                  {budget.status === "warning" ? (
-                    <Badge variant="warning">Al límite</Badge>
-                  ) : null}
-                  {budget.status === "exceeded" ? (
-                    <Badge variant="expense">Excedido</Badge>
-                  ) : null}
-                </div>
-                <p className="mt-1 text-xs tabular-nums text-muted-foreground">
-                  {formatMoney(budget.spentCents)} de{" "}
-                  {formatMoney(budget.limitCents)}
-                </p>
-                <div className="mt-2 h-1.5 max-w-md overflow-hidden rounded-full bg-muted">
-                  <div
-                    className={
-                      budget.status === "exceeded"
-                        ? "h-full rounded-full bg-expense"
-                        : budget.status === "warning"
-                          ? "h-full rounded-full bg-warning"
-                          : "h-full rounded-full bg-info"
-                    }
-                    style={{ width: `${Math.min(pct, 100)}%` }}
-                  />
-                </div>
-              </div>
-              <p className="text-sm tabular-nums text-muted-foreground">
-                {pct}%
+      <div className="space-y-8">
+        {canMutate ? (
+          <section className="space-y-3">
+            <header>
+              <h2 className="text-sm font-semibold text-foreground">
+                Nuevo presupuesto
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Elegí periodo, límite en {workspace.baseCurrency} y opcionalmente
+                una o más categorías (vacío = todas las de gasto).
               </p>
-            </li>
-          );
-        })}
-      </ul>
+            </header>
+            <NewBudgetForm
+              workspaceId={workspace.id}
+              workspaceCurrency={workspace.baseCurrency}
+              categories={expenseCategories.map((c) => ({
+                id: c.id,
+                name: c.name,
+              }))}
+            />
+          </section>
+        ) : null}
+
+        <section className="space-y-3">
+          <header>
+            <h2 className="text-sm font-semibold text-foreground">
+              Presupuestos activos
+            </h2>
+          </header>
+          {budgets.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              Aún no hay presupuestos en este workspace.
+            </p>
+          ) : (
+            <ul className="divide-y divide-border">
+              {budgets.map((budget) => {
+                const { progress } = budget;
+                const pct =
+                  budget.limitCents > 0
+                    ? Math.round(
+                        (progress.spentCents / budget.limitCents) * 100,
+                      )
+                    : 0;
+                return (
+                  <li
+                    key={budget.id}
+                    className="flex flex-col gap-2 py-4 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-medium text-foreground">
+                          {budget.name}
+                        </p>
+                        <Badge variant="secondary">
+                          {BUDGET_PERIOD_LABEL_ES[budget.period]}
+                        </Badge>
+                        {progress.status === "warning" ? (
+                          <Badge variant="warning">Al límite</Badge>
+                        ) : null}
+                        {progress.status === "exceeded" ? (
+                          <Badge variant="expense">Excedido</Badge>
+                        ) : null}
+                      </div>
+                      <p className="mt-1 text-xs tabular-nums text-muted-foreground">
+                        {formatMoney(progress.spentCents, budget.currency)} de{" "}
+                        {formatMoney(budget.limitCents, budget.currency)} ·
+                        {" "}
+                        {formatDateEs(progress.periodStart)} –
+                        {" "}
+                        {formatDateEs(progress.periodEnd)}
+                      </p>
+                      <div className="mt-2 h-1.5 max-w-md overflow-hidden rounded-full bg-muted">
+                        <div
+                          className={
+                            progress.status === "exceeded"
+                              ? "h-full rounded-full bg-expense"
+                              : progress.status === "warning"
+                                ? "h-full rounded-full bg-warning"
+                                : "h-full rounded-full bg-info"
+                          }
+                          style={{ width: `${Math.min(pct, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                    <p className="text-sm tabular-nums text-muted-foreground">
+                      {pct}%
+                    </p>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+        </section>
+      </div>
     </ContentPanel>
   );
 }

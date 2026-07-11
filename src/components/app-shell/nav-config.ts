@@ -47,12 +47,6 @@ export const footerNavItems: NavItem[] = [
   { title: "Ajustes", href: "/settings", icon: Settings },
 ];
 
-// TODO: replace with active workspace from session
-export const mockWorkspace = {
-  name: "Personal",
-  initials: "FH",
-};
-
 export function isNavItemActive(pathname: string, href: string): boolean {
   const [path] = href.split("?");
   if (pathname === path) return true;

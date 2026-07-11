@@ -9,20 +9,29 @@ import {
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 
-import { AppSidebar } from "./app-sidebar";
+import { AppSidebar, type AppSidebarProps } from "./app-sidebar";
 import { getPageTitle } from "./nav-config";
 
-type AppShellProps = {
+type AppShellProps = AppSidebarProps & {
   children: React.ReactNode;
 };
 
-export function AppShell({ children }: AppShellProps) {
+export function AppShell({
+  children,
+  user,
+  workspaces,
+  activeWorkspace,
+}: AppShellProps) {
   const pathname = usePathname();
   const title = getPageTitle(pathname);
 
   return (
     <SidebarProvider>
-      <AppSidebar />
+      <AppSidebar
+        user={user}
+        workspaces={workspaces}
+        activeWorkspace={activeWorkspace}
+      />
       <SidebarInset className="min-h-svh overflow-hidden md:max-h-svh">
         <header className="flex h-12 shrink-0 items-center gap-2 border-b border-border px-4">
           <SidebarTrigger className="-ml-1" />

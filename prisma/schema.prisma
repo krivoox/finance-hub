@@ -1,0 +1,432 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+  runtime      = "nodejs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================================================
+// Better Auth models
+// ============================================================================
+
+model User {
+  id            String    @id
+  name          String
+  email         String    @unique
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Finance Hub profile extensions
+  displayName        String?
+  preferredCurrency  String  @default("ARS")
+  timezone           String  @default("America/Argentina/Buenos_Aires")
+
+  sessions    Session[]
+  accounts    Account[]
+  memberships Membership[]
+
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  token     String   @unique
+  userId    String
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("verification")
+}
+
+// ============================================================================
+// Finance Hub domain
+// ============================================================================
+
+enum WorkspaceType {
+  personal
+  group
+}
+
+enum MembershipRole {
+  owner
+  admin
+  member
+  viewer
+}
+
+enum InvitationStatus {
+  pending
+  accepted
+  rejected
+  expired
+}
+
+enum CategoryKind {
+  income
+  expense
+}
+
+enum AccountType {
+  checking
+  savings
+  cash
+  credit_card
+  virtual_wallet
+  other
+}
+
+enum TransactionType {
+  income
+  expense
+  transfer
+}
+
+enum GoalKind {
+  save
+  debt_payoff
+}
+
+enum GoalStatus {
+  active
+  completed
+  cancelled
+}
+
+enum BudgetPeriod {
+  monthly
+  weekly
+  custom
+}
+
+enum SplitMethod {
+  equal
+  percentage
+  exact
+}
+
+model Workspace {
+  id           String        @id @default(cuid())
+  name         String
+  type         WorkspaceType
+  baseCurrency String        @default("ARS")
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  memberships     Membership[]
+  invitations     Invitation[]
+  categories      Category[]
+  financeAccounts FinanceAccount[]
+  transactions    Transaction[]
+  budgets         Budget[]
+  goals           Goal[]
+  expenseSplits   ExpenseSplit[]
+  settlements     Settlement[]
+
+  @@map("workspace")
+}
+
+model Membership {
+  id          String         @id @default(cuid())
+  workspaceId String
+  userId      String
+  role        MembershipRole @default(member)
+  joinedAt    DateTime       @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([workspaceId, userId])
+  @@index([userId])
+  @@map("membership")
+}
+
+model Invitation {
+  id              String           @id @default(cuid())
+  workspaceId     String
+  email           String
+  role            MembershipRole   @default(member)
+  token           String           @unique
+  status          InvitationStatus @default(pending)
+  expiresAt       DateTime
+  invitedByUserId String
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId])
+  @@index([email])
+  @@map("invitation")
+}
+
+// SPEC-04 — Categories classify incomes/expenses within a workspace.
+// Uniqueness (workspaceId + kind + lower(name) among non-archived) is enforced
+// by the domain layer (case-insensitive) rather than a DB constraint because
+// Postgres has no built-in case-insensitive unique index without an expression.
+model Category {
+  id          String       @id @default(cuid())
+  workspaceId String
+  name        String
+  kind        CategoryKind
+  parentId    String?
+  isArchived  Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  workspace    Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  parent       Category?        @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Restrict)
+  children     Category[]       @relation("CategoryTree")
+  transactions Transaction[]
+  budgets      BudgetCategory[]
+
+  @@index([workspaceId, kind])
+  @@index([workspaceId, isArchived])
+  @@index([parentId])
+  @@map("category")
+}
+
+// SPEC-03 — Financial accounts (banks, wallets, cash, credit cards). Named
+// `FinanceAccount` at the Prisma layer to avoid clashing with Better Auth's
+// own `Account` model; the app-domain name remains "Account".
+model FinanceAccount {
+  id                  String      @id @default(cuid())
+  workspaceId         String
+  name                String
+  type                AccountType
+  currency            String
+  initialBalanceCents Int         @default(0)
+  creditLimitCents    Int?
+  isArchived          Boolean     @default(false)
+  createdAt           DateTime    @default(now())
+  updatedAt           DateTime    @updatedAt
+
+  workspace              Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  transactions           Transaction[] @relation("TxAccount")
+  incomingTransfers      Transaction[] @relation("TxCounterparty")
+  linkedGoals            Goal[]        @relation("GoalLinkedAccount")
+
+  @@index([workspaceId, isArchived])
+  @@index([workspaceId, type])
+  @@map("finance_account")
+}
+
+// SPEC-05 / SPEC-06 — Ledger movements (income, expense, transfer).
+// `amountCents` is always positive; direction is expressed by `type` and the
+// (accountId, counterpartyAccountId) pair.
+//
+// Transfers have `counterpartyAccountId` set (destination) and `categoryId`
+// null. Income/expense have `categoryId` set and no counterparty.
+model Transaction {
+  id                    String          @id @default(cuid())
+  workspaceId           String
+  type                  TransactionType
+  amountCents           Int
+  currency              String
+  occurredOn            DateTime        @db.Date
+  description           String?
+  categoryId            String?
+  accountId             String
+  counterpartyAccountId String?
+  createdByUserId       String
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  workspace           Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  category            Category?       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  account             FinanceAccount  @relation("TxAccount", fields: [accountId], references: [id], onDelete: Restrict)
+  counterpartyAccount FinanceAccount? @relation("TxCounterparty", fields: [counterpartyAccountId], references: [id], onDelete: Restrict)
+  expenseSplit        ExpenseSplit?
+
+  @@index([workspaceId, occurredOn])
+  @@index([workspaceId, type, occurredOn])
+  @@index([accountId])
+  @@index([counterpartyAccountId])
+  @@index([categoryId])
+  @@map("transaction")
+}
+
+// SPEC-07 — Budgets cap spending on one or more expense categories within a
+// period. `spent` is derived from Transactions and computed at read time.
+//
+// `startDate` anchors the period. For `monthly`/`weekly` budgets the current
+// period is derived from `startDate` and the request date. For `custom`,
+// `endDate` is required and the period is [startDate, endDate] inclusive.
+//
+// `categoryIds` empty (no BudgetCategory rows) means "all expense categories".
+model Budget {
+  id          String       @id @default(cuid())
+  workspaceId String
+  name        String
+  period      BudgetPeriod
+  startDate   DateTime     @db.Date
+  endDate     DateTime?    @db.Date
+  limitCents  Int
+  currency    String
+  isArchived  Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  workspace  Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  categories BudgetCategory[]
+
+  @@index([workspaceId, isArchived])
+  @@map("budget")
+}
+
+// Join table between Budget and Category (many-to-many). No metadata beyond
+// the pair; deleting a budget cascades, deleting a referenced category is
+// restricted because history must survive.
+model BudgetCategory {
+  budgetId   String
+  categoryId String
+
+  budget   Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+
+  @@id([budgetId, categoryId])
+  @@index([categoryId])
+  @@map("budget_category")
+}
+
+// SPEC-08 — Savings and debt-payoff goals with tracked progress.
+//
+// `currentAmountCents` is the sum of contributions and is denormalized on
+// the Goal row for cheap reads and simple auto-complete transitions. In MVP,
+// contributions do NOT auto-create Transactions (see SPEC-08 §4).
+//
+// `linkedAccountId` is optional — an emergency fund goal may link to a
+// savings account, a debt-payoff goal may link to the credit card being paid
+// off. The FinanceAccount relation is `Restrict` on delete so archived goals
+// keep their reference.
+model Goal {
+  id                 String     @id @default(cuid())
+  workspaceId        String
+  name               String
+  kind               GoalKind
+  targetAmountCents  Int
+  currentAmountCents Int        @default(0)
+  currency           String
+  targetDate         DateTime?  @db.Date
+  linkedAccountId    String?
+  status             GoalStatus @default(active)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  workspace     Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  linkedAccount FinanceAccount?    @relation("GoalLinkedAccount", fields: [linkedAccountId], references: [id], onDelete: Restrict)
+  contributions GoalContribution[]
+
+  @@index([workspaceId, status])
+  @@index([linkedAccountId])
+  @@map("goal")
+}
+
+// SPEC-08 — Individual contribution event towards a Goal. `amountCents` is
+// always strictly positive. Rows are immutable in MVP (no updates); a wrong
+// contribution is corrected by adding a compensating one via a P2 command.
+model GoalContribution {
+  id              String   @id @default(cuid())
+  goalId          String
+  amountCents     Int
+  contributedOn   DateTime @db.Date
+  note            String?
+  createdByUserId String
+  createdAt       DateTime @default(now())
+
+  goal Goal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+
+  @@index([goalId, contributedOn])
+  @@map("goal_contribution")
+}
+
+// SPEC-09 / SPEC-10 — Expense split among group workspace members.
+// Cascade-deletes when the linked expense Transaction is deleted.
+model ExpenseSplit {
+  id                    String      @id @default(cuid())
+  workspaceId           String
+  expenseTransactionId  String      @unique
+  paidByUserId          String
+  method                SplitMethod
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
+
+  workspace Workspace           @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  expense   Transaction         @relation(fields: [expenseTransactionId], references: [id], onDelete: Cascade)
+  shares    ExpenseSplitShare[]
+
+  @@index([workspaceId])
+  @@map("expense_split")
+}
+
+model ExpenseSplitShare {
+  id         String @id @default(cuid())
+  splitId    String
+  userId     String
+  shareCents Int
+
+  split ExpenseSplit @relation(fields: [splitId], references: [id], onDelete: Cascade)
+
+  @@unique([splitId, userId])
+  @@index([userId])
+  @@map("expense_split_share")
+}
+
+// SPEC-10 — Settlement between two members reduces net interpersonal debt.
+model Settlement {
+  id              String   @id @default(cuid())
+  workspaceId     String
+  fromUserId      String
+  toUserId        String
+  amountCents     Int
+  occurredOn      DateTime @db.Date
+  note            String?
+  createdByUserId String
+  createdAt       DateTime @default(now())
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, occurredOn])
+  @@map("settlement")
+}

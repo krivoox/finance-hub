@@ -1,50 +1,148 @@
+import { redirect } from "next/navigation";
 import { ContentPanel } from "@/components/app-shell/content-panel";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { formatMoney } from "@/lib/format-money";
+import { getSession } from "@/lib/session";
+import { getActiveWorkspaceForUser } from "@/features/workspaces/services";
+import { getGroupOverview } from "@/features/splits/services";
+import { NotAGroupWorkspaceError } from "@/features/splits/domain";
+import { NewSettlementForm } from "@/features/splits/components/new-settlement-form";
+import { NewGroupWorkspaceForm } from "@/features/workspaces/components/new-group-workspace-form";
 
-// TODO: replace with ListFinancialGroups / member balances — delete inline mock
-const mockGroup = {
-  name: "Hogar",
-  members: [
-    { id: "m1", name: "Ana", balanceCents: 12_500_00 },
-    { id: "m2", name: "Luis", balanceCents: -12_500_00 },
-  ],
-};
+export default async function GroupsPage() {
+  const session = await getSession();
+  if (!session?.user?.id) redirect("/login");
 
-export default function GroupsPage() {
+  const active = await getActiveWorkspaceForUser(session.user.id);
+  if (!active) {
+    return (
+      <ContentPanel title="Grupos" description="Gastos compartidos y balances.">
+        <p className="text-sm text-muted-foreground">
+          No hay workspace activo.
+        </p>
+      </ContentPanel>
+    );
+  }
+
+  if (active.type !== "group") {
+    return (
+      <ContentPanel
+        title="Grupos"
+        description="Los balances entre miembros solo aplican a workspaces grupales."
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            El workspace activo &ldquo;{active.name}&rdquo; es personal. Creá un
+            grupo o cambiá al workspace grupal desde el selector.
+          </p>
+          <NewGroupWorkspaceForm />
+        </div>
+      </ContentPanel>
+    );
+  }
+
+  let overview;
+  try {
+    overview = await getGroupOverview({
+      userId: session.user.id,
+      workspaceId: active.id,
+    });
+  } catch (err) {
+    if (err instanceof NotAGroupWorkspaceError) {
+      return (
+        <ContentPanel title="Grupos" description="Gastos compartidos.">
+          <p className="text-sm text-muted-foreground">{err.message}</p>
+        </ContentPanel>
+      );
+    }
+    throw err;
+  }
+
   return (
     <ContentPanel
       title="Grupos"
-      description="Gastos compartidos y balances entre miembros."
-      actions={<Button>Invitar</Button>}
+      description="Patrimonio consolidado y quién debe a quién."
     >
-      <div className="mb-6">
+      <div className="mb-8 space-y-1">
         <h2 className="text-lg font-semibold tracking-tight text-foreground">
-          {mockGroup.name}
+          {overview.name}
         </h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Quién debe a quién en el grupo activo.
+        <p className="text-sm text-muted-foreground">
+          Patrimonio neto:{" "}
+          <span className="font-medium tabular-nums text-foreground">
+            {formatMoney(overview.totalBalance.amountCents, overview.currency)}
+          </span>
         </p>
       </div>
 
-      <ul className="divide-y divide-border">
-        {mockGroup.members.map((member) => (
-          <li
-            key={member.id}
-            className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
-          >
-            <p className="font-medium text-foreground">{member.name}</p>
-            <Badge
-              variant={member.balanceCents >= 0 ? "income" : "expense"}
-              className="tabular-nums"
-            >
-              {member.balanceCents >= 0 ? "Le deben " : "Debe "}
-              {formatMoney(Math.abs(member.balanceCents))}
-            </Badge>
-          </li>
-        ))}
-      </ul>
+      <section className="mb-8">
+        <h3 className="mb-3 text-sm font-medium text-foreground">
+          Balances entre miembros
+        </h3>
+        {overview.memberBalances.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Sin miembros.</p>
+        ) : (
+          <ul className="divide-y divide-border">
+            {overview.memberBalances.map((member) => (
+              <li
+                key={member.userId}
+                className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+              >
+                <p className="font-medium text-foreground">
+                  {member.displayName}
+                </p>
+                <Badge
+                  variant={member.netCents >= 0 ? "income" : "expense"}
+                  className="tabular-nums"
+                >
+                  {member.netCents >= 0 ? "Le deben " : "Debe "}
+                  {formatMoney(Math.abs(member.netCents), overview.currency)}
+                </Badge>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {active.role !== "viewer" ? (
+        <div className="mb-8">
+          <NewSettlementForm
+            workspaceId={active.id}
+            members={overview.members.map((m) => ({
+              userId: m.userId,
+              displayName: m.displayName,
+            }))}
+          />
+        </div>
+      ) : null}
+
+      <section>
+        <h3 className="mb-3 text-sm font-medium text-foreground">
+          Actividad reciente
+        </h3>
+        {overview.recentActivity.length === 0 ? (
+          <p className="text-sm text-muted-foreground">Sin movimientos aún.</p>
+        ) : (
+          <ul className="divide-y divide-border">
+            {overview.recentActivity.map((tx) => (
+              <li
+                key={tx.id}
+                className="flex items-center justify-between gap-3 py-3 text-sm first:pt-0 last:pb-0"
+              >
+                <div>
+                  <p className="font-medium text-foreground">
+                    {tx.description || tx.categoryName || tx.type}
+                  </p>
+                  <p className="text-muted-foreground">{tx.accountName}</p>
+                </div>
+                <span className="tabular-nums text-foreground">
+                  {formatMoney(tx.amountCents, tx.currency)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </ContentPanel>
   );
 }
