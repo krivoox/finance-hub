@@ -45,7 +45,11 @@ El Workspace es la unidad de tenancy (ADR-002). Agrupa cuentas, movimientos y, s
 - `member`: crear/editar transacciones propias según políticas de grupo; no gestionar miembros.
 - `admin`: gestionar miembros excepto transferir ownership.
 - `owner`: control total.
-- Invitación expira (ej. 7 días).
+- Invitación expira en **7 días**.
+- Canal MVP: **link copiable** en UI (+ log en consola en desarrollo). Sin SMTP obligatorio.
+- Al **registrarse** con un email que tiene invitaciones `pending` vigentes: se crea el workspace personal **y** se aceptan automáticamente esas invitaciones (memberships).
+- `AcceptInvitation` es **idempotente** si la invitación ya fue aceptada y el usuario ya es miembro.
+- Roles invitables: `admin` | `member` | `viewer` (nunca `owner` por invitación).
 
 ## 6. Comandos y consultas
 
@@ -53,19 +57,24 @@ El Workspace es la unidad de tenancy (ADR-002). Agrupa cuentas, movimientos y, s
 |------|--------|-------|--------|
 | Command | `CreateGroupWorkspace` | name, baseCurrency | Workspace |
 | Command | `RenameWorkspace` | workspaceId, name | Workspace |
-| Command | `InviteMember` | workspaceId, email, role | Invitation |
-| Command | `AcceptInvitation` | token | Membership |
+| Command | `InviteMember` | workspaceId, email, role | Invitation (+ inviteUrl) |
+| Command | `AcceptInvitation` | token | Membership / workspaceId |
 | Command | `ChangeMemberRole` | workspaceId, userId, role | Membership |
 | Command | `RemoveMember` | workspaceId, userId | void |
 | Command | `TransferOwnership` | workspaceId, newOwnerUserId | void |
 | Query | `ListMyWorkspaces` | — | Workspace[] |
 | Query | `ListMembers` | workspaceId | Membership[] |
+| Query | `GetInvitationByToken` | token | InvitationPreview \| null |
+| Query | `ListPendingInvitations` | workspaceId | Invitation[] |
 
 ## 7. Criterios de aceptación
 
-- [ ] No se puede dejar un workspace sin owner.
-- [ ] Invitación a email ya miembro → error idempotente claro.
-- [ ] Viewer no puede mutar (verificado en application layer).
+- [x] No se puede dejar un workspace sin owner.
+- [x] Invitación a email ya miembro → error idempotente claro.
+- [x] Viewer no puede mutar (verificado en application layer).
+- [x] UI en `/groups`: owner/admin invita, copia link, ve pending.
+- [x] Página pública `/invitaciones/[token]` para registro/login/aceptar.
+- [x] Registro desde invitación → workspace personal + membership en el grupo + workspace activo del grupo.
 
 ## 8. Escenarios de test (TDD)
 
@@ -99,11 +108,21 @@ El Workspace es la unidad de tenancy (ADR-002). Agrupa cuentas, movimientos y, s
 - **When** accept  
 - **Then** membership creada; invitación consumida
 
+### T-06 Auto-accept al registro
+
+- **Given** invitación pending para `a@b.com`  
+- **When** `RegisterUser` con ese email  
+- **Then** workspace personal + membership en el workspace invitado
+
 ## 9. Fuera de alcance
 
 - Facturación por workspace
 - Workspaces plantilla / clone
+- Envío de email transaccional (SMTP / Resend) — P2
+- UI completa de reject invitation
 
 ## 10. Notas
 
 Toda spec posterior asume `workspaceId` + authz por membership.
+
+Guía de producto: [workspaces-and-invites.md](../guides/workspaces-and-invites.md).

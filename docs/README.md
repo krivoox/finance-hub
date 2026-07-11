@@ -20,6 +20,7 @@
 | [tdd-workflow.md](./tdd-workflow.md) | Cómo aplicar TDD en este repo |
 | [roadmap.md](./roadmap.md) | Orden de implementación sugerido |
 | [glossary.md](./glossary.md) | Glosario de términos de negocio |
+| [guides/workspaces-and-invites.md](./guides/workspaces-and-invites.md) | Workspaces, roles e invitaciones (producto) |
 | [DESIGN.md](../DESIGN.md) | Design system UI/UX (tokens, shell Dub-like, variantes) |
 
 ## Specs (Spec-Driven Development)

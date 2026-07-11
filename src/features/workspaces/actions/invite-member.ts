@@ -6,12 +6,18 @@ import {
   inviteMemberSchema,
   type InviteMemberInput,
 } from "@/features/workspaces/schemas";
-import { inviteMember } from "@/features/workspaces/services";
+import {
+  buildInviteUrl,
+  inviteMember,
+} from "@/features/workspaces/services";
+import { env } from "@/lib/env";
 import { domainErrorToMessage, type ActionResult } from "./errors";
 
 export async function inviteMemberAction(
   input: InviteMemberInput,
-): Promise<ActionResult<{ invitationId: string; token: string }>> {
+): Promise<
+  ActionResult<{ invitationId: string; token: string; inviteUrl: string }>
+> {
   const session = await getSession();
   if (!session?.user?.id) return { ok: false, error: "No autenticado" };
 
@@ -30,10 +36,24 @@ export async function inviteMemberAction(
       email: parsed.data.email,
       role: parsed.data.role,
     });
+    const inviteUrl = buildInviteUrl(invitation.token);
+    if (env.NODE_ENV !== "production") {
+      console.info(
+        `[workspaces] Invitation for ${invitation.email}\n` +
+          `  role:  ${invitation.role}\n` +
+          `  token: ${invitation.token}\n` +
+          `  url:   ${inviteUrl}`,
+      );
+    }
+    revalidatePath("/groups");
     revalidatePath("/", "layout");
     return {
       ok: true,
-      data: { invitationId: invitation.id, token: invitation.token },
+      data: {
+        invitationId: invitation.id,
+        token: invitation.token,
+        inviteUrl,
+      },
     };
   } catch (err) {
     return { ok: false, error: domainErrorToMessage(err) };

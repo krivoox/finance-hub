@@ -61,6 +61,30 @@ Contenedor de datos financieros. Puede ser personal (1 miembro) o grupal (N miem
 - Debe existir al menos un `owner` por Workspace.
 - `viewer` solo lectura.
 
+### Invitation
+
+Invitación a un workspace (típicamente `group`) por email.
+
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| id | Id | |
+| workspaceId | Id | |
+| email | Email | normalizado lowercase |
+| role | `admin` \| `member` \| `viewer` | nunca `owner` |
+| token | string | único, URL-safe |
+| status | `pending` \| `accepted` \| `rejected` \| `expired` | |
+| expiresAt | DateTime | TTL 7 días |
+| invitedByUserId | Id | |
+| createdAt | DateTime | |
+
+**Invariantes**
+
+- Solo owner/admin crean invitaciones.
+- Email ya miembro → error.
+- Pending no expirada duplicada para el mismo email+workspace → error.
+- Al aceptar: membership con el rol de la invitación; status → `accepted`.
+- Al registrarse un User cuyo email tiene pending vigentes: se aceptan automáticamente tras crear el workspace personal.
+
 ### Account
 
 Cuenta financiera (banco, billetera, efectivo, tarjeta de crédito, etc.).

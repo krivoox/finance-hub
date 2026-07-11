@@ -182,6 +182,23 @@ export async function acceptInvitation({
   });
   if (!invitation) throw new InvitationNotFoundError();
 
+  // Idempotent: already accepted and user is a member → success.
+  if (invitation.status === "accepted") {
+    const membership = await prisma.membership.findUnique({
+      where: {
+        workspaceId_userId: {
+          workspaceId: invitation.workspaceId,
+          userId: user.id,
+        },
+      },
+      select: { id: true },
+    });
+    if (membership) {
+      return { workspaceId: invitation.workspaceId };
+    }
+    throw new InvitationExpiredError();
+  }
+
   if (invitation.status !== "pending") {
     throw new InvitationExpiredError();
   }
@@ -220,4 +237,171 @@ export async function acceptInvitation({
   });
 
   return { workspaceId: invitation.workspaceId };
+}
+
+// ---------------------------------------------------------------------------
+// Public preview by token (no session).
+// ---------------------------------------------------------------------------
+
+export type InvitationPreview = {
+  token: string;
+  email: string;
+  role: MembershipRole;
+  status: InvitationRecord["status"];
+  expiresAt: Date;
+  workspace: {
+    id: string;
+    name: string;
+    type: "personal" | "group";
+  };
+  isExpired: boolean;
+};
+
+export async function getInvitationByToken(
+  token: string,
+): Promise<InvitationPreview | null> {
+  const invitation = await prisma.invitation.findUnique({
+    where: { token },
+    select: {
+      email: true,
+      role: true,
+      status: true,
+      expiresAt: true,
+      token: true,
+      workspace: {
+        select: { id: true, name: true, type: true },
+      },
+    },
+  });
+  if (!invitation) return null;
+
+  const expired =
+    invitation.status === "pending" &&
+    isInvitationExpired({ expiresAt: invitation.expiresAt }, new Date());
+
+  return {
+    token: invitation.token,
+    email: invitation.email,
+    role: invitation.role as MembershipRole,
+    status: expired
+      ? "expired"
+      : (invitation.status as InvitationRecord["status"]),
+    expiresAt: invitation.expiresAt,
+    workspace: {
+      id: invitation.workspace.id,
+      name: invitation.workspace.name,
+      type: invitation.workspace.type as "personal" | "group",
+    },
+    isExpired: expired || invitation.status === "expired",
+  };
+}
+
+// ---------------------------------------------------------------------------
+// List pending invitations (owner/admin UI).
+// ---------------------------------------------------------------------------
+
+export type PendingInvitation = {
+  id: string;
+  email: string;
+  role: MembershipRole;
+  token: string;
+  expiresAt: Date;
+  createdAt: Date;
+};
+
+export async function listPendingInvitations(
+  callerUserId: string,
+  workspaceId: string,
+): Promise<PendingInvitation[]> {
+  const { role: callerRole } = await requireMembership(
+    callerUserId,
+    workspaceId,
+  );
+  assertCanMutateMembers(callerRole);
+
+  const now = new Date();
+  const rows = await prisma.invitation.findMany({
+    where: {
+      workspaceId,
+      status: "pending",
+      expiresAt: { gt: now },
+    },
+    orderBy: { createdAt: "desc" },
+    select: {
+      id: true,
+      email: true,
+      role: true,
+      token: true,
+      expiresAt: true,
+      createdAt: true,
+    },
+  });
+
+  return rows.map((r) => ({
+    id: r.id,
+    email: r.email,
+    role: r.role as MembershipRole,
+    token: r.token,
+    expiresAt: r.expiresAt,
+    createdAt: r.createdAt,
+  }));
+}
+
+/**
+ * After registration: accept every pending, non-expired invitation for this
+ * email. Returns the last accepted group workspaceId (prefer group over
+ * personal) for optional active-workspace switching.
+ */
+export async function acceptPendingInvitationsForEmail({
+  userId,
+  email,
+}: {
+  userId: string;
+  email: string;
+}): Promise<{ acceptedWorkspaceIds: string[] }> {
+  const normalizedEmail = email.trim().toLowerCase();
+  const now = new Date();
+
+  const pending = await prisma.invitation.findMany({
+    where: {
+      email: normalizedEmail,
+      status: "pending",
+      expiresAt: { gt: now },
+    },
+    select: {
+      id: true,
+      workspaceId: true,
+      role: true,
+    },
+  });
+
+  if (pending.length === 0) return { acceptedWorkspaceIds: [] };
+
+  const acceptedWorkspaceIds: string[] = [];
+
+  await prisma.$transaction(async (tx) => {
+    for (const invitation of pending) {
+      await tx.membership.upsert({
+        where: {
+          workspaceId_userId: {
+            workspaceId: invitation.workspaceId,
+            userId,
+          },
+        },
+        update: {},
+        create: {
+          workspaceId: invitation.workspaceId,
+          userId,
+          role: invitation.role,
+        },
+      });
+      await tx.invitation.update({
+        where: { id: invitation.id },
+        data: { status: "accepted" },
+      });
+      acceptedWorkspaceIds.push(invitation.workspaceId);
+    }
+  });
+
+  return { acceptedWorkspaceIds };
 }

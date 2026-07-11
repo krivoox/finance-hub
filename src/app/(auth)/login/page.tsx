@@ -5,14 +5,18 @@ export const metadata = {
   title: "Iniciar sesión · Finance Hub",
 };
 
-type SearchParams = { callbackUrl?: string };
+type SearchParams = {
+  callbackUrl?: string;
+  invite?: string;
+  email?: string;
+};
 
 export default async function LoginPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const { callbackUrl } = await searchParams;
+  const { callbackUrl, invite, email } = await searchParams;
 
   return (
     <div className="space-y-6">
@@ -21,11 +25,17 @@ export default async function LoginPage({
           Iniciá sesión
         </h1>
         <p className="text-xs text-muted-foreground">
-          Accedé con tu cuenta de Finance Hub.
+          {invite
+            ? "Después de iniciar sesión te unís al workspace invitado."
+            : "Accedé con tu cuenta de Finance Hub."}
         </p>
       </div>
 
-      <LoginForm callbackUrl={callbackUrl} />
+      <LoginForm
+        callbackUrl={callbackUrl}
+        inviteToken={invite}
+        prefillEmail={email}
+      />
 
       <div className="space-y-2 text-center text-xs text-muted-foreground">
         <p>
@@ -39,7 +49,11 @@ export default async function LoginPage({
         <p>
           ¿No tenés cuenta?{" "}
           <Link
-            href="/registro"
+            href={
+              invite
+                ? `/registro?invite=${encodeURIComponent(invite)}${email ? `&email=${encodeURIComponent(email)}` : ""}`
+                : "/registro"
+            }
             className="font-medium text-foreground underline-offset-4 hover:underline"
           >
             Registrate

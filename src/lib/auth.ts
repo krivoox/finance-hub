@@ -4,6 +4,7 @@ import { nextCookies } from "better-auth/next-js";
 import { prisma } from "@/lib/prisma";
 import { env } from "@/lib/env";
 import { createPersonalWorkspaceForUser } from "@/features/workspaces/services/create-personal-workspace";
+import { acceptPendingInvitationsForEmail } from "@/features/workspaces/services/invitations";
 
 export const auth = betterAuth({
   appName: "Finance Hub",
@@ -69,6 +70,12 @@ export const auth = betterAuth({
           await createPersonalWorkspaceForUser({
             userId: user.id,
             userName: user.name ?? user.email,
+          });
+          // SPEC-02: join every pending group invite for this email
+          // (personal workspace already exists from the call above).
+          await acceptPendingInvitationsForEmail({
+            userId: user.id,
+            email: user.email,
           });
         },
       },

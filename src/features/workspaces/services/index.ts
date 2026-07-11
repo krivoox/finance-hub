@@ -42,10 +42,23 @@ export {
   InvitationAlreadyPendingError,
   MemberAlreadyExistsError,
   acceptInvitation,
+  acceptPendingInvitationsForEmail,
+  getInvitationByToken,
   inviteMember,
+  listPendingInvitations,
 } from "./invitations";
 export type {
   AcceptInvitationServiceInput,
+  InvitationPreview,
   InvitationRecord,
   InviteMemberServiceInput,
+  PendingInvitation,
 } from "./invitations";
+
+export {
+  INVITE_TOKEN_COOKIE,
+  buildInviteUrl,
+  clearInviteTokenCookie,
+  getInviteTokenCookie,
+  setInviteTokenCookie,
+} from "./invite-cookie";

@@ -7,10 +7,19 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { signIn } from "@/lib/auth-client";
 import { loginSchema, type LoginInput } from "@/features/auth/schemas";
+import { acceptInvitationAction } from "@/features/workspaces/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
-export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
+export function LoginForm({
+  callbackUrl,
+  inviteToken,
+  prefillEmail,
+}: {
+  callbackUrl?: string;
+  inviteToken?: string;
+  prefillEmail?: string;
+}) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const {
@@ -19,7 +28,7 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
     formState: { errors },
   } = useForm<LoginInput>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "" },
+    defaultValues: { email: prefillEmail ?? "", password: "" },
   });
 
   const onSubmit = async (values: LoginInput) => {
@@ -29,12 +38,25 @@ export function LoginForm({ callbackUrl }: { callbackUrl?: string }) {
       password: values.password,
       callbackURL: callbackUrl ?? "/dashboard",
     });
-    setIsSubmitting(false);
 
     if (error) {
+      setIsSubmitting(false);
       toast.error("No se pudo iniciar sesión. Revisá email y contraseña.");
       return;
     }
+
+    if (inviteToken) {
+      const accepted = await acceptInvitationAction({ token: inviteToken });
+      if (!accepted.ok) {
+        toast.message("Sesión iniciada", {
+          description: accepted.error,
+        });
+      } else {
+        toast.success("Te uniste al workspace");
+      }
+    }
+
+    setIsSubmitting(false);
     router.push(callbackUrl ?? "/dashboard");
     router.refresh();
   };

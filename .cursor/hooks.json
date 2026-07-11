@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "hooks": {
+    "afterFileEdit": [
+      {
+        "command": ".cursor/hooks/noop.sh"
+      }
+    ],
+    "stop": [
+      {
+        "command": ".cursor/hooks/sync-docs-on-stop.sh",
+        "timeout": 30,
+        "loop_limit": 1
+      }
+    ]
+  }
+}

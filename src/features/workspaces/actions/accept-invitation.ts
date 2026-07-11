@@ -6,7 +6,11 @@ import {
   acceptInvitationSchema,
   type AcceptInvitationInput,
 } from "@/features/workspaces/schemas";
-import { acceptInvitation } from "@/features/workspaces/services";
+import {
+  acceptInvitation,
+  clearInviteTokenCookie,
+  setActiveWorkspaceCookie,
+} from "@/features/workspaces/services";
 import { domainErrorToMessage, type ActionResult } from "./errors";
 
 export async function acceptInvitationAction(
@@ -28,7 +32,11 @@ export async function acceptInvitationAction(
       userId: session.user.id,
       token: parsed.data.token,
     });
+    await setActiveWorkspaceCookie(result.workspaceId);
+    await clearInviteTokenCookie();
     revalidatePath("/", "layout");
+    revalidatePath("/groups");
+    revalidatePath("/dashboard");
     return { ok: true, data: result };
   } catch (err) {
     return { ok: false, error: domainErrorToMessage(err) };
