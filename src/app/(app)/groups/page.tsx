@@ -2,22 +2,15 @@ import { redirect } from "next/navigation";
 import { ContentPanel } from "@/components/app-shell/content-panel";
 import { Badge } from "@/components/ui/badge";
 import { formatMoney } from "@/lib/format-money";
-import { env } from "@/lib/env";
 import { getSession } from "@/lib/session";
-import {
-  getActiveWorkspaceForUser,
-  listMembers,
-  listPendingInvitations,
-} from "@/features/workspaces/services";
+import { getActiveWorkspaceForUser } from "@/features/workspaces/services";
 import { getGroupOverview } from "@/features/splits/services";
 import { NotAGroupWorkspaceError } from "@/features/splits/domain";
 import { NewSettlementForm } from "@/features/splits/components/new-settlement-form";
+import { GroupsSectionNav } from "@/features/splits/components/groups-section-nav";
 import { NewGroupWorkspaceForm } from "@/features/workspaces/components/new-group-workspace-form";
-import { InviteMemberForm } from "@/features/workspaces/components/invite-member-form";
-import { MembersList } from "@/features/workspaces/components/members-list";
-import { PendingInvitationsList } from "@/features/workspaces/components/pending-invitations-list";
 
-export default async function GroupsPage() {
+export default async function GroupsActivityPage() {
   const session = await getSession();
   if (!session?.user?.id) redirect("/login");
 
@@ -49,22 +42,13 @@ export default async function GroupsPage() {
     );
   }
 
-  const canManageMembers =
-    active.role === "owner" || active.role === "admin";
-
-  const [overviewResult, members, pending] = await Promise.all([
-    getGroupOverview({
-      userId: session.user.id,
-      workspaceId: active.id,
-    }).catch((err: unknown) => {
-      if (err instanceof NotAGroupWorkspaceError) return null;
-      throw err;
-    }),
-    listMembers(session.user.id, active.id),
-    canManageMembers
-      ? listPendingInvitations(session.user.id, active.id)
-      : Promise.resolve([]),
-  ]);
+  const overviewResult = await getGroupOverview({
+    userId: session.user.id,
+    workspaceId: active.id,
+  }).catch((err: unknown) => {
+    if (err instanceof NotAGroupWorkspaceError) return null;
+    throw err;
+  });
 
   if (!overviewResult) {
     return (
@@ -81,8 +65,10 @@ export default async function GroupsPage() {
   return (
     <ContentPanel
       title="Grupos"
-      description="Patrimonio consolidado, miembros e invitaciones."
+      description="Balances entre miembros, liquidaciones y actividad compartida."
     >
+      <GroupsSectionNav active="activity" />
+
       <div className="mb-8 space-y-1">
         <h2 className="text-lg font-semibold tracking-tight text-foreground">
           {overview.name}
@@ -94,32 +80,6 @@ export default async function GroupsPage() {
           </span>
         </p>
       </div>
-
-      <section className="mb-8">
-        <h3 className="mb-3 text-sm font-medium text-foreground">Miembros</h3>
-        <MembersList members={members} />
-      </section>
-
-      {canManageMembers ? (
-        <section className="mb-8 space-y-6">
-          <InviteMemberForm workspaceId={active.id} />
-          <div>
-            <h3 className="mb-3 text-sm font-medium text-foreground">
-              Invitaciones pendientes
-            </h3>
-            <PendingInvitationsList
-              appBaseUrl={env.BETTER_AUTH_URL}
-              invitations={pending.map((p) => ({
-                id: p.id,
-                email: p.email,
-                role: p.role,
-                token: p.token,
-                expiresOn: p.expiresAt.toISOString().slice(0, 10),
-              }))}
-            />
-          </div>
-        </section>
-      ) : null}
 
       <section className="mb-8">
         <h3 className="mb-3 text-sm font-medium text-foreground">
@@ -179,7 +139,11 @@ export default async function GroupsPage() {
                   <p className="font-medium text-foreground">
                     {tx.description || tx.categoryName || tx.type}
                   </p>
-                  <p className="text-muted-foreground">{tx.accountName}</p>
+                  <p className="text-muted-foreground">
+                    {tx.accountName}
+                    <span className="text-border"> · </span>
+                    Registró {tx.createdByDisplayName}
+                  </p>
                 </div>
                 <span className="tabular-nums text-foreground">
                   {formatMoney(tx.amountCents, tx.currency)}

@@ -12,7 +12,10 @@ import {
 } from "@/components/ui/table";
 import { formatSignedMoney } from "@/lib/format-money";
 import { getSession } from "@/lib/session";
-import { getActiveWorkspaceForUser } from "@/features/workspaces/services";
+import {
+  getActiveWorkspaceForUser,
+  listMembers,
+} from "@/features/workspaces/services";
 import { listAccounts } from "@/features/accounts/services";
 import { listCategories } from "@/features/categories/services";
 import { listTransactions } from "@/features/transactions/services";
@@ -62,7 +65,7 @@ export default async function TransactionsPage() {
     );
   }
 
-  const [accounts, categories, txPage] = await Promise.all([
+  const [accounts, categories, txPage, members] = await Promise.all([
     listAccounts({ userId: session.user.id, workspaceId: workspace.id }),
     listCategories({ userId: session.user.id, workspaceId: workspace.id }),
     listTransactions({
@@ -70,10 +73,21 @@ export default async function TransactionsPage() {
       workspaceId: workspace.id,
       limit: 50,
     }),
+    workspace.type === "group"
+      ? listMembers(session.user.id, workspace.id)
+      : Promise.resolve([]),
   ]);
 
   const canMutate = workspace.role !== "viewer";
   const activeAccounts = accounts.filter((a) => !a.isArchived);
+  const groupMembers =
+    workspace.type === "group"
+      ? members.map((m) => ({
+          userId: m.userId,
+          displayName:
+            m.user.displayName?.trim() || m.user.name || m.user.email,
+        }))
+      : [];
 
   return (
     <ContentPanel
@@ -112,6 +126,8 @@ export default async function TransactionsPage() {
                     name: c.name,
                     kind: c.kind,
                   }))}
+                groupMembers={groupMembers}
+                currentUserId={session.user.id}
               />
             )}
           </section>
@@ -134,6 +150,7 @@ export default async function TransactionsPage() {
                   <TableHead>Descripción</TableHead>
                   <TableHead>Cuenta</TableHead>
                   <TableHead>Categoría</TableHead>
+                  <TableHead>Registró</TableHead>
                   <TableHead>Fecha</TableHead>
                   <TableHead className="text-right">Monto</TableHead>
                 </TableRow>
@@ -163,6 +180,9 @@ export default async function TransactionsPage() {
                       </TableCell>
                       <TableCell className="text-muted-foreground">
                         {categoryLabel}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {tx.createdByDisplayName}
                       </TableCell>
                       <TableCell className="tabular-nums text-muted-foreground">
                         {formatOccurredOn(tx.occurredOn)}

@@ -22,7 +22,7 @@ Permite repartir un expense entre miembros del workspace grupal y saldar deudas 
 
 | ID | Requisito |
 |----|-----------|
-| FR-01 | Crear split ligado a un expense existente o al crear expense |
+| FR-01 | Crear split ligado a un expense existente o al crear expense (`CreateExpenseWithSplit`) |
 | FR-02 | Métodos: `equal`, `percentage`, `exact` |
 | FR-03 | Validar Σ shares = amount total |
 | FR-04 | `equal`: dividir centavos; resto +1 a los primeros N miembros (orden estable por userId) |

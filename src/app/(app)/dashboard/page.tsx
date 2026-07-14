@@ -267,6 +267,7 @@ export default async function DashboardPage() {
                 <TableRow>
                   <TableHead>Descripción</TableHead>
                   <TableHead>Cuenta</TableHead>
+                  <TableHead>Registró</TableHead>
                   <TableHead>Fecha</TableHead>
                   <TableHead className="text-right">Monto</TableHead>
                 </TableRow>
@@ -286,6 +287,9 @@ export default async function DashboardPage() {
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {formatAccountCell(tx)}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {tx.createdByDisplayName}
                     </TableCell>
                     <TableCell className="tabular-nums text-muted-foreground">
                       {formatOccurredOn(tx.occurredOn)}
