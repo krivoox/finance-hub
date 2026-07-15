@@ -28,6 +28,12 @@ export async function getAnalytics(input: {
   timezone: string;
   now?: Date;
   months?: number;
+  /**
+   * Optional when the caller already loaded budgets (e.g. getDashboard).
+   * Avoids a redundant listBudgetsWithStatus when the request snapshot is
+   * not shared (different includeArchived / cold path).
+   */
+  budgetsExceededCount?: number;
 }): Promise<GetAnalyticsResult> {
   await requireMembership(input.userId, input.workspaceId);
 
@@ -52,6 +58,8 @@ export async function getAnalytics(input: {
     ),
   );
 
+  const needsBudgetCount = input.budgetsExceededCount === undefined;
+
   const [txRows, budgets] = await Promise.all([
     prisma.transaction.findMany({
       where: {
@@ -67,11 +75,13 @@ export async function getAnalytics(input: {
         category: { select: { name: true } },
       },
     }),
-    listBudgetsWithStatus({
-      userId: input.userId,
-      workspaceId: input.workspaceId,
-      referenceDate: now,
-    }),
+    needsBudgetCount
+      ? listBudgetsWithStatus({
+          userId: input.userId,
+          workspaceId: input.workspaceId,
+          referenceDate: now,
+        })
+      : Promise.resolve(null),
   ]);
 
   const all: AnalyticsTransaction[] = txRows.map((r) => ({
@@ -92,9 +102,10 @@ export async function getAnalytics(input: {
 
   const spendingByCategory = aggregateSpendingByCategory(currentTxs);
   const previousSpending = aggregateSpendingByCategory(previousTxs);
-  const budgetsExceededCount = budgets.filter(
-    (b) => !b.isArchived && b.progress.status === "exceeded",
-  ).length;
+  const budgetsExceededCount =
+    input.budgetsExceededCount ??
+    budgets!.filter((b) => !b.isArchived && b.progress.status === "exceeded")
+      .length;
 
   return {
     spendingByCategory,

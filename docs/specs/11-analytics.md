@@ -79,3 +79,9 @@ Herramientas de análisis para comprender hábitos de consumo, oportunidades de 
 - ML / predicción
 - Export CSV (P2+ separado)
 - Benchmarks externos
+
+## 9. Notas de implementación
+
+- La pantalla `/dashboard` orquesta `GetDashboard` + analytics (`getAnalytics`) en paralelo con el mismo `now`.
+- `getAnalytics` puede recibir `budgetsExceededCount` cuando el caller ya tiene el conteo (p. ej. desde budgets at risk del dashboard); si no, reutiliza `ListBudgetsWithProgress` (snapshot request-cached compartido con el dashboard).
+- El insight `budgetsExceededCount` sigue siendo reglas puras sobre ese conteo (TDD en domain).

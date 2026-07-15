@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 
@@ -16,24 +17,28 @@ export type CurrentUserProfile = {
 /**
  * Returns the currently authenticated user's profile, or `null` if
  * there is no active session (SPEC-01 GetCurrentUser).
+ *
+ * Cached per RSC request so layout + page share one user lookup.
  */
-export async function getCurrentUser(): Promise<CurrentUserProfile | null> {
-  const session = await getSession();
-  if (!session?.user?.id) return null;
+export const getCurrentUser = cache(
+  async (): Promise<CurrentUserProfile | null> => {
+    const session = await getSession();
+    if (!session?.user?.id) return null;
 
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: {
-      id: true,
-      email: true,
-      name: true,
-      displayName: true,
-      preferredCurrency: true,
-      timezone: true,
-      emailVerified: true,
-      image: true,
-    },
-  });
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        displayName: true,
+        preferredCurrency: true,
+        timezone: true,
+        emailVerified: true,
+        image: true,
+      },
+    });
 
-  return user;
-}
+    return user;
+  },
+);

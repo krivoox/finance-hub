@@ -70,10 +70,14 @@ DIRECT_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres
 
 BETTER_AUTH_SECRET=
 BETTER_AUTH_URL=http://localhost:3000
+
+# Opcional (solo desarrollo): loguear cada statement SQL de Prisma
+# PRISMA_LOG_QUERIES=0
 ```
 
 - Secret: `openssl rand -base64 32` → `BETTER_AUTH_SECRET`
 - Producción: `DATABASE_URL` → pooler (`:6543`, `?pgbouncer=true`); `DIRECT_URL` → sesión directa para migraciones
+- `PRISMA_LOG_QUERIES`: `1` / `true` imprime `prisma:query` en desarrollo; por defecto off (Zod en `src/lib/env.ts`). No afecta producción (solo `error`).
 
 ## Scripts esperados (`package.json`)
 

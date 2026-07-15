@@ -165,6 +165,27 @@ export default async function AccountsPage() {
 - Runtime: `DATABASE_URL`; migraciones CLI: `DIRECT_URL`
 - Multi-tenant: todo modelo de negocio con `workspaceId`; verificar membership en cada action/service
 - RLS en Postgres como defensa en profundidad (alineado a workspace), sin sustituir checks en servidor
+- Logs SQL de Prisma: por defecto **no** se imprimen `query` en desarrollo. Activar solo con `PRISMA_LOG_QUERIES=1` (o `true`) vía `src/lib/env.ts` — ver [stack.md](./stack.md)
+
+### 7.1 Memoización por request (`React.cache`)
+
+El layout `(app)` y las páginas suelen resolver **sesión, usuario, workspace activo y membership** en el mismo render RSC. Sin deduplicación, cada llamada reabre Prisma.
+
+**Patrón adoptado:** envolver lecturas de tenancy / auth frecuentes con `cache()` de React (`src/lib/session.ts`, `getCurrentUser`, `getActiveWorkspaceForUser`, `requireMembership`, `listMyWorkspaces`). El cache **muere al terminar el request**; no hay TTL ni almacenamiento entre navegaciones.
+
+**Presupuestos:** `listBudgetsWithStatus` separa un snapshot DB request-scoped (`budgets` + expenses del workspace) del cálculo de `progress` con `referenceDate`. Así layout (badge de nav), `/budgets`, `GetDashboard` y analytics pueden compartir **una** carga SQL sin servir progreso stale por fecha distinta.
+
+**Args:** `React.cache` usa igualdad superficial (`Object.is`). Preferir parámetros **primitivos** (`userId`, `workspaceId`, `includeArchived`) en las funciones cacheadas; no pasar objetos inline como única clave.
+
+**Prohibido (riesgo de datos inconsistentes):**
+
+| No cachear así | Motivo |
+|----------------|--------|
+| Saldos / ledger / listados de txs entre requests (`unstable_cache`, LRU TTL) | Mutaciones frecuentes; UI de dinero incorrecta |
+| Membership / roles con TTL cross-request | Authz stale tras expulsión o cambio de rol |
+| Dashboard / analytics “congelados” sin tags de invalidación por mutación | Hoy solo hay `revalidatePath`; no hay tag matrix |
+
+Tras mutaciones se sigue invalidando con `revalidatePath` (página + layout cuando el shell debe refrescar). Eso **re-ejecuta** el request; el `React.cache` no evita trabajo entre navegaciones.
 
 ## 8. Flujo de una mutación
 
@@ -207,3 +228,5 @@ UI (RHF + Zod)
 - Tests de UI por defecto
 - Floats para dinero
 - Queries Prisma en páginas gordas sin pasar por services
+- Cache cross-request de saldos, membership o dashboards “por TTL” sin invalidación explícita (ver §7.1)
+- Confiar en `prisma:query` en consola como métrica de producción: el log es opt-in en desarrollo
