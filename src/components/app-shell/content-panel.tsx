@@ -18,11 +18,11 @@ export function ContentPanel({
   return (
     <section
       className={cn(
-        "flex min-h-0 flex-1 flex-col overflow-hidden bg-card md:rounded-xl md:border md:border-border md:shadow-sm",
-        className
+        "flex flex-1 flex-col bg-card md:min-h-0 md:overflow-hidden md:rounded-xl md:border md:border-border md:shadow-sm",
+        className,
       )}
     >
-      <header className="flex flex-col gap-3 border-b border-border px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:gap-4 sm:px-8 sm:py-6">
+      <header className="flex shrink-0 flex-col gap-3 border-b border-border px-4 py-4 sm:flex-row sm:items-start sm:justify-between sm:gap-4 sm:px-8 sm:py-6">
         <div className="min-w-0">
           <h1 className="text-xl font-semibold tracking-tight text-foreground text-balance sm:text-2xl">
             {title}
@@ -39,7 +39,11 @@ export function ContentPanel({
           </div>
         ) : null}
       </header>
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-4 py-4 sm:px-8 sm:py-6">
+      {/*
+        Mobile: grow with content — page scrolls.
+        md+: constrained panel with internal overflow-y-auto.
+      */}
+      <div className="flex-1 px-4 py-4 sm:px-8 sm:py-6 md:min-h-0 md:overflow-y-auto md:overscroll-contain">
         {children}
       </div>
     </section>

@@ -36,7 +36,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} h-full`}
+      className={`${geistSans.variable} ${geistMono.variable} min-h-full md:h-full`}
       suppressHydrationWarning
     >
       {/*
@@ -44,7 +44,7 @@ export default function RootLayout({
         attributes like cz-shortcut-listen on <body> before React hydrates.
       */}
       <body
-        className="flex min-h-full flex-col overflow-x-hidden"
+        className="flex min-h-full flex-col overflow-x-hidden md:h-full md:overflow-hidden"
         suppressHydrationWarning
       >
         <Providers>{children}</Providers>
