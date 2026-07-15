@@ -8,6 +8,8 @@
 | Income | Ingreso que aumenta el saldo de una cuenta |
 | Expense | Gasto que disminuye el saldo de una cuenta |
 | Transfer | Movimiento interno entre dos cuentas del mismo workspace |
+| Cross-workspace contribution | Aporte: expense en un espacio + income en otro, ligados |
+| Externally funded expense | Gasto registrado en un workspace pagado con cuenta de otro |
 | Category | Etiqueta de clasificación de ingresos/gastos |
 | Budget | Límite de gasto en un periodo para una o más categorías |
 | Goal | Objetivo de ahorro o de pago de deuda |

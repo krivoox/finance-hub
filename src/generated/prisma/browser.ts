@@ -68,6 +68,11 @@ export type FinanceAccount = Prisma.FinanceAccountModel
  */
 export type Transaction = Prisma.TransactionModel
 /**
+ * Model CrossWorkspaceLink
+ * 
+ */
+export type CrossWorkspaceLink = Prisma.CrossWorkspaceLinkModel
+/**
  * Model Budget
  * 
  */

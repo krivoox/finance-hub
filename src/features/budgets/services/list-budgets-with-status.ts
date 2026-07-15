@@ -9,6 +9,7 @@ import {
   type BudgetPeriod,
   type BudgetProgress,
 } from "@/features/budgets/domain";
+import { CONTRIBUTION_CATEGORY_NAMES } from "@/features/categories/domain";
 import type { BudgetRecord } from "./require-budget-membership";
 
 export type BudgetWithProgress = BudgetRecord & {
@@ -70,12 +71,28 @@ export async function listBudgetsWithStatus({
     }),
   ]);
 
-  const expenses: BudgetExpenseCandidate[] = expenseRows.map((r) => ({
-    type: "expense" as const,
-    amountCents: r.amountCents,
-    occurredOn: r.occurredOn,
-    categoryId: r.categoryId,
-  }));
+  // SPEC-14 — exclude contribution outflows from consumer budget "all expenses".
+  const contributionCategoryIds = new Set(
+    (
+      await prisma.category.findMany({
+        where: {
+          workspaceId,
+          kind: "expense",
+          name: CONTRIBUTION_CATEGORY_NAMES.expense,
+        },
+        select: { id: true },
+      })
+    ).map((c) => c.id),
+  );
+
+  const expenses: BudgetExpenseCandidate[] = expenseRows
+    .filter((r) => !r.categoryId || !contributionCategoryIds.has(r.categoryId))
+    .map((r) => ({
+      type: "expense" as const,
+      amountCents: r.amountCents,
+      occurredOn: r.occurredOn,
+      categoryId: r.categoryId,
+    }));
 
   return budgets.map((b) => {
     const categoryIds = b.categories.map((c) => c.categoryId);

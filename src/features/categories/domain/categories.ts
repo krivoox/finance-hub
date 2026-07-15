@@ -100,9 +100,17 @@ export const DEFAULT_CATEGORIES: readonly {
   { name: "Salud", kind: "expense" },
   { name: "Educación", kind: "expense" },
   { name: "Otros gastos", kind: "expense" },
+  { name: "Aportes a espacios", kind: "expense" },
   { name: "Salario", kind: "income" },
   { name: "Otros ingresos", kind: "income" },
+  { name: "Aportes recibidos", kind: "income" },
 ] as const;
+
+/** SPEC-14 — Categories excluded from consumer budget spent when “all expenses”. */
+export const CONTRIBUTION_CATEGORY_NAMES = {
+  expense: "Aportes a espacios",
+  income: "Aportes recibidos",
+} as const;
 
 // ---------------------------------------------------------------------------
 // Helpers

@@ -99,3 +99,11 @@ export const SplitMethod = {
 } as const
 
 export type SplitMethod = (typeof SplitMethod)[keyof typeof SplitMethod]
+
+
+export const CrossWorkspaceLinkKind = {
+  contribution: 'contribution',
+  externally_funded_expense: 'externally_funded_expense'
+} as const
+
+export type CrossWorkspaceLinkKind = (typeof CrossWorkspaceLinkKind)[keyof typeof CrossWorkspaceLinkKind]

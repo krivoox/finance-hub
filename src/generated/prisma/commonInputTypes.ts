@@ -304,6 +304,23 @@ export type EnumTransactionTypeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumTransactionTypeFilter<$PrismaModel>
 }
 
+export type EnumCrossWorkspaceLinkKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.CrossWorkspaceLinkKind | Prisma.EnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
+  in?: $Enums.CrossWorkspaceLinkKind[] | Prisma.ListEnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CrossWorkspaceLinkKind[] | Prisma.ListEnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCrossWorkspaceLinkKindFilter<$PrismaModel> | $Enums.CrossWorkspaceLinkKind
+}
+
+export type EnumCrossWorkspaceLinkKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CrossWorkspaceLinkKind | Prisma.EnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
+  in?: $Enums.CrossWorkspaceLinkKind[] | Prisma.ListEnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CrossWorkspaceLinkKind[] | Prisma.ListEnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCrossWorkspaceLinkKindWithAggregatesFilter<$PrismaModel> | $Enums.CrossWorkspaceLinkKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCrossWorkspaceLinkKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCrossWorkspaceLinkKindFilter<$PrismaModel>
+}
+
 export type EnumBudgetPeriodFilter<$PrismaModel = never> = {
   equals?: $Enums.BudgetPeriod | Prisma.EnumBudgetPeriodFieldRefInput<$PrismaModel>
   in?: $Enums.BudgetPeriod[] | Prisma.ListEnumBudgetPeriodFieldRefInput<$PrismaModel>
@@ -673,6 +690,23 @@ export type NestedEnumTransactionTypeWithAggregatesFilter<$PrismaModel = never> 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumTransactionTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumTransactionTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumCrossWorkspaceLinkKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.CrossWorkspaceLinkKind | Prisma.EnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
+  in?: $Enums.CrossWorkspaceLinkKind[] | Prisma.ListEnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CrossWorkspaceLinkKind[] | Prisma.ListEnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCrossWorkspaceLinkKindFilter<$PrismaModel> | $Enums.CrossWorkspaceLinkKind
+}
+
+export type NestedEnumCrossWorkspaceLinkKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CrossWorkspaceLinkKind | Prisma.EnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
+  in?: $Enums.CrossWorkspaceLinkKind[] | Prisma.ListEnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CrossWorkspaceLinkKind[] | Prisma.ListEnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCrossWorkspaceLinkKindWithAggregatesFilter<$PrismaModel> | $Enums.CrossWorkspaceLinkKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCrossWorkspaceLinkKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCrossWorkspaceLinkKindFilter<$PrismaModel>
 }
 
 export type NestedEnumBudgetPeriodFilter<$PrismaModel = never> = {

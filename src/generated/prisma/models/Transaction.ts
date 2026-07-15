@@ -285,6 +285,8 @@ export type TransactionWhereInput = {
   account?: Prisma.XOR<Prisma.FinanceAccountScalarRelationFilter, Prisma.FinanceAccountWhereInput>
   counterpartyAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
   expenseSplit?: Prisma.XOR<Prisma.ExpenseSplitNullableScalarRelationFilter, Prisma.ExpenseSplitWhereInput> | null
+  crossWorkspaceLinkAsSource?: Prisma.XOR<Prisma.CrossWorkspaceLinkNullableScalarRelationFilter, Prisma.CrossWorkspaceLinkWhereInput> | null
+  crossWorkspaceLinkAsTarget?: Prisma.XOR<Prisma.CrossWorkspaceLinkNullableScalarRelationFilter, Prisma.CrossWorkspaceLinkWhereInput> | null
 }
 
 export type TransactionOrderByWithRelationInput = {
@@ -306,6 +308,8 @@ export type TransactionOrderByWithRelationInput = {
   account?: Prisma.FinanceAccountOrderByWithRelationInput
   counterpartyAccount?: Prisma.FinanceAccountOrderByWithRelationInput
   expenseSplit?: Prisma.ExpenseSplitOrderByWithRelationInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkOrderByWithRelationInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkOrderByWithRelationInput
 }
 
 export type TransactionWhereUniqueInput = Prisma.AtLeast<{
@@ -330,6 +334,8 @@ export type TransactionWhereUniqueInput = Prisma.AtLeast<{
   account?: Prisma.XOR<Prisma.FinanceAccountScalarRelationFilter, Prisma.FinanceAccountWhereInput>
   counterpartyAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
   expenseSplit?: Prisma.XOR<Prisma.ExpenseSplitNullableScalarRelationFilter, Prisma.ExpenseSplitWhereInput> | null
+  crossWorkspaceLinkAsSource?: Prisma.XOR<Prisma.CrossWorkspaceLinkNullableScalarRelationFilter, Prisma.CrossWorkspaceLinkWhereInput> | null
+  crossWorkspaceLinkAsTarget?: Prisma.XOR<Prisma.CrossWorkspaceLinkNullableScalarRelationFilter, Prisma.CrossWorkspaceLinkWhereInput> | null
 }, "id">
 
 export type TransactionOrderByWithAggregationInput = {
@@ -387,6 +393,8 @@ export type TransactionCreateInput = {
   account: Prisma.FinanceAccountCreateNestedOneWithoutTransactionsInput
   counterpartyAccount?: Prisma.FinanceAccountCreateNestedOneWithoutIncomingTransfersInput
   expenseSplit?: Prisma.ExpenseSplitCreateNestedOneWithoutExpenseInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutSourceTransactionInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutTargetTransactionInput
 }
 
 export type TransactionUncheckedCreateInput = {
@@ -404,6 +412,8 @@ export type TransactionUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedCreateNestedOneWithoutExpenseInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUncheckedCreateNestedOneWithoutSourceTransactionInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUncheckedCreateNestedOneWithoutTargetTransactionInput
 }
 
 export type TransactionUpdateInput = {
@@ -421,6 +431,8 @@ export type TransactionUpdateInput = {
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutTransactionsNestedInput
   counterpartyAccount?: Prisma.FinanceAccountUpdateOneWithoutIncomingTransfersNestedInput
   expenseSplit?: Prisma.ExpenseSplitUpdateOneWithoutExpenseNestedInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUpdateOneWithoutSourceTransactionNestedInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUpdateOneWithoutTargetTransactionNestedInput
 }
 
 export type TransactionUncheckedUpdateInput = {
@@ -438,6 +450,8 @@ export type TransactionUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedUpdateOneWithoutExpenseNestedInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUncheckedUpdateOneWithoutSourceTransactionNestedInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUncheckedUpdateOneWithoutTargetTransactionNestedInput
 }
 
 export type TransactionCreateManyInput = {
@@ -727,6 +741,34 @@ export type EnumTransactionTypeFieldUpdateOperationsInput = {
   set?: $Enums.TransactionType
 }
 
+export type TransactionCreateNestedOneWithoutCrossWorkspaceLinkAsSourceInput = {
+  create?: Prisma.XOR<Prisma.TransactionCreateWithoutCrossWorkspaceLinkAsSourceInput, Prisma.TransactionUncheckedCreateWithoutCrossWorkspaceLinkAsSourceInput>
+  connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutCrossWorkspaceLinkAsSourceInput
+  connect?: Prisma.TransactionWhereUniqueInput
+}
+
+export type TransactionCreateNestedOneWithoutCrossWorkspaceLinkAsTargetInput = {
+  create?: Prisma.XOR<Prisma.TransactionCreateWithoutCrossWorkspaceLinkAsTargetInput, Prisma.TransactionUncheckedCreateWithoutCrossWorkspaceLinkAsTargetInput>
+  connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutCrossWorkspaceLinkAsTargetInput
+  connect?: Prisma.TransactionWhereUniqueInput
+}
+
+export type TransactionUpdateOneRequiredWithoutCrossWorkspaceLinkAsSourceNestedInput = {
+  create?: Prisma.XOR<Prisma.TransactionCreateWithoutCrossWorkspaceLinkAsSourceInput, Prisma.TransactionUncheckedCreateWithoutCrossWorkspaceLinkAsSourceInput>
+  connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutCrossWorkspaceLinkAsSourceInput
+  upsert?: Prisma.TransactionUpsertWithoutCrossWorkspaceLinkAsSourceInput
+  connect?: Prisma.TransactionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TransactionUpdateToOneWithWhereWithoutCrossWorkspaceLinkAsSourceInput, Prisma.TransactionUpdateWithoutCrossWorkspaceLinkAsSourceInput>, Prisma.TransactionUncheckedUpdateWithoutCrossWorkspaceLinkAsSourceInput>
+}
+
+export type TransactionUpdateOneRequiredWithoutCrossWorkspaceLinkAsTargetNestedInput = {
+  create?: Prisma.XOR<Prisma.TransactionCreateWithoutCrossWorkspaceLinkAsTargetInput, Prisma.TransactionUncheckedCreateWithoutCrossWorkspaceLinkAsTargetInput>
+  connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutCrossWorkspaceLinkAsTargetInput
+  upsert?: Prisma.TransactionUpsertWithoutCrossWorkspaceLinkAsTargetInput
+  connect?: Prisma.TransactionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TransactionUpdateToOneWithWhereWithoutCrossWorkspaceLinkAsTargetInput, Prisma.TransactionUpdateWithoutCrossWorkspaceLinkAsTargetInput>, Prisma.TransactionUncheckedUpdateWithoutCrossWorkspaceLinkAsTargetInput>
+}
+
 export type TransactionCreateNestedOneWithoutExpenseSplitInput = {
   create?: Prisma.XOR<Prisma.TransactionCreateWithoutExpenseSplitInput, Prisma.TransactionUncheckedCreateWithoutExpenseSplitInput>
   connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutExpenseSplitInput
@@ -755,6 +797,8 @@ export type TransactionCreateWithoutWorkspaceInput = {
   account: Prisma.FinanceAccountCreateNestedOneWithoutTransactionsInput
   counterpartyAccount?: Prisma.FinanceAccountCreateNestedOneWithoutIncomingTransfersInput
   expenseSplit?: Prisma.ExpenseSplitCreateNestedOneWithoutExpenseInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutSourceTransactionInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutTargetTransactionInput
 }
 
 export type TransactionUncheckedCreateWithoutWorkspaceInput = {
@@ -771,6 +815,8 @@ export type TransactionUncheckedCreateWithoutWorkspaceInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedCreateNestedOneWithoutExpenseInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUncheckedCreateNestedOneWithoutSourceTransactionInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUncheckedCreateNestedOneWithoutTargetTransactionInput
 }
 
 export type TransactionCreateOrConnectWithoutWorkspaceInput = {
@@ -832,6 +878,8 @@ export type TransactionCreateWithoutCategoryInput = {
   account: Prisma.FinanceAccountCreateNestedOneWithoutTransactionsInput
   counterpartyAccount?: Prisma.FinanceAccountCreateNestedOneWithoutIncomingTransfersInput
   expenseSplit?: Prisma.ExpenseSplitCreateNestedOneWithoutExpenseInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutSourceTransactionInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutTargetTransactionInput
 }
 
 export type TransactionUncheckedCreateWithoutCategoryInput = {
@@ -848,6 +896,8 @@ export type TransactionUncheckedCreateWithoutCategoryInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedCreateNestedOneWithoutExpenseInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUncheckedCreateNestedOneWithoutSourceTransactionInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUncheckedCreateNestedOneWithoutTargetTransactionInput
 }
 
 export type TransactionCreateOrConnectWithoutCategoryInput = {
@@ -890,6 +940,8 @@ export type TransactionCreateWithoutAccountInput = {
   category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
   counterpartyAccount?: Prisma.FinanceAccountCreateNestedOneWithoutIncomingTransfersInput
   expenseSplit?: Prisma.ExpenseSplitCreateNestedOneWithoutExpenseInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutSourceTransactionInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutTargetTransactionInput
 }
 
 export type TransactionUncheckedCreateWithoutAccountInput = {
@@ -906,6 +958,8 @@ export type TransactionUncheckedCreateWithoutAccountInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedCreateNestedOneWithoutExpenseInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUncheckedCreateNestedOneWithoutSourceTransactionInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUncheckedCreateNestedOneWithoutTargetTransactionInput
 }
 
 export type TransactionCreateOrConnectWithoutAccountInput = {
@@ -932,6 +986,8 @@ export type TransactionCreateWithoutCounterpartyAccountInput = {
   category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
   account: Prisma.FinanceAccountCreateNestedOneWithoutTransactionsInput
   expenseSplit?: Prisma.ExpenseSplitCreateNestedOneWithoutExpenseInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutSourceTransactionInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutTargetTransactionInput
 }
 
 export type TransactionUncheckedCreateWithoutCounterpartyAccountInput = {
@@ -948,6 +1004,8 @@ export type TransactionUncheckedCreateWithoutCounterpartyAccountInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedCreateNestedOneWithoutExpenseInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUncheckedCreateNestedOneWithoutSourceTransactionInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUncheckedCreateNestedOneWithoutTargetTransactionInput
 }
 
 export type TransactionCreateOrConnectWithoutCounterpartyAccountInput = {
@@ -992,6 +1050,182 @@ export type TransactionUpdateManyWithWhereWithoutCounterpartyAccountInput = {
   data: Prisma.XOR<Prisma.TransactionUpdateManyMutationInput, Prisma.TransactionUncheckedUpdateManyWithoutCounterpartyAccountInput>
 }
 
+export type TransactionCreateWithoutCrossWorkspaceLinkAsSourceInput = {
+  id?: string
+  type: $Enums.TransactionType
+  amountCents: number
+  currency: string
+  occurredOn: Date | string
+  description?: string | null
+  createdByUserId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutTransactionsInput
+  category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
+  account: Prisma.FinanceAccountCreateNestedOneWithoutTransactionsInput
+  counterpartyAccount?: Prisma.FinanceAccountCreateNestedOneWithoutIncomingTransfersInput
+  expenseSplit?: Prisma.ExpenseSplitCreateNestedOneWithoutExpenseInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutTargetTransactionInput
+}
+
+export type TransactionUncheckedCreateWithoutCrossWorkspaceLinkAsSourceInput = {
+  id?: string
+  workspaceId: string
+  type: $Enums.TransactionType
+  amountCents: number
+  currency: string
+  occurredOn: Date | string
+  description?: string | null
+  categoryId?: string | null
+  accountId: string
+  counterpartyAccountId?: string | null
+  createdByUserId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  expenseSplit?: Prisma.ExpenseSplitUncheckedCreateNestedOneWithoutExpenseInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUncheckedCreateNestedOneWithoutTargetTransactionInput
+}
+
+export type TransactionCreateOrConnectWithoutCrossWorkspaceLinkAsSourceInput = {
+  where: Prisma.TransactionWhereUniqueInput
+  create: Prisma.XOR<Prisma.TransactionCreateWithoutCrossWorkspaceLinkAsSourceInput, Prisma.TransactionUncheckedCreateWithoutCrossWorkspaceLinkAsSourceInput>
+}
+
+export type TransactionCreateWithoutCrossWorkspaceLinkAsTargetInput = {
+  id?: string
+  type: $Enums.TransactionType
+  amountCents: number
+  currency: string
+  occurredOn: Date | string
+  description?: string | null
+  createdByUserId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutTransactionsInput
+  category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
+  account: Prisma.FinanceAccountCreateNestedOneWithoutTransactionsInput
+  counterpartyAccount?: Prisma.FinanceAccountCreateNestedOneWithoutIncomingTransfersInput
+  expenseSplit?: Prisma.ExpenseSplitCreateNestedOneWithoutExpenseInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutSourceTransactionInput
+}
+
+export type TransactionUncheckedCreateWithoutCrossWorkspaceLinkAsTargetInput = {
+  id?: string
+  workspaceId: string
+  type: $Enums.TransactionType
+  amountCents: number
+  currency: string
+  occurredOn: Date | string
+  description?: string | null
+  categoryId?: string | null
+  accountId: string
+  counterpartyAccountId?: string | null
+  createdByUserId: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  expenseSplit?: Prisma.ExpenseSplitUncheckedCreateNestedOneWithoutExpenseInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUncheckedCreateNestedOneWithoutSourceTransactionInput
+}
+
+export type TransactionCreateOrConnectWithoutCrossWorkspaceLinkAsTargetInput = {
+  where: Prisma.TransactionWhereUniqueInput
+  create: Prisma.XOR<Prisma.TransactionCreateWithoutCrossWorkspaceLinkAsTargetInput, Prisma.TransactionUncheckedCreateWithoutCrossWorkspaceLinkAsTargetInput>
+}
+
+export type TransactionUpsertWithoutCrossWorkspaceLinkAsSourceInput = {
+  update: Prisma.XOR<Prisma.TransactionUpdateWithoutCrossWorkspaceLinkAsSourceInput, Prisma.TransactionUncheckedUpdateWithoutCrossWorkspaceLinkAsSourceInput>
+  create: Prisma.XOR<Prisma.TransactionCreateWithoutCrossWorkspaceLinkAsSourceInput, Prisma.TransactionUncheckedCreateWithoutCrossWorkspaceLinkAsSourceInput>
+  where?: Prisma.TransactionWhereInput
+}
+
+export type TransactionUpdateToOneWithWhereWithoutCrossWorkspaceLinkAsSourceInput = {
+  where?: Prisma.TransactionWhereInput
+  data: Prisma.XOR<Prisma.TransactionUpdateWithoutCrossWorkspaceLinkAsSourceInput, Prisma.TransactionUncheckedUpdateWithoutCrossWorkspaceLinkAsSourceInput>
+}
+
+export type TransactionUpdateWithoutCrossWorkspaceLinkAsSourceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  amountCents?: Prisma.IntFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutTransactionsNestedInput
+  category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
+  account?: Prisma.FinanceAccountUpdateOneRequiredWithoutTransactionsNestedInput
+  counterpartyAccount?: Prisma.FinanceAccountUpdateOneWithoutIncomingTransfersNestedInput
+  expenseSplit?: Prisma.ExpenseSplitUpdateOneWithoutExpenseNestedInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUpdateOneWithoutTargetTransactionNestedInput
+}
+
+export type TransactionUncheckedUpdateWithoutCrossWorkspaceLinkAsSourceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  amountCents?: Prisma.IntFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountId?: Prisma.StringFieldUpdateOperationsInput | string
+  counterpartyAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expenseSplit?: Prisma.ExpenseSplitUncheckedUpdateOneWithoutExpenseNestedInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUncheckedUpdateOneWithoutTargetTransactionNestedInput
+}
+
+export type TransactionUpsertWithoutCrossWorkspaceLinkAsTargetInput = {
+  update: Prisma.XOR<Prisma.TransactionUpdateWithoutCrossWorkspaceLinkAsTargetInput, Prisma.TransactionUncheckedUpdateWithoutCrossWorkspaceLinkAsTargetInput>
+  create: Prisma.XOR<Prisma.TransactionCreateWithoutCrossWorkspaceLinkAsTargetInput, Prisma.TransactionUncheckedCreateWithoutCrossWorkspaceLinkAsTargetInput>
+  where?: Prisma.TransactionWhereInput
+}
+
+export type TransactionUpdateToOneWithWhereWithoutCrossWorkspaceLinkAsTargetInput = {
+  where?: Prisma.TransactionWhereInput
+  data: Prisma.XOR<Prisma.TransactionUpdateWithoutCrossWorkspaceLinkAsTargetInput, Prisma.TransactionUncheckedUpdateWithoutCrossWorkspaceLinkAsTargetInput>
+}
+
+export type TransactionUpdateWithoutCrossWorkspaceLinkAsTargetInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  amountCents?: Prisma.IntFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutTransactionsNestedInput
+  category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
+  account?: Prisma.FinanceAccountUpdateOneRequiredWithoutTransactionsNestedInput
+  counterpartyAccount?: Prisma.FinanceAccountUpdateOneWithoutIncomingTransfersNestedInput
+  expenseSplit?: Prisma.ExpenseSplitUpdateOneWithoutExpenseNestedInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUpdateOneWithoutSourceTransactionNestedInput
+}
+
+export type TransactionUncheckedUpdateWithoutCrossWorkspaceLinkAsTargetInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  amountCents?: Prisma.IntFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountId?: Prisma.StringFieldUpdateOperationsInput | string
+  counterpartyAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expenseSplit?: Prisma.ExpenseSplitUncheckedUpdateOneWithoutExpenseNestedInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUncheckedUpdateOneWithoutSourceTransactionNestedInput
+}
+
 export type TransactionCreateWithoutExpenseSplitInput = {
   id?: string
   type: $Enums.TransactionType
@@ -1006,6 +1240,8 @@ export type TransactionCreateWithoutExpenseSplitInput = {
   category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
   account: Prisma.FinanceAccountCreateNestedOneWithoutTransactionsInput
   counterpartyAccount?: Prisma.FinanceAccountCreateNestedOneWithoutIncomingTransfersInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutSourceTransactionInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutTargetTransactionInput
 }
 
 export type TransactionUncheckedCreateWithoutExpenseSplitInput = {
@@ -1022,6 +1258,8 @@ export type TransactionUncheckedCreateWithoutExpenseSplitInput = {
   createdByUserId: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUncheckedCreateNestedOneWithoutSourceTransactionInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUncheckedCreateNestedOneWithoutTargetTransactionInput
 }
 
 export type TransactionCreateOrConnectWithoutExpenseSplitInput = {
@@ -1054,6 +1292,8 @@ export type TransactionUpdateWithoutExpenseSplitInput = {
   category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutTransactionsNestedInput
   counterpartyAccount?: Prisma.FinanceAccountUpdateOneWithoutIncomingTransfersNestedInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUpdateOneWithoutSourceTransactionNestedInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUpdateOneWithoutTargetTransactionNestedInput
 }
 
 export type TransactionUncheckedUpdateWithoutExpenseSplitInput = {
@@ -1070,6 +1310,8 @@ export type TransactionUncheckedUpdateWithoutExpenseSplitInput = {
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUncheckedUpdateOneWithoutSourceTransactionNestedInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUncheckedUpdateOneWithoutTargetTransactionNestedInput
 }
 
 export type TransactionCreateManyWorkspaceInput = {
@@ -1101,6 +1343,8 @@ export type TransactionUpdateWithoutWorkspaceInput = {
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutTransactionsNestedInput
   counterpartyAccount?: Prisma.FinanceAccountUpdateOneWithoutIncomingTransfersNestedInput
   expenseSplit?: Prisma.ExpenseSplitUpdateOneWithoutExpenseNestedInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUpdateOneWithoutSourceTransactionNestedInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUpdateOneWithoutTargetTransactionNestedInput
 }
 
 export type TransactionUncheckedUpdateWithoutWorkspaceInput = {
@@ -1117,6 +1361,8 @@ export type TransactionUncheckedUpdateWithoutWorkspaceInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedUpdateOneWithoutExpenseNestedInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUncheckedUpdateOneWithoutSourceTransactionNestedInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUncheckedUpdateOneWithoutTargetTransactionNestedInput
 }
 
 export type TransactionUncheckedUpdateManyWithoutWorkspaceInput = {
@@ -1163,6 +1409,8 @@ export type TransactionUpdateWithoutCategoryInput = {
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutTransactionsNestedInput
   counterpartyAccount?: Prisma.FinanceAccountUpdateOneWithoutIncomingTransfersNestedInput
   expenseSplit?: Prisma.ExpenseSplitUpdateOneWithoutExpenseNestedInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUpdateOneWithoutSourceTransactionNestedInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUpdateOneWithoutTargetTransactionNestedInput
 }
 
 export type TransactionUncheckedUpdateWithoutCategoryInput = {
@@ -1179,6 +1427,8 @@ export type TransactionUncheckedUpdateWithoutCategoryInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedUpdateOneWithoutExpenseNestedInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUncheckedUpdateOneWithoutSourceTransactionNestedInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUncheckedUpdateOneWithoutTargetTransactionNestedInput
 }
 
 export type TransactionUncheckedUpdateManyWithoutCategoryInput = {
@@ -1240,6 +1490,8 @@ export type TransactionUpdateWithoutAccountInput = {
   category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
   counterpartyAccount?: Prisma.FinanceAccountUpdateOneWithoutIncomingTransfersNestedInput
   expenseSplit?: Prisma.ExpenseSplitUpdateOneWithoutExpenseNestedInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUpdateOneWithoutSourceTransactionNestedInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUpdateOneWithoutTargetTransactionNestedInput
 }
 
 export type TransactionUncheckedUpdateWithoutAccountInput = {
@@ -1256,6 +1508,8 @@ export type TransactionUncheckedUpdateWithoutAccountInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedUpdateOneWithoutExpenseNestedInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUncheckedUpdateOneWithoutSourceTransactionNestedInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUncheckedUpdateOneWithoutTargetTransactionNestedInput
 }
 
 export type TransactionUncheckedUpdateManyWithoutAccountInput = {
@@ -1287,6 +1541,8 @@ export type TransactionUpdateWithoutCounterpartyAccountInput = {
   category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutTransactionsNestedInput
   expenseSplit?: Prisma.ExpenseSplitUpdateOneWithoutExpenseNestedInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUpdateOneWithoutSourceTransactionNestedInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUpdateOneWithoutTargetTransactionNestedInput
 }
 
 export type TransactionUncheckedUpdateWithoutCounterpartyAccountInput = {
@@ -1303,6 +1559,8 @@ export type TransactionUncheckedUpdateWithoutCounterpartyAccountInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedUpdateOneWithoutExpenseNestedInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUncheckedUpdateOneWithoutSourceTransactionNestedInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUncheckedUpdateOneWithoutTargetTransactionNestedInput
 }
 
 export type TransactionUncheckedUpdateManyWithoutCounterpartyAccountInput = {
@@ -1341,6 +1599,8 @@ export type TransactionSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
   counterpartyAccount?: boolean | Prisma.Transaction$counterpartyAccountArgs<ExtArgs>
   expenseSplit?: boolean | Prisma.Transaction$expenseSplitArgs<ExtArgs>
+  crossWorkspaceLinkAsSource?: boolean | Prisma.Transaction$crossWorkspaceLinkAsSourceArgs<ExtArgs>
+  crossWorkspaceLinkAsTarget?: boolean | Prisma.Transaction$crossWorkspaceLinkAsTargetArgs<ExtArgs>
 }, ExtArgs["result"]["transaction"]>
 
 export type TransactionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1406,6 +1666,8 @@ export type TransactionInclude<ExtArgs extends runtime.Types.Extensions.Internal
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
   counterpartyAccount?: boolean | Prisma.Transaction$counterpartyAccountArgs<ExtArgs>
   expenseSplit?: boolean | Prisma.Transaction$expenseSplitArgs<ExtArgs>
+  crossWorkspaceLinkAsSource?: boolean | Prisma.Transaction$crossWorkspaceLinkAsSourceArgs<ExtArgs>
+  crossWorkspaceLinkAsTarget?: boolean | Prisma.Transaction$crossWorkspaceLinkAsTargetArgs<ExtArgs>
 }
 export type TransactionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
@@ -1428,6 +1690,8 @@ export type $TransactionPayload<ExtArgs extends runtime.Types.Extensions.Interna
     account: Prisma.$FinanceAccountPayload<ExtArgs>
     counterpartyAccount: Prisma.$FinanceAccountPayload<ExtArgs> | null
     expenseSplit: Prisma.$ExpenseSplitPayload<ExtArgs> | null
+    crossWorkspaceLinkAsSource: Prisma.$CrossWorkspaceLinkPayload<ExtArgs> | null
+    crossWorkspaceLinkAsTarget: Prisma.$CrossWorkspaceLinkPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1842,6 +2106,8 @@ export interface Prisma__TransactionClient<T, Null = never, ExtArgs extends runt
   account<T extends Prisma.FinanceAccountDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccountDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   counterpartyAccount<T extends Prisma.Transaction$counterpartyAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Transaction$counterpartyAccountArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   expenseSplit<T extends Prisma.Transaction$expenseSplitArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Transaction$expenseSplitArgs<ExtArgs>>): Prisma.Prisma__ExpenseSplitClient<runtime.Types.Result.GetResult<Prisma.$ExpenseSplitPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  crossWorkspaceLinkAsSource<T extends Prisma.Transaction$crossWorkspaceLinkAsSourceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Transaction$crossWorkspaceLinkAsSourceArgs<ExtArgs>>): Prisma.Prisma__CrossWorkspaceLinkClient<runtime.Types.Result.GetResult<Prisma.$CrossWorkspaceLinkPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  crossWorkspaceLinkAsTarget<T extends Prisma.Transaction$crossWorkspaceLinkAsTargetArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Transaction$crossWorkspaceLinkAsTargetArgs<ExtArgs>>): Prisma.Prisma__CrossWorkspaceLinkClient<runtime.Types.Result.GetResult<Prisma.$CrossWorkspaceLinkPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2339,6 +2605,44 @@ export type Transaction$expenseSplitArgs<ExtArgs extends runtime.Types.Extension
    */
   include?: Prisma.ExpenseSplitInclude<ExtArgs> | null
   where?: Prisma.ExpenseSplitWhereInput
+}
+
+/**
+ * Transaction.crossWorkspaceLinkAsSource
+ */
+export type Transaction$crossWorkspaceLinkAsSourceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CrossWorkspaceLink
+   */
+  select?: Prisma.CrossWorkspaceLinkSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CrossWorkspaceLink
+   */
+  omit?: Prisma.CrossWorkspaceLinkOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CrossWorkspaceLinkInclude<ExtArgs> | null
+  where?: Prisma.CrossWorkspaceLinkWhereInput
+}
+
+/**
+ * Transaction.crossWorkspaceLinkAsTarget
+ */
+export type Transaction$crossWorkspaceLinkAsTargetArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CrossWorkspaceLink
+   */
+  select?: Prisma.CrossWorkspaceLinkSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CrossWorkspaceLink
+   */
+  omit?: Prisma.CrossWorkspaceLinkOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CrossWorkspaceLinkInclude<ExtArgs> | null
+  where?: Prisma.CrossWorkspaceLinkWhereInput
 }
 
 /**

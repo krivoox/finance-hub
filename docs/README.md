@@ -39,6 +39,8 @@
 | 10 | [Distribución de gastos (splits)](./specs/10-expense-splitting.md) | P1 |
 | 11 | [Analytics e insights](./specs/11-analytics.md) | P2 |
 | 12 | [Dashboard](./specs/12-dashboard.md) | P1 |
+| 13 | [Detalle de movimiento](./specs/13-transaction-detail.md) | P1 |
+| 14 | [Dinero cross-workspace](./specs/14-cross-workspace-money.md) | P1 |
 
 ## Decisiones de arquitectura (ADR)
 

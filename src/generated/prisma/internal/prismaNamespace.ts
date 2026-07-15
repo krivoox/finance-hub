@@ -394,6 +394,7 @@ export const ModelName = {
   Category: 'Category',
   FinanceAccount: 'FinanceAccount',
   Transaction: 'Transaction',
+  CrossWorkspaceLink: 'CrossWorkspaceLink',
   Budget: 'Budget',
   BudgetCategory: 'BudgetCategory',
   Goal: 'Goal',
@@ -416,7 +417,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "workspace" | "membership" | "invitation" | "category" | "financeAccount" | "transaction" | "budget" | "budgetCategory" | "goal" | "goalContribution" | "expenseSplit" | "expenseSplitShare" | "settlement"
+    modelProps: "user" | "session" | "account" | "verification" | "workspace" | "membership" | "invitation" | "category" | "financeAccount" | "transaction" | "crossWorkspaceLink" | "budget" | "budgetCategory" | "goal" | "goalContribution" | "expenseSplit" | "expenseSplitShare" | "settlement"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1160,6 +1161,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    CrossWorkspaceLink: {
+      payload: Prisma.$CrossWorkspaceLinkPayload<ExtArgs>
+      fields: Prisma.CrossWorkspaceLinkFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CrossWorkspaceLinkFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CrossWorkspaceLinkPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CrossWorkspaceLinkFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CrossWorkspaceLinkPayload>
+        }
+        findFirst: {
+          args: Prisma.CrossWorkspaceLinkFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CrossWorkspaceLinkPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CrossWorkspaceLinkFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CrossWorkspaceLinkPayload>
+        }
+        findMany: {
+          args: Prisma.CrossWorkspaceLinkFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CrossWorkspaceLinkPayload>[]
+        }
+        create: {
+          args: Prisma.CrossWorkspaceLinkCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CrossWorkspaceLinkPayload>
+        }
+        createMany: {
+          args: Prisma.CrossWorkspaceLinkCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CrossWorkspaceLinkCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CrossWorkspaceLinkPayload>[]
+        }
+        delete: {
+          args: Prisma.CrossWorkspaceLinkDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CrossWorkspaceLinkPayload>
+        }
+        update: {
+          args: Prisma.CrossWorkspaceLinkUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CrossWorkspaceLinkPayload>
+        }
+        deleteMany: {
+          args: Prisma.CrossWorkspaceLinkDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CrossWorkspaceLinkUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CrossWorkspaceLinkUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CrossWorkspaceLinkPayload>[]
+        }
+        upsert: {
+          args: Prisma.CrossWorkspaceLinkUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CrossWorkspaceLinkPayload>
+        }
+        aggregate: {
+          args: Prisma.CrossWorkspaceLinkAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCrossWorkspaceLink>
+        }
+        groupBy: {
+          args: Prisma.CrossWorkspaceLinkGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CrossWorkspaceLinkGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CrossWorkspaceLinkCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CrossWorkspaceLinkCountAggregateOutputType> | number
+        }
+      }
+    }
     Budget: {
       payload: Prisma.$BudgetPayload<ExtArgs>
       fields: Prisma.BudgetFieldRefs
@@ -1866,6 +1941,17 @@ export const TransactionScalarFieldEnum = {
 export type TransactionScalarFieldEnum = (typeof TransactionScalarFieldEnum)[keyof typeof TransactionScalarFieldEnum]
 
 
+export const CrossWorkspaceLinkScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  sourceTransactionId: 'sourceTransactionId',
+  targetTransactionId: 'targetTransactionId',
+  createdAt: 'createdAt'
+} as const
+
+export type CrossWorkspaceLinkScalarFieldEnum = (typeof CrossWorkspaceLinkScalarFieldEnum)[keyof typeof CrossWorkspaceLinkScalarFieldEnum]
+
+
 export const BudgetScalarFieldEnum = {
   id: 'id',
   workspaceId: 'workspaceId',
@@ -2124,6 +2210,20 @@ export type ListEnumTransactionTypeFieldRefInput<$PrismaModel> = FieldRefInputTy
 
 
 /**
+ * Reference to a field of type 'CrossWorkspaceLinkKind'
+ */
+export type EnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CrossWorkspaceLinkKind'>
+    
+
+
+/**
+ * Reference to a field of type 'CrossWorkspaceLinkKind[]'
+ */
+export type ListEnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CrossWorkspaceLinkKind[]'>
+    
+
+
+/**
  * Reference to a field of type 'BudgetPeriod'
  */
 export type EnumBudgetPeriodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BudgetPeriod'>
@@ -2312,6 +2412,7 @@ export type GlobalOmitConfig = {
   category?: Prisma.CategoryOmit
   financeAccount?: Prisma.FinanceAccountOmit
   transaction?: Prisma.TransactionOmit
+  crossWorkspaceLink?: Prisma.CrossWorkspaceLinkOmit
   budget?: Prisma.BudgetOmit
   budgetCategory?: Prisma.BudgetCategoryOmit
   goal?: Prisma.GoalOmit

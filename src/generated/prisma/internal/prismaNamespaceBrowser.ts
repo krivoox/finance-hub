@@ -61,6 +61,7 @@ export const ModelName = {
   Category: 'Category',
   FinanceAccount: 'FinanceAccount',
   Transaction: 'Transaction',
+  CrossWorkspaceLink: 'CrossWorkspaceLink',
   Budget: 'Budget',
   BudgetCategory: 'BudgetCategory',
   Goal: 'Goal',
@@ -233,6 +234,17 @@ export const TransactionScalarFieldEnum = {
 } as const
 
 export type TransactionScalarFieldEnum = (typeof TransactionScalarFieldEnum)[keyof typeof TransactionScalarFieldEnum]
+
+
+export const CrossWorkspaceLinkScalarFieldEnum = {
+  id: 'id',
+  kind: 'kind',
+  sourceTransactionId: 'sourceTransactionId',
+  targetTransactionId: 'targetTransactionId',
+  createdAt: 'createdAt'
+} as const
+
+export type CrossWorkspaceLinkScalarFieldEnum = (typeof CrossWorkspaceLinkScalarFieldEnum)[keyof typeof CrossWorkspaceLinkScalarFieldEnum]
 
 
 export const BudgetScalarFieldEnum = {

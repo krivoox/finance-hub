@@ -6,6 +6,7 @@ export {
   CategoryKindMismatchError,
   CategoryWorkspaceMismatchError,
   DEFAULT_CATEGORIES,
+  CONTRIBUTION_CATEGORY_NAMES,
   DuplicateCategoryName,
   MaxCategoryDepth,
   assertCanWriteCategories,

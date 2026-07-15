@@ -94,7 +94,13 @@ export const listTransactionsSchema = z.object({
 });
 export type ListTransactionsInput = z.infer<typeof listTransactionsSchema>;
 
-export const getTransactionSchema = z.object({
-  transactionId: transactionIdSchema,
+export const createCrossWorkspaceContributionSchema = z.object({
+  sourceAccountId: accountIdSchema,
+  targetAccountId: accountIdSchema,
+  amountCents: amountCentsSchema,
+  occurredOn: occurredOnSchema,
+  description: descriptionSchema,
 });
-export type GetTransactionInput = z.infer<typeof getTransactionSchema>;
+export type CreateCrossWorkspaceContributionInput = z.infer<
+  typeof createCrossWorkspaceContributionSchema
+>;

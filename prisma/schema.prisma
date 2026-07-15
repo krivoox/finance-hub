@@ -146,6 +146,11 @@ enum SplitMethod {
   exact
 }
 
+enum CrossWorkspaceLinkKind {
+  contribution
+  externally_funded_expense
+}
+
 model Workspace {
   id           String        @id @default(cuid())
   name         String
@@ -278,6 +283,8 @@ model Transaction {
   account             FinanceAccount  @relation("TxAccount", fields: [accountId], references: [id], onDelete: Restrict)
   counterpartyAccount FinanceAccount? @relation("TxCounterparty", fields: [counterpartyAccountId], references: [id], onDelete: Restrict)
   expenseSplit        ExpenseSplit?
+  crossWorkspaceLinkAsSource CrossWorkspaceLink? @relation("CrossWsLinkSource")
+  crossWorkspaceLinkAsTarget CrossWorkspaceLink? @relation("CrossWsLinkTarget")
 
   @@index([workspaceId, occurredOn])
   @@index([workspaceId, type, occurredOn])
@@ -285,6 +292,20 @@ model Transaction {
   @@index([counterpartyAccountId])
   @@index([categoryId])
   @@map("transaction")
+}
+
+// SPEC-14 — Linked pair across workspaces (contribution: expense+income).
+model CrossWorkspaceLink {
+  id                  String                 @id @default(cuid())
+  kind                CrossWorkspaceLinkKind
+  sourceTransactionId String                 @unique
+  targetTransactionId String                 @unique
+  createdAt           DateTime               @default(now())
+
+  sourceTransaction Transaction @relation("CrossWsLinkSource", fields: [sourceTransactionId], references: [id], onDelete: Cascade)
+  targetTransaction Transaction @relation("CrossWsLinkTarget", fields: [targetTransactionId], references: [id], onDelete: Cascade)
+
+  @@map("cross_workspace_link")
 }
 
 // SPEC-07 — Budgets cap spending on one or more expense categories within a
