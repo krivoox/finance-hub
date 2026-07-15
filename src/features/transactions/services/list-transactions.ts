@@ -22,9 +22,13 @@ export type ListTransactionsServiceInput = {
 
 export type ListedTransaction = TransactionRecord & {
   accountName: string;
+  accountWorkspaceId: string;
   counterpartyAccountName: string | null;
   categoryName: string | null;
   createdByDisplayName: string;
+  /** True when listed because it hits a local account but registers elsewhere. */
+  isExternalToWorkspace: boolean;
+  registrationWorkspaceName: string | null;
 };
 
 export type ListTransactionsResult = {
@@ -36,9 +40,8 @@ const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 200;
 
 /**
- * SPEC-05 FR-04 / §6 — Lists transactions of a workspace ordered by
- * `occurredOn` desc, `createdAt` desc, then `id` desc for a stable cursor.
- * Supports keyset pagination via the `cursor` param.
+ * SPEC-05 FR-04 + SPEC-14 FR-05 — Lists transactions of a workspace ordered by
+ * `occurredOn` desc, plus txs that affect local accounts but register elsewhere.
  */
 export async function listTransactions(
   input: ListTransactionsServiceInput,
@@ -48,23 +51,58 @@ export async function listTransactions(
 
   const limit = Math.min(input.limit ?? DEFAULT_LIMIT, MAX_LIMIT);
 
+  const localAccountIds = (
+    await prisma.financeAccount.findMany({
+      where: { workspaceId: input.workspaceId },
+      select: { id: true },
+    })
+  ).map((a) => a.id);
+
+  const dateRange =
+    input.from || input.to
+      ? {
+          ...(input.from ? { gte: parseOccurredOn(input.from) } : {}),
+          ...(input.to ? { lte: parseOccurredOn(input.to) } : {}),
+        }
+      : undefined;
+
   const filters: Record<string, unknown> = {
-    workspaceId: input.workspaceId,
+    AND: [
+      {
+        OR: [
+          { workspaceId: input.workspaceId },
+          ...(localAccountIds.length > 0
+            ? [
+                {
+                  AND: [
+                    { workspaceId: { not: input.workspaceId } },
+                    {
+                      OR: [
+                        { accountId: { in: localAccountIds } },
+                        { counterpartyAccountId: { in: localAccountIds } },
+                      ],
+                    },
+                  ],
+                },
+              ]
+            : []),
+        ],
+      },
+      ...(input.type ? [{ type: input.type }] : []),
+      ...(input.categoryId ? [{ categoryId: input.categoryId }] : []),
+      ...(input.accountId
+        ? [
+            {
+              OR: [
+                { accountId: input.accountId },
+                { counterpartyAccountId: input.accountId },
+              ],
+            },
+          ]
+        : []),
+      ...(dateRange ? [{ occurredOn: dateRange }] : []),
+    ],
   };
-  if (input.type) filters.type = input.type;
-  if (input.categoryId) filters.categoryId = input.categoryId;
-  if (input.accountId) {
-    filters.OR = [
-      { accountId: input.accountId },
-      { counterpartyAccountId: input.accountId },
-    ];
-  }
-  if (input.from || input.to) {
-    const range: { gte?: Date; lte?: Date } = {};
-    if (input.from) range.gte = parseOccurredOn(input.from);
-    if (input.to) range.lte = parseOccurredOn(input.to);
-    filters.occurredOn = range;
-  }
 
   const rows = await prisma.transaction.findMany({
     where: filters,
@@ -91,7 +129,8 @@ export async function listTransactions(
       createdByUserId: true,
       createdAt: true,
       updatedAt: true,
-      account: { select: { name: true } },
+      workspace: { select: { name: true } },
+      account: { select: { name: true, workspaceId: true } },
       counterpartyAccount: { select: { name: true } },
       category: { select: { name: true } },
     },
@@ -120,26 +159,32 @@ export async function listTransactions(
     ]),
   );
 
-  const items: ListedTransaction[] = trimmed.map((r) => ({
-    id: r.id,
-    workspaceId: r.workspaceId,
-    type: r.type as TransactionType,
-    amountCents: r.amountCents,
-    currency: r.currency,
-    occurredOn: r.occurredOn,
-    description: r.description,
-    categoryId: r.categoryId,
-    accountId: r.accountId,
-    counterpartyAccountId: r.counterpartyAccountId,
-    createdByUserId: r.createdByUserId,
-    createdAt: r.createdAt,
-    updatedAt: r.updatedAt,
-    accountName: r.account?.name ?? "",
-    counterpartyAccountName: r.counterpartyAccount?.name ?? null,
-    categoryName: r.category?.name ?? null,
-    createdByDisplayName:
-      nameByUserId.get(r.createdByUserId) ?? r.createdByUserId,
-  }));
+  const items: ListedTransaction[] = trimmed.map((r) => {
+    const isExternal = r.workspaceId !== input.workspaceId;
+    return {
+      id: r.id,
+      workspaceId: r.workspaceId,
+      type: r.type as TransactionType,
+      amountCents: r.amountCents,
+      currency: r.currency,
+      occurredOn: r.occurredOn,
+      description: r.description,
+      categoryId: r.categoryId,
+      accountId: r.accountId,
+      counterpartyAccountId: r.counterpartyAccountId,
+      createdByUserId: r.createdByUserId,
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt,
+      accountName: r.account?.name ?? "",
+      accountWorkspaceId: r.account?.workspaceId ?? r.workspaceId,
+      counterpartyAccountName: r.counterpartyAccount?.name ?? null,
+      categoryName: r.category?.name ?? null,
+      createdByDisplayName:
+        nameByUserId.get(r.createdByUserId) ?? r.createdByUserId,
+      isExternalToWorkspace: isExternal,
+      registrationWorkspaceName: isExternal ? r.workspace.name : null,
+    };
+  });
 
   return {
     items,

@@ -24,6 +24,16 @@ type AccountOption = {
   id: string;
   name: string;
   currency: string;
+  workspaceId?: string;
+  workspaceName?: string;
+  workspaceType?: "personal" | "group";
+};
+
+type PaymentAccountGroup = {
+  workspaceId: string;
+  workspaceName: string;
+  workspaceType: "personal" | "group";
+  accounts: readonly AccountOption[];
 };
 
 type CategoryOption = {
@@ -41,8 +51,11 @@ type SplitMethod = "equal" | "exact" | "percentage";
 
 type NewTransactionFormProps = {
   workspaceId: string;
+  workspaceName: string;
   workspaceCurrency: string;
   accounts: readonly AccountOption[];
+  /** Accounts across workspaces for income/expense payment source. */
+  paymentAccountGroups?: readonly PaymentAccountGroup[];
   categories: readonly CategoryOption[];
   /** When set, expense form can attach a group split. */
   groupMembers?: readonly MemberOption[];
@@ -79,8 +92,10 @@ const SELECT_CLASSES = nativeSelectClassName;
 
 export function NewTransactionForm({
   workspaceId,
+  workspaceName,
   workspaceCurrency,
   accounts,
+  paymentAccountGroups = [],
   categories,
   groupMembers = [],
   currentUserId,
@@ -88,6 +103,11 @@ export function NewTransactionForm({
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const canSplit = groupMembers.length > 0;
+
+  const flatPaymentAccounts = useMemo(
+    () => paymentAccountGroups.flatMap((g) => g.accounts),
+    [paymentAccountGroups],
+  );
 
   const [shareExpense, setShareExpense] = useState(false);
   const [splitMethod, setSplitMethod] = useState<SplitMethod>("equal");
@@ -149,6 +169,14 @@ export function NewTransactionForm({
     [accounts, watchedAccountId],
   );
 
+  const selectedPaymentAccount =
+    flatPaymentAccounts.find((a) => a.id === watchedAccountId) ??
+    accounts.find((a) => a.id === watchedAccountId);
+
+  const isExternalPayment =
+    Boolean(selectedPaymentAccount?.workspaceId) &&
+    selectedPaymentAccount?.workspaceId !== workspaceId;
+
   const showSplitPanel =
     canSplit && watchedType === "expense" && shareExpense;
 
@@ -186,7 +214,13 @@ export function NewTransactionForm({
       let result: { ok: boolean; error?: string };
 
       if (values.type === "expense" && shareExpense && canSplit) {
-        if (!paidByUserId) {
+        const effectivePaidBy =
+          isExternalPayment &&
+          selectedPaymentAccount?.workspaceType === "personal" &&
+          currentUserId
+            ? currentUserId
+            : paidByUserId;
+        if (!effectivePaidBy) {
           toast.error("Indicá quién pagó el gasto");
           return;
         }
@@ -202,7 +236,7 @@ export function NewTransactionForm({
             amountCents,
             occurredOn: values.occurredOn,
             description,
-            paidByUserId,
+            paidByUserId: effectivePaidBy,
             method: "equal",
             participantUserIds: participantIds,
           });
@@ -234,7 +268,7 @@ export function NewTransactionForm({
             amountCents,
             occurredOn: values.occurredOn,
             description,
-            paidByUserId,
+            paidByUserId: effectivePaidBy,
             method: "exact",
             exactShares,
           });
@@ -266,7 +300,7 @@ export function NewTransactionForm({
             amountCents,
             occurredOn: values.occurredOn,
             description,
-            paidByUserId,
+            paidByUserId: effectivePaidBy,
             method: "percentage",
             percentages,
           });
@@ -396,7 +430,11 @@ export function NewTransactionForm({
             htmlFor="tx-account"
             className="text-sm font-medium text-muted-foreground"
           >
-            {watchedType === "transfer" ? "Cuenta origen" : "Cuenta"}
+            {watchedType === "transfer"
+              ? "Cuenta origen"
+              : watchedType === "income"
+                ? "Se acredita en"
+                : "Se descuenta de"}
           </label>
           <select
             id="tx-account"
@@ -404,11 +442,30 @@ export function NewTransactionForm({
             aria-invalid={Boolean(errors.accountId)}
             {...register("accountId", { required: true })}
           >
-            {accounts.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.name}
-              </option>
-            ))}
+            {watchedType === "transfer" || paymentAccountGroups.length === 0
+              ? accounts.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.name}
+                  </option>
+                ))
+              : paymentAccountGroups.map((group) => (
+                  <optgroup
+                    key={group.workspaceId}
+                    label={
+                      group.workspaceId === workspaceId
+                        ? `Este espacio · ${group.workspaceName}`
+                        : group.workspaceType === "personal"
+                          ? `Tu espacio personal · ${group.workspaceName}`
+                          : group.workspaceName
+                    }
+                  >
+                    {group.accounts.map((a) => (
+                      <option key={a.id} value={a.id}>
+                        {a.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
           </select>
         </div>
 
@@ -475,6 +532,25 @@ export function NewTransactionForm({
           />
         </div>
       </div>
+
+      {watchedType !== "transfer" && selectedPaymentAccount ? (
+        <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-sm text-foreground">
+          Se registra en <strong>{workspaceName}</strong>
+          {" · "}
+          {watchedType === "income" ? "Se acredita en" : "Se descuenta de"}{" "}
+          <strong>
+            {isExternalPayment
+              ? `${selectedPaymentAccount.workspaceName} · ${selectedPaymentAccount.name}`
+              : selectedPaymentAccount.name}
+          </strong>
+          {isExternalPayment ? (
+            <span className="mt-1 block text-xs text-muted-foreground">
+              El movimiento queda en este espacio; el saldo cambia en la cuenta
+              de otro espacio.
+            </span>
+          ) : null}
+        </p>
+      ) : null}
 
       {canSplit && watchedType === "expense" ? (
         <div className="space-y-4 border-t border-border pt-4">

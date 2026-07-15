@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ContentPanel } from "@/components/app-shell/content-panel";
 import { Badge } from "@/components/ui/badge";
@@ -131,23 +132,25 @@ export default async function GroupsActivityPage() {
         ) : (
           <ul className="divide-y divide-border">
             {overview.recentActivity.map((tx) => (
-              <li
-                key={tx.id}
-                className="flex items-start justify-between gap-3 py-3 text-sm first:pt-0 last:pb-0"
-              >
-                <div className="min-w-0">
-                  <p className="truncate font-medium text-foreground">
-                    {tx.description || tx.categoryName || tx.type}
-                  </p>
-                  <p className="truncate text-muted-foreground">
-                    {tx.accountName}
-                    <span className="text-border"> · </span>
-                    Registró {tx.createdByDisplayName}
-                  </p>
-                </div>
-                <span className="shrink-0 tabular-nums text-foreground">
-                  {formatMoney(tx.amountCents, tx.currency)}
-                </span>
+              <li key={tx.id} className="first:pt-0 last:pb-0">
+                <Link
+                  href={`/transactions/${tx.id}`}
+                  className="flex items-start justify-between gap-3 py-3 text-sm hover:bg-muted/40"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate font-medium text-foreground">
+                      {tx.description || tx.categoryName || tx.type}
+                    </p>
+                    <p className="truncate text-muted-foreground">
+                      {tx.accountName}
+                      <span className="text-border"> · </span>
+                      Registró {tx.createdByDisplayName}
+                    </p>
+                  </div>
+                  <span className="shrink-0 tabular-nums text-foreground">
+                    {formatMoney(tx.amountCents, tx.currency)}
+                  </span>
+                </Link>
               </li>
             ))}
           </ul>

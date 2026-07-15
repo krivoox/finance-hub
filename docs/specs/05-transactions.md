@@ -32,7 +32,8 @@ Ingresos y gastos son el núcleo del ledger. Las transferencias se especifican e
 
 - `occurredOn` no puede ser > hoy + 1 día (timezone del user) — tolerancia clock skew.
 - Categoría requerida y compatible con type.
-- Account activa y del mismo workspace.
+- Account activa. Por defecto del mismo workspace; si la cuenta es de otro workspace del usuario, ver [SPEC-14](./14-cross-workspace-money.md) (expense/income funded externo).
+- Transferencias siguen exigiendo cuentas del mismo workspace ([SPEC-06](./06-transfers.md)).
 - Member puede crear; viewer no.
 - Editar amount/account recalcula balances derivados (no hay campo balance mutable).
 
@@ -104,3 +105,5 @@ Ingresos y gastos son el núcleo del ledger. Las transferencias se especifican e
 ## 9. Notas
 
 Preferir un modelo único `Transaction` con `type` discriminado; tests cubren cada variante.
+
+Detalle de UI: [SPEC-13](./13-transaction-detail.md). Dinero entre workspaces: [SPEC-14](./14-cross-workspace-money.md).

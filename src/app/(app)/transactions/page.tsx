@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { ContentPanel } from "@/components/app-shell/content-panel";
@@ -18,8 +19,9 @@ import {
 } from "@/features/workspaces/services";
 import { listAccounts } from "@/features/accounts/services";
 import { listCategories } from "@/features/categories/services";
-import { listTransactions } from "@/features/transactions/services";
+import { listTransactions, listPaymentAccountsForUser } from "@/features/transactions/services";
 import { NewTransactionForm } from "@/features/transactions/components/new-transaction-form";
+import { ContributeCrossWorkspaceForm } from "@/features/transactions/components/contribute-cross-workspace-form";
 import type { TransactionType } from "@/features/transactions/domain";
 
 function amountVariant(
@@ -65,20 +67,25 @@ export default async function TransactionsPage() {
     );
   }
 
-  const [accounts, categories, txPage, members] = await Promise.all([
-    listAccounts({ userId: session.user.id, workspaceId: workspace.id }),
-    listCategories({ userId: session.user.id, workspaceId: workspace.id }),
-    listTransactions({
-      userId: session.user.id,
-      workspaceId: workspace.id,
-      limit: 50,
-    }),
-    workspace.type === "group"
-      ? listMembers(session.user.id, workspace.id)
-      : Promise.resolve([]),
-  ]);
-
   const canMutate = workspace.role !== "viewer";
+
+  const [accounts, categories, txPage, members, paymentGroups] =
+    await Promise.all([
+      listAccounts({ userId: session.user.id, workspaceId: workspace.id }),
+      listCategories({ userId: session.user.id, workspaceId: workspace.id }),
+      listTransactions({
+        userId: session.user.id,
+        workspaceId: workspace.id,
+        limit: 50,
+      }),
+      workspace.type === "group"
+        ? listMembers(session.user.id, workspace.id)
+        : Promise.resolve([]),
+      canMutate
+        ? listPaymentAccountsForUser(session.user.id)
+        : Promise.resolve([]),
+    ]);
+
   const activeAccounts = accounts.filter((a) => !a.isArchived);
   const groupMembers =
     workspace.type === "group"
@@ -89,6 +96,16 @@ export default async function TransactionsPage() {
         }))
       : [];
 
+  const contributionAccounts = paymentGroups.flatMap((g) =>
+    g.accounts.map((a) => ({
+      id: a.id,
+      name: a.name,
+      currency: a.currency,
+      workspaceId: a.workspaceId,
+      workspaceName: a.workspaceName,
+      workspaceType: a.workspaceType,
+    })),
+  );
   return (
     <ContentPanel
       title="Movimientos"
@@ -113,11 +130,28 @@ export default async function TransactionsPage() {
             ) : (
               <NewTransactionForm
                 workspaceId={workspace.id}
+                workspaceName={workspace.name}
                 workspaceCurrency={workspace.baseCurrency}
                 accounts={activeAccounts.map((a) => ({
                   id: a.id,
                   name: a.name,
                   currency: a.currency,
+                  workspaceId: workspace.id,
+                  workspaceName: workspace.name,
+                  workspaceType: workspace.type,
+                }))}
+                paymentAccountGroups={paymentGroups.map((g) => ({
+                  workspaceId: g.workspaceId,
+                  workspaceName: g.workspaceName,
+                  workspaceType: g.workspaceType,
+                  accounts: g.accounts.map((a) => ({
+                    id: a.id,
+                    name: a.name,
+                    currency: a.currency,
+                    workspaceId: a.workspaceId,
+                    workspaceName: a.workspaceName,
+                    workspaceType: a.workspaceType,
+                  })),
                 }))}
                 categories={categories
                   .filter((c) => !c.isArchived)
@@ -130,6 +164,23 @@ export default async function TransactionsPage() {
                 currentUserId={session.user.id}
               />
             )}
+          </section>
+        ) : null}
+
+        {canMutate && contributionAccounts.length >= 2 ? (
+          <section className="space-y-3">
+            <header>
+              <h2 className="text-sm font-semibold text-foreground">
+                Aportar a otro espacio
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Mové fondos entre tus workspaces (ej. personal → hogar).
+              </p>
+            </header>
+            <ContributeCrossWorkspaceForm
+              accounts={contributionAccounts}
+              currencyHint={workspace.baseCurrency}
+            />
           </section>
         ) : null}
 
@@ -164,7 +215,11 @@ export default async function TransactionsPage() {
                   const accountLabel =
                     tx.type === "transfer" && tx.counterpartyAccountName
                       ? `${tx.accountName} → ${tx.counterpartyAccountName}`
-                      : tx.accountName;
+                      : tx.isExternalToWorkspace && tx.registrationWorkspaceName
+                        ? `${tx.registrationWorkspaceName} · ${tx.accountName}`
+                        : tx.accountWorkspaceId !== workspace.id
+                          ? tx.accountName
+                          : tx.accountName;
                   const categoryLabel =
                     tx.type === "transfer"
                       ? "Transferencia"
@@ -174,18 +229,32 @@ export default async function TransactionsPage() {
                     (tx.type === "transfer"
                       ? "Transferencia"
                       : (tx.categoryName ?? "Movimiento"));
+                  const descriptionWithChip = tx.isExternalToWorkspace
+                    ? `${tx.registrationWorkspaceName ?? "Otro espacio"} · ${description}`
+                    : tx.accountWorkspaceId !== workspace.id
+                      ? description
+                      : description;
                   return (
-                    <TableRow key={tx.id}>
+                    <TableRow key={tx.id} className="relative">
                       <TableCell>
                         <div className="flex min-w-0 flex-col gap-0.5">
-                          <span className="font-medium text-foreground">
-                            {description}
-                          </span>
+                          <Link
+                            href={`/transactions/${tx.id}`}
+                            className="font-medium text-foreground after:absolute after:inset-0 hover:underline"
+                          >
+                            {descriptionWithChip}
+                          </Link>
                           <span className="text-xs text-muted-foreground sm:hidden">
                             {accountLabel}
                             {" · "}
                             {formatOccurredOn(tx.occurredOn)}
                           </span>
+                          {tx.accountWorkspaceId !== workspace.id &&
+                          !tx.isExternalToWorkspace ? (
+                            <span className="text-xs text-muted-foreground">
+                              Pagado desde otro espacio
+                            </span>
+                          ) : null}
                         </div>
                       </TableCell>
                       <TableCell className="hidden text-muted-foreground sm:table-cell">

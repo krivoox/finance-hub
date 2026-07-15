@@ -60,12 +60,15 @@ export function DashboardRecent({
           </TableHeader>
           <TableBody>
             {transactions.map((tx) => (
-              <TableRow key={tx.id}>
+              <TableRow key={tx.id} className="relative">
                 <TableCell>
                   <div className="flex flex-col gap-0.5">
-                    <span className="font-medium text-foreground">
+                    <Link
+                      href={`/transactions/${tx.id}`}
+                      className="font-medium text-foreground after:absolute after:inset-0 hover:underline"
+                    >
                       {tx.description ?? "—"}
-                    </span>
+                    </Link>
                     <span className="text-xs text-muted-foreground">
                       {tx.categoryName ?? "Sin categoría"}
                     </span>

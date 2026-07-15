@@ -156,7 +156,25 @@ Campos comunes:
 
 - `amount.currency` debe coincidir con la cuenta afectada (MVP: sin FX).
 - Transfer: `accountId ≠ counterpartyAccountId`, ambas del mismo workspace.
+- Income/expense: `accountId` puede ser de otro workspace del mismo usuario (funded externo, SPEC-14); el `workspaceId` de la tx es el contexto de registro (categorías, budgets, splits).
 - No se puede borrar una cuenta con transacciones (archivar).
+
+### CrossWorkspaceLink
+
+Vínculo 1↔1 entre dos transacciones de workspaces distintos (aporte / fondeo).
+
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| id | Id | |
+| kind | `contribution` \| `externally_funded_expense` | |
+| sourceTransactionId | Id | pata que saca dinero (expense del aporte) |
+| targetTransactionId | Id | pata que recibe (income del aporte) |
+
+**Invariantes**
+
+- Solo `contribution` materializa siempre ambas puntas.
+- Delete/update de monto en cascada sobre el par.
+- Categorías de aporte excluidas del `spent` de presupuestos de consumo.
 
 ### Money (value object)
 

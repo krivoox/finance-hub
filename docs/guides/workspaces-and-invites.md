@@ -35,12 +35,27 @@ En un grupo, todos ven patrimonio consolidado y “quién debe a quién”. Solo
 
 ## Qué ve cada uno
 
-- En el **personal**: solo sus cuentas/movimientos de ese workspace.
+- En el **personal**: cuentas/movimientos de ese workspace, más débitos/créditos por gastos o ingresos registrados en otro espacio que usan tus cuentas.
 - En el **grupo**: las mismas cuentas y movimientos del hogar, más balances de splits/settlements.
 - Un `viewer` del grupo ve todo en lectura; no puede invitar ni registrar liquidaciones.
+
+## Dinero entre espacios
+
+Dos flujos (no son transferencias internas):
+
+| Flujo | Qué hace |
+|-------|----------|
+| **Aportar a otro espacio** | Sale de una cuenta tuya e ingresa a una cuenta de otro workspace (fondear Casa). |
+| **Pagar con cuenta de otro espacio** | El movimiento se **registra** en el workspace activo (categoría, presupuesto, split) y el saldo se **descuenta** de la cuenta elegida (p. ej. Visa personal). |
+
+En el formulario: resumen claro **“Se registra en …”** vs **“Se descuenta de …”**.  
+Otros miembros del grupo no ven el nombre de tu cuenta personal.
+
+Detalle: [14-cross-workspace-money.md](../specs/14-cross-workspace-money.md).
 
 ## Referencias
 
 - Spec: [02-workspaces.md](../specs/02-workspaces.md)
 - Grupos / splits: [09-financial-groups.md](../specs/09-financial-groups.md), [10-expense-splitting.md](../specs/10-expense-splitting.md)
+- Detalle movimiento: [13-transaction-detail.md](../specs/13-transaction-detail.md)
 - ADR tenancy: [002-workspace-tenancy.md](../adr/002-workspace-tenancy.md)

@@ -46,3 +46,18 @@ export {
   assertCanMutateTransactions,
   assertCanReadTransactions,
 } from "./authz";
+
+export {
+  formatPaymentAccountLabel,
+  isExternallyFundedAccount,
+} from "./payment-account-label";
+export type { PaymentAccountLabelInput } from "./payment-account-label";
+
+export {
+  assertCanContribute,
+  SameWorkspaceContributionError,
+} from "./contribution";
+export type {
+  ContributionAccountLike,
+  ContributionMembershipLike,
+} from "./contribution";

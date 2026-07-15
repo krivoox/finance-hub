@@ -74,5 +74,7 @@ Una transferencia mueve valor entre dos cuentas del mismo workspace sin ser ingr
 
 ## 8. Fuera de alcance
 
-- Transferencias entre workspaces
+- Transferencias `type=transfer` entre workspaces (no relajar FR-02)
+- Aportes / fondeo entre espacios → ver [SPEC-14](./14-cross-workspace-money.md) (`CreateCrossWorkspaceContribution`)
+- Gastos del hogar pagados con cuenta personal → SPEC-14 (expense con account foreign)
 - FX / fees

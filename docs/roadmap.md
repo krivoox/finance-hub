@@ -30,6 +30,13 @@ Orden sugerido para el agente. Cada ítem: **spec → TDD dominio/application �
 | 9 | [08-goals](./specs/08-goals.md) | Objetivos |
 | 10 | [09-financial-groups](./specs/09-financial-groups.md) + [10-expense-splitting](./specs/10-expense-splitting.md) | Grupos y splits |
 
+## Fase 2.5 — Detalle y cross-workspace
+
+| Orden | Spec | Entregable |
+|-------|------|------------|
+| 10b | [13-transaction-detail](./specs/13-transaction-detail.md) | Ficha `/transactions/[id]` + edit/delete UI |
+| 10c | [14-cross-workspace-money](./specs/14-cross-workspace-money.md) | Aporte entre espacios + expense funded externo |
+
 ## Fase 3 — P2 Insights
 
 | Orden | Spec | Entregable |

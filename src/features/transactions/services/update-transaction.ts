@@ -87,7 +87,25 @@ export async function updateTransaction(
   if (!origin) {
     throw new TransactionDomainError("La cuenta indicada no existe");
   }
-  assertAccountBelongsToWorkspace(origin.workspaceId, transaction.workspaceId);
+  if (type === "transfer") {
+    assertAccountBelongsToWorkspace(origin.workspaceId, transaction.workspaceId);
+  } else if (origin.workspaceId !== transaction.workspaceId) {
+    const accountMembership = await prisma.membership.findUnique({
+      where: {
+        workspaceId_userId: {
+          workspaceId: origin.workspaceId,
+          userId: input.userId,
+        },
+      },
+      select: { role: true },
+    });
+    if (!accountMembership) {
+      throw new TransactionDomainError(
+        "No tenés permiso para usar esa cuenta de otro espacio",
+      );
+    }
+    assertCanMutateTransactions(accountMembership.role);
+  }
   assertAccountActive(origin.isArchived);
 
   let counterparty = null;
@@ -159,6 +177,35 @@ export async function updateTransaction(
     },
     select: TRANSACTION_SELECT,
   });
+
+  // SPEC-14 FR-08 — keep contribution twin in sync for amount/date/description.
+  const link = await prisma.crossWorkspaceLink.findFirst({
+    where: {
+      kind: "contribution",
+      OR: [
+        { sourceTransactionId: transaction.id },
+        { targetTransactionId: transaction.id },
+      ],
+    },
+    select: {
+      sourceTransactionId: true,
+      targetTransactionId: true,
+    },
+  });
+  if (link) {
+    const twinId =
+      link.sourceTransactionId === transaction.id
+        ? link.targetTransactionId
+        : link.sourceTransactionId;
+    await prisma.transaction.update({
+      where: { id: twinId },
+      data: {
+        amountCents: nextAmount,
+        description: nextDescription,
+        ...(nextOccurredOn ? { occurredOn: nextOccurredOn } : {}),
+      },
+    });
+  }
 
   return {
     ...updated,

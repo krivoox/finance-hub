@@ -4,18 +4,31 @@ import type { BalanceEffectTx } from "@/features/accounts/domain";
 import type { TransactionType } from "@/features/transactions/domain";
 
 /**
- * Loads every transaction in a workspace that could affect an account balance
- * and projects it into the pure `BalanceEffectTx` shape consumed by
- * `calculateAccountBalance`. Used by `listAccounts` / `getAccount` to derive
- * `currentBalance` (SPEC-03 §5).
+ * Loads every transaction that can affect account balances **of accounts that
+ * belong to this workspace** — including externally funded txs whose
+ * `transaction.workspaceId` is another space (SPEC-14).
  *
- * Only the fields required for balance derivation are selected.
+ * Also includes classic same-workspace transfers (counterparty in this WS).
  */
 export async function loadWorkspaceBalanceEffects(
   workspaceId: string,
 ): Promise<BalanceEffectTx[]> {
+  const accountIds = (
+    await prisma.financeAccount.findMany({
+      where: { workspaceId },
+      select: { id: true },
+    })
+  ).map((a) => a.id);
+
+  if (accountIds.length === 0) return [];
+
   const rows = await prisma.transaction.findMany({
-    where: { workspaceId },
+    where: {
+      OR: [
+        { accountId: { in: accountIds } },
+        { counterpartyAccountId: { in: accountIds } },
+      ],
+    },
     select: {
       type: true,
       amountCents: true,
