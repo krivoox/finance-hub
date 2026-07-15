@@ -148,10 +148,14 @@ export default async function TransactionsPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Descripción</TableHead>
-                  <TableHead>Cuenta</TableHead>
-                  <TableHead>Categoría</TableHead>
-                  <TableHead>Registró</TableHead>
-                  <TableHead>Fecha</TableHead>
+                  <TableHead className="hidden sm:table-cell">Cuenta</TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    Categoría
+                  </TableHead>
+                  <TableHead className="hidden lg:table-cell">
+                    Registró
+                  </TableHead>
+                  <TableHead className="hidden sm:table-cell">Fecha</TableHead>
                   <TableHead className="text-right">Monto</TableHead>
                 </TableRow>
               </TableHeader>
@@ -172,19 +176,28 @@ export default async function TransactionsPage() {
                       : (tx.categoryName ?? "Movimiento"));
                   return (
                     <TableRow key={tx.id}>
-                      <TableCell className="font-medium text-foreground">
-                        {description}
+                      <TableCell>
+                        <div className="flex min-w-0 flex-col gap-0.5">
+                          <span className="font-medium text-foreground">
+                            {description}
+                          </span>
+                          <span className="text-xs text-muted-foreground sm:hidden">
+                            {accountLabel}
+                            {" · "}
+                            {formatOccurredOn(tx.occurredOn)}
+                          </span>
+                        </div>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="hidden text-muted-foreground sm:table-cell">
                         {accountLabel}
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="hidden text-muted-foreground md:table-cell">
                         {categoryLabel}
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="hidden text-muted-foreground lg:table-cell">
                         {tx.createdByDisplayName}
                       </TableCell>
-                      <TableCell className="tabular-nums text-muted-foreground">
+                      <TableCell className="hidden tabular-nums text-muted-foreground sm:table-cell">
                         {formatOccurredOn(tx.occurredOn)}
                       </TableCell>
                       <TableCell className="text-right">

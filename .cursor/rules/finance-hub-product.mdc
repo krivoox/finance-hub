@@ -25,3 +25,8 @@ Finanzas personales/familiares: cuentas, movimientos, presupuestos, objetivos y 
 - `features/*/services|actions` — servidor
 - `src/lib/**` — env, auth, prisma
 - `src/app/**` — rutas delgadas
+
+## UI
+
+- Fuente: `DESIGN.md` — **mobile-first**
+- Tokens semánticos; shadcn + CVA; sin hex/`zinc-*` en producto

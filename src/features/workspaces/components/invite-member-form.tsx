@@ -80,7 +80,7 @@ export function InviteMemberForm({ workspaceId }: { workspaceId: string }) {
         <label className="grid gap-1 text-sm">
           <span className="text-muted-foreground">Rol</span>
           <select
-            className="h-9 rounded-md border border-input bg-background px-3"
+            className="h-10 w-full rounded-md border border-input bg-background px-3 text-base sm:h-9 sm:text-sm"
             {...form.register("role")}
           >
             <option value="member">Member</option>
@@ -89,7 +89,11 @@ export function InviteMemberForm({ workspaceId }: { workspaceId: string }) {
           </select>
         </label>
         <div className="flex items-end">
-          <Button type="submit" disabled={pending}>
+          <Button
+            type="submit"
+            className="h-10 w-full sm:h-8 sm:w-auto"
+            disabled={pending}
+          >
             {pending ? "Invitando…" : "Crear invitación"}
           </Button>
         </div>

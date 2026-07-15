@@ -25,7 +25,7 @@ export function GroupsSectionNav({
   return (
     <nav
       aria-label="Secciones del grupo"
-      className="mb-8 flex gap-6 border-b border-border"
+      className="-mx-1 mb-8 flex gap-4 overflow-x-auto border-b border-border px-1 sm:gap-6"
     >
       {SECTIONS.map((section) => {
         const isActive = section.id === active;
@@ -34,14 +34,14 @@ export function GroupsSectionNav({
             key={section.id}
             href={section.href}
             className={cn(
-              "relative -mb-px pb-3 text-sm transition-colors",
+              "relative -mb-px shrink-0 pb-3 text-sm transition-colors",
               isActive
                 ? "font-medium text-foreground"
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
             <span className="block">{section.label}</span>
-            <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
+            <span className="mt-0.5 hidden text-xs font-normal text-muted-foreground sm:block">
               {section.description}
             </span>
             {isActive ? (

@@ -12,6 +12,7 @@ import {
 } from "@/features/budgets/domain";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { nativeSelectClassName } from "@/components/ui/native-select";
 import { BUDGET_PERIOD_LABEL_ES } from "./period-labels";
 
 type CategoryOption = {
@@ -28,8 +29,7 @@ type FormValues = {
   categoryIds: string[];
 };
 
-const SELECT_CLASSES =
-  "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
+const SELECT_CLASSES = nativeSelectClassName;
 
 function todayIsoDate(): string {
   const now = new Date();
@@ -243,8 +243,12 @@ export function NewBudgetForm({
         </div>
       </div>
 
-      <div className="flex justify-end">
-        <Button type="submit" disabled={isBusy}>
+      <div className="flex justify-stretch sm:justify-end">
+        <Button
+          type="submit"
+          className="h-10 w-full sm:h-8 sm:w-auto"
+          disabled={isBusy}
+        >
           {isBusy ? "Creando..." : "Crear presupuesto"}
         </Button>
       </div>

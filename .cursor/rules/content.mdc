@@ -1,0 +1,9 @@
+# Content Rule
+
+Whenever the user requests social media content, marketing material, changelogs or announcements:
+
+- Inspect the repository before writing.
+- Never invent information.
+- Base publications on real project changes.
+- Use the `social-content` skill.
+- The `social-content` skill must invoke `/linkedin-posts` for style and tone.

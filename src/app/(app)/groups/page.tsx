@@ -92,14 +92,14 @@ export default async function GroupsActivityPage() {
             {overview.memberBalances.map((member) => (
               <li
                 key={member.userId}
-                className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+                className="flex items-start justify-between gap-3 py-3 first:pt-0 last:pb-0 sm:items-center"
               >
-                <p className="font-medium text-foreground">
+                <p className="min-w-0 truncate font-medium text-foreground">
                   {member.displayName}
                 </p>
                 <Badge
                   variant={member.netCents >= 0 ? "income" : "expense"}
-                  className="tabular-nums"
+                  className="shrink-0 tabular-nums"
                 >
                   {member.netCents >= 0 ? "Le deben " : "Debe "}
                   {formatMoney(Math.abs(member.netCents), overview.currency)}
@@ -133,19 +133,19 @@ export default async function GroupsActivityPage() {
             {overview.recentActivity.map((tx) => (
               <li
                 key={tx.id}
-                className="flex items-center justify-between gap-3 py-3 text-sm first:pt-0 last:pb-0"
+                className="flex items-start justify-between gap-3 py-3 text-sm first:pt-0 last:pb-0"
               >
-                <div>
-                  <p className="font-medium text-foreground">
+                <div className="min-w-0">
+                  <p className="truncate font-medium text-foreground">
                     {tx.description || tx.categoryName || tx.type}
                   </p>
-                  <p className="text-muted-foreground">
+                  <p className="truncate text-muted-foreground">
                     {tx.accountName}
                     <span className="text-border"> · </span>
                     Registró {tx.createdByDisplayName}
                   </p>
                 </div>
-                <span className="tabular-nums text-foreground">
+                <span className="shrink-0 tabular-nums text-foreground">
                   {formatMoney(tx.amountCents, tx.currency)}
                 </span>
               </li>

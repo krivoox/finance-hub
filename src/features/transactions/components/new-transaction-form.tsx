@@ -15,9 +15,10 @@ import {
   TRANSACTION_TYPES,
   type TransactionType,
 } from "@/features/transactions/domain";
-import { TRANSACTION_TYPE_LABEL_ES } from "./transaction-type-labels";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { nativeSelectClassName } from "@/components/ui/native-select";
+import { TRANSACTION_TYPE_LABEL_ES } from "./transaction-type-labels";
 
 type AccountOption = {
   id: string;
@@ -74,8 +75,7 @@ function parseAmountCents(raw: string): number | null {
   return amountCents;
 }
 
-const SELECT_CLASSES =
-  "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
+const SELECT_CLASSES = nativeSelectClassName;
 
 export function NewTransactionForm({
   workspaceId,
@@ -587,7 +587,7 @@ export function NewTransactionForm({
                     {groupMembers.map((m) => (
                       <li
                         key={m.userId}
-                        className="grid grid-cols-[1fr_120px] items-center gap-3"
+                        className="grid grid-cols-1 items-center gap-2 sm:grid-cols-[minmax(0,1fr)_7.5rem] sm:gap-3"
                       >
                         <span className="text-sm text-foreground">
                           {m.displayName}
@@ -621,7 +621,7 @@ export function NewTransactionForm({
                     {groupMembers.map((m) => (
                       <li
                         key={m.userId}
-                        className="grid grid-cols-[1fr_100px] items-center gap-3"
+                        className="grid grid-cols-1 items-center gap-2 sm:grid-cols-[minmax(0,1fr)_6.25rem] sm:gap-3"
                       >
                         <span className="text-sm text-foreground">
                           {m.displayName}
@@ -651,8 +651,12 @@ export function NewTransactionForm({
         </div>
       ) : null}
 
-      <div className="flex justify-end">
-        <Button type="submit" disabled={isBusy || accounts.length === 0}>
+      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        <Button
+          type="submit"
+          className="h-10 w-full sm:h-8 sm:w-auto"
+          disabled={isBusy || accounts.length === 0}
+        >
           {isBusy
             ? "Guardando..."
             : shareExpense && watchedType === "expense"

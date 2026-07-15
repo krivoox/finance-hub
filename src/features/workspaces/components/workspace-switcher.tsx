@@ -26,6 +26,8 @@ export type WorkspaceOption = {
   name: string;
   type: "personal" | "group";
   baseCurrency: string;
+  /** Present on the active workspace; used to gate mutate CTAs. */
+  role?: "owner" | "admin" | "member" | "viewer";
 };
 
 export type WorkspaceSwitcherProps = {
@@ -80,10 +82,10 @@ export function WorkspaceSwitcher({
               tooltip={activeName}
               disabled={isPending}
             >
-              <div className="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary text-xs font-semibold text-sidebar-primary-foreground">
+              <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-xs font-semibold text-sidebar-primary-foreground">
                 {activeInitials}
               </div>
-              <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
+              <div className="grid min-w-0 flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
                 <span className="truncate font-semibold text-sidebar-accent-foreground">
                   {activeName}
                 </span>
@@ -91,7 +93,7 @@ export function WorkspaceSwitcher({
                   {activeSubtitle}
                 </span>
               </div>
-              <ChevronsUpDown className="ml-auto size-4 text-muted-foreground" />
+              <ChevronsUpDown className="ml-auto size-4 text-muted-foreground group-data-[collapsible=icon]:hidden" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent

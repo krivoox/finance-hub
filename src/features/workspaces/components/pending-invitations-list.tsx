@@ -49,15 +49,15 @@ export function PendingInvitationsList({
       {invitations.map((inv) => (
         <li
           key={inv.id}
-          className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+          className="flex flex-col gap-3 py-3 first:pt-0 last:pb-0 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between"
         >
-          <div>
-            <p className="font-medium text-foreground">{inv.email}</p>
+          <div className="min-w-0">
+            <p className="truncate font-medium text-foreground">{inv.email}</p>
             <p className="text-xs text-muted-foreground">
               Expira {inv.expiresOn}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <Badge variant="secondary">
               {ROLE_LABEL[inv.role] ?? inv.role}
             </Badge>
@@ -65,6 +65,7 @@ export function PendingInvitationsList({
               type="button"
               size="sm"
               variant="ghost"
+              className="h-9"
               onClick={() => void copy(inv.token)}
             >
               Copiar link

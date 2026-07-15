@@ -148,7 +148,11 @@ export function ContributeGoalForm({
           {...register("note")}
         />
       </div>
-      <Button type="submit" size="sm" disabled={isBusy}>
+      <Button
+        type="submit"
+        className="h-10 w-full shrink-0 sm:h-8 sm:w-auto"
+        disabled={isBusy}
+      >
         {isBusy ? "Registrando..." : "Aportar"}
       </Button>
     </form>

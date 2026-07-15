@@ -73,7 +73,7 @@ export function NewGroupWorkspaceForm() {
         <select
           id="workspace-currency"
           aria-invalid={Boolean(errors.baseCurrency)}
-          className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring sm:h-9 sm:text-sm"
           {...register("baseCurrency")}
         >
           {SUPPORTED_CURRENCIES.map((code) => (
@@ -89,7 +89,11 @@ export function NewGroupWorkspaceForm() {
         ) : null}
       </div>
 
-      <Button type="submit" disabled={isBusy}>
+      <Button
+        type="submit"
+        className="h-10 w-full sm:h-8 sm:w-auto"
+        disabled={isBusy}
+      >
         {isBusy ? "Creando..." : "Crear workspace"}
       </Button>
     </form>

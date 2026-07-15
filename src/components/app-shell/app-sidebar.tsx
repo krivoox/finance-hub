@@ -26,10 +26,12 @@ import {
 } from "@/features/workspaces/components/workspace-switcher";
 
 import {
+  applyNavBadges,
   footerNavItems,
   isNavItemActive,
   mainNavItems,
   navGroups,
+  type NavBadges,
   type NavItem,
 } from "./nav-config";
 
@@ -43,6 +45,7 @@ export type AppSidebarProps = {
   user: SidebarUser;
   workspaces: readonly WorkspaceOption[];
   activeWorkspace: WorkspaceOption | null;
+  navBadges?: NavBadges;
 };
 
 function NavMenuItems({ items }: { items: NavItem[] }) {
@@ -76,7 +79,16 @@ export function AppSidebar({
   user,
   workspaces,
   activeWorkspace,
+  navBadges = {},
 }: AppSidebarProps) {
+  const mainItems = applyNavBadges(mainNavItems, navBadges);
+  const groups = navGroups.map((group) => ({
+    ...group,
+    items: applyNavBadges(group.items, navBadges),
+  }));
+  const footerItems = applyNavBadges(footerNavItems, navBadges);
+  const canMutate = activeWorkspace?.role !== "viewer";
+
   return (
     <Sidebar collapsible="icon" variant="inset">
       <SidebarHeader className="gap-3">
@@ -86,21 +98,23 @@ export function AppSidebar({
         />
 
         <div className="flex items-center gap-2 px-0.5 group-data-[collapsible=icon]:flex-col">
-          <Button
-            asChild
-            className="h-8 flex-1 justify-start gap-2 rounded-full px-3 group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:flex-none group-data-[collapsible=icon]:rounded-lg group-data-[collapsible=icon]:p-0"
-          >
-            <Link href="/transactions">
-              <Plus className="size-4" strokeWidth={1.75} />
-              <span className="group-data-[collapsible=icon]:sr-only">
-                Registrar
-              </span>
-            </Link>
-          </Button>
+          {canMutate ? (
+            <Button
+              asChild
+              className="h-10 flex-1 justify-center gap-2 rounded-full px-3 text-center align-middle md:h-8 group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:flex-none group-data-[collapsible=icon]:rounded-lg group-data-[collapsible=icon]:p-0"
+            >
+              <Link href="/transactions">
+                <Plus className="size-4" strokeWidth={1.75} />
+                <span className="flex flex-wrap group-data-[collapsible=icon]:sr-only">
+                  Registrar
+                </span>
+              </Link>
+            </Button>
+          ) : null}
           <Button
             variant="outline"
             size="icon"
-            className="size-8 shrink-0 rounded-lg"
+            className="size-10 shrink-0 rounded-lg md:size-8"
             aria-label="Buscar"
             asChild
           >
@@ -114,11 +128,11 @@ export function AppSidebar({
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupContent>
-            <NavMenuItems items={mainNavItems} />
+            <NavMenuItems items={mainItems} />
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {navGroups.map((group) => (
+        {groups.map((group) => (
           <SidebarGroup key={group.label}>
             <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
             <SidebarGroupContent>
@@ -132,7 +146,7 @@ export function AppSidebar({
         <SidebarSeparator />
         <SidebarGroup className="p-0">
           <SidebarGroupContent>
-            <NavMenuItems items={footerNavItems} />
+            <NavMenuItems items={footerItems} />
           </SidebarGroupContent>
         </SidebarGroup>
 
