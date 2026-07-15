@@ -39,17 +39,23 @@ export default async function DashboardPage() {
   }
 
   const timezone = profile?.timezone ?? "UTC";
+  const now = new Date();
+
+  // Shared `now` + request-cached budget snapshot: both share one DB load for
+  // budgets/expenses while fetching analytics txs in parallel with dashboard.
   const [dashboard, analytics] = await Promise.all([
     getDashboard({
       userId: session.user.id,
       workspaceId: workspace.id,
       timezone,
       currency: workspace.baseCurrency,
+      now,
     }),
     getAnalytics({
       userId: session.user.id,
       workspaceId: workspace.id,
       timezone,
+      now,
     }),
   ]);
 

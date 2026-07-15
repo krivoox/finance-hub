@@ -16,7 +16,7 @@
 | [vision.md](./vision.md) | Visión, objetivos, usuarios y principios |
 | [stack.md](./stack.md) | Stack tecnológico fijado (Siturn / template) |
 | [domain-model.md](./domain-model.md) | Entidades, value objects, invariantes |
-| [architecture.md](./architecture.md) | Capas, carpetas, auth, datos, patrones |
+| [architecture.md](./architecture.md) | Capas, carpetas, auth, datos, memoización por request |
 | [tdd-workflow.md](./tdd-workflow.md) | Cómo aplicar TDD en este repo |
 | [roadmap.md](./roadmap.md) | Orden de implementación sugerido |
 | [glossary.md](./glossary.md) | Glosario de términos de negocio |

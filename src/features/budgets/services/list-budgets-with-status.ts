@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { requireMembership } from "@/features/workspaces/services";
 import {
@@ -16,6 +17,100 @@ export type BudgetWithProgress = BudgetRecord & {
   progress: BudgetProgress;
 };
 
+type BudgetRow = {
+  id: string;
+  workspaceId: string;
+  name: string;
+  period: string;
+  startDate: Date;
+  endDate: Date | null;
+  limitCents: number;
+  currency: string;
+  isArchived: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  categories: { categoryId: string }[];
+};
+
+type BudgetSnapshot = {
+  budgets: BudgetRow[];
+  expenses: BudgetExpenseCandidate[];
+};
+
+/**
+ * Loads budgets + expense candidates once per request.
+ * Primitive args so React.cache can hit when layout badge, /budgets, and
+ * dashboard/analytics all need the same snapshot (referenceDate only affects
+ * progress math, not the DB round-trip).
+ */
+const loadBudgetSnapshot = cache(
+  async (
+    userId: string,
+    workspaceId: string,
+    includeArchived: boolean,
+  ): Promise<BudgetSnapshot> => {
+    const { role } = await requireMembership(userId, workspaceId);
+    assertCanReadBudgets(role);
+
+    const [budgets, expenseRows, contributionCategories] = await Promise.all([
+      prisma.budget.findMany({
+        where: {
+          workspaceId,
+          ...(includeArchived ? {} : { isArchived: false }),
+        },
+        orderBy: [{ isArchived: "asc" }, { createdAt: "desc" }],
+        select: {
+          id: true,
+          workspaceId: true,
+          name: true,
+          period: true,
+          startDate: true,
+          endDate: true,
+          limitCents: true,
+          currency: true,
+          isArchived: true,
+          createdAt: true,
+          updatedAt: true,
+          categories: { select: { categoryId: true } },
+        },
+      }),
+      prisma.transaction.findMany({
+        where: { workspaceId, type: "expense" },
+        select: {
+          type: true,
+          amountCents: true,
+          occurredOn: true,
+          categoryId: true,
+        },
+      }),
+      // SPEC-14 — exclude contribution outflows from consumer budget "all expenses".
+      prisma.category.findMany({
+        where: {
+          workspaceId,
+          kind: "expense",
+          name: CONTRIBUTION_CATEGORY_NAMES.expense,
+        },
+        select: { id: true },
+      }),
+    ]);
+
+    const contributionCategoryIds = new Set(
+      contributionCategories.map((c) => c.id),
+    );
+
+    const expenses: BudgetExpenseCandidate[] = expenseRows
+      .filter((r) => !r.categoryId || !contributionCategoryIds.has(r.categoryId))
+      .map((r) => ({
+        type: "expense" as const,
+        amountCents: r.amountCents,
+        occurredOn: r.occurredOn,
+        categoryId: r.categoryId,
+      }));
+
+    return { budgets, expenses };
+  },
+);
+
 /**
  * SPEC-07 — ListBudgetsWithProgress: return every budget in the workspace
  * (optionally including archived ones) with its progress snapshot for the
@@ -23,6 +118,9 @@ export type BudgetWithProgress = BudgetRecord & {
  *
  * We load workspace expenses once and reuse the projection for every budget
  * instead of running one aggregation per budget.
+ *
+ * The DB snapshot is request-scoped via React.cache; progress is computed
+ * per call so a different `referenceDate` never serves stale math.
  */
 export async function listBudgetsWithStatus({
   userId,
@@ -35,64 +133,11 @@ export async function listBudgetsWithStatus({
   includeArchived?: boolean;
   referenceDate?: Date;
 }): Promise<BudgetWithProgress[]> {
-  const { role } = await requireMembership(userId, workspaceId);
-  assertCanReadBudgets(role);
-
-  const [budgets, expenseRows] = await Promise.all([
-    prisma.budget.findMany({
-      where: {
-        workspaceId,
-        ...(includeArchived ? {} : { isArchived: false }),
-      },
-      orderBy: [{ isArchived: "asc" }, { createdAt: "desc" }],
-      select: {
-        id: true,
-        workspaceId: true,
-        name: true,
-        period: true,
-        startDate: true,
-        endDate: true,
-        limitCents: true,
-        currency: true,
-        isArchived: true,
-        createdAt: true,
-        updatedAt: true,
-        categories: { select: { categoryId: true } },
-      },
-    }),
-    prisma.transaction.findMany({
-      where: { workspaceId, type: "expense" },
-      select: {
-        type: true,
-        amountCents: true,
-        occurredOn: true,
-        categoryId: true,
-      },
-    }),
-  ]);
-
-  // SPEC-14 — exclude contribution outflows from consumer budget "all expenses".
-  const contributionCategoryIds = new Set(
-    (
-      await prisma.category.findMany({
-        where: {
-          workspaceId,
-          kind: "expense",
-          name: CONTRIBUTION_CATEGORY_NAMES.expense,
-        },
-        select: { id: true },
-      })
-    ).map((c) => c.id),
+  const { budgets, expenses } = await loadBudgetSnapshot(
+    userId,
+    workspaceId,
+    includeArchived,
   );
-
-  const expenses: BudgetExpenseCandidate[] = expenseRows
-    .filter((r) => !r.categoryId || !contributionCategoryIds.has(r.categoryId))
-    .map((r) => ({
-      type: "expense" as const,
-      amountCents: r.amountCents,
-      occurredOn: r.occurredOn,
-      categoryId: r.categoryId,
-    }));
 
   return budgets.map((b) => {
     const categoryIds = b.categories.map((c) => c.categoryId);

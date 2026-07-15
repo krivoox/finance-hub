@@ -86,3 +86,9 @@ Pantalla principal: visión clara del estado financiero del workspace activo (pe
 - Una composición clara; métricas accionables
 - Seguir `DESIGN.md` y skill interface-design
 - No meter analytics densos en el primer viewport; deep-dive en SPEC-11
+
+## 10. Notas de implementación
+
+- `GetDashboard` reutiliza services existentes (`listAccounts`, `listTransactions`, `listBudgetsWithStatus`, `listGoals`, balances de grupo).
+- En el mismo request RSC, auth/tenancy y el snapshot de presupuestos están memoizados por request (`React.cache`) para no triplicar SQL al combinar layout (badge), `GetDashboard` y analytics — [architecture.md §7.1](../architecture.md).
+- No hay cache cross-request del read model: tras mutaciones, `revalidatePath` vuelve a cargar datos frescos.

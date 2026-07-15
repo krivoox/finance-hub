@@ -91,3 +91,9 @@ Los presupuestos limitan el gasto por categoría(s) en un periodo para controlar
 - Presupuestos enrollables / rollover automático
 - Notificaciones push
 - Presupuesto por cuenta
+
+## 9. Notas de implementación
+
+- Query `ListBudgetsWithProgress` (`listBudgetsWithStatus`): carga un **snapshot** request-scoped (budgets + expenses del workspace, excluyendo categorías de aporte SPEC-14) y calcula `progress` por llamada con `referenceDate`.
+- Ese snapshot se comparte en el mismo RSC (badge de nav, listado `/budgets`, dashboard/analytics) vía `React.cache` con claves primitivas — evita N lecturas idénticas de expenses sin servir progreso stale.
+- Detalle: [architecture.md §7.1](../architecture.md).

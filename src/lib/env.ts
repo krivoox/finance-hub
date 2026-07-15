@@ -24,6 +24,12 @@ const envSchema = z.object({
     .default("http://127.0.0.1:54321"),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().default(""),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
+
+  /** Set to "1" / "true" to log every Prisma SQL statement in development. */
+  PRISMA_LOG_QUERIES: z
+    .enum(["0", "1", "true", "false"])
+    .optional()
+    .default("0"),
 });
 
 const parsed = envSchema.safeParse(process.env);

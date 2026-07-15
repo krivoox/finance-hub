@@ -1,4 +1,5 @@
 import "server-only";
+import { cache } from "react";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { env } from "@/lib/env";
@@ -30,16 +31,43 @@ export type ActiveWorkspaceContext = {
  *
  * Returns `null` if the user has no memberships (edge case: brand-new user
  * during registration).
+ *
+ * Cached per RSC request so layout and page resolve the workspace once.
  */
-export async function getActiveWorkspaceForUser(
-  userId: string,
-): Promise<ActiveWorkspaceContext | null> {
-  const cookieStore = await cookies();
-  const cookieId = cookieStore.get(ACTIVE_WORKSPACE_COOKIE)?.value;
+export const getActiveWorkspaceForUser = cache(
+  async (userId: string): Promise<ActiveWorkspaceContext | null> => {
+    const cookieStore = await cookies();
+    const cookieId = cookieStore.get(ACTIVE_WORKSPACE_COOKIE)?.value;
 
-  if (cookieId) {
-    const membership = await prisma.membership.findUnique({
-      where: { workspaceId_userId: { workspaceId: cookieId, userId } },
+    if (cookieId) {
+      const membership = await prisma.membership.findUnique({
+        where: { workspaceId_userId: { workspaceId: cookieId, userId } },
+        select: {
+          role: true,
+          workspace: {
+            select: {
+              id: true,
+              name: true,
+              type: true,
+              baseCurrency: true,
+            },
+          },
+        },
+      });
+      if (membership) {
+        return {
+          id: membership.workspace.id,
+          name: membership.workspace.name,
+          type: membership.workspace.type as "personal" | "group",
+          baseCurrency: membership.workspace.baseCurrency,
+          role: membership.role as MembershipRole,
+        };
+      }
+    }
+
+    const fallback = await prisma.membership.findFirst({
+      where: { userId },
+      orderBy: [{ workspace: { type: "asc" } }, { joinedAt: "asc" }],
       select: {
         role: true,
         workspace: {
@@ -52,43 +80,18 @@ export async function getActiveWorkspaceForUser(
         },
       },
     });
-    if (membership) {
-      return {
-        id: membership.workspace.id,
-        name: membership.workspace.name,
-        type: membership.workspace.type as "personal" | "group",
-        baseCurrency: membership.workspace.baseCurrency,
-        role: membership.role as MembershipRole,
-      };
-    }
-  }
 
-  const fallback = await prisma.membership.findFirst({
-    where: { userId },
-    orderBy: [{ workspace: { type: "asc" } }, { joinedAt: "asc" }],
-    select: {
-      role: true,
-      workspace: {
-        select: {
-          id: true,
-          name: true,
-          type: true,
-          baseCurrency: true,
-        },
-      },
-    },
-  });
+    if (!fallback) return null;
 
-  if (!fallback) return null;
-
-  return {
-    id: fallback.workspace.id,
-    name: fallback.workspace.name,
-    type: fallback.workspace.type as "personal" | "group",
-    baseCurrency: fallback.workspace.baseCurrency,
-    role: fallback.role as MembershipRole,
-  };
-}
+    return {
+      id: fallback.workspace.id,
+      name: fallback.workspace.name,
+      type: fallback.workspace.type as "personal" | "group",
+      baseCurrency: fallback.workspace.baseCurrency,
+      role: fallback.role as MembershipRole,
+    };
+  },
+);
 
 /**
  * Sets the `fh-workspace-id` cookie. Caller must have verified membership.

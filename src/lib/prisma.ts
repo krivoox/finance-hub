@@ -6,6 +6,11 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;
 };
 
+function shouldLogQueries(): boolean {
+  if (env.NODE_ENV !== "development") return false;
+  return env.PRISMA_LOG_QUERIES === "1" || env.PRISMA_LOG_QUERIES === "true";
+}
+
 function createPrismaClient(): PrismaClient {
   const adapter = new PrismaPg({
     connectionString: env.DATABASE_URL ?? "",
@@ -13,9 +18,10 @@ function createPrismaClient(): PrismaClient {
 
   return new PrismaClient({
     adapter,
-    log:
-      env.NODE_ENV === "development"
-        ? ["query", "error", "warn"]
+    log: shouldLogQueries()
+      ? ["query", "error", "warn"]
+      : env.NODE_ENV === "development"
+        ? ["error", "warn"]
         : ["error"],
   });
 }

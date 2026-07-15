@@ -112,3 +112,4 @@ Los usuarios deben autenticarse para acceder a sus workspaces y datos financiero
 - Modelos `User` / `Session` / `Account` / `Verification` vía `npm run auth:generate` + Prisma.
 - Tras `signUp` exitoso (hook/servicio servidor): crear Workspace `personal` + Membership `owner` — esa orquestación se testea en dominio/servicio, no en el Client Component.
 - UI: `/login`, `/registro` con RHF + Zod; sin lógica de negocio en el formulario.
+- `getSession` y `getCurrentUser` usan `React.cache` (memo por request RSC): layout y página comparten una sola resolución de sesión/perfil. No hay cache entre navegaciones — ver [architecture.md §7.1](../architecture.md).
