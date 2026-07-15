@@ -21,13 +21,17 @@ export function MembersList({ members }: { members: WorkspaceMember[] }) {
         return (
           <li
             key={m.userId}
-            className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+            className="flex items-start justify-between gap-3 py-3 first:pt-0 last:pb-0 sm:items-center"
           >
-            <div>
-              <p className="font-medium text-foreground">{name}</p>
-              <p className="text-xs text-muted-foreground">{m.user.email}</p>
+            <div className="min-w-0">
+              <p className="truncate font-medium text-foreground">{name}</p>
+              <p className="truncate text-xs text-muted-foreground">
+                {m.user.email}
+              </p>
             </div>
-            <Badge variant="secondary">{ROLE_LABEL[m.role] ?? m.role}</Badge>
+            <Badge variant="secondary" className="shrink-0">
+              {ROLE_LABEL[m.role] ?? m.role}
+            </Badge>
           </li>
         );
       })}

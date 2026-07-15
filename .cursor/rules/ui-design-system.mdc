@@ -1,6 +1,6 @@
 ---
-description: Design system Finance Hub — tokens, variantes shadcn, shell Dub-like. Obliga a no hardcodear colores.
-globs: src/app/**/*.{tsx,css},src/components/**/*.{tsx,css}
+description: Design system Finance Hub — tokens, variantes, mobile-first. Sin hex sueltos.
+globs: src/app/**/*.{tsx,css},src/components/**/*.{tsx,css},src/features/**/*.tsx
 alwaysApply: false
 ---
 
@@ -10,15 +10,26 @@ Fuente de verdad: `DESIGN.md`. Theme: `src/app/globals.css`.
 
 ## Antes de escribir UI
 
-1. Leer `DESIGN.md` (shell, tokens, do/don't).
+1. Leer `DESIGN.md` (shell, tokens, mobile-first, do/don't).
 2. Reutilizar `src/components/ui/*` (shadcn). Extender con CVA `variant` / `size`.
 3. No inventar reglas de negocio en React.
 
+## Mobile-first (obligatorio)
+
+- Estilos base = móvil (&lt; 640px). Enriquecer con `sm:` / `md:` / `lg:`.
+- No diseñar primero desktop y “arreglar” con `max-md:` salvo excepción puntual.
+- Sidebar: sheet en móvil; inset + collapsible desde `md`.
+- Tablas: en base solo columnas esenciales (identidad + monto); el resto `hidden sm:table-cell`.
+- Forms: 1 columna en base; grids desde `sm:`.
+- Heroes numéricos: `text-3xl sm:text-4xl`.
+- Tabs: labels cortos; descripciones auxiliares `hidden sm:block`.
+- Touch: CTAs/controles principales ≥ ~40px de alto en móvil.
+
 ## Colores — obligatorio
 
-- Usar solo clases semánticas: `bg-background`, `bg-card`, `text-foreground`, `text-muted-foreground`, `bg-primary`, `bg-info-muted`, `text-income`, `border-border`, `ring-ring`, tokens `sidebar-*` / `sidebar-rail-*`.
-- **Prohibido** en UI de producto: hex (`#2563eb`), RGB sueltos, escalas Tailwind de color (`bg-zinc-50`, `text-blue-600`, `border-gray-200`).
-- Colores nuevos → añadir token en `:root` / `.dark` y mapear en `@theme inline`. Nunca en el JSX.
+- Usar solo clases semánticas: `bg-background`, `bg-card`, `text-foreground`, `text-muted-foreground`, `bg-primary`, `bg-info-muted`, `text-income`, `border-border`, `ring-ring`, tokens `sidebar-*`.
+- **Prohibido** en UI de producto: hex, RGB sueltos, escalas Tailwind de color (`bg-zinc-50`, `text-blue-600`).
+- Colores nuevos → token en `:root` / `.dark` + `@theme inline`.
 
 ## Variantes
 
@@ -31,21 +42,22 @@ Fuente de verdad: `DESIGN.md`. Theme: `src/app/globals.css`.
 <span className="text-red-600 bg-red-50">- $42.00</span>
 ```
 
-Si un estilo se repite 2+ veces, extraer variante CVA o componente de producto en `src/components/`.
+Si un estilo se repite 2+ veces, extraer variante CVA o componente en `src/components/`.
 
 ## Shell
 
 - Un solo `Sidebar` shadcn (`variant="inset"`, collapsible)
-- Workspace arriba · CTA “Registrar” · nav principal · grupos · footer user
-- Active: `bg-sidebar-accent` (neutro). Sin rail oscuro de iconos
+- Workspace arriba · CTA “Registrar” · nav · footer user
+- Active: `bg-sidebar-accent` (neutro). Sin rail oscuro
 - Contenido en `SidebarInset` + `ContentPanel`
 
 ## Datos financieros
 
 - Montos con `tabular-nums`
-- Tipo de movimiento → variantes `income` | `expense` | `transfer`
+- Tipo de movimiento → `income` | `expense` | `transfer`
+- Barras: `ProgressBar`; rojo (`alert`) solo alerta real
 
 ## Motion / a11y
 
 - Estados: hover, focus-visible, disabled, loading, empty, error
-- Animar solo transform/opacity; &lt; 300ms; respetar `prefers-reduced-motion`
+- Animar solo transform/opacity; &lt; 300ms; `prefers-reduced-motion`

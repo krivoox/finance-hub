@@ -83,7 +83,7 @@ export default async function AccountsPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Cuenta</TableHead>
-                  <TableHead>Tipo</TableHead>
+                  <TableHead className="hidden sm:table-cell">Tipo</TableHead>
                   <TableHead className="text-right">Saldo</TableHead>
                 </TableRow>
               </TableHeader>
@@ -96,16 +96,21 @@ export default async function AccountsPage() {
                   return (
                     <TableRow key={account.id}>
                       <TableCell>
-                        <div className="flex flex-col gap-0.5">
+                        <div className="flex min-w-0 flex-col gap-0.5">
                           <span className="font-medium text-foreground">
                             {account.name}
                           </span>
-                          <span className="text-xs text-muted-foreground">
+                          <span className="text-xs text-muted-foreground sm:hidden">
+                            {ACCOUNT_TYPE_LABEL_ES[account.type]}
+                            {" · "}
+                            {account.currency}
+                          </span>
+                          <span className="hidden text-xs text-muted-foreground sm:inline">
                             {account.currency}
                           </span>
                         </div>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="hidden sm:table-cell">
                         <Badge variant="secondary">
                           {ACCOUNT_TYPE_LABEL_ES[account.type]}
                         </Badge>

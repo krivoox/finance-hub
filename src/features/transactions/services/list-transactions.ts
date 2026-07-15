@@ -24,6 +24,7 @@ export type ListedTransaction = TransactionRecord & {
   accountName: string;
   counterpartyAccountName: string | null;
   categoryName: string | null;
+  createdByDisplayName: string;
 };
 
 export type ListTransactionsResult = {
@@ -99,6 +100,26 @@ export async function listTransactions(
   const hasMore = rows.length > limit;
   const trimmed = hasMore ? rows.slice(0, limit) : rows;
 
+  const creatorIds = [...new Set(trimmed.map((r) => r.createdByUserId))];
+  const creators =
+    creatorIds.length === 0
+      ? []
+      : await prisma.user.findMany({
+          where: { id: { in: creatorIds } },
+          select: {
+            id: true,
+            name: true,
+            displayName: true,
+            email: true,
+          },
+        });
+  const nameByUserId = new Map(
+    creators.map((u) => [
+      u.id,
+      u.displayName?.trim() || u.name || u.email,
+    ]),
+  );
+
   const items: ListedTransaction[] = trimmed.map((r) => ({
     id: r.id,
     workspaceId: r.workspaceId,
@@ -116,6 +137,8 @@ export async function listTransactions(
     accountName: r.account?.name ?? "",
     counterpartyAccountName: r.counterpartyAccount?.name ?? null,
     categoryName: r.category?.name ?? null,
+    createdByDisplayName:
+      nameByUserId.get(r.createdByUserId) ?? r.createdByUserId,
   }));
 
   return {

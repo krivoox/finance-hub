@@ -76,6 +76,7 @@ src/
 - Domain no importa Next/React/Prisma.
 - UI no contiene reglas de negocio.
 - Theme: tokens semánticos en `globals.css`; sin hex sueltos ni `zinc-*`/`blue-*` en UI.
+- UI **mobile-first** (base = teléfono; ver `DESIGN.md` §3.1).
 
 ## Convenciones
 

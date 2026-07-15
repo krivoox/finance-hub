@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
@@ -10,13 +10,15 @@ import {
   createIncomeAction,
   createTransferAction,
 } from "@/features/transactions/actions";
+import { createExpenseWithSplitAction } from "@/features/splits/actions";
 import {
   TRANSACTION_TYPES,
   type TransactionType,
 } from "@/features/transactions/domain";
-import { TRANSACTION_TYPE_LABEL_ES } from "./transaction-type-labels";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { nativeSelectClassName } from "@/components/ui/native-select";
+import { TRANSACTION_TYPE_LABEL_ES } from "./transaction-type-labels";
 
 type AccountOption = {
   id: string;
@@ -30,11 +32,21 @@ type CategoryOption = {
   kind: "income" | "expense";
 };
 
+type MemberOption = {
+  userId: string;
+  displayName: string;
+};
+
+type SplitMethod = "equal" | "exact" | "percentage";
+
 type NewTransactionFormProps = {
   workspaceId: string;
   workspaceCurrency: string;
   accounts: readonly AccountOption[];
   categories: readonly CategoryOption[];
+  /** When set, expense form can attach a group split. */
+  groupMembers?: readonly MemberOption[];
+  currentUserId?: string;
 };
 
 type FormValues = {
@@ -55,17 +67,50 @@ function todayIsoDate(): string {
   return `${y}-${m}-${d}`;
 }
 
-const SELECT_CLASSES =
-  "flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50";
+function parseAmountCents(raw: string): number | null {
+  const parsedUnits = Number(raw.replace(",", "."));
+  if (!Number.isFinite(parsedUnits) || parsedUnits <= 0) return null;
+  const amountCents = Math.round(parsedUnits * 100);
+  if (!Number.isInteger(amountCents) || amountCents <= 0) return null;
+  return amountCents;
+}
+
+const SELECT_CLASSES = nativeSelectClassName;
 
 export function NewTransactionForm({
   workspaceId,
   workspaceCurrency,
   accounts,
   categories,
+  groupMembers = [],
+  currentUserId,
 }: NewTransactionFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const canSplit = groupMembers.length > 0;
+
+  const [shareExpense, setShareExpense] = useState(false);
+  const [splitMethod, setSplitMethod] = useState<SplitMethod>("equal");
+  const [paidByUserId, setPaidByUserId] = useState(
+    currentUserId ?? groupMembers[0]?.userId ?? "",
+  );
+  const [participantIds, setParticipantIds] = useState<string[]>(() =>
+    groupMembers.map((m) => m.userId),
+  );
+  const [exactUnitsByUser, setExactUnitsByUser] = useState<
+    Record<string, string>
+  >(() => Object.fromEntries(groupMembers.map((m) => [m.userId, ""])));
+  const [percentByUser, setPercentByUser] = useState<Record<string, string>>(
+    () =>
+      Object.fromEntries(
+        groupMembers.map((m) => [
+          m.userId,
+          groupMembers.length > 0
+            ? String(Math.floor(100 / groupMembers.length))
+            : "",
+        ]),
+      ),
+  );
 
   const defaultAccountId = accounts[0]?.id ?? "";
   const defaultCounterpartyId = accounts[1]?.id ?? "";
@@ -89,6 +134,7 @@ export function NewTransactionForm({
 
   const watchedType = useWatch({ control, name: "type" });
   const watchedAccountId = useWatch({ control, name: "accountId" });
+  const watchedAmountUnits = useWatch({ control, name: "amountUnits" });
 
   const filteredCategories = useMemo(
     () =>
@@ -103,14 +149,33 @@ export function NewTransactionForm({
     [accounts, watchedAccountId],
   );
 
+  const showSplitPanel =
+    canSplit && watchedType === "expense" && shareExpense;
+
+  const equalPreview = useMemo(() => {
+    const total = parseAmountCents(watchedAmountUnits ?? "");
+    if (!total || participantIds.length === 0) return null;
+    const sorted = [...participantIds].toSorted((a, b) => a.localeCompare(b));
+    const n = sorted.length;
+    const base = Math.floor(total / n);
+    const remainder = total % n;
+    return sorted.map((userId, i) => ({
+      userId,
+      cents: base + (i < remainder ? 1 : 0),
+    }));
+  }, [watchedAmountUnits, participantIds]);
+
+  function toggleParticipant(userId: string) {
+    setParticipantIds((prev) =>
+      prev.includes(userId)
+        ? prev.filter((id) => id !== userId)
+        : [...prev, userId],
+    );
+  }
+
   const onSubmit = handleSubmit((values) => {
-    const parsedUnits = Number(values.amountUnits.replace(",", "."));
-    if (!Number.isFinite(parsedUnits) || parsedUnits <= 0) {
-      toast.error("Monto inválido");
-      return;
-    }
-    const amountCents = Math.round(parsedUnits * 100);
-    if (!Number.isInteger(amountCents) || amountCents <= 0) {
+    const amountCents = parseAmountCents(values.amountUnits);
+    if (amountCents === null) {
       toast.error("Monto inválido");
       return;
     }
@@ -119,7 +184,94 @@ export function NewTransactionForm({
 
     startTransition(async () => {
       let result: { ok: boolean; error?: string };
-      if (values.type === "income") {
+
+      if (values.type === "expense" && shareExpense && canSplit) {
+        if (!paidByUserId) {
+          toast.error("Indicá quién pagó el gasto");
+          return;
+        }
+        if (splitMethod === "equal") {
+          if (participantIds.length === 0) {
+            toast.error("Elegí al menos un participante");
+            return;
+          }
+          result = await createExpenseWithSplitAction({
+            workspaceId,
+            accountId: values.accountId,
+            categoryId: values.categoryId,
+            amountCents,
+            occurredOn: values.occurredOn,
+            description,
+            paidByUserId,
+            method: "equal",
+            participantUserIds: participantIds,
+          });
+        } else if (splitMethod === "exact") {
+          const exactShares = groupMembers
+            .map((m) => {
+              const raw = exactUnitsByUser[m.userId] ?? "";
+              if (!raw.trim()) return null;
+              const cents = parseAmountCents(raw);
+              if (cents === null) return null;
+              return { userId: m.userId, cents };
+            })
+            .filter((s): s is { userId: string; cents: number } => s !== null);
+          if (exactShares.length === 0) {
+            toast.error("Indicá al menos una parte con monto");
+            return;
+          }
+          const sum = exactShares.reduce((acc, s) => acc + s.cents, 0);
+          if (sum !== amountCents) {
+            toast.error(
+              `La suma de las partes (${(sum / 100).toFixed(2)}) debe igualar el monto total`,
+            );
+            return;
+          }
+          result = await createExpenseWithSplitAction({
+            workspaceId,
+            accountId: values.accountId,
+            categoryId: values.categoryId,
+            amountCents,
+            occurredOn: values.occurredOn,
+            description,
+            paidByUserId,
+            method: "exact",
+            exactShares,
+          });
+        } else {
+          const percentages = groupMembers
+            .map((m) => {
+              const raw = percentByUser[m.userId] ?? "";
+              if (!raw.trim()) return null;
+              const percent = Number(raw);
+              if (!Number.isInteger(percent) || percent < 0) return null;
+              return { userId: m.userId, percent };
+            })
+            .filter(
+              (s): s is { userId: string; percent: number } => s !== null,
+            );
+          if (percentages.length === 0) {
+            toast.error("Indicá al menos un porcentaje");
+            return;
+          }
+          const sum = percentages.reduce((acc, s) => acc + s.percent, 0);
+          if (sum !== 100) {
+            toast.error(`Los porcentajes deben sumar 100 (ahora ${sum})`);
+            return;
+          }
+          result = await createExpenseWithSplitAction({
+            workspaceId,
+            accountId: values.accountId,
+            categoryId: values.categoryId,
+            amountCents,
+            occurredOn: values.occurredOn,
+            description,
+            paidByUserId,
+            method: "percentage",
+            percentages,
+          });
+        }
+      } else if (values.type === "income") {
         result = await createIncomeAction({
           workspaceId,
           accountId: values.accountId,
@@ -156,9 +308,11 @@ export function NewTransactionForm({
       const successMessage =
         values.type === "income"
           ? "Ingreso registrado"
-          : values.type === "expense"
-            ? "Gasto registrado"
-            : "Transferencia registrada";
+          : values.type === "expense" && shareExpense
+            ? "Gasto compartido registrado"
+            : values.type === "expense"
+              ? "Gasto registrado"
+              : "Transferencia registrada";
       toast.success(successMessage);
       reset({
         type: values.type,
@@ -170,6 +324,7 @@ export function NewTransactionForm({
         categoryId: "",
         description: "",
       });
+      setShareExpense(false);
       router.refresh();
     });
   });
@@ -321,9 +476,192 @@ export function NewTransactionForm({
         </div>
       </div>
 
-      <div className="flex justify-end">
-        <Button type="submit" disabled={isBusy || accounts.length === 0}>
-          {isBusy ? "Guardando..." : "Registrar movimiento"}
+      {canSplit && watchedType === "expense" ? (
+        <div className="space-y-4 border-t border-border pt-4">
+          <label className="flex items-start gap-3 text-sm">
+            <input
+              type="checkbox"
+              className="mt-1 size-4 rounded border-input"
+              checked={shareExpense}
+              onChange={(e) => setShareExpense(e.target.checked)}
+            />
+            <span>
+              <span className="font-medium text-foreground">
+                Compartir y dividir este gasto
+              </span>
+              <span className="mt-0.5 block text-muted-foreground">
+                Repartí el monto entre miembros del grupo para actualizar
+                balances.
+              </span>
+            </span>
+          </label>
+
+          {showSplitPanel ? (
+            <div className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <label
+                    htmlFor="split-method"
+                    className="text-sm font-medium text-muted-foreground"
+                  >
+                    Cómo dividir
+                  </label>
+                  <select
+                    id="split-method"
+                    className={SELECT_CLASSES}
+                    value={splitMethod}
+                    onChange={(e) =>
+                      setSplitMethod(e.target.value as SplitMethod)
+                    }
+                  >
+                    <option value="equal">Partes iguales</option>
+                    <option value="exact">Montos exactos</option>
+                    <option value="percentage">Porcentajes</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label
+                    htmlFor="split-payer"
+                    className="text-sm font-medium text-muted-foreground"
+                  >
+                    Quién pagó
+                  </label>
+                  <select
+                    id="split-payer"
+                    className={SELECT_CLASSES}
+                    value={paidByUserId}
+                    onChange={(e) => setPaidByUserId(e.target.value)}
+                  >
+                    {groupMembers.map((m) => (
+                      <option key={m.userId} value={m.userId}>
+                        {m.displayName}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {splitMethod === "equal" ? (
+                <fieldset className="space-y-2">
+                  <legend className="text-sm font-medium text-muted-foreground">
+                    Participantes
+                  </legend>
+                  <ul className="divide-y divide-border">
+                    {groupMembers.map((m) => {
+                      const preview = equalPreview?.find(
+                        (p) => p.userId === m.userId,
+                      );
+                      return (
+                        <li
+                          key={m.userId}
+                          className="flex items-center justify-between gap-3 py-2"
+                        >
+                          <label className="flex items-center gap-2 text-sm text-foreground">
+                            <input
+                              type="checkbox"
+                              className="size-4 rounded border-input"
+                              checked={participantIds.includes(m.userId)}
+                              onChange={() => toggleParticipant(m.userId)}
+                            />
+                            {m.displayName}
+                          </label>
+                          {preview && participantIds.includes(m.userId) ? (
+                            <span className="text-xs tabular-nums text-muted-foreground">
+                              {(preview.cents / 100).toFixed(2)}{" "}
+                              {workspaceCurrency}
+                            </span>
+                          ) : null}
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </fieldset>
+              ) : null}
+
+              {splitMethod === "exact" ? (
+                <fieldset className="space-y-2">
+                  <legend className="text-sm font-medium text-muted-foreground">
+                    Parte de cada uno ({workspaceCurrency})
+                  </legend>
+                  <ul className="space-y-2">
+                    {groupMembers.map((m) => (
+                      <li
+                        key={m.userId}
+                        className="grid grid-cols-1 items-center gap-2 sm:grid-cols-[minmax(0,1fr)_7.5rem] sm:gap-3"
+                      >
+                        <span className="text-sm text-foreground">
+                          {m.displayName}
+                        </span>
+                        <Input
+                          type="number"
+                          inputMode="decimal"
+                          min={0}
+                          step="0.01"
+                          placeholder="0,00"
+                          value={exactUnitsByUser[m.userId] ?? ""}
+                          onChange={(e) =>
+                            setExactUnitsByUser((prev) => ({
+                              ...prev,
+                              [m.userId]: e.target.value,
+                            }))
+                          }
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </fieldset>
+              ) : null}
+
+              {splitMethod === "percentage" ? (
+                <fieldset className="space-y-2">
+                  <legend className="text-sm font-medium text-muted-foreground">
+                    Porcentaje de cada uno
+                  </legend>
+                  <ul className="space-y-2">
+                    {groupMembers.map((m) => (
+                      <li
+                        key={m.userId}
+                        className="grid grid-cols-1 items-center gap-2 sm:grid-cols-[minmax(0,1fr)_6.25rem] sm:gap-3"
+                      >
+                        <span className="text-sm text-foreground">
+                          {m.displayName}
+                        </span>
+                        <Input
+                          type="number"
+                          inputMode="numeric"
+                          min={0}
+                          max={100}
+                          step={1}
+                          placeholder="%"
+                          value={percentByUser[m.userId] ?? ""}
+                          onChange={(e) =>
+                            setPercentByUser((prev) => ({
+                              ...prev,
+                              [m.userId]: e.target.value,
+                            }))
+                          }
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </fieldset>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
+
+      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        <Button
+          type="submit"
+          className="h-10 w-full sm:h-8 sm:w-auto"
+          disabled={isBusy || accounts.length === 0}
+        >
+          {isBusy
+            ? "Guardando..."
+            : shareExpense && watchedType === "expense"
+              ? "Registrar gasto compartido"
+              : "Registrar movimiento"}
         </Button>
       </div>
     </form>

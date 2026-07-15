@@ -21,11 +21,17 @@ export type NavGroup = {
   items: NavItem[];
 };
 
+/** Runtime badge counts from domain signals (omit or 0 = no badge). */
+export type NavBadges = {
+  /** Budgets in warning or exceeded status (SPEC-12). */
+  budgetsAtRisk?: number;
+};
+
 /** Primary links under the quick-create row */
 export const mainNavItems: NavItem[] = [
   { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { title: "Cuentas", href: "/accounts", icon: Wallet },
-  { title: "Movimientos", href: "/transactions", icon: Receipt, badge: 3 },
+  { title: "Movimientos", href: "/transactions", icon: Receipt },
 ];
 
 /** Grouped sections (like Documents in the reference) */
@@ -33,7 +39,7 @@ export const navGroups: NavGroup[] = [
   {
     label: "Planificación",
     items: [
-      { title: "Presupuestos", href: "/budgets", icon: PiggyBank, badge: 1 },
+      { title: "Presupuestos", href: "/budgets", icon: PiggyBank },
       { title: "Objetivos", href: "/goals", icon: Target },
     ],
   },
@@ -47,6 +53,20 @@ export const footerNavItems: NavItem[] = [
   { title: "Ajustes", href: "/settings", icon: Settings },
 ];
 
+/** Merge live badge counts into static nav items for rendering. */
+export function applyNavBadges(
+  items: readonly NavItem[],
+  badges: NavBadges,
+): NavItem[] {
+  return items.map((item) => {
+    if (item.href === "/budgets") {
+      const count = badges.budgetsAtRisk ?? 0;
+      return count > 0 ? { ...item, badge: count } : { ...item, badge: undefined };
+    }
+    return item;
+  });
+}
+
 export function isNavItemActive(pathname: string, href: string): boolean {
   const [path] = href.split("?");
   if (pathname === path) return true;
@@ -55,6 +75,7 @@ export function isNavItemActive(pathname: string, href: string): boolean {
 }
 
 export function getPageTitle(pathname: string): string {
+  if (pathname.startsWith("/groups/settings")) return "Grupos";
   const all = [
     ...mainNavItems,
     ...navGroups.flatMap((g) => g.items),

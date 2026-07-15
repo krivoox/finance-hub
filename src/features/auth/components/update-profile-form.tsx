@@ -95,7 +95,7 @@ export function UpdateProfileForm({
         <select
           id="preferredCurrency"
           aria-invalid={Boolean(errors.preferredCurrency)}
-          className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring sm:h-9 sm:text-sm"
           {...register("preferredCurrency")}
         >
           {SUPPORTED_CURRENCIES.map((code) => (
@@ -137,7 +137,11 @@ export function UpdateProfileForm({
         <p className="text-xs text-destructive">{serverError}</p>
       ) : null}
 
-      <Button type="submit" disabled={isBusy}>
+      <Button
+        type="submit"
+        className="h-10 w-full sm:h-8 sm:w-auto"
+        disabled={isBusy}
+      >
         {isBusy ? "Guardando..." : "Guardar cambios"}
       </Button>
     </form>

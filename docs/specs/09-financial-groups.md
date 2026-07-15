@@ -25,8 +25,9 @@ Extiende workspaces grupales: visión de balances individuales y grupales, y con
 | FR-01 | Dashboard de grupo: suma de saldos de accounts del workspace |
 | FR-02 | Resumen de net balances entre miembros (derivado de splits + settlements) |
 | FR-03 | Solo workspaces `type=group` exponen APIs de balance interpersonal |
-| FR-04 | Listado de actividad reciente del grupo |
+| FR-04 | Listado de actividad reciente del grupo (incluye quién registró) |
 | FR-05 | Permisos: viewer ve consolidado; no muta |
+| FR-06 | UI separa Actividad (balances/settlements) de Administración (miembros/invites) |
 
 ## 4. Reglas de negocio
 

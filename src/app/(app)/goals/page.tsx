@@ -1,6 +1,10 @@
 import { redirect } from "next/navigation";
 
 import { ContentPanel } from "@/components/app-shell/content-panel";
+import {
+  ProgressBar,
+  goalProgressTone,
+} from "@/components/progress-bar";
 import { Badge } from "@/components/ui/badge";
 import { formatMoney } from "@/lib/format-money";
 import { getSession } from "@/lib/session";
@@ -133,16 +137,17 @@ export default async function GoalsPage() {
                       {formatMoney(goal.currentAmountCents, goal.currency)} /{" "}
                       {formatMoney(goal.targetAmountCents, goal.currency)}
                     </p>
-                    <div className="mt-2 h-2 overflow-hidden rounded-full bg-muted">
-                      <div
-                        className={
-                          goal.status === "completed"
-                            ? "h-full rounded-full bg-success"
-                            : "h-full rounded-full bg-info"
-                        }
-                        style={{ width: `${goal.progressPercent}%` }}
-                      />
-                    </div>
+                    <ProgressBar
+                      className="mt-2"
+                      size="lg"
+                      value={goal.progressPercent}
+                      tone={
+                        goal.status === "completed"
+                          ? "success"
+                          : goalProgressTone(goal.progressPercent)
+                      }
+                      aria-label={`${goal.name}: ${goal.progressPercent}%`}
+                    />
                     {canMutate && goal.status === "active" ? (
                       <div className="mt-4">
                         <ContributeGoalForm

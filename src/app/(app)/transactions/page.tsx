@@ -12,7 +12,10 @@ import {
 } from "@/components/ui/table";
 import { formatSignedMoney } from "@/lib/format-money";
 import { getSession } from "@/lib/session";
-import { getActiveWorkspaceForUser } from "@/features/workspaces/services";
+import {
+  getActiveWorkspaceForUser,
+  listMembers,
+} from "@/features/workspaces/services";
 import { listAccounts } from "@/features/accounts/services";
 import { listCategories } from "@/features/categories/services";
 import { listTransactions } from "@/features/transactions/services";
@@ -62,7 +65,7 @@ export default async function TransactionsPage() {
     );
   }
 
-  const [accounts, categories, txPage] = await Promise.all([
+  const [accounts, categories, txPage, members] = await Promise.all([
     listAccounts({ userId: session.user.id, workspaceId: workspace.id }),
     listCategories({ userId: session.user.id, workspaceId: workspace.id }),
     listTransactions({
@@ -70,10 +73,21 @@ export default async function TransactionsPage() {
       workspaceId: workspace.id,
       limit: 50,
     }),
+    workspace.type === "group"
+      ? listMembers(session.user.id, workspace.id)
+      : Promise.resolve([]),
   ]);
 
   const canMutate = workspace.role !== "viewer";
   const activeAccounts = accounts.filter((a) => !a.isArchived);
+  const groupMembers =
+    workspace.type === "group"
+      ? members.map((m) => ({
+          userId: m.userId,
+          displayName:
+            m.user.displayName?.trim() || m.user.name || m.user.email,
+        }))
+      : [];
 
   return (
     <ContentPanel
@@ -112,6 +126,8 @@ export default async function TransactionsPage() {
                     name: c.name,
                     kind: c.kind,
                   }))}
+                groupMembers={groupMembers}
+                currentUserId={session.user.id}
               />
             )}
           </section>
@@ -132,9 +148,14 @@ export default async function TransactionsPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Descripción</TableHead>
-                  <TableHead>Cuenta</TableHead>
-                  <TableHead>Categoría</TableHead>
-                  <TableHead>Fecha</TableHead>
+                  <TableHead className="hidden sm:table-cell">Cuenta</TableHead>
+                  <TableHead className="hidden md:table-cell">
+                    Categoría
+                  </TableHead>
+                  <TableHead className="hidden lg:table-cell">
+                    Registró
+                  </TableHead>
+                  <TableHead className="hidden sm:table-cell">Fecha</TableHead>
                   <TableHead className="text-right">Monto</TableHead>
                 </TableRow>
               </TableHeader>
@@ -155,16 +176,28 @@ export default async function TransactionsPage() {
                       : (tx.categoryName ?? "Movimiento"));
                   return (
                     <TableRow key={tx.id}>
-                      <TableCell className="font-medium text-foreground">
-                        {description}
+                      <TableCell>
+                        <div className="flex min-w-0 flex-col gap-0.5">
+                          <span className="font-medium text-foreground">
+                            {description}
+                          </span>
+                          <span className="text-xs text-muted-foreground sm:hidden">
+                            {accountLabel}
+                            {" · "}
+                            {formatOccurredOn(tx.occurredOn)}
+                          </span>
+                        </div>
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="hidden text-muted-foreground sm:table-cell">
                         {accountLabel}
                       </TableCell>
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="hidden text-muted-foreground md:table-cell">
                         {categoryLabel}
                       </TableCell>
-                      <TableCell className="tabular-nums text-muted-foreground">
+                      <TableCell className="hidden text-muted-foreground lg:table-cell">
+                        {tx.createdByDisplayName}
+                      </TableCell>
+                      <TableCell className="hidden tabular-nums text-muted-foreground sm:table-cell">
                         {formatOccurredOn(tx.occurredOn)}
                       </TableCell>
                       <TableCell className="text-right">

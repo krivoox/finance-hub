@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
 import { AppShell } from "@/components/app-shell/app-shell";
+import { getNavBadges } from "@/components/app-shell/get-nav-badges";
+import type { NavBadges } from "@/components/app-shell/nav-config";
 import { getSession } from "@/lib/session";
 import { getCurrentUser } from "@/features/auth/services/get-current-user";
 import {
@@ -26,10 +28,21 @@ export default async function AppLayout({
     redirect("/login");
   }
 
-  const [user, workspaces, activeWorkspace] = await Promise.all([
+  const activeWorkspacePromise = getActiveWorkspaceForUser(session.user.id);
+  const navBadgesPromise = activeWorkspacePromise.then((workspace) =>
+    workspace
+      ? getNavBadges({
+          userId: session.user.id,
+          workspaceId: workspace.id,
+        })
+      : Promise.resolve({} as NavBadges),
+  );
+
+  const [user, workspaces, activeWorkspace, navBadges] = await Promise.all([
     getCurrentUser(),
     listMyWorkspaces(session.user.id),
-    getActiveWorkspaceForUser(session.user.id),
+    activeWorkspacePromise,
+    navBadgesPromise,
   ]);
 
   if (!user) {
@@ -58,9 +71,11 @@ export default async function AppLayout({
               name: activeWorkspace.name,
               type: activeWorkspace.type,
               baseCurrency: activeWorkspace.baseCurrency,
+              role: activeWorkspace.role,
             }
           : null
       }
+      navBadges={navBadges}
     >
       {children}
     </AppShell>

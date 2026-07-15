@@ -36,6 +36,7 @@ export async function createExpenseAction(
     revalidatePath("/transactions");
     revalidatePath("/accounts");
     revalidatePath("/dashboard");
+    revalidatePath("/groups");
     return { ok: true, data: { transactionId: tx.id } };
   } catch (err) {
     return { ok: false, error: transactionErrorToMessage(err) };

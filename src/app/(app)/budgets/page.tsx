@@ -1,6 +1,10 @@
 import { redirect } from "next/navigation";
 
 import { ContentPanel } from "@/components/app-shell/content-panel";
+import {
+  ProgressBar,
+  budgetProgressTone,
+} from "@/components/progress-bar";
 import { Badge } from "@/components/ui/badge";
 import { formatMoney } from "@/lib/format-money";
 import { getSession } from "@/lib/session";
@@ -130,20 +134,14 @@ export default async function BudgetsPage() {
                         {" "}
                         {formatDateEs(progress.periodEnd)}
                       </p>
-                      <div className="mt-2 h-1.5 max-w-md overflow-hidden rounded-full bg-muted">
-                        <div
-                          className={
-                            progress.status === "exceeded"
-                              ? "h-full rounded-full bg-expense"
-                              : progress.status === "warning"
-                                ? "h-full rounded-full bg-warning"
-                                : "h-full rounded-full bg-info"
-                          }
-                          style={{ width: `${Math.min(pct, 100)}%` }}
-                        />
-                      </div>
+                      <ProgressBar
+                        className="mt-2 w-full sm:max-w-md"
+                        value={pct}
+                        tone={budgetProgressTone(progress.status)}
+                        aria-label={`${budget.name}: ${pct}%`}
+                      />
                     </div>
-                    <p className="text-sm tabular-nums text-muted-foreground">
+                    <p className="text-sm tabular-nums text-muted-foreground sm:text-right">
                       {pct}%
                     </p>
                   </li>

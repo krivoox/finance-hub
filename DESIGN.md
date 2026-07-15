@@ -30,6 +30,7 @@
 5. **Profundidad quieta.** Bordes hairline + sombra suave. Sin drop-shadows dramáticos.
 6. **shadcn antes que inventar.** Buscar en `src/components/ui/*` antes de crear un control nuevo.
 7. **La UI no contiene reglas de negocio.** Solo presenta datos ya resueltos por domain/application.
+8. **Mobile-first.** El layout base es el teléfono. `sm:` / `md:` / `lg:` solo enriquecen; nunca al revés (`max-md:` como regla general está prohibido salvo excepciones puntuales).
 
 ---
 
@@ -59,7 +60,31 @@ Sidebar único estilo dashboard (shadcn inset) — **sin** rail de iconos oscuro
 | Header app | `SidebarTrigger` + título | Barra superior del inset |
 | Content panel | `bg-card` · `rounded-xl` · `border` | Dentro de `SidebarInset` |
 
-**Mobile:** el sidebar shadcn abre como sheet.
+**Mobile:** el sidebar shadcn abre como **sheet** a pantalla completa (no icon rail). El content panel es edge-to-edge sin radio; `md+` añade inset, borde y `rounded-xl`.
+
+---
+
+## 3.1 Responsive — mobile first
+
+**Breakpoints (Tailwind default):**
+
+| Token | Ancho | Rol en Finance Hub |
+|-------|-------|--------------------|
+| (base) | &lt; 640px | Diseño por defecto: 1 columna, nav sheet, tablas con columnas esenciales |
+| `sm` | ≥ 640px | Grids de formularios 2–3 cols; más padding |
+| `md` | ≥ 768px | Sidebar fijo / colapsable a iconos; content panel con inset |
+| `lg` | ≥ 1024px | Dashboard 2 columnas (objetivos \| gastos) |
+
+**Reglas:**
+
+1. Escribir clases **sin** breakpoint primero (móvil). Ampliar con `sm:` / `md:` / `lg:`.
+2. **Shell:** en móvil solo header (`SidebarTrigger` + título) + contenido; menú via sheet.
+3. **Tablas densas:** en base mostrar 2–3 columnas (identidad + monto). Columnas secundarias con `hidden sm:table-cell` / `md:table-cell`. El wrapper `Table` ya permite scroll horizontal como fallback.
+4. **Forms:** un campo por fila en base; `sm:grid-cols-*` para alinear. Evitar `grid-cols-[1fr_120px]` sin breakpoint — usar `grid-cols-1 sm:grid-cols-[minmax(0,1fr)_7.5rem]`.
+5. **Tipografía hero:** `text-3xl sm:text-4xl` en patrimonio / cifras clave.
+6. **Touch:** controles críticos ≥ 40px de alto en móvil (`h-10` / padding); no depender solo de hover.
+7. **Tabs / section nav:** scroll horizontal o labels cortos en móvil; descripciones largas `hidden sm:block`.
+8. **Nunca** bloquear el viewport con `overflow-hidden` en el body mobile sin sheet/scroll interno claro.
 
 ---
 
@@ -181,6 +206,16 @@ Excepción: assets SVG/marketing fuera del app shell pueden usar valores literal
 - Signo y color vía variante (`income` / `expense`), no concatenando strings de color en el JSX.
 - Fechas: formato consistente; no inventar layouts de fecha por pantalla.
 
+### Barras de progreso (`ProgressBar`)
+
+Usar `src/components/progress-bar.tsx`. **Rojo (`tone="alert"` / `bg-expense`) solo para alerta real** (presupuesto excedido).
+
+| Contexto | Tonos |
+|----------|--------|
+| Objetivos (`goalProgressTone`) | `<40%` info · `40–79%` progress (`chart-5`) · `≥80%` success |
+| Presupuestos (`budgetProgressTone`) | `on_track` info · `warning` caution · `exceeded` **alert** |
+| Ranking de gastos (`spendingRankTone`) | `chart-1` / `chart-2` / `chart-3` (cicla; nunca rojo) |
+
 ### Estados obligatorios
 
 Todo control interactivo: default · hover · active · focus-visible · disabled.  
@@ -205,6 +240,7 @@ Toda vista de datos: loading (`Skeleton`) · empty · error.
 | Table | `ui/table` | Filas con `border-border`; headers muted |
 | Sidebar | `ui/sidebar` | Base para nav; componer rail + secundaria encima |
 | Avatar, Dropdown, Tooltip, Separator, Sheet, Skeleton | `ui/*` | Primitivos estándar |
+| ProgressBar | `components/progress-bar` | Tonos semánticos; rojo solo en `alert` |
 
 Añadir más con:
 
@@ -218,7 +254,18 @@ Luego alinear variantes a este documento (nunca dejar colores de demo).
 
 ## 9. Patrones de pantalla
 
-### Lista / tabla (ej. movimientos, como Applications en Dub)
+### Dashboard (pantallazo en 3 segundos)
+
+Orden de lectura fijo — no aplanar todo al mismo peso:
+
+1. **Snapshot** — un solo bloque: Patrimonio (hero `text-4xl`) → Flujo neto del mes (secundario, color income/expense) → Ingresos/Gastos como soporte. Sin grid de 3 cards iguales.
+2. **Atención** — presupuestos en riesgo, insights, balances de grupo. Si no hay nada: un quiet “Sin alertas”.
+3. **Progreso + gastos** — dos columnas: objetivos con barra · top categorías del mes.
+4. **Actividad** — movimientos recientes (tabla).
+
+Componentes en `src/features/dashboard/components/`. La page solo compone el DTO.
+
+### Lista / tabla (ej. movimientos)
 
 1. Título de página en el content panel.
 2. Search / filtros debajo (`Input` + chips con `Badge`).
@@ -230,11 +277,6 @@ Luego alinear variantes a este documento (nunca dejar colores de demo).
 - Labels `text-sm text-muted-foreground`.
 - Inputs altura consistente (shadcn default).
 - Error: `text-destructive` + `aria-invalid` (el primitivo ya cablea ring).
-
-### Métricas
-
-- Un número hero por bloque (`text-2xl/3xl` + `tabular-nums`).
-- Delta con `Badge` semántico, no color suelto.
 
 ### Empty state
 
@@ -268,7 +310,8 @@ Luego alinear variantes a este documento (nunca dejar colores de demo).
 - [ ] Variantes CVA en lugar de className one-off repetido
 - [ ] Focus visible y estados vacíos/loading cubiertos
 - [ ] Montos con `tabular-nums`
-- [ ] Shell coherente con doble sidebar + content panel
+- [ ] Shell: sidebar inset (sheet en móvil) + content panel
+- [ ] Mobile-first: layout base usable &lt; 640px; tablas/forms sin desborde
 - [ ] Sin reglas de negocio en la UI
 
 ---

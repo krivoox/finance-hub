@@ -13,6 +13,7 @@ import {
 import { ACCOUNT_TYPES, type AccountType } from "@/features/accounts/domain";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { nativeSelectClassName } from "@/components/ui/native-select";
 import { ACCOUNT_TYPE_LABEL_ES } from "./account-type-labels";
 
 type FormValues = {
@@ -109,7 +110,7 @@ export function NewAccountForm({
         </label>
         <select
           id="account-type"
-          className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+          className={nativeSelectClassName}
           {...register("type")}
         >
           {ACCOUNT_TYPES.map((code) => (
@@ -138,7 +139,11 @@ export function NewAccountForm({
       </div>
 
       <div className="flex items-end">
-        <Button type="submit" disabled={isBusy}>
+        <Button
+          type="submit"
+          className="h-10 w-full sm:h-8 sm:w-auto"
+          disabled={isBusy}
+        >
           {isBusy ? "Creando..." : "Crear cuenta"}
         </Button>
       </div>
