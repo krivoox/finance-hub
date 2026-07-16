@@ -43,6 +43,7 @@
 | 12 | [Dashboard](./specs/12-dashboard.md) | P1 |
 | 13 | [Detalle de movimiento](./specs/13-transaction-detail.md) | P1 |
 | 14 | [Dinero cross-workspace](./specs/14-cross-workspace-money.md) | P1 |
+| 15 | [Onboarding de workspace](./specs/15-workspace-onboarding.md) | P0 |
 
 ## Decisiones de arquitectura (ADR)
 

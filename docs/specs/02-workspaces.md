@@ -125,6 +125,8 @@ El Workspace es la unidad de tenancy (ADR-002). Agrupa cuentas, movimientos y, s
 
 Toda spec posterior asume `workspaceId` + authz por membership.
 
+First-run post-creación (cuentas + preview): [SPEC-15 — Onboarding de workspace](./15-workspace-onboarding.md).
+
 Guía de producto: [workspaces-and-invites.md](../guides/workspaces-and-invites.md).
 
 Implementación (servidor): `getActiveWorkspaceForUser`, `requireMembership` y `listMyWorkspaces` están memoizados por request con `React.cache` (args primitivos). Varios services en paralelo en la misma página solo resolven membership una vez. **No** hay cache entre requests ni TTL de roles — ver [architecture.md §7.1](../architecture.md).
