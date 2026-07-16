@@ -20,7 +20,7 @@ Adoptar:
    - push a **`main`** → bump SemVer, changelog fechado, tag `vX.Y.Z`, GitHub Release
 5. **Sin** `npm publish` / sin depender de `NPM_TOKEN`
 
-Excepción documentada al “no commit directo” en `develop`/`main`: solo `github-actions[bot]` para archivos de changelog/versión.
+Excepción documentada al “no commit directo” en `develop`/`main`: automatización de changelog/release vía CI. En repos **personales**, GitHub no permite bypass de `github-actions` en rulesets → se usa secret `CHANGELOG_TOKEN` (PAT admin con Contents R/W). En orgs, se puede bypassear la Integration `github-actions` (id 15368).
 
 ### Alternativas descartadas
 
@@ -35,5 +35,5 @@ Excepción documentada al “no commit directo” en `develop`/`main`: solo `git
 
 - Los mensajes de commit deben ser convencionales (hooks locales + convención de equipo)
 - Historial previo se documenta como baseline `0.1.0` (no se reescribe)
-- Branch protection debe permitir push del bot (o fallará el job)
+- Ruleset en `main`/`develop` + secret `CHANGELOG_TOKEN` (repo personal) o bypass de Actions (org)
 - Guía operativa: [docs/guides/changelog.md](../guides/changelog.md)
