@@ -22,6 +22,7 @@
 | [glossary.md](./glossary.md) | Glosario de términos de negocio |
 | [guides/workspaces-and-invites.md](./guides/workspaces-and-invites.md) | Workspaces, roles e invitaciones (producto) |
 | [guides/git-flow.md](./guides/git-flow.md) | Git Flow: `main`/`develop`, PRs, borrado de ramas, Vercel |
+| [guides/changelog.md](./guides/changelog.md) | Changelog, Conventional Commits, SemVer y releases |
 | [DESIGN.md](../DESIGN.md) | Design system UI/UX (tokens, shell Dub-like, variantes) |
 
 ## Specs (Spec-Driven Development)
@@ -51,6 +52,7 @@
 | [002](./adr/002-workspace-tenancy.md) | Workspace como unidad de tenancy |
 | [003](./adr/003-tdd-domain-only.md) | TDD solo en lógica de negocio |
 | [004](./adr/004-stack-siturn.md) | Stack Siturn (template) |
+| [005](./adr/005-changelog-semver.md) | Changelog automatizado y SemVer |
 
 ## Formato de una spec
 

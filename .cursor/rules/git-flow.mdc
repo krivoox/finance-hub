@@ -17,10 +17,11 @@ Fuente completa: `docs/guides/git-flow.md`.
 
 ## Reglas
 
-1. **Nunca** commits ni push directo a `main` o `develop`.
+1. **Nunca** commits ni push directo a `main` o `develop` (excepción: `github-actions[bot]` para changelog/release; ver `docs/guides/changelog.md`).
 2. Trabajo siempre desde **`develop` actualizado** → nueva rama con prefijo correcto.
 3. PRs de feature/fix/chore → **`develop`**. Release → PR `develop` → `main`.
 4. Hotfix a `main` solo si es crítico; luego sincronizar a `develop`.
 5. **Borrar ramas al mergear:** el repo debe tener *Automatically delete head branches* activo. Tras merge: borrar local + `git fetch --prune`.
 6. No reutilizar ramas ya mergeadas; no force-push a `main`/`develop`.
 7. Commits solo si el usuario lo pide (salvo instrucción explícita en la tarea).
+8. Mensajes en **Conventional Commits** (`feat:`, `fix:`, …) — commitlint en husky `commit-msg`.
