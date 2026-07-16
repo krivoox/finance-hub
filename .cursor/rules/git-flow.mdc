@@ -1,0 +1,26 @@
+---
+description: Git Flow obligatorio — ramas main/develop, prefijos feat/fix/chore, PRs, y borrado de ramas al mergear.
+alwaysApply: true
+---
+
+# Git Flow (obligatorio)
+
+Fuente completa: `docs/guides/git-flow.md`.
+
+## Ramas
+
+| Rama | Uso | Vercel |
+|------|-----|--------|
+| `main` | Producción | Production |
+| `develop` | Integración | Preview |
+| `feat/*`, `fix/*`, `chore/*`, `refactor/*` | Trabajo | Preview de PR |
+
+## Reglas
+
+1. **Nunca** commits ni push directo a `main` o `develop`.
+2. Trabajo siempre desde **`develop` actualizado** → nueva rama con prefijo correcto.
+3. PRs de feature/fix/chore → **`develop`**. Release → PR `develop` → `main`.
+4. Hotfix a `main` solo si es crítico; luego sincronizar a `develop`.
+5. **Borrar ramas al mergear:** el repo debe tener *Automatically delete head branches* activo. Tras merge: borrar local + `git fetch --prune`.
+6. No reutilizar ramas ya mergeadas; no force-push a `main`/`develop`.
+7. Commits solo si el usuario lo pide (salvo instrucción explícita en la tarea).
