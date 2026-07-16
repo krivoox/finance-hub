@@ -33,7 +33,7 @@ Documento técnico obligatorio. Stack fijado en [stack.md](./stack.md) (plantill
 9. **Zustand** solo estado de UI.
 10. **TDD** en lógica de negocio; **no** tests de UI ([tdd-workflow.md](./tdd-workflow.md), ADR-003).
 11. **Dinero** en centavos enteros (ADR-001); tenancy por **Workspace** (ADR-002).
-12. **Git Flow:** no commitear en `develop` ni `main`; ramas `feat/`, `fix/`, `chore/`.
+12. **Git Flow:** no commitear en `develop` ni `main`; ramas `feat/`, `fix/`, `chore/`; borrar ramas al mergear. Detalle: [guides/git-flow.md](./guides/git-flow.md).
 
 ## 3. Diagrama de capas
 

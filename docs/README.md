@@ -21,6 +21,7 @@
 | [roadmap.md](./roadmap.md) | Orden de implementación sugerido |
 | [glossary.md](./glossary.md) | Glosario de términos de negocio |
 | [guides/workspaces-and-invites.md](./guides/workspaces-and-invites.md) | Workspaces, roles e invitaciones (producto) |
+| [guides/git-flow.md](./guides/git-flow.md) | Git Flow: `main`/`develop`, PRs, borrado de ramas, Vercel |
 | [DESIGN.md](../DESIGN.md) | Design system UI/UX (tokens, shell Dub-like, variantes) |
 
 ## Specs (Spec-Driven Development)
