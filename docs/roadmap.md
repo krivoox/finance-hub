@@ -20,6 +20,7 @@ Orden sugerido para el agente. Cada ítem: **spec → TDD dominio/application �
 | 4 | [04-categories](./specs/04-categories.md) | Seed + CRUD |
 | 5 | [05-transactions](./specs/05-transactions.md) | Income/expense |
 | 6 | [06-transfers](./specs/06-transfers.md) | Transferencias |
+| 6b | [15-workspace-onboarding](./specs/15-workspace-onboarding.md) | First-run: cuentas + preview ledger (tras 03–05) |
 
 ## Fase 2 — P1 Control y hogar
 
