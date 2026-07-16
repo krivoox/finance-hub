@@ -25,7 +25,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # Personal repos cannot add github-actions to ruleset bypass.
+          # Use a fine-grained PAT (Contents: R/W) as CHANGELOG_TOKEN — see docs/guides/changelog.md
+          token: ${{ secrets.CHANGELOG_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -110,7 +112,7 @@ jobs:
       - name: Create GitHub Release
         if: steps.bump.outputs.skipped != 'true' && steps.bump.outputs.tag != ''
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.CHANGELOG_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           TAG="${{ steps.bump.outputs.tag }}"
           if [ "${{ steps.bump.outputs.bootstrapped }}" = "true" ]; then

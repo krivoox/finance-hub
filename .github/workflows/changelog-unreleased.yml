@@ -22,7 +22,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
+          # Personal repos cannot add github-actions to ruleset bypass.
+          # Use a fine-grained PAT (Contents: R/W) as CHANGELOG_TOKEN — see docs/guides/changelog.md
+          token: ${{ secrets.CHANGELOG_TOKEN || secrets.GITHUB_TOKEN }}
 
       - name: Setup Node
         uses: actions/setup-node@v4

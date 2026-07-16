@@ -88,14 +88,27 @@ A partir de aquí, solo commits convencionales alimentan el changelog.
 
 ## Protecciones de rama (GitHub)
 
-Si `develop` / `main` tienen branch protection:
+Ruleset activo: **Protect main and develop** (PR obligatorio, sin force-push ni borrado de rama).
 
-1. Permitir que **GitHub Actions** haga push (p. ej. *Allow specified actors to bypass* / ruleset que incluya `github-actions[bot]`), **o**
-2. Usar un `PAT` / GitHub App con permiso de bypass en `secrets` (solo si el token por defecto no alcanza).
+### Limitación en repos personales
 
-Sin bypass, el job fallará al `git push` y habrá que relajar la regla o adoptar PRs automáticos de release (alternativa documentada en ADR-005).
+GitHub **no permite** agregar `github-actions` como bypass actor en rulesets de repos de usuario (solo orgs). Por eso el bot no puede pushear con el `GITHUB_TOKEN` por defecto.
 
-Permisos del workflow: `contents: write` (mínimo para commit, tag y GitHub Release). No se usa `NPM_TOKEN`.
+### Secret obligatorio: `CHANGELOG_TOKEN`
+
+1. Crear un [fine-grained PAT](https://github.com/settings/personal-access-tokens/new) (tu usuario admin):
+   - Resource owner: tu usuario
+   - Repository access: solo `finance-hub`
+   - Permissions → Repository → **Contents: Read and write**
+   - (Opcional) **Metadata: Read-only**
+2. En el repo: Settings → Secrets and variables → Actions → New repository secret
+   - Name: `CHANGELOG_TOKEN`
+   - Value: el PAT
+3. Los workflows usan `secrets.CHANGELOG_TOKEN` (fallback a `GITHUB_TOKEN` si falta).
+
+El PAT actúa como **Admin** y bypasea el ruleset (bypass de rol Repository Admin). No hace falta `NPM_TOKEN`.
+
+Si el secret falta con el ruleset activo, el job fallará al `git push`.
 
 ## Relación con Git Flow
 
