@@ -41,6 +41,7 @@ export {
   computeBudgetRemaining,
   computeBudgetSpent,
   computeBudgetStatus,
+  listMatchingBudgetExpenses,
 } from "./progress";
 
 export { assertCanMutateBudgets, assertCanReadBudgets } from "./authz";

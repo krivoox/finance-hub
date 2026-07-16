@@ -62,6 +62,27 @@ Sidebar único estilo dashboard (shadcn inset) — **sin** rail de iconos oscuro
 
 **Mobile:** el sidebar shadcn abre como **sheet** a pantalla completa (no icon rail). El content panel es edge-to-edge sin radio; `md+` añade inset, borde y `rounded-xl`.
 
+### 3.2 Create flows — FormSheet (no forms en la lista)
+
+Los formularios de carga (movimientos, cuentas, presupuestos, objetivos) **no viven en la página de lista**. Se abren en un **sheet lateral derecho** (`FormSheet`).
+
+| Viewport | Comportamiento |
+|----------|----------------|
+| Móvil | Sheet a pantalla completa desde la derecha (`w-full`) |
+| `sm+` | Drawer fijo (`sm:max-w-md` / `lg` para movimientos) — la lista queda visible detrás |
+
+**Por qué no modal centrado:** los forms tienen muchos campos y secciones condicionales (splits, categorías). Un modal estrecho scrollería mal y competiría visualmente. El sheet escala mejor mobile → desktop y es el patrón de Dub / Linear / Stripe.
+
+**Patrón:**
+- CTA en `ContentPanel.actions` (y sidebar “Registrar” → `/transactions?new=1`)
+- Lista limpia: tablas / progreso sin formulario encima
+- Formulario: 1 columna, secciones tipadas, `SegmentedControl` para ≤4 opciones
+- Cerrar al éxito / Cancelar
+
+Componentes: `src/components/form-sheet/*`
+
+**Ajustes:** tabs por query (`?tab=perfil|workspace|categorias`). Gestión de categorías en `?tab=categorias`.
+
 ---
 
 ## 3.1 Responsive — mobile first
@@ -80,7 +101,7 @@ Sidebar único estilo dashboard (shadcn inset) — **sin** rail de iconos oscuro
 1. Escribir clases **sin** breakpoint primero (móvil). Ampliar con `sm:` / `md:` / `lg:`.
 2. **Shell:** en móvil solo header (`SidebarTrigger` + título) + contenido; menú via sheet.
 3. **Tablas densas:** en base mostrar 2–3 columnas (identidad + monto). Columnas secundarias con `hidden sm:table-cell` / `md:table-cell`. El wrapper `Table` ya permite scroll horizontal como fallback.
-4. **Forms:** un campo por fila en base; `sm:grid-cols-*` para alinear. Evitar `grid-cols-[1fr_120px]` sin breakpoint — usar `grid-cols-1 sm:grid-cols-[minmax(0,1fr)_7.5rem]`.
+4. **Forms:** create flows en `FormSheet` (1 columna). No grids multi-columna densos en sheets.
 5. **Tipografía hero:** `text-3xl sm:text-4xl` en patrimonio / cifras clave.
 6. **Touch:** controles críticos ≥ 40px de alto en móvil (`h-10` / padding); no depender solo de hover.
 7. **Tabs / section nav:** scroll horizontal o labels cortos en móvil; descripciones largas `hidden sm:block`.

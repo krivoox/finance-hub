@@ -10,7 +10,7 @@ import { getSession } from "@/lib/session";
 import { listAccounts } from "@/features/accounts/services";
 import { listCategories } from "@/features/categories/services";
 import { getTransactionDetail } from "@/features/transactions/services";
-import { EditTransactionForm } from "@/features/transactions/components/edit-transaction-form";
+import { EditTransactionSheet } from "@/features/transactions/components/edit-transaction-sheet";
 import { TRANSACTION_TYPE_LABEL_ES } from "@/features/transactions/components/transaction-type-labels";
 import {
   formatPaymentAccountLabel,
@@ -111,13 +111,41 @@ export default async function TransactionDetailPage({ params }: PageProps) {
     });
   }
 
+  const title =
+    detail.description ??
+    detail.categoryName ??
+    TRANSACTION_TYPE_LABEL_ES[detail.type];
+
   return (
     <ContentPanel
-      title="Detalle del movimiento"
-      description={detail.workspaceName}
+      title={title}
+      description={`${detail.workspaceName} · ${formatOccurredOn(detail.occurredOn)}`}
+      actions={
+        canMutate ? (
+          <EditTransactionSheet
+            transactionId={detail.id}
+            type={detail.type}
+            amountCents={detail.amountCents}
+            currency={detail.currency}
+            occurredOn={formatOccurredOn(detail.occurredOn)}
+            description={detail.description}
+            categoryId={detail.categoryId}
+            accountId={detail.accountId}
+            counterpartyAccountId={detail.counterpartyAccountId}
+            accounts={accountOptions}
+            categories={categories
+              .filter((c) => !c.isArchived)
+              .map((c) => ({
+                id: c.id,
+                name: c.name,
+                kind: c.kind,
+              }))}
+          />
+        ) : undefined
+      }
     >
-      <div className="mb-4">
-        <Button variant="ghost" size="sm" asChild>
+      <div className="mb-6">
+        <Button variant="ghost" size="sm" className="-ml-2" asChild>
           <Link href="/transactions">← Volver a movimientos</Link>
         </Button>
       </div>
@@ -133,21 +161,16 @@ export default async function TransactionDetailPage({ params }: PageProps) {
               detail.currency,
             )}
           </p>
-          <p className="text-base text-foreground">
-            {detail.description ??
-              detail.categoryName ??
-              TRANSACTION_TYPE_LABEL_ES[detail.type]}
-          </p>
         </header>
 
-        <dl className="grid gap-3 text-sm sm:grid-cols-2">
-          <div>
+        <dl className="grid gap-4 text-sm sm:grid-cols-2">
+          <div className="space-y-1">
             <dt className="text-muted-foreground">Fecha</dt>
             <dd className="tabular-nums text-foreground">
               {formatOccurredOn(detail.occurredOn)}
             </dd>
           </div>
-          <div>
+          <div className="space-y-1">
             <dt className="text-muted-foreground">
               {detail.type === "income"
                 ? "Se acredita en"
@@ -158,21 +181,21 @@ export default async function TransactionDetailPage({ params }: PageProps) {
             <dd className="text-foreground">{transferLabel}</dd>
           </div>
           {detail.type !== "transfer" ? (
-            <div>
+            <div className="space-y-1">
               <dt className="text-muted-foreground">Categoría</dt>
               <dd className="text-foreground">{detail.categoryName ?? "—"}</dd>
             </div>
           ) : null}
-          <div>
+          <div className="space-y-1">
             <dt className="text-muted-foreground">Se registra en</dt>
             <dd className="text-foreground">{detail.workspaceName}</dd>
           </div>
-          <div>
+          <div className="space-y-1">
             <dt className="text-muted-foreground">Registró</dt>
             <dd className="text-foreground">{detail.createdByDisplayName}</dd>
           </div>
           {detail.isExternallyFunded ? (
-            <div className="sm:col-span-2">
+            <div className="space-y-1 sm:col-span-2">
               <dt className="text-muted-foreground">Origen del dinero</dt>
               <dd className="text-foreground">
                 Cuenta de {detail.accountWorkspaceName} (otro espacio)
@@ -188,11 +211,11 @@ export default async function TransactionDetailPage({ params }: PageProps) {
               Pagó {detail.split.paidByDisplayName} · método{" "}
               {detail.split.method}
             </p>
-            <ul className="divide-y divide-border rounded-md border border-border">
+            <ul className="divide-y divide-border rounded-lg border border-border">
               {detail.split.shares.map((s) => (
                 <li
                   key={s.userId}
-                  className="flex items-center justify-between gap-3 px-3 py-2 text-sm"
+                  className="flex items-center justify-between gap-3 px-3 py-2.5 text-sm"
                 >
                   <span className="text-foreground">{s.displayName}</span>
                   <span className="tabular-nums text-muted-foreground">
@@ -205,7 +228,7 @@ export default async function TransactionDetailPage({ params }: PageProps) {
         ) : null}
 
         {detail.crossWorkspaceLink ? (
-          <section className="space-y-2 border-t border-border pt-6">
+          <section className="space-y-3 border-t border-border pt-6">
             <h2 className="text-sm font-semibold text-foreground">
               {detail.crossWorkspaceLink.kind === "contribution"
                 ? "Aporte vinculado"
@@ -224,31 +247,6 @@ export default async function TransactionDetailPage({ params }: PageProps) {
                 Ver movimiento vinculado
               </Link>
             </Button>
-          </section>
-        ) : null}
-
-        {canMutate ? (
-          <section className="space-y-3 border-t border-border pt-6">
-            <h2 className="text-sm font-semibold text-foreground">Editar</h2>
-            <EditTransactionForm
-              transactionId={detail.id}
-              type={detail.type}
-              amountCents={detail.amountCents}
-              currency={detail.currency}
-              occurredOn={formatOccurredOn(detail.occurredOn)}
-              description={detail.description}
-              categoryId={detail.categoryId}
-              accountId={detail.accountId}
-              counterpartyAccountId={detail.counterpartyAccountId}
-              accounts={accountOptions}
-              categories={categories
-                .filter((c) => !c.isArchived)
-                .map((c) => ({
-                  id: c.id,
-                  name: c.name,
-                  kind: c.kind,
-                }))}
-            />
           </section>
         ) : null}
       </div>

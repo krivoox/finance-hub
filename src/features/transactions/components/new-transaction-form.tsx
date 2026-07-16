@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import {
@@ -15,6 +15,13 @@ import {
   TRANSACTION_TYPES,
   type TransactionType,
 } from "@/features/transactions/domain";
+import {
+  FormActions,
+  FormField,
+  FormSection,
+  FormStack,
+  SegmentedControl,
+} from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { nativeSelectClassName } from "@/components/ui/native-select";
@@ -54,12 +61,12 @@ type NewTransactionFormProps = {
   workspaceName: string;
   workspaceCurrency: string;
   accounts: readonly AccountOption[];
-  /** Accounts across workspaces for income/expense payment source. */
   paymentAccountGroups?: readonly PaymentAccountGroup[];
   categories: readonly CategoryOption[];
-  /** When set, expense form can attach a group split. */
   groupMembers?: readonly MemberOption[];
   currentUserId?: string;
+  onSuccess?: () => void;
+  onCancel?: () => void;
 };
 
 type FormValues = {
@@ -88,6 +95,11 @@ function parseAmountCents(raw: string): number | null {
   return amountCents;
 }
 
+const TYPE_OPTIONS = TRANSACTION_TYPES.map((value) => ({
+  value,
+  label: TRANSACTION_TYPE_LABEL_ES[value],
+}));
+
 const SELECT_CLASSES = nativeSelectClassName;
 
 export function NewTransactionForm({
@@ -99,6 +111,8 @@ export function NewTransactionForm({
   categories,
   groupMembers = [],
   currentUserId,
+  onSuccess,
+  onCancel,
 }: NewTransactionFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -139,6 +153,7 @@ export function NewTransactionForm({
     handleSubmit,
     reset,
     control,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
@@ -360,6 +375,7 @@ export function NewTransactionForm({
       });
       setShareExpense(false);
       router.refresh();
+      onSuccess?.();
     });
   });
 
@@ -368,220 +384,191 @@ export function NewTransactionForm({
   const showCounterparty = watchedType === "transfer";
 
   return (
-    <form className="space-y-4" onSubmit={onSubmit} noValidate>
-      <div className="grid gap-4 sm:grid-cols-[minmax(0,200px)_minmax(0,1fr)_minmax(0,160px)]">
-        <div className="space-y-2">
-          <label
-            htmlFor="tx-type"
-            className="text-sm font-medium text-muted-foreground"
-          >
-            Tipo
-          </label>
-          <select
-            id="tx-type"
-            className={SELECT_CLASSES}
-            {...register("type")}
-          >
-            {TRANSACTION_TYPES.map((code) => (
-              <option key={code} value={code}>
-                {TRANSACTION_TYPE_LABEL_ES[code]}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <label
-            htmlFor="tx-description"
-            className="text-sm font-medium text-muted-foreground"
-          >
-            Descripción (opcional)
-          </label>
-          <Input
-            id="tx-description"
-            placeholder="Supermercado, sueldo, transferencia a ahorro…"
-            {...register("description")}
+    <form className="flex flex-col gap-6" onSubmit={onSubmit} noValidate>
+      <FormStack>
+        <FormSection>
+          <Controller
+            control={control}
+            name="type"
+            render={({ field }) => (
+              <FormField label="Tipo" htmlFor="tx-type">
+                <SegmentedControl
+                  id="tx-type"
+                  ariaLabel="Tipo de movimiento"
+                  value={field.value}
+                  options={TYPE_OPTIONS}
+                  disabled={isBusy}
+                  onChange={(next) => {
+                    field.onChange(next);
+                    setValue("categoryId", "");
+                    if (next !== "expense") setShareExpense(false);
+                  }}
+                />
+              </FormField>
+            )}
           />
-        </div>
 
-        <div className="space-y-2">
-          <label
+          <FormField
+            label="Monto"
             htmlFor="tx-amount"
-            className="text-sm font-medium text-muted-foreground"
+            hint={`En ${workspaceCurrency}`}
           >
-            Monto ({workspaceCurrency})
-          </label>
-          <Input
-            id="tx-amount"
-            type="number"
-            inputMode="decimal"
-            min={0}
-            step="0.01"
-            placeholder="0,00"
-            aria-invalid={Boolean(errors.amountUnits)}
-            {...register("amountUnits", { required: true })}
-          />
-        </div>
-      </div>
+            <Input
+              id="tx-amount"
+              type="number"
+              inputMode="decimal"
+              min={0}
+              step="0.01"
+              placeholder="0,00"
+              className="h-11 text-base tabular-nums sm:h-9 sm:text-sm"
+              aria-invalid={Boolean(errors.amountUnits)}
+              {...register("amountUnits", { required: true })}
+            />
+          </FormField>
 
-      <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,160px)]">
-        <div className="space-y-2">
-          <label
+          <FormField label="Descripción" htmlFor="tx-description" optional>
+            <Input
+              id="tx-description"
+              placeholder="Supermercado, sueldo…"
+              {...register("description")}
+            />
+          </FormField>
+        </FormSection>
+
+        <FormSection title="Cuenta y categoría">
+          <FormField
+            label={
+              watchedType === "transfer"
+                ? "Cuenta origen"
+                : watchedType === "income"
+                  ? "Se acredita en"
+                  : "Se descuenta de"
+            }
             htmlFor="tx-account"
-            className="text-sm font-medium text-muted-foreground"
           >
-            {watchedType === "transfer"
-              ? "Cuenta origen"
-              : watchedType === "income"
-                ? "Se acredita en"
-                : "Se descuenta de"}
-          </label>
-          <select
-            id="tx-account"
-            className={SELECT_CLASSES}
-            aria-invalid={Boolean(errors.accountId)}
-            {...register("accountId", { required: true })}
-          >
-            {watchedType === "transfer" || paymentAccountGroups.length === 0
-              ? accounts.map((a) => (
+            <select
+              id="tx-account"
+              className={SELECT_CLASSES}
+              aria-invalid={Boolean(errors.accountId)}
+              {...register("accountId", { required: true })}
+            >
+              {watchedType === "transfer" || paymentAccountGroups.length === 0
+                ? accounts.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.name}
+                    </option>
+                  ))
+                : paymentAccountGroups.map((group) => (
+                    <optgroup
+                      key={group.workspaceId}
+                      label={
+                        group.workspaceId === workspaceId
+                          ? `Este espacio · ${group.workspaceName}`
+                          : group.workspaceType === "personal"
+                            ? `Tu espacio personal · ${group.workspaceName}`
+                            : group.workspaceName
+                      }
+                    >
+                      {group.accounts.map((a) => (
+                        <option key={a.id} value={a.id}>
+                          {a.name}
+                        </option>
+                      ))}
+                    </optgroup>
+                  ))}
+            </select>
+          </FormField>
+
+          {showCounterparty ? (
+            <FormField label="Cuenta destino" htmlFor="tx-counterparty">
+              <select
+                id="tx-counterparty"
+                className={SELECT_CLASSES}
+                aria-invalid={Boolean(errors.counterpartyAccountId)}
+                {...register("counterpartyAccountId", { required: true })}
+              >
+                {counterpartyOptions.map((a) => (
                   <option key={a.id} value={a.id}>
                     {a.name}
                   </option>
-                ))
-              : paymentAccountGroups.map((group) => (
-                  <optgroup
-                    key={group.workspaceId}
-                    label={
-                      group.workspaceId === workspaceId
-                        ? `Este espacio · ${group.workspaceName}`
-                        : group.workspaceType === "personal"
-                          ? `Tu espacio personal · ${group.workspaceName}`
-                          : group.workspaceName
-                    }
-                  >
-                    {group.accounts.map((a) => (
-                      <option key={a.id} value={a.id}>
-                        {a.name}
-                      </option>
-                    ))}
-                  </optgroup>
                 ))}
-          </select>
-        </div>
+              </select>
+            </FormField>
+          ) : (
+            <FormField label="Categoría" htmlFor="tx-category">
+              <select
+                id="tx-category"
+                className={SELECT_CLASSES}
+                disabled={!showCategory}
+                aria-invalid={Boolean(errors.categoryId)}
+                {...register("categoryId", {
+                  required: showCategory,
+                })}
+              >
+                <option value="">Elegí una categoría…</option>
+                {filteredCategories.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            </FormField>
+          )}
 
-        {showCounterparty ? (
-          <div className="space-y-2">
-            <label
-              htmlFor="tx-counterparty"
-              className="text-sm font-medium text-muted-foreground"
-            >
-              Cuenta destino
-            </label>
-            <select
-              id="tx-counterparty"
-              className={SELECT_CLASSES}
-              aria-invalid={Boolean(errors.counterpartyAccountId)}
-              {...register("counterpartyAccountId", { required: true })}
-            >
-              {counterpartyOptions.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <label
-              htmlFor="tx-category"
-              className="text-sm font-medium text-muted-foreground"
-            >
-              Categoría
-            </label>
-            <select
-              id="tx-category"
-              className={SELECT_CLASSES}
-              disabled={!showCategory}
-              aria-invalid={Boolean(errors.categoryId)}
-              {...register("categoryId", {
-                required: showCategory,
-              })}
-            >
-              <option value="">Elegí una categoría…</option>
-              {filteredCategories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        <div className="space-y-2">
-          <label
-            htmlFor="tx-date"
-            className="text-sm font-medium text-muted-foreground"
-          >
-            Fecha
-          </label>
-          <Input
-            id="tx-date"
-            type="date"
-            aria-invalid={Boolean(errors.occurredOn)}
-            {...register("occurredOn", { required: true })}
-          />
-        </div>
-      </div>
-
-      {watchedType !== "transfer" && selectedPaymentAccount ? (
-        <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-sm text-foreground">
-          Se registra en <strong>{workspaceName}</strong>
-          {" · "}
-          {watchedType === "income" ? "Se acredita en" : "Se descuenta de"}{" "}
-          <strong>
-            {isExternalPayment
-              ? `${selectedPaymentAccount.workspaceName} · ${selectedPaymentAccount.name}`
-              : selectedPaymentAccount.name}
-          </strong>
-          {isExternalPayment ? (
-            <span className="mt-1 block text-xs text-muted-foreground">
-              El movimiento queda en este espacio; el saldo cambia en la cuenta
-              de otro espacio.
-            </span>
-          ) : null}
-        </p>
-      ) : null}
-
-      {canSplit && watchedType === "expense" ? (
-        <div className="space-y-4 border-t border-border pt-4">
-          <label className="flex items-start gap-3 text-sm">
-            <input
-              type="checkbox"
-              className="mt-1 size-4 rounded border-input"
-              checked={shareExpense}
-              onChange={(e) => setShareExpense(e.target.checked)}
+          <FormField label="Fecha" htmlFor="tx-date">
+            <Input
+              id="tx-date"
+              type="date"
+              aria-invalid={Boolean(errors.occurredOn)}
+              {...register("occurredOn", { required: true })}
             />
-            <span>
-              <span className="font-medium text-foreground">
-                Compartir y dividir este gasto
-              </span>
-              <span className="mt-0.5 block text-muted-foreground">
-                Repartí el monto entre miembros del grupo para actualizar
-                balances.
-              </span>
-            </span>
-          </label>
+          </FormField>
 
-          {showSplitPanel ? (
-            <div className="space-y-4">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <label
-                    htmlFor="split-method"
-                    className="text-sm font-medium text-muted-foreground"
-                  >
-                    Cómo dividir
-                  </label>
+          {watchedType !== "transfer" && selectedPaymentAccount ? (
+            <p className="rounded-lg bg-muted/60 px-3 py-2.5 text-sm text-foreground">
+              Se registra en <strong>{workspaceName}</strong>
+              {" · "}
+              {watchedType === "income" ? "Se acredita en" : "Se descuenta de"}{" "}
+              <strong>
+                {isExternalPayment
+                  ? `${selectedPaymentAccount.workspaceName} · ${selectedPaymentAccount.name}`
+                  : selectedPaymentAccount.name}
+              </strong>
+              {isExternalPayment ? (
+                <span className="mt-1 block text-xs text-muted-foreground">
+                  El movimiento queda en este espacio; el saldo cambia en la
+                  cuenta de otro espacio.
+                </span>
+              ) : null}
+            </p>
+          ) : null}
+        </FormSection>
+
+        {canSplit && watchedType === "expense" ? (
+          <FormSection
+            title="División"
+            description="Solo para gastos del grupo."
+          >
+            <label className="flex items-start gap-3 rounded-lg border border-border px-3 py-3 text-sm">
+              <input
+                type="checkbox"
+                className="mt-0.5 size-4 rounded border-input"
+                checked={shareExpense}
+                onChange={(e) => setShareExpense(e.target.checked)}
+              />
+              <span>
+                <span className="font-medium text-foreground">
+                  Compartir este gasto
+                </span>
+                <span className="mt-0.5 block text-xs text-muted-foreground">
+                  Repartí el monto entre miembros para actualizar balances.
+                </span>
+              </span>
+            </label>
+
+            {showSplitPanel ? (
+              <div className="space-y-4">
+                <FormField label="Cómo dividir" htmlFor="split-method">
                   <select
                     id="split-method"
                     className={SELECT_CLASSES}
@@ -594,14 +581,9 @@ export function NewTransactionForm({
                     <option value="exact">Montos exactos</option>
                     <option value="percentage">Porcentajes</option>
                   </select>
-                </div>
-                <div className="space-y-2">
-                  <label
-                    htmlFor="split-payer"
-                    className="text-sm font-medium text-muted-foreground"
-                  >
-                    Quién pagó
-                  </label>
+                </FormField>
+
+                <FormField label="Quién pagó" htmlFor="split-payer">
                   <select
                     id="split-payer"
                     className={SELECT_CLASSES}
@@ -614,120 +596,127 @@ export function NewTransactionForm({
                       </option>
                     ))}
                   </select>
-                </div>
-              </div>
+                </FormField>
 
-              {splitMethod === "equal" ? (
-                <fieldset className="space-y-2">
-                  <legend className="text-sm font-medium text-muted-foreground">
-                    Participantes
-                  </legend>
-                  <ul className="divide-y divide-border">
-                    {groupMembers.map((m) => {
-                      const preview = equalPreview?.find(
-                        (p) => p.userId === m.userId,
-                      );
-                      return (
-                        <li
-                          key={m.userId}
-                          className="flex items-center justify-between gap-3 py-2"
-                        >
-                          <label className="flex items-center gap-2 text-sm text-foreground">
-                            <input
-                              type="checkbox"
-                              className="size-4 rounded border-input"
-                              checked={participantIds.includes(m.userId)}
-                              onChange={() => toggleParticipant(m.userId)}
-                            />
+                {splitMethod === "equal" ? (
+                  <fieldset className="space-y-2">
+                    <legend className="text-sm font-medium text-foreground">
+                      Participantes
+                    </legend>
+                    <ul className="divide-y divide-border rounded-lg border border-border">
+                      {groupMembers.map((m) => {
+                        const preview = equalPreview?.find(
+                          (p) => p.userId === m.userId,
+                        );
+                        return (
+                          <li
+                            key={m.userId}
+                            className="flex items-center justify-between gap-3 px-3 py-2.5"
+                          >
+                            <label className="flex items-center gap-2 text-sm text-foreground">
+                              <input
+                                type="checkbox"
+                                className="size-4 rounded border-input"
+                                checked={participantIds.includes(m.userId)}
+                                onChange={() => toggleParticipant(m.userId)}
+                              />
+                              {m.displayName}
+                            </label>
+                            {preview && participantIds.includes(m.userId) ? (
+                              <span className="text-xs tabular-nums text-muted-foreground">
+                                {(preview.cents / 100).toFixed(2)}{" "}
+                                {workspaceCurrency}
+                              </span>
+                            ) : null}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </fieldset>
+                ) : null}
+
+                {splitMethod === "exact" ? (
+                  <fieldset className="space-y-2">
+                    <legend className="text-sm font-medium text-foreground">
+                      Parte de cada uno ({workspaceCurrency})
+                    </legend>
+                    <ul className="space-y-3">
+                      {groupMembers.map((m) => (
+                        <li key={m.userId} className="space-y-1.5">
+                          <span className="text-sm text-foreground">
                             {m.displayName}
-                          </label>
-                          {preview && participantIds.includes(m.userId) ? (
-                            <span className="text-xs tabular-nums text-muted-foreground">
-                              {(preview.cents / 100).toFixed(2)}{" "}
-                              {workspaceCurrency}
-                            </span>
-                          ) : null}
+                          </span>
+                          <Input
+                            type="number"
+                            inputMode="decimal"
+                            min={0}
+                            step="0.01"
+                            placeholder="0,00"
+                            className="tabular-nums"
+                            value={exactUnitsByUser[m.userId] ?? ""}
+                            onChange={(e) =>
+                              setExactUnitsByUser((prev) => ({
+                                ...prev,
+                                [m.userId]: e.target.value,
+                              }))
+                            }
+                          />
                         </li>
-                      );
-                    })}
-                  </ul>
-                </fieldset>
-              ) : null}
+                      ))}
+                    </ul>
+                  </fieldset>
+                ) : null}
 
-              {splitMethod === "exact" ? (
-                <fieldset className="space-y-2">
-                  <legend className="text-sm font-medium text-muted-foreground">
-                    Parte de cada uno ({workspaceCurrency})
-                  </legend>
-                  <ul className="space-y-2">
-                    {groupMembers.map((m) => (
-                      <li
-                        key={m.userId}
-                        className="grid grid-cols-1 items-center gap-2 sm:grid-cols-[minmax(0,1fr)_7.5rem] sm:gap-3"
-                      >
-                        <span className="text-sm text-foreground">
-                          {m.displayName}
-                        </span>
-                        <Input
-                          type="number"
-                          inputMode="decimal"
-                          min={0}
-                          step="0.01"
-                          placeholder="0,00"
-                          value={exactUnitsByUser[m.userId] ?? ""}
-                          onChange={(e) =>
-                            setExactUnitsByUser((prev) => ({
-                              ...prev,
-                              [m.userId]: e.target.value,
-                            }))
-                          }
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                </fieldset>
-              ) : null}
+                {splitMethod === "percentage" ? (
+                  <fieldset className="space-y-2">
+                    <legend className="text-sm font-medium text-foreground">
+                      Porcentaje de cada uno
+                    </legend>
+                    <ul className="space-y-3">
+                      {groupMembers.map((m) => (
+                        <li key={m.userId} className="space-y-1.5">
+                          <span className="text-sm text-foreground">
+                            {m.displayName}
+                          </span>
+                          <Input
+                            type="number"
+                            inputMode="numeric"
+                            min={0}
+                            max={100}
+                            step={1}
+                            placeholder="%"
+                            className="tabular-nums"
+                            value={percentByUser[m.userId] ?? ""}
+                            onChange={(e) =>
+                              setPercentByUser((prev) => ({
+                                ...prev,
+                                [m.userId]: e.target.value,
+                              }))
+                            }
+                          />
+                        </li>
+                      ))}
+                    </ul>
+                  </fieldset>
+                ) : null}
+              </div>
+            ) : null}
+          </FormSection>
+        ) : null}
+      </FormStack>
 
-              {splitMethod === "percentage" ? (
-                <fieldset className="space-y-2">
-                  <legend className="text-sm font-medium text-muted-foreground">
-                    Porcentaje de cada uno
-                  </legend>
-                  <ul className="space-y-2">
-                    {groupMembers.map((m) => (
-                      <li
-                        key={m.userId}
-                        className="grid grid-cols-1 items-center gap-2 sm:grid-cols-[minmax(0,1fr)_6.25rem] sm:gap-3"
-                      >
-                        <span className="text-sm text-foreground">
-                          {m.displayName}
-                        </span>
-                        <Input
-                          type="number"
-                          inputMode="numeric"
-                          min={0}
-                          max={100}
-                          step={1}
-                          placeholder="%"
-                          value={percentByUser[m.userId] ?? ""}
-                          onChange={(e) =>
-                            setPercentByUser((prev) => ({
-                              ...prev,
-                              [m.userId]: e.target.value,
-                            }))
-                          }
-                        />
-                      </li>
-                    ))}
-                  </ul>
-                </fieldset>
-              ) : null}
-            </div>
-          ) : null}
-        </div>
-      ) : null}
-
-      <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+      <FormActions>
+        {onCancel ? (
+          <Button
+            type="button"
+            variant="outline"
+            className="h-10 w-full sm:h-8 sm:w-auto"
+            disabled={isBusy}
+            onClick={onCancel}
+          >
+            Cancelar
+          </Button>
+        ) : null}
         <Button
           type="submit"
           className="h-10 w-full sm:h-8 sm:w-auto"
@@ -737,9 +726,9 @@ export function NewTransactionForm({
             ? "Guardando..."
             : shareExpense && watchedType === "expense"
               ? "Registrar gasto compartido"
-              : "Registrar movimiento"}
+              : "Registrar"}
         </Button>
-      </div>
+      </FormActions>
     </form>
   );
 }

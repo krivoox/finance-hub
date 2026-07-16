@@ -10,12 +10,19 @@ import {
   contributeToGoalSchema,
   type ContributeToGoalInput,
 } from "@/features/goals/schemas";
+import {
+  FormActions,
+  FormField,
+  FormStack,
+} from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 type ContributeGoalFormProps = {
   goalId: string;
   goalCurrency: string;
+  onSuccess?: () => void;
+  onCancel?: () => void;
 };
 
 type FormValues = {
@@ -35,6 +42,8 @@ function todayIsoDate(): string {
 export function ContributeGoalForm({
   goalId,
   goalCurrency,
+  onSuccess,
+  onCancel,
 }: ContributeGoalFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -93,68 +102,74 @@ export function ContributeGoalForm({
         note: "",
       });
       router.refresh();
+      onSuccess?.();
     });
   });
 
   const isBusy = isPending || isSubmitting;
 
   return (
-    <form
-      className="flex flex-col gap-2 sm:flex-row sm:items-end"
-      onSubmit={onSubmit}
-      noValidate
-    >
-      <div className="w-full sm:w-40 space-y-1">
-        <label
+    <form className="flex flex-col gap-6" onSubmit={onSubmit} noValidate>
+      <FormStack>
+        <FormField
+          label="Aporte"
           htmlFor={`contribute-amount-${goalId}`}
-          className="text-xs font-medium text-muted-foreground"
+          hint={`En ${goalCurrency}`}
         >
-          Aporte ({goalCurrency})
-        </label>
-        <Input
-          id={`contribute-amount-${goalId}`}
-          type="number"
-          inputMode="decimal"
-          min={0}
-          step="0.01"
-          placeholder="0,00"
-          aria-invalid={Boolean(errors.amountUnits)}
-          {...register("amountUnits", { required: true })}
-        />
-      </div>
-      <div className="w-full sm:w-40 space-y-1">
-        <label
-          htmlFor={`contribute-date-${goalId}`}
-          className="text-xs font-medium text-muted-foreground"
-        >
-          Fecha
-        </label>
-        <Input
-          id={`contribute-date-${goalId}`}
-          type="date"
-          {...register("contributedOn", { required: true })}
-        />
-      </div>
-      <div className="w-full flex-1 space-y-1">
-        <label
+          <Input
+            id={`contribute-amount-${goalId}`}
+            type="number"
+            inputMode="decimal"
+            min={0}
+            step="0.01"
+            placeholder="0,00"
+            className="tabular-nums"
+            aria-invalid={Boolean(errors.amountUnits)}
+            {...register("amountUnits", { required: true })}
+          />
+        </FormField>
+
+        <FormField label="Fecha" htmlFor={`contribute-date-${goalId}`}>
+          <Input
+            id={`contribute-date-${goalId}`}
+            type="date"
+            {...register("contributedOn", { required: true })}
+          />
+        </FormField>
+
+        <FormField
+          label="Nota"
           htmlFor={`contribute-note-${goalId}`}
-          className="text-xs font-medium text-muted-foreground"
+          optional
         >
-          Nota (opcional)
-        </label>
-        <Input
-          id={`contribute-note-${goalId}`}
-          placeholder="Aguinaldo, transferencia, ahorro extra…"
-          {...register("note")}
-        />
-      </div>
-      <Button
-        type="submit"
-        className="h-10 w-full shrink-0 sm:h-8 sm:w-auto"
-        disabled={isBusy}
-      >
-        {isBusy ? "Registrando..." : "Aportar"}
-      </Button>
+          <Input
+            id={`contribute-note-${goalId}`}
+            placeholder="Aguinaldo, transferencia…"
+            {...register("note")}
+          />
+        </FormField>
+      </FormStack>
+
+      <FormActions>
+        {onCancel ? (
+          <Button
+            type="button"
+            variant="outline"
+            className="h-10 w-full sm:h-8 sm:w-auto"
+            disabled={isBusy}
+            onClick={onCancel}
+          >
+            Cancelar
+          </Button>
+        ) : null}
+        <Button
+          type="submit"
+          className="h-10 w-full sm:h-8 sm:w-auto"
+          disabled={isBusy}
+        >
+          {isBusy ? "Registrando..." : "Aportar"}
+        </Button>
+      </FormActions>
     </form>
   );
 }

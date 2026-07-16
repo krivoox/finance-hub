@@ -4,6 +4,7 @@ import {
   computeBudgetRemaining,
   computeBudgetSpent,
   computeBudgetStatus,
+  listMatchingBudgetExpenses,
 } from "./progress";
 import type { BudgetExpenseCandidate, BudgetLike } from "./types";
 
@@ -268,5 +269,82 @@ describe("computeBudgetRemaining", () => {
 
   it("puede ser negativo cuando spent supera el límite", () => {
     expect(computeBudgetRemaining(100, 250)).toBe(-150);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// listMatchingBudgetExpenses — detalle de movimientos del presupuesto
+// ---------------------------------------------------------------------------
+describe("listMatchingBudgetExpenses", () => {
+  it("devuelve solo expenses del periodo y categorías, preservando campos extra", () => {
+    const b = budget({ categoryIds: ["cat-food"] });
+    const matching = listMatchingBudgetExpenses(
+      b,
+      [
+        {
+          ...tx({
+            amountCents: 3_000,
+            categoryId: "cat-food",
+            occurredOn: new Date("2026-07-05T00:00:00Z"),
+          }),
+          id: "tx-in",
+        },
+        {
+          ...tx({
+            amountCents: 5_000,
+            categoryId: "cat-transport",
+            occurredOn: new Date("2026-07-06T00:00:00Z"),
+          }),
+          id: "tx-other-cat",
+        },
+        {
+          ...tx({
+            amountCents: 2_000,
+            categoryId: "cat-food",
+            occurredOn: new Date("2026-06-20T00:00:00Z"),
+          }),
+          id: "tx-out-of-period",
+        },
+        {
+          type: "transfer" as const,
+          amountCents: 9_000,
+          occurredOn: new Date("2026-07-05T00:00:00Z"),
+          categoryId: null,
+          id: "tx-transfer",
+        },
+      ],
+      new Date("2026-07-10T00:00:00Z"),
+    );
+
+    expect(matching).toHaveLength(1);
+    expect(matching[0]?.id).toBe("tx-in");
+    expect(matching[0]?.amountCents).toBe(3_000);
+  });
+
+  it("con categoryIds vacío incluye cualquier expense del periodo", () => {
+    const b = budget({ categoryIds: [] });
+    const matching = listMatchingBudgetExpenses(
+      b,
+      [
+        {
+          ...tx({
+            amountCents: 1_000,
+            categoryId: "cat-a",
+            occurredOn: new Date("2026-07-05T00:00:00Z"),
+          }),
+          id: "a",
+        },
+        {
+          ...tx({
+            amountCents: 2_000,
+            categoryId: "cat-b",
+            occurredOn: new Date("2026-07-06T00:00:00Z"),
+          }),
+          id: "b",
+        },
+      ],
+      new Date("2026-07-10T00:00:00Z"),
+    );
+    expect(matching.map((m) => m.id).toSorted()).toEqual(["a", "b"]);
   });
 });

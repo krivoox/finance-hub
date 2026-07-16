@@ -130,7 +130,7 @@ export function WorkspaceSwitcher({
             })}
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onSelect={() => router.push("/settings#nuevo-workspace")}
+              onSelect={() => router.push("/settings?tab=workspace")}
               className="text-muted-foreground"
             >
               + Nuevo workspace grupal

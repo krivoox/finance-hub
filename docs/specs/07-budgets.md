@@ -16,6 +16,7 @@ Los presupuestos limitan el gasto por categoría(s) en un periodo para controlar
 1. Quiero definir un presupuesto mensual para “Comida”.
 2. Quiero ver cuánto llevo gastado vs el límite.
 3. Quiero alertarme conceptualmente cuando supero el 80% o el 100% (dato derivado; UI muestra estado).
+4. Quiero abrir un presupuesto y ver los gastos del periodo que suman a ese límite.
 
 ## 3. Requisitos funcionales
 
@@ -27,6 +28,7 @@ Los presupuestos limitan el gasto por categoría(s) en un periodo para controlar
 | FR-04 | Estado: `on_track` \| `warning` (≥80%) \| `exceeded` (>100%) |
 | FR-05 | Actualizar límite / categorías; archivar budget |
 | FR-06 | Periodo monthly: ancla en startDate + timezone del workspace owner o user |
+| FR-07 | Detalle: listar expenses del periodo activo que matchean el budget (mismo filtro que FR-02) |
 
 ## 4. Reglas de negocio
 
@@ -45,6 +47,7 @@ Los presupuestos limitan el gasto por categoría(s) en un periodo para controlar
 | Command | `ArchiveBudget` |
 | Query | `ListBudgetsWithProgress` |
 | Query | `GetBudgetProgress` |
+| Query | `GetBudgetDetail` |
 
 ## 6. Criterios de aceptación
 
@@ -85,6 +88,12 @@ Los presupuestos limitan el gasto por categoría(s) en un periodo para controlar
 - **Given** categoryIds=[]  
 - **When** cualquier expense  
 - **Then** suma a spent
+
+### T-07 Detalle — movimientos asociados
+
+- **Given** budget comida; expenses comida in-period + transport + out-of-period  
+- **When** GetBudgetDetail / `listMatchingBudgetExpenses`  
+- **Then** solo expenses comida del periodo; suma = spent
 
 ## 8. Fuera de alcance
 

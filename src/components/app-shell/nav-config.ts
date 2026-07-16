@@ -76,6 +76,12 @@ export function isNavItemActive(pathname: string, href: string): boolean {
 
 export function getPageTitle(pathname: string): string {
   if (pathname.startsWith("/groups/settings")) return "Grupos";
+  if (pathname.startsWith("/budgets/") && pathname !== "/budgets") {
+    return "Presupuesto";
+  }
+  if (pathname.startsWith("/transactions/") && pathname !== "/transactions") {
+    return "Movimiento";
+  }
   const all = [
     ...mainNavItems,
     ...navGroups.flatMap((g) => g.items),

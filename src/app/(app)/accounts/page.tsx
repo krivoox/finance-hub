@@ -14,7 +14,7 @@ import { formatMoney } from "@/lib/format-money";
 import { getSession } from "@/lib/session";
 import { getActiveWorkspaceForUser } from "@/features/workspaces/services";
 import { listAccounts } from "@/features/accounts/services";
-import { NewAccountForm } from "@/features/accounts/components/new-account-form";
+import { NewAccountSheet } from "@/features/accounts/components/new-account-sheet";
 import { ACCOUNT_TYPE_LABEL_ES } from "@/features/accounts/components/account-type-labels";
 
 export default async function AccountsPage() {
@@ -49,92 +49,77 @@ export default async function AccountsPage() {
     <ContentPanel
       title="Cuentas"
       description={`Saldos de bancos, billeteras y tarjetas en ${workspace.name}.`}
+      actions={
+        canMutate ? (
+          <NewAccountSheet
+            workspaceId={workspace.id}
+            workspaceCurrency={workspace.baseCurrency}
+          />
+        ) : undefined
+      }
     >
-      <div className="space-y-8">
-        {canMutate ? (
-          <section className="space-y-3">
-            <header>
-              <h2 className="text-sm font-semibold text-foreground">
-                Nueva cuenta
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                Elegí un tipo y el saldo inicial en {workspace.baseCurrency}.
-              </p>
-            </header>
-            <NewAccountForm
-              workspaceId={workspace.id}
-              workspaceCurrency={workspace.baseCurrency}
-            />
-          </section>
-        ) : null}
-
-        <section className="space-y-3">
-          <header>
-            <h2 className="text-sm font-semibold text-foreground">
-              Cuentas activas
-            </h2>
-          </header>
-          {accounts.length === 0 ? (
-            <p className="text-sm text-muted-foreground">
-              Aún no hay cuentas en este workspace.
-            </p>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Cuenta</TableHead>
-                  <TableHead className="hidden sm:table-cell">Tipo</TableHead>
-                  <TableHead className="text-right">Saldo</TableHead>
+      {accounts.length === 0 ? (
+        <div className="flex flex-col items-start gap-3 py-8 sm:py-12">
+          <p className="text-sm text-muted-foreground">
+            Aún no hay cuentas en este workspace. Creá la primera para empezar a
+            registrar movimientos.
+          </p>
+        </div>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Cuenta</TableHead>
+              <TableHead className="hidden sm:table-cell">Tipo</TableHead>
+              <TableHead className="text-right">Saldo</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {accounts.map((account) => {
+              const isCreditDebt =
+                account.type === "credit_card" &&
+                account.currentBalance.amountCents > 0;
+              const isNegative = account.currentBalance.amountCents < 0;
+              return (
+                <TableRow key={account.id}>
+                  <TableCell>
+                    <div className="flex min-w-0 flex-col gap-0.5">
+                      <span className="font-medium text-foreground">
+                        {account.name}
+                      </span>
+                      <span className="text-xs text-muted-foreground sm:hidden">
+                        {ACCOUNT_TYPE_LABEL_ES[account.type]}
+                        {" · "}
+                        {account.currency}
+                      </span>
+                      <span className="hidden text-xs text-muted-foreground sm:inline">
+                        {account.currency}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="hidden sm:table-cell">
+                    <Badge variant="secondary">
+                      {ACCOUNT_TYPE_LABEL_ES[account.type]}
+                    </Badge>
+                  </TableCell>
+                  <TableCell
+                    className={`text-right font-medium tabular-nums ${
+                      isNegative || isCreditDebt
+                        ? "text-expense"
+                        : "text-foreground"
+                    }`}
+                  >
+                    {formatMoney(
+                      account.currentBalance.amountCents,
+                      account.currentBalance.currency,
+                    )}
+                  </TableCell>
                 </TableRow>
-              </TableHeader>
-              <TableBody>
-                {accounts.map((account) => {
-                  const isCreditDebt =
-                    account.type === "credit_card" &&
-                    account.currentBalance.amountCents > 0;
-                  const isNegative = account.currentBalance.amountCents < 0;
-                  return (
-                    <TableRow key={account.id}>
-                      <TableCell>
-                        <div className="flex min-w-0 flex-col gap-0.5">
-                          <span className="font-medium text-foreground">
-                            {account.name}
-                          </span>
-                          <span className="text-xs text-muted-foreground sm:hidden">
-                            {ACCOUNT_TYPE_LABEL_ES[account.type]}
-                            {" · "}
-                            {account.currency}
-                          </span>
-                          <span className="hidden text-xs text-muted-foreground sm:inline">
-                            {account.currency}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="hidden sm:table-cell">
-                        <Badge variant="secondary">
-                          {ACCOUNT_TYPE_LABEL_ES[account.type]}
-                        </Badge>
-                      </TableCell>
-                      <TableCell
-                        className={`text-right font-medium tabular-nums ${
-                          isNegative || isCreditDebt
-                            ? "text-expense"
-                            : "text-foreground"
-                        }`}
-                      >
-                        {formatMoney(
-                          account.currentBalance.amountCents,
-                          account.currentBalance.currency,
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
-          )}
-        </section>
-      </div>
+              );
+            })}
+          </TableBody>
+        </Table>
+      )}
     </ContentPanel>
   );
 }

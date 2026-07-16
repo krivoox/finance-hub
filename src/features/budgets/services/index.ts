@@ -14,6 +14,12 @@ export type { ArchiveBudgetServiceInput } from "./archive-budget";
 
 export { getBudget } from "./get-budget";
 
+export { getBudgetDetail } from "./get-budget-detail";
+export type {
+  BudgetAffectingTransaction,
+  BudgetDetail,
+} from "./get-budget-detail";
+
 export { listBudgetsWithStatus } from "./list-budgets-with-status";
 export type { BudgetWithProgress } from "./list-budgets-with-status";
 
