@@ -9,7 +9,7 @@ Fuente de verdad del flujo de ramas. **Obligatorio** para humanos y agentes.
 | `main` | Producción estable | **Production** |
 | `develop` | Integración / QA | **Preview** (alias de rama) |
 
-No hay commits directos a `main` ni a `develop`.
+No hay commits directos a `main` ni a `develop` (excepto el bot de CI para changelog/release; ver [changelog.md](./changelog.md)).
 
 ## Ramas de trabajo
 
@@ -38,10 +38,10 @@ feat/*  fix/*  chore/*
 
 1. Actualizar `develop`: `git fetch origin && git checkout develop && git pull`.
 2. Crear rama: `git checkout -b feat/<nombre>`.
-3. Commits atómicos; mensaje en inglés o estilo del repo (imperativo, por qué).
+3. Commits atómicos con **Conventional Commits** (validado por commitlint); detalle en [changelog.md](./changelog.md).
 4. Push + PR hacia **`develop`** (no hacia `main`).
-5. Tras merge a `develop`: verificar preview en Vercel.
-6. Cuando `develop` esté listo para release: PR **`develop` → `main`** → production.
+5. Tras merge a `develop`: verificar preview en Vercel; el workflow actualiza `[Unreleased]` en `CHANGELOG.md`.
+6. Cuando `develop` esté listo para release: PR **`develop` → `main`** → production; el workflow hace bump SemVer, tag `vX.Y.Z` y GitHub Release.
 
 ## Hotfix en producción
 
@@ -72,13 +72,20 @@ git fetch --prune                    # limpia refs remotas borradas
 
 ## Reglas para agentes (no negociables)
 
-- Nunca `git commit` ni `git push` directo a `main` o `develop`.
+- Nunca `git commit` ni `git push` directo a `main` o `develop` (el bot de Actions puede actualizar changelog/versión).
 - Nunca abrir PR de feature hacia `main` (salvo hotfix documentado).
 - Base de trabajo siempre `develop` actualizado.
 - Tras merge: asegurar borrado de la rama remota + `git fetch --prune` + borrar local.
 - No force-push a `main` / `develop`.
-- No `--no-verify` en hooks salvo pedido explícito del usuario.
+- No `--no-verify` en hooks salvo pedido explícito del usuario (rompe commitlint).
 - Commits solo cuando el usuario lo pida (salvo que la tarea diga lo contrario).
+- Mensajes en Conventional Commits (`feat:`, `fix:`, etc.) para alimentar el changelog.
+
+## Changelog y versiones
+
+- Formato Keep a Changelog + SemVer; fuente = Conventional Commits.
+- Merge a `develop` → sección `[Unreleased]`; merge a `main` → release (tag + GitHub Release).
+- Guía completa: [changelog.md](./changelog.md). ADR: [005-changelog-semver](../adr/005-changelog-semver.md).
 
 ## Relación con Vercel
 

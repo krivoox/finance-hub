@@ -27,6 +27,7 @@ Visión: convertirse en el centro de administración financiera del hogar.
 | **[docs/stack.md](./docs/stack.md)** | Stack fijado (Siturn / template) |
 | **[docs/architecture.md](./docs/architecture.md)** | Capas, carpetas, auth, datos, patrones |
 | **[docs/guides/git-flow.md](./docs/guides/git-flow.md)** | Git Flow, ramas, PRs, higiene |
+| **[docs/guides/changelog.md](./docs/guides/changelog.md)** | Changelog, Conventional Commits, SemVer |
 | **[DESIGN.md](./DESIGN.md)** | Sistema visual |
 | **README.md** | Setup local |
 
@@ -34,6 +35,7 @@ Visión: convertirse en el centro de administración financiera del hogar.
 - UI → `DESIGN.md`
 - Reglas de negocio → `docs/specs/` + `docs/domain-model.md`
 - Ramas / PRs / deploy → `docs/guides/git-flow.md`
+- Changelog / versiones → `docs/guides/changelog.md`
 
 ## Fuente de verdad (implementación)
 
