@@ -27,6 +27,22 @@ import type {
 export const BUDGET_WARNING_RATIO = 0.8;
 
 /**
+ * Expenses that count toward a budget in its active period (same rules as
+ * spent). Preserves extra fields on each candidate (e.g. `id`) for detail UIs.
+ */
+export function listMatchingBudgetExpenses<T extends BudgetExpenseCandidate>(
+  budget: Pick<
+    BudgetLike,
+    "period" | "startDate" | "endDate" | "categoryIds"
+  >,
+  transactions: readonly T[],
+  referenceDate: Date = new Date(),
+): T[] {
+  const bounds = getBudgetPeriodBounds(budget, referenceDate);
+  return filterMatchingExpenses(transactions, budget.categoryIds, bounds);
+}
+
+/**
  * SPEC-07 FR-02 — sum expenses in the active period that match the budget's
  * categories.
  */
@@ -38,8 +54,10 @@ export function computeBudgetSpent(
   transactions: readonly BudgetExpenseCandidate[],
   referenceDate: Date = new Date(),
 ): number {
-  const bounds = getBudgetPeriodBounds(budget, referenceDate);
-  return sumMatchingExpenses(transactions, budget.categoryIds, bounds);
+  return listMatchingBudgetExpenses(budget, transactions, referenceDate).reduce(
+    (sum, tx) => sum + tx.amountCents,
+    0,
+  );
 }
 
 /**
@@ -78,11 +96,12 @@ export function computeBudgetProgress(
   referenceDate: Date = new Date(),
 ): BudgetProgress {
   const bounds = getBudgetPeriodBounds(budget, referenceDate);
-  const spentCents = sumMatchingExpenses(
+  const matching = filterMatchingExpenses(
     transactions,
     budget.categoryIds,
     bounds,
   );
+  const spentCents = matching.reduce((sum, tx) => sum + tx.amountCents, 0);
   const remainingCents = computeBudgetRemaining(budget.limitCents, spentCents);
   const status = computeBudgetStatus(spentCents, budget.limitCents);
 
@@ -99,17 +118,17 @@ export function computeBudgetProgress(
 // Internals
 // ---------------------------------------------------------------------------
 
-function sumMatchingExpenses(
-  transactions: readonly BudgetExpenseCandidate[],
+function filterMatchingExpenses<T extends BudgetExpenseCandidate>(
+  transactions: readonly T[],
   categoryIds: readonly string[],
   bounds: BudgetPeriodBounds,
-): number {
+): T[] {
   const startMs = bounds.start.getTime();
   const endMs = bounds.end.getTime();
   const categoryFilter =
     categoryIds.length === 0 ? null : new Set(categoryIds);
 
-  let total = 0;
+  const matched: T[] = [];
   for (const tx of transactions) {
     if (tx.type !== "expense") continue;
 
@@ -120,7 +139,7 @@ function sumMatchingExpenses(
       if (!tx.categoryId || !categoryFilter.has(tx.categoryId)) continue;
     }
 
-    total += tx.amountCents;
+    matched.push(tx);
   }
-  return total;
+  return matched;
 }

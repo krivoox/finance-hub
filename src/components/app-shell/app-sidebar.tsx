@@ -1,11 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { Plus, Search } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { ChevronsUpDown, LogOut, Plus, Search } from "lucide-react";
+import { toast } from "sonner";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Sidebar,
   SidebarContent,
@@ -19,7 +29,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarSeparator,
+  useSidebar,
 } from "@/components/ui/sidebar";
+import { signOut } from "@/lib/auth-client";
 import {
   WorkspaceSwitcher,
   type WorkspaceOption,
@@ -47,6 +59,85 @@ export type AppSidebarProps = {
   activeWorkspace: WorkspaceOption | null;
   navBadges?: NavBadges;
 };
+
+function SidebarUserMenu({ user }: { user: SidebarUser }) {
+  const router = useRouter();
+  const { isMobile, setOpenMobile } = useSidebar();
+  const [isPending, startTransition] = useTransition();
+
+  const handleSignOut = () => {
+    if (isMobile) {
+      setOpenMobile(false);
+    }
+
+    startTransition(async () => {
+      const { error } = await signOut({
+        fetchOptions: {
+          onSuccess: () => {
+            router.push("/login");
+            router.refresh();
+          },
+        },
+      });
+
+      if (error) {
+        toast.error("No se pudo cerrar sesión. Probá de nuevo.");
+      }
+    });
+  };
+
+  return (
+    <SidebarMenu>
+      <SidebarMenuItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild disabled={isPending}>
+            <SidebarMenuButton
+              size="lg"
+              tooltip={user.displayName}
+              disabled={isPending}
+            >
+              <Avatar size="sm" className="size-8">
+                <AvatarFallback className="bg-muted text-xs">
+                  {user.initials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="grid min-w-0 flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
+                <span className="truncate font-medium">{user.displayName}</span>
+                <span className="truncate text-xs text-muted-foreground">
+                  {user.email}
+                </span>
+              </div>
+              <ChevronsUpDown className="ml-auto size-4 text-muted-foreground group-data-[collapsible=icon]:hidden" />
+            </SidebarMenuButton>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent
+            align="start"
+            className="min-w-56"
+            sideOffset={6}
+          >
+            <DropdownMenuLabel className="font-normal">
+              <div className="flex flex-col gap-0.5">
+                <span className="truncate font-medium">{user.displayName}</span>
+                <span className="truncate text-xs text-muted-foreground">
+                  {user.email}
+                </span>
+              </div>
+            </DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              variant="destructive"
+              onSelect={handleSignOut}
+              className="gap-2"
+            >
+              <LogOut className="size-4" />
+              {isPending ? "Cerrando sesión..." : "Cerrar sesión"}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarMenuItem>
+    </SidebarMenu>
+  );
+}
 
 function NavMenuItems({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
@@ -103,7 +194,7 @@ export function AppSidebar({
               asChild
               className="h-10 flex-1 justify-center gap-2 rounded-full px-3 text-center align-middle md:h-8 group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:flex-none group-data-[collapsible=icon]:rounded-lg group-data-[collapsible=icon]:p-0"
             >
-              <Link href="/transactions">
+              <Link href="/transactions?new=1">
                 <Plus className="size-4" strokeWidth={1.75} />
                 <span className="flex flex-wrap group-data-[collapsible=icon]:sr-only">
                   Registrar
@@ -150,25 +241,7 @@ export function AppSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" tooltip={user.displayName}>
-              <Avatar size="sm" className="size-8">
-                <AvatarFallback className="bg-muted text-xs">
-                  {user.initials}
-                </AvatarFallback>
-              </Avatar>
-              <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
-                <span className="truncate font-medium">
-                  {user.displayName}
-                </span>
-                <span className="truncate text-xs text-muted-foreground">
-                  {user.email}
-                </span>
-              </div>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <SidebarUserMenu user={user} />
       </SidebarFooter>
     </Sidebar>
   );

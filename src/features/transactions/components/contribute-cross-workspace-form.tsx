@@ -6,6 +6,11 @@ import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { createCrossWorkspaceContributionAction } from "@/features/transactions/actions";
+import {
+  FormActions,
+  FormField,
+  FormStack,
+} from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { nativeSelectClassName } from "@/components/ui/native-select";
@@ -22,6 +27,8 @@ export type ContributionAccountOption = {
 type ContributeFormProps = {
   accounts: readonly ContributionAccountOption[];
   currencyHint: string;
+  onSuccess?: () => void;
+  onCancel?: () => void;
 };
 
 type FormValues = {
@@ -51,6 +58,8 @@ function parseAmountCents(raw: string): number | null {
 export function ContributeCrossWorkspaceForm({
   accounts,
   currencyHint,
+  onSuccess,
+  onCancel,
 }: ContributeFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -112,6 +121,7 @@ export function ContributeCrossWorkspaceForm({
       }
       toast.success("Aporte registrado");
       router.refresh();
+      onSuccess?.();
     });
   });
 
@@ -123,15 +133,17 @@ export function ContributeCrossWorkspaceForm({
     );
   }
 
+  const isBusy = isPending;
+
   return (
-    <form onSubmit={onSubmit} className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="block space-y-1.5 text-sm">
-          <span className="text-muted-foreground">Sale de</span>
+    <form onSubmit={onSubmit} className="flex flex-col gap-6" noValidate>
+      <FormStack>
+        <FormField label="Sale de" htmlFor="contribute-source">
           <select
+            id="contribute-source"
             className={nativeSelectClassName}
             {...register("sourceAccountId")}
-            disabled={isPending}
+            disabled={isBusy}
           >
             {accounts.map((a) => (
               <option key={a.id} value={a.id}>
@@ -139,13 +151,14 @@ export function ContributeCrossWorkspaceForm({
               </option>
             ))}
           </select>
-        </label>
-        <label className="block space-y-1.5 text-sm">
-          <span className="text-muted-foreground">Entra en</span>
+        </FormField>
+
+        <FormField label="Entra en" htmlFor="contribute-target">
           <select
+            id="contribute-target"
             className={nativeSelectClassName}
             {...register("targetAccountId")}
-            disabled={isPending}
+            disabled={isBusy}
           >
             {targetOptions.length === 0 ? (
               <option value="">No hay cuentas compatibles</option>
@@ -157,48 +170,77 @@ export function ContributeCrossWorkspaceForm({
               ))
             )}
           </select>
-        </label>
-      </div>
+        </FormField>
 
-      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_7.5rem]">
-        <label className="block space-y-1.5 text-sm">
-          <span className="text-muted-foreground">
-            Monto ({source?.currency ?? currencyHint})
-          </span>
+        <FormField
+          label="Monto"
+          htmlFor="contribute-amount"
+          hint={`En ${source?.currency ?? currencyHint}`}
+        >
           <Input
+            id="contribute-amount"
             type="text"
             inputMode="decimal"
             placeholder="0,00"
+            className="tabular-nums"
             {...register("amountUnits")}
-            disabled={isPending}
+            disabled={isBusy}
           />
-        </label>
-        <label className="block space-y-1.5 text-sm">
-          <span className="text-muted-foreground">Fecha</span>
-          <Input type="date" {...register("occurredOn")} disabled={isPending} />
-        </label>
-      </div>
+        </FormField>
 
-      <label className="block space-y-1.5 text-sm">
-        <span className="text-muted-foreground">Nota (opcional)</span>
-        <Input
-          placeholder="Aporte hogar · marzo"
-          {...register("description")}
-          disabled={isPending}
-        />
-      </label>
+        <FormField label="Fecha" htmlFor="contribute-date">
+          <Input
+            id="contribute-date"
+            type="date"
+            {...register("occurredOn")}
+            disabled={isBusy}
+          />
+        </FormField>
 
-      {source && target ? (
-        <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-sm text-foreground">
-          Sale de <strong>{source.workspaceName} · {source.name}</strong>
-          {" → "}
-          Entra en <strong>{target.workspaceName} · {target.name}</strong>
-        </p>
-      ) : null}
+        <FormField label="Nota" htmlFor="contribute-note" optional>
+          <Input
+            id="contribute-note"
+            placeholder="Aporte hogar · marzo"
+            {...register("description")}
+            disabled={isBusy}
+          />
+        </FormField>
 
-      <Button type="submit" disabled={isPending || targetOptions.length === 0}>
-        {isPending ? "Registrando…" : "Aportar"}
-      </Button>
+        {source && target ? (
+          <p className="rounded-lg bg-muted/60 px-3 py-2.5 text-sm text-foreground">
+            Sale de{" "}
+            <strong>
+              {source.workspaceName} · {source.name}
+            </strong>
+            {" → "}
+            Entra en{" "}
+            <strong>
+              {target.workspaceName} · {target.name}
+            </strong>
+          </p>
+        ) : null}
+      </FormStack>
+
+      <FormActions>
+        {onCancel ? (
+          <Button
+            type="button"
+            variant="outline"
+            className="h-10 w-full sm:h-8 sm:w-auto"
+            disabled={isBusy}
+            onClick={onCancel}
+          >
+            Cancelar
+          </Button>
+        ) : null}
+        <Button
+          type="submit"
+          className="h-10 w-full sm:h-8 sm:w-auto"
+          disabled={isBusy || targetOptions.length === 0}
+        >
+          {isBusy ? "Registrando…" : "Aportar"}
+        </Button>
+      </FormActions>
     </form>
   );
 }

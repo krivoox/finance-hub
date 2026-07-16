@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { createGoalAction } from "@/features/goals/actions";
@@ -11,6 +11,12 @@ import {
   type CreateGoalInput,
 } from "@/features/goals/schemas";
 import { GOAL_KINDS, type GoalKind } from "@/features/goals/domain";
+import {
+  FormActions,
+  FormField,
+  FormStack,
+  SegmentedControl,
+} from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { nativeSelectClassName } from "@/components/ui/native-select";
@@ -25,6 +31,8 @@ type NewGoalFormProps = {
   workspaceId: string;
   workspaceCurrency: string;
   accounts: readonly AccountOption[];
+  onSuccess?: () => void;
+  onCancel?: () => void;
 };
 
 type FormValues = {
@@ -37,10 +45,17 @@ type FormValues = {
 
 const SELECT_CLASSES = nativeSelectClassName;
 
+const KIND_OPTIONS = GOAL_KINDS.map((value) => ({
+  value,
+  label: GOAL_KIND_LABEL_ES[value],
+}));
+
 export function NewGoalForm({
   workspaceId,
   workspaceCurrency,
   accounts,
+  onSuccess,
+  onCancel,
 }: NewGoalFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -48,6 +63,7 @@ export function NewGoalForm({
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
@@ -101,55 +117,50 @@ export function NewGoalForm({
         linkedAccountId: "",
       });
       router.refresh();
+      onSuccess?.();
     });
   });
 
   const isBusy = isPending || isSubmitting;
 
   return (
-    <form className="space-y-4" onSubmit={onSubmit} noValidate>
-      <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,160px)_minmax(0,180px)]">
-        <div className="space-y-2">
-          <label
-            htmlFor="goal-name"
-            className="text-sm font-medium text-muted-foreground"
-          >
-            Nombre
-          </label>
+    <form className="flex flex-col gap-6" onSubmit={onSubmit} noValidate>
+      <FormStack>
+        <FormField
+          label="Nombre"
+          htmlFor="goal-name"
+          error={errors.name?.message}
+        >
           <Input
             id="goal-name"
-            placeholder="Fondo de emergencia, Viaje, Tarjeta VISA…"
+            placeholder="Fondo de emergencia, Viaje…"
             aria-invalid={Boolean(errors.name)}
             {...register("name", { required: "Nombre requerido" })}
           />
-          {errors.name ? (
-            <p className="text-xs text-destructive">{errors.name.message}</p>
-          ) : null}
-        </div>
+        </FormField>
 
-        <div className="space-y-2">
-          <label
-            htmlFor="goal-kind"
-            className="text-sm font-medium text-muted-foreground"
-          >
-            Tipo
-          </label>
-          <select id="goal-kind" className={SELECT_CLASSES} {...register("kind")}>
-            {GOAL_KINDS.map((k) => (
-              <option key={k} value={k}>
-                {GOAL_KIND_LABEL_ES[k]}
-              </option>
-            ))}
-          </select>
-        </div>
+        <Controller
+          control={control}
+          name="kind"
+          render={({ field }) => (
+            <FormField label="Tipo" htmlFor="goal-kind">
+              <SegmentedControl
+                id="goal-kind"
+                ariaLabel="Tipo de objetivo"
+                value={field.value}
+                options={KIND_OPTIONS}
+                disabled={isBusy}
+                onChange={field.onChange}
+              />
+            </FormField>
+          )}
+        />
 
-        <div className="space-y-2">
-          <label
-            htmlFor="goal-target"
-            className="text-sm font-medium text-muted-foreground"
-          >
-            Objetivo ({workspaceCurrency})
-          </label>
+        <FormField
+          label="Objetivo"
+          htmlFor="goal-target"
+          hint={`En ${workspaceCurrency}`}
+        >
           <Input
             id="goal-target"
             type="number"
@@ -157,34 +168,25 @@ export function NewGoalForm({
             min={0}
             step="0.01"
             placeholder="0,00"
+            className="tabular-nums"
             aria-invalid={Boolean(errors.targetAmountUnits)}
             {...register("targetAmountUnits", { required: true })}
           />
-        </div>
-      </div>
+        </FormField>
 
-      <div className="grid gap-4 sm:grid-cols-[minmax(0,180px)_minmax(0,1fr)]">
-        <div className="space-y-2">
-          <label
-            htmlFor="goal-target-date"
-            className="text-sm font-medium text-muted-foreground"
-          >
-            Fecha meta (opcional)
-          </label>
+        <FormField label="Fecha meta" htmlFor="goal-target-date" optional>
           <Input
             id="goal-target-date"
             type="date"
             {...register("targetDate")}
           />
-        </div>
+        </FormField>
 
-        <div className="space-y-2">
-          <label
-            htmlFor="goal-linked-account"
-            className="text-sm font-medium text-muted-foreground"
-          >
-            Cuenta vinculada (opcional)
-          </label>
+        <FormField
+          label="Cuenta vinculada"
+          htmlFor="goal-linked-account"
+          optional
+        >
           <select
             id="goal-linked-account"
             className={SELECT_CLASSES}
@@ -197,10 +199,21 @@ export function NewGoalForm({
               </option>
             ))}
           </select>
-        </div>
-      </div>
+        </FormField>
+      </FormStack>
 
-      <div className="flex justify-stretch sm:justify-end">
+      <FormActions>
+        {onCancel ? (
+          <Button
+            type="button"
+            variant="outline"
+            className="h-10 w-full sm:h-8 sm:w-auto"
+            disabled={isBusy}
+            onClick={onCancel}
+          >
+            Cancelar
+          </Button>
+        ) : null}
         <Button
           type="submit"
           className="h-10 w-full sm:h-8 sm:w-auto"
@@ -208,7 +221,7 @@ export function NewGoalForm({
         >
           {isBusy ? "Creando..." : "Crear objetivo"}
         </Button>
-      </div>
+      </FormActions>
     </form>
   );
 }

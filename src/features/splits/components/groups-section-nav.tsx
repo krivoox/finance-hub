@@ -7,7 +7,7 @@ const SECTIONS = [
     href: "/groups",
     id: "activity" as const,
     label: "Actividad",
-    description: "Balances y liquidaciones",
+    description: "Balances y actividad",
   },
   {
     href: "/groups/settings",

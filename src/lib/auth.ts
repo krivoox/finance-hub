@@ -6,10 +6,31 @@ import { env } from "@/lib/env";
 import { createPersonalWorkspaceForUser } from "@/features/workspaces/services/create-personal-workspace";
 import { acceptPendingInvitationsForEmail } from "@/features/workspaces/services/invitations";
 
+/** Extra origins from env + LAN wildcards in development (phone / other devices). */
+function trustedOrigins(): string[] {
+  const fromEnv =
+    env.BETTER_AUTH_TRUSTED_ORIGINS?.split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean) ?? [];
+
+  if (env.NODE_ENV === "production") {
+    return fromEnv;
+  }
+
+  return [
+    ...fromEnv,
+    "http://192.168.*.*:*",
+    "http://10.*.*.*:*",
+    "http://172.*.*.*:*",
+    "http://127.0.0.1:*",
+  ];
+}
+
 export const auth = betterAuth({
   appName: "Finance Hub",
   baseURL: env.BETTER_AUTH_URL,
   secret: env.BETTER_AUTH_SECRET,
+  trustedOrigins: trustedOrigins(),
   database: prismaAdapter(prisma, { provider: "postgresql" }),
   emailAndPassword: {
     enabled: true,

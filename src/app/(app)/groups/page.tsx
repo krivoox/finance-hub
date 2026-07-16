@@ -7,7 +7,6 @@ import { getSession } from "@/lib/session";
 import { getActiveWorkspaceForUser } from "@/features/workspaces/services";
 import { getGroupOverview } from "@/features/splits/services";
 import { NotAGroupWorkspaceError } from "@/features/splits/domain";
-import { NewSettlementForm } from "@/features/splits/components/new-settlement-form";
 import { GroupsSectionNav } from "@/features/splits/components/groups-section-nav";
 import { NewGroupWorkspaceForm } from "@/features/workspaces/components/new-group-workspace-form";
 
@@ -66,7 +65,7 @@ export default async function GroupsActivityPage() {
   return (
     <ContentPanel
       title="Grupos"
-      description="Balances entre miembros, liquidaciones y actividad compartida."
+      description="Balances entre miembros y actividad compartida."
     >
       <GroupsSectionNav active="activity" />
 
@@ -110,18 +109,6 @@ export default async function GroupsActivityPage() {
           </ul>
         )}
       </section>
-
-      {active.role !== "viewer" ? (
-        <div className="mb-8">
-          <NewSettlementForm
-            workspaceId={active.id}
-            members={overview.members.map((m) => ({
-              userId: m.userId,
-              displayName: m.displayName,
-            }))}
-          />
-        </div>
-      ) : null}
 
       <section>
         <h3 className="mb-3 text-sm font-medium text-foreground">

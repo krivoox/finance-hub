@@ -4,8 +4,8 @@ Direction: Dub-inspired product UI — calm, precise, premium-light.
 Depth: borders + soft shadow (shadow-sm / shadow-md). No heavy Material shadows.
 Spacing base: 4px. Product density: medium-compact.
 Type: Geist Sans / Geist Mono. Ratio ~1.25. Weight ceiling 600.
-Signature: single inset sidebar (workspace header, quick-create CTA, grouped nav, user footer) + content panel. No dark icon rail.
-Responsive: **mobile-first**. Base = phone; `sm` forms, `md` sidebar inset, `lg` dashboard 2-col.
+Signature: single inset sidebar + content panel. Create flows via right FormSheet (full-bleed mobile, drawer desktop) — never inline forms stacked above lists.
+Responsive: **mobile-first**. Base = phone; `sm` richer controls, `md` sidebar inset, `lg` dashboard 2-col.
 
 ## Tokens (see globals.css)
 
@@ -23,6 +23,8 @@ Responsive: **mobile-first**. Base = phone; `sm` forms, `md` sidebar inset, `lg`
 - Dense tables: hide secondary columns below `sm`/`md`
 - Money uses tabular-nums
 - Business logic stays out of React components
+- Create: `FormSheet` right drawer (full mobile / md–lg desktop). CTAs in `ContentPanel.actions` or `?new=1`
+- Form density: 1 column · `FormField` · `FormSection` · `SegmentedControl` for type toggles
 - Progress bars: `ProgressBar` with ≥3 tones; red (`alert`) only for real alerts (budget exceeded)
 
 Reference: DESIGN.md

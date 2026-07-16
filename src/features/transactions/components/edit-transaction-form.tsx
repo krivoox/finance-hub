@@ -10,6 +10,12 @@ import {
   updateTransactionAction,
 } from "@/features/transactions/actions";
 import type { TransactionType } from "@/features/transactions/domain";
+import {
+  FormActions,
+  FormField,
+  FormSection,
+  FormStack,
+} from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { nativeSelectClassName } from "@/components/ui/native-select";
@@ -29,6 +35,8 @@ type EditTransactionFormProps = {
   counterpartyAccountId: string | null;
   accounts: readonly AccountOption[];
   categories: readonly CategoryOption[];
+  onSuccess?: () => void;
+  onCancel?: () => void;
 };
 
 type FormValues = {
@@ -64,6 +72,8 @@ export function EditTransactionForm({
   counterpartyAccountId,
   accounts,
   categories,
+  onSuccess,
+  onCancel,
 }: EditTransactionFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -107,6 +117,7 @@ export function EditTransactionForm({
       }
       toast.success("Movimiento actualizado");
       router.refresh();
+      onSuccess?.();
     });
   });
 
@@ -123,116 +134,173 @@ export function EditTransactionForm({
     });
   };
 
+  const isBusy = isPending;
+  const accountLabel =
+    type === "income"
+      ? "Se acredita en"
+      : type === "expense"
+        ? "Se descuenta de"
+        : "Cuenta origen";
+
   return (
-    <div className="space-y-6">
-      <form onSubmit={onSubmit} className="space-y-4">
-        <div className="grid gap-3 sm:grid-cols-2">
-          <label className="block space-y-1.5 text-sm">
-            <span className="text-muted-foreground">Monto ({currency})</span>
-            <Input
-              type="text"
-              inputMode="decimal"
-              {...register("amountUnits")}
-              disabled={isPending}
-            />
-          </label>
-          <label className="block space-y-1.5 text-sm">
-            <span className="text-muted-foreground">Fecha</span>
-            <Input type="date" {...register("occurredOn")} disabled={isPending} />
-          </label>
-        </div>
+    <div className="flex flex-col gap-6">
+      <form className="flex flex-col gap-6" onSubmit={onSubmit} noValidate>
+        <FormStack>
+          <FormSection>
+            <FormField
+              label="Monto"
+              htmlFor="edit-tx-amount"
+              hint={`En ${currency}`}
+            >
+              <Input
+                id="edit-tx-amount"
+                type="text"
+                inputMode="decimal"
+                className="tabular-nums"
+                disabled={isBusy}
+                {...register("amountUnits")}
+              />
+            </FormField>
 
-        <label className="block space-y-1.5 text-sm">
-          <span className="text-muted-foreground">Descripción</span>
-          <Input {...register("description")} disabled={isPending} />
-        </label>
+            <FormField label="Fecha" htmlFor="edit-tx-date">
+              <Input
+                id="edit-tx-date"
+                type="date"
+                disabled={isBusy}
+                {...register("occurredOn")}
+              />
+            </FormField>
 
-        <label className="block space-y-1.5 text-sm">
-          <span className="text-muted-foreground">Cuenta</span>
-          <select
-            className={nativeSelectClassName}
-            {...register("accountId")}
-            disabled={isPending}
+            <FormField
+              label="Descripción"
+              htmlFor="edit-tx-description"
+              optional
+            >
+              <Input
+                id="edit-tx-description"
+                disabled={isBusy}
+                {...register("description")}
+              />
+            </FormField>
+          </FormSection>
+
+          <FormSection title="Cuenta y categoría">
+            <FormField label={accountLabel} htmlFor="edit-tx-account">
+              <select
+                id="edit-tx-account"
+                className={nativeSelectClassName}
+                disabled={isBusy}
+                {...register("accountId")}
+              >
+                {accounts.map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.name}
+                  </option>
+                ))}
+              </select>
+            </FormField>
+
+            {type === "transfer" ? (
+              <FormField
+                label="Cuenta destino"
+                htmlFor="edit-tx-counterparty"
+              >
+                <select
+                  id="edit-tx-counterparty"
+                  className={nativeSelectClassName}
+                  disabled={isBusy}
+                  {...register("counterpartyAccountId")}
+                >
+                  {accounts.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.name}
+                    </option>
+                  ))}
+                </select>
+              </FormField>
+            ) : (
+              <FormField label="Categoría" htmlFor="edit-tx-category">
+                <select
+                  id="edit-tx-category"
+                  className={nativeSelectClassName}
+                  disabled={isBusy}
+                  {...register("categoryId")}
+                >
+                  {kindCategories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </FormField>
+            )}
+          </FormSection>
+        </FormStack>
+
+        <FormActions>
+          {onCancel ? (
+            <Button
+              type="button"
+              variant="outline"
+              className="h-10 w-full sm:h-8 sm:w-auto"
+              disabled={isBusy}
+              onClick={onCancel}
+            >
+              Cancelar
+            </Button>
+          ) : null}
+          <Button
+            type="submit"
+            className="h-10 w-full sm:h-8 sm:w-auto"
+            disabled={isBusy}
           >
-            {accounts.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.name}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        {type === "transfer" ? (
-          <label className="block space-y-1.5 text-sm">
-            <span className="text-muted-foreground">Cuenta destino</span>
-            <select
-              className={nativeSelectClassName}
-              {...register("counterpartyAccountId")}
-              disabled={isPending}
-            >
-              {accounts.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.name}
-                </option>
-              ))}
-            </select>
-          </label>
-        ) : (
-          <label className="block space-y-1.5 text-sm">
-            <span className="text-muted-foreground">Categoría</span>
-            <select
-              className={nativeSelectClassName}
-              {...register("categoryId")}
-              disabled={isPending}
-            >
-              {kindCategories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </label>
-        )}
-
-        <Button type="submit" disabled={isPending}>
-          {isPending ? "Guardando…" : "Guardar cambios"}
-        </Button>
+            {isBusy ? "Guardando…" : "Guardar cambios"}
+          </Button>
+        </FormActions>
       </form>
 
-      <div className="border-t border-border pt-4">
+      <section className="space-y-3 border-t border-border pt-4">
+        <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+          Zona de peligro
+        </p>
         {!confirmDelete ? (
           <Button
             type="button"
             variant="outline"
-            disabled={isPending}
+            className="h-10 w-full text-destructive hover:bg-destructive/10 hover:text-destructive sm:h-8 sm:w-auto"
+            disabled={isBusy}
             onClick={() => setConfirmDelete(true)}
           >
             Eliminar movimiento
           </Button>
         ) : (
-          <div className="flex flex-wrap items-center gap-2">
-            <p className="text-sm text-muted-foreground">
+          <div className="space-y-3 rounded-lg border border-destructive/20 bg-destructive/5 p-3">
+            <p className="text-sm text-muted-foreground text-pretty">
               ¿Eliminar este movimiento? No se puede deshacer.
             </p>
-            <Button
-              type="button"
-              variant="destructive"
-              disabled={isPending}
-              onClick={onDelete}
-            >
-              Confirmar eliminación
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              disabled={isPending}
-              onClick={() => setConfirmDelete(false)}
-            >
-              Cancelar
-            </Button>
+            <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <Button
+                type="button"
+                variant="ghost"
+                className="h-10 w-full sm:h-8 sm:w-auto"
+                disabled={isBusy}
+                onClick={() => setConfirmDelete(false)}
+              >
+                Volver
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                className="h-10 w-full sm:h-8 sm:w-auto"
+                disabled={isBusy}
+                onClick={onDelete}
+              >
+                Confirmar eliminación
+              </Button>
+            </div>
           </div>
         )}
-      </div>
+      </section>
     </div>
   );
 }

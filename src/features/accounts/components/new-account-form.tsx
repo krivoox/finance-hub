@@ -11,6 +11,11 @@ import {
   type CreateAccountInput,
 } from "@/features/accounts/schemas";
 import { ACCOUNT_TYPES, type AccountType } from "@/features/accounts/domain";
+import {
+  FormActions,
+  FormField,
+  FormStack,
+} from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { nativeSelectClassName } from "@/components/ui/native-select";
@@ -25,11 +30,15 @@ type FormValues = {
 type NewAccountFormProps = {
   workspaceId: string;
   workspaceCurrency: string;
+  onSuccess?: () => void;
+  onCancel?: () => void;
 };
 
 export function NewAccountForm({
   workspaceId,
   workspaceCurrency,
+  onSuccess,
+  onCancel,
 }: NewAccountFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -76,69 +85,71 @@ export function NewAccountForm({
       toast.success("Cuenta creada");
       reset({ name: "", type: "checking", initialBalanceUnits: "0" });
       router.refresh();
+      onSuccess?.();
     });
   });
 
   const isBusy = isPending || isSubmitting;
 
   return (
-    <form className="grid gap-4 sm:grid-cols-[1fr_1fr_1fr_auto]" onSubmit={onSubmit} noValidate>
-      <div className="space-y-2">
-        <label
+    <form className="flex flex-col gap-6" onSubmit={onSubmit} noValidate>
+      <FormStack>
+        <FormField
+          label="Nombre"
           htmlFor="account-name"
-          className="text-sm font-medium text-muted-foreground"
+          error={errors.name?.message}
         >
-          Nombre
-        </label>
-        <Input
-          id="account-name"
-          placeholder="Caja de ahorro, Mercado Pago…"
-          aria-invalid={Boolean(errors.name)}
-          {...register("name", { required: "Nombre requerido" })}
-        />
-        {errors.name ? (
-          <p className="text-xs text-destructive">{errors.name.message}</p>
-        ) : null}
-      </div>
+          <Input
+            id="account-name"
+            placeholder="Caja de ahorro, Mercado Pago…"
+            aria-invalid={Boolean(errors.name)}
+            {...register("name", { required: "Nombre requerido" })}
+          />
+        </FormField>
 
-      <div className="space-y-2">
-        <label
-          htmlFor="account-type"
-          className="text-sm font-medium text-muted-foreground"
-        >
-          Tipo
-        </label>
-        <select
-          id="account-type"
-          className={nativeSelectClassName}
-          {...register("type")}
-        >
-          {ACCOUNT_TYPES.map((code) => (
-            <option key={code} value={code}>
-              {ACCOUNT_TYPE_LABEL_ES[code]}
-            </option>
-          ))}
-        </select>
-      </div>
+        <FormField label="Tipo" htmlFor="account-type">
+          <select
+            id="account-type"
+            className={nativeSelectClassName}
+            {...register("type")}
+          >
+            {ACCOUNT_TYPES.map((code) => (
+              <option key={code} value={code}>
+                {ACCOUNT_TYPE_LABEL_ES[code]}
+              </option>
+            ))}
+          </select>
+        </FormField>
 
-      <div className="space-y-2">
-        <label
+        <FormField
+          label="Saldo inicial"
           htmlFor="account-initial-balance"
-          className="text-sm font-medium text-muted-foreground"
+          hint={`En ${workspaceCurrency}`}
         >
-          Saldo inicial ({workspaceCurrency})
-        </label>
-        <Input
-          id="account-initial-balance"
-          type="number"
-          inputMode="decimal"
-          min={0}
-          step="0.01"
-          {...register("initialBalanceUnits", { required: true })}
-        />
-      </div>
+          <Input
+            id="account-initial-balance"
+            type="number"
+            inputMode="decimal"
+            min={0}
+            step="0.01"
+            className="tabular-nums"
+            {...register("initialBalanceUnits", { required: true })}
+          />
+        </FormField>
+      </FormStack>
 
-      <div className="flex items-end">
+      <FormActions>
+        {onCancel ? (
+          <Button
+            type="button"
+            variant="outline"
+            className="h-10 w-full sm:h-8 sm:w-auto"
+            disabled={isBusy}
+            onClick={onCancel}
+          >
+            Cancelar
+          </Button>
+        ) : null}
         <Button
           type="submit"
           className="h-10 w-full sm:h-8 sm:w-auto"
@@ -146,7 +157,7 @@ export function NewAccountForm({
         >
           {isBusy ? "Creando..." : "Crear cuenta"}
         </Button>
-      </div>
+      </FormActions>
     </form>
   );
 }

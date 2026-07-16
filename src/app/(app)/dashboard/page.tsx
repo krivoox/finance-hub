@@ -70,7 +70,7 @@ export default async function DashboardPage() {
       actions={
         canMutate ? (
           <Button asChild className="h-10 w-full sm:h-8 sm:w-auto">
-            <Link href="/transactions">Nuevo movimiento</Link>
+            <Link href="/transactions?new=1">Nuevo movimiento</Link>
           </Button>
         ) : undefined
       }

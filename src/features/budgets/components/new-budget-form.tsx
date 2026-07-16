@@ -10,6 +10,12 @@ import {
   BUDGET_PERIODS,
   type BudgetPeriod,
 } from "@/features/budgets/domain";
+import {
+  FormActions,
+  FormField,
+  FormSection,
+  FormStack,
+} from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { nativeSelectClassName } from "@/components/ui/native-select";
@@ -43,12 +49,16 @@ type NewBudgetFormProps = {
   workspaceId: string;
   workspaceCurrency: string;
   categories: readonly CategoryOption[];
+  onSuccess?: () => void;
+  onCancel?: () => void;
 };
 
 export function NewBudgetForm({
   workspaceId,
   workspaceCurrency,
   categories,
+  onSuccess,
+  onCancel,
 }: NewBudgetFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -123,127 +133,117 @@ export function NewBudgetForm({
         categoryIds: [],
       });
       router.refresh();
+      onSuccess?.();
     });
   });
 
   const isBusy = isPending || isSubmitting;
 
   return (
-    <form className="space-y-4" onSubmit={onSubmit} noValidate>
-      <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,180px)_minmax(0,180px)]">
-        <div className="space-y-2">
-          <label
+    <form className="flex flex-col gap-6" onSubmit={onSubmit} noValidate>
+      <FormStack>
+        <FormSection>
+          <FormField
+            label="Nombre"
             htmlFor="budget-name"
-            className="text-sm font-medium text-muted-foreground"
+            error={errors.name?.message}
           >
-            Nombre
-          </label>
-          <Input
-            id="budget-name"
-            placeholder="Comida, Transporte, Ocio…"
-            aria-invalid={Boolean(errors.name)}
-            {...register("name", { required: "Nombre requerido" })}
-          />
-        </div>
-
-        <div className="space-y-2">
-          <label
-            htmlFor="budget-period"
-            className="text-sm font-medium text-muted-foreground"
-          >
-            Periodo
-          </label>
-          <select
-            id="budget-period"
-            className={SELECT_CLASSES}
-            {...register("period")}
-          >
-            {BUDGET_PERIODS.map((p) => (
-              <option key={p} value={p}>
-                {BUDGET_PERIOD_LABEL_ES[p]}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className="space-y-2">
-          <label
-            htmlFor="budget-limit"
-            className="text-sm font-medium text-muted-foreground"
-          >
-            Límite ({workspaceCurrency})
-          </label>
-          <Input
-            id="budget-limit"
-            type="number"
-            inputMode="decimal"
-            min={0}
-            step="0.01"
-            placeholder="0,00"
-            aria-invalid={Boolean(errors.limitUnits)}
-            {...register("limitUnits", { required: true })}
-          />
-        </div>
-      </div>
-
-      <div className="grid gap-4 sm:grid-cols-[minmax(0,180px)_minmax(0,180px)_minmax(0,1fr)]">
-        <div className="space-y-2">
-          <label
-            htmlFor="budget-start"
-            className="text-sm font-medium text-muted-foreground"
-          >
-            Inicio
-          </label>
-          <Input
-            id="budget-start"
-            type="date"
-            aria-invalid={Boolean(errors.startDate)}
-            {...register("startDate", { required: true })}
-          />
-        </div>
-
-        {showEndDate ? (
-          <div className="space-y-2">
-            <label
-              htmlFor="budget-end"
-              className="text-sm font-medium text-muted-foreground"
-            >
-              Fin
-            </label>
             <Input
-              id="budget-end"
-              type="date"
-              aria-invalid={Boolean(errors.endDate)}
-              {...register("endDate", { required: showEndDate })}
+              id="budget-name"
+              placeholder="Comida, Transporte, Ocio…"
+              aria-invalid={Boolean(errors.name)}
+              {...register("name", { required: "Nombre requerido" })}
             />
-          </div>
-        ) : (
-          <div />
-        )}
+          </FormField>
 
-        <div className="space-y-2">
-          <label
+          <FormField label="Periodo" htmlFor="budget-period">
+            <select
+              id="budget-period"
+              className={SELECT_CLASSES}
+              {...register("period")}
+            >
+              {BUDGET_PERIODS.map((p) => (
+                <option key={p} value={p}>
+                  {BUDGET_PERIOD_LABEL_ES[p]}
+                </option>
+              ))}
+            </select>
+          </FormField>
+
+          <FormField
+            label="Límite"
+            htmlFor="budget-limit"
+            hint={`En ${workspaceCurrency}`}
+          >
+            <Input
+              id="budget-limit"
+              type="number"
+              inputMode="decimal"
+              min={0}
+              step="0.01"
+              placeholder="0,00"
+              className="tabular-nums"
+              aria-invalid={Boolean(errors.limitUnits)}
+              {...register("limitUnits", { required: true })}
+            />
+          </FormField>
+        </FormSection>
+
+        <FormSection title="Vigencia">
+          <FormField label="Inicio" htmlFor="budget-start">
+            <Input
+              id="budget-start"
+              type="date"
+              aria-invalid={Boolean(errors.startDate)}
+              {...register("startDate", { required: true })}
+            />
+          </FormField>
+
+          {showEndDate ? (
+            <FormField label="Fin" htmlFor="budget-end">
+              <Input
+                id="budget-end"
+                type="date"
+                aria-invalid={Boolean(errors.endDate)}
+                {...register("endDate", { required: showEndDate })}
+              />
+            </FormField>
+          ) : null}
+
+          <FormField
+            label="Categorías"
             htmlFor="budget-categories"
-            className="text-sm font-medium text-muted-foreground"
+            optional
+            hint="Vacío = todas las de gasto. En móvil tocá y mantené para multi-selección."
           >
-            Categorías (opcional — vacío = todas)
-          </label>
-          <select
-            id="budget-categories"
-            multiple
-            className="flex min-h-24 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-            {...register("categoryIds")}
-          >
-            {sortedCategories.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
+            <select
+              id="budget-categories"
+              multiple
+              className="flex min-h-28 w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+              {...register("categoryIds")}
+            >
+              {sortedCategories.map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </FormField>
+        </FormSection>
+      </FormStack>
 
-      <div className="flex justify-stretch sm:justify-end">
+      <FormActions>
+        {onCancel ? (
+          <Button
+            type="button"
+            variant="outline"
+            className="h-10 w-full sm:h-8 sm:w-auto"
+            disabled={isBusy}
+            onClick={onCancel}
+          >
+            Cancelar
+          </Button>
+        ) : null}
         <Button
           type="submit"
           className="h-10 w-full sm:h-8 sm:w-auto"
@@ -251,7 +251,7 @@ export function NewBudgetForm({
         >
           {isBusy ? "Creando..." : "Crear presupuesto"}
         </Button>
-      </div>
+      </FormActions>
     </form>
   );
 }
