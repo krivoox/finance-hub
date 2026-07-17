@@ -95,7 +95,9 @@ git fetch --prune                    # limpia refs remotas borradas
 | Push / merge a `develop` | Deploy **preview** (integración) |
 | Push a `feat/*` etc. | Deploy **preview** efímero del PR |
 
-`BETTER_AUTH_URL` de Production apunta al dominio de `main`. Los previews pueden necesitar orígenes de confianza adicionales si se prueba auth en URLs temporales.
+`BETTER_AUTH_URL` de **Production** apunta al dominio canónico de `main`.
+
+En **Preview** (`develop` / PRs) no reutilizar esa URL: el Origin del deploy (`*.vercel.app`) no coincide y Better Auth rechaza el login (CSRF). El código resuelve `BETTER_AUTH_URL` con `VERCEL_URL` cuando `VERCEL_ENV=preview` y confía `https://*.vercel.app`. Preferible: no setear `BETTER_AUTH_URL` en el Environment Preview de Vercel (solo Production + Development local).
 
 ## Checklist rápido antes de abrir PR
 
