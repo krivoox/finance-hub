@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **dashboard:** Add Sankey charts, subtle color and dark mode
 
+- Add multi-currency ARS/USD ledger with FX exchange
+
 ### Fixed
 
 - **changelog:** Stop git-cliff from calling GitHub API (#7)
