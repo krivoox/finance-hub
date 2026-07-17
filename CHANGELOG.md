@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **workspaces:** Add first-run onboarding with two-step setup
 
+- **dashboard:** Add Sankey charts, subtle color and dark mode
+
 ### Fixed
 
 - **changelog:** Stop git-cliff from calling GitHub API (#7)
