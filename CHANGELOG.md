@@ -7,19 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-
-- **workspaces:** Add first-run onboarding with two-step setup
-
-- **dashboard:** Add Sankey charts, subtle color and dark mode
-
-- Add multi-currency ARS/USD ledger with FX exchange
-
-### Fixed
-
-- **changelog:** Stop git-cliff from calling GitHub API (#7)
-
-- **auth:** Resolve Better Auth base URL for Vercel previews
+[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.1.0...HEAD
 
 ## [0.1.0] - 2026-07-16
 
