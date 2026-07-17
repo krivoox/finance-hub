@@ -70,3 +70,12 @@ export class BudgetWorkspaceMismatchError extends BudgetDomainError {
     this.name = "BudgetWorkspaceMismatchError";
   }
 }
+
+export class UnsupportedBudgetCurrencyError extends BudgetDomainError {
+  constructor(currency: string) {
+    super(
+      `Moneda de presupuesto "${currency}" no soportada. Permitidas: ARS, USD.`,
+    );
+    this.name = "UnsupportedBudgetCurrencyError";
+  }
+}

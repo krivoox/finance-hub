@@ -121,6 +121,8 @@ enum TransactionType {
   income
   expense
   transfer
+  fx_debit
+  fx_credit
 }
 
 enum GoalKind {
@@ -159,15 +161,17 @@ model Workspace {
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
-  memberships     Membership[]
-  invitations     Invitation[]
-  categories      Category[]
-  financeAccounts FinanceAccount[]
-  transactions    Transaction[]
-  budgets         Budget[]
-  goals           Goal[]
-  expenseSplits   ExpenseSplit[]
-  settlements     Settlement[]
+  memberships          Membership[]
+  invitations          Invitation[]
+  categories           Category[]
+  financeAccounts      FinanceAccount[]
+  transactions         Transaction[]
+  budgets              Budget[]
+  goals                Goal[]
+  expenseSplits        ExpenseSplit[]
+  settlements          Settlement[]
+  currencyExchanges    CurrencyExchange[]
+  consolidationRate    WorkspaceConsolidationRate?
 
   @@map("workspace")
 }
@@ -247,10 +251,12 @@ model FinanceAccount {
   createdAt           DateTime    @default(now())
   updatedAt           DateTime    @updatedAt
 
-  workspace              Workspace     @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  transactions           Transaction[] @relation("TxAccount")
-  incomingTransfers      Transaction[] @relation("TxCounterparty")
-  linkedGoals            Goal[]        @relation("GoalLinkedAccount")
+  workspace              Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  transactions           Transaction[]      @relation("TxAccount")
+  incomingTransfers      Transaction[]      @relation("TxCounterparty")
+  linkedGoals            Goal[]             @relation("GoalLinkedAccount")
+  exchangesFrom          CurrencyExchange[] @relation("ExchangeFromAccount")
+  exchangesTo            CurrencyExchange[] @relation("ExchangeToAccount")
 
   @@index([workspaceId, isArchived])
   @@index([workspaceId, type])
@@ -282,9 +288,11 @@ model Transaction {
   category            Category?       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   account             FinanceAccount  @relation("TxAccount", fields: [accountId], references: [id], onDelete: Restrict)
   counterpartyAccount FinanceAccount? @relation("TxCounterparty", fields: [counterpartyAccountId], references: [id], onDelete: Restrict)
-  expenseSplit        ExpenseSplit?
+  expenseSplit               ExpenseSplit?
   crossWorkspaceLinkAsSource CrossWorkspaceLink? @relation("CrossWsLinkSource")
   crossWorkspaceLinkAsTarget CrossWorkspaceLink? @relation("CrossWsLinkTarget")
+  currencyExchangeAsFrom     CurrencyExchange?   @relation("ExchangeFromTx")
+  currencyExchangeAsTo       CurrencyExchange?   @relation("ExchangeToTx")
 
   @@index([workspaceId, occurredOn])
   @@index([workspaceId, type, occurredOn])
@@ -292,6 +300,52 @@ model Transaction {
   @@index([counterpartyAccountId])
   @@index([categoryId])
   @@map("transaction")
+}
+
+// SPEC-16 — Currency exchange (ARS↔USD) within one workspace: two linked txs.
+model CurrencyExchange {
+  id                String   @id @default(cuid())
+  workspaceId       String
+  fromAccountId     String
+  toAccountId       String
+  fromAmountCents   Int
+  toAmountCents     Int
+  occurredOn        DateTime @db.Date
+  description       String?
+  createdByUserId   String
+  fromTransactionId String   @unique
+  toTransactionId   String   @unique
+  createdAt         DateTime @default(now())
+
+  workspace       Workspace      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  fromAccount     FinanceAccount @relation("ExchangeFromAccount", fields: [fromAccountId], references: [id], onDelete: Restrict)
+  toAccount       FinanceAccount @relation("ExchangeToAccount", fields: [toAccountId], references: [id], onDelete: Restrict)
+  fromTransaction Transaction    @relation("ExchangeFromTx", fields: [fromTransactionId], references: [id], onDelete: Cascade)
+  toTransaction   Transaction    @relation("ExchangeToTx", fields: [toTransactionId], references: [id], onDelete: Cascade)
+
+  @@index([workspaceId, occurredOn])
+  @@index([fromAccountId])
+  @@index([toAccountId])
+  @@map("currency_exchange")
+}
+
+// ADR-006 / SPEC-12 — Manual consolidation rate for ≈ net worth (one per workspace).
+model WorkspaceConsolidationRate {
+  id              String   @id @default(cuid())
+  workspaceId     String   @unique
+  quoteCurrency   String
+  /// How many base major units per 1 quote major unit, scaled by `scale`
+  /// (default 1e6). Example: 1 USD = 1400 ARS → rateScaled = 1_400_000_000.
+  rateScaled      Int
+  scale           Int      @default(1000000)
+  label           String
+  asOf            DateTime
+  updatedByUserId String
+  updatedAt       DateTime @updatedAt
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+
+  @@map("workspace_consolidation_rate")
 }
 
 // SPEC-14 — Linked pair across workspaces (contribution: expense+income).

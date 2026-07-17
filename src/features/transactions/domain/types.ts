@@ -7,7 +7,23 @@
 
 import type { CategoryKind } from "@/features/categories/domain";
 
-export const TRANSACTION_TYPES = ["income", "expense", "transfer"] as const;
+/** Types selectable when creating a regular ledger movement (UI forms). */
+export const CREATEABLE_TRANSACTION_TYPES = [
+  "income",
+  "expense",
+  "transfer",
+] as const;
+
+export type CreateableTransactionType =
+  (typeof CREATEABLE_TRANSACTION_TYPES)[number];
+
+export const TRANSACTION_TYPES = [
+  "income",
+  "expense",
+  "transfer",
+  "fx_debit",
+  "fx_credit",
+] as const;
 
 export type TransactionType = (typeof TRANSACTION_TYPES)[number];
 
@@ -50,4 +66,6 @@ export const TRANSACTION_TYPE_TO_CATEGORY_KIND: Record<
   income: "income",
   expense: "expense",
   transfer: null,
+  fx_debit: null,
+  fx_credit: null,
 };

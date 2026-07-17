@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ACCOUNT_CURRENCIES } from "@/domain/money/currencies";
 import {
   BUDGET_NAME_MAX_LENGTH,
   BUDGET_PERIODS,
@@ -45,7 +46,7 @@ export const createBudgetSchema = z
     startDate: dateSchema,
     endDate: dateSchema.nullish(),
     limitCents: limitCentsSchema,
-    currency: z.string().min(1).optional(),
+    currency: z.enum(ACCOUNT_CURRENCIES).optional(),
     categoryIds: categoryIdsSchema,
   })
   .refine(

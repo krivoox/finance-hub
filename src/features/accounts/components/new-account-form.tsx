@@ -24,6 +24,7 @@ import { ACCOUNT_TYPE_LABEL_ES } from "./account-type-labels";
 type FormValues = {
   name: string;
   type: AccountType;
+  currency: "ARS" | "USD";
   initialBalanceUnits: string;
 };
 
@@ -46,14 +47,21 @@ export function NewAccountForm({
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
       name: "",
       type: "checking",
+      currency:
+        workspaceCurrency === "USD" || workspaceCurrency === "ARS"
+          ? workspaceCurrency
+          : "ARS",
       initialBalanceUnits: "0",
     },
   });
+
+  const selectedCurrency = watch("currency");
 
   const onSubmit = handleSubmit((values) => {
     const parsedUnits = Number(values.initialBalanceUnits.replace(",", "."));
@@ -69,6 +77,7 @@ export function NewAccountForm({
       name: values.name,
       type: values.type,
       initialBalanceCents,
+      currency: values.currency,
     };
     const clientCheck = createAccountSchema.safeParse(input);
     if (!clientCheck.success) {
@@ -83,7 +92,15 @@ export function NewAccountForm({
         return;
       }
       toast.success("Cuenta creada");
-      reset({ name: "", type: "checking", initialBalanceUnits: "0" });
+      reset({
+        name: "",
+        type: "checking",
+        currency:
+          workspaceCurrency === "USD" || workspaceCurrency === "ARS"
+            ? workspaceCurrency
+            : "ARS",
+        initialBalanceUnits: "0",
+      });
       router.refresh();
       onSuccess?.();
     });
@@ -121,10 +138,21 @@ export function NewAccountForm({
           </select>
         </FormField>
 
+        <FormField label="Moneda" htmlFor="account-currency">
+          <select
+            id="account-currency"
+            className={nativeSelectClassName}
+            {...register("currency")}
+          >
+            <option value="ARS">Pesos (ARS)</option>
+            <option value="USD">Dólares (USD)</option>
+          </select>
+        </FormField>
+
         <FormField
           label="Saldo inicial"
           htmlFor="account-initial-balance"
-          hint={`En ${workspaceCurrency}`}
+          hint={`En ${selectedCurrency === "USD" ? "dólares (USD)" : "pesos (ARS)"}`}
         >
           <Input
             id="account-initial-balance"

@@ -24,7 +24,7 @@ export function NewAccountSheet({
       open={open}
       onOpenChange={setOpen}
       title="Nueva cuenta"
-      description={`Bancos, billeteras o tarjetas en ${workspaceCurrency}.`}
+      description={`Pesos (ARS) o dólares (USD). Default: ${workspaceCurrency}.`}
       size="md"
       trigger={
         <Button className="h-10 w-full gap-1.5 sm:h-8 sm:w-auto">

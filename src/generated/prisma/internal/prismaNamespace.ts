@@ -394,6 +394,8 @@ export const ModelName = {
   Category: 'Category',
   FinanceAccount: 'FinanceAccount',
   Transaction: 'Transaction',
+  CurrencyExchange: 'CurrencyExchange',
+  WorkspaceConsolidationRate: 'WorkspaceConsolidationRate',
   CrossWorkspaceLink: 'CrossWorkspaceLink',
   Budget: 'Budget',
   BudgetCategory: 'BudgetCategory',
@@ -417,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "workspace" | "membership" | "invitation" | "category" | "financeAccount" | "transaction" | "crossWorkspaceLink" | "budget" | "budgetCategory" | "goal" | "goalContribution" | "expenseSplit" | "expenseSplitShare" | "settlement"
+    modelProps: "user" | "session" | "account" | "verification" | "workspace" | "membership" | "invitation" | "category" | "financeAccount" | "transaction" | "currencyExchange" | "workspaceConsolidationRate" | "crossWorkspaceLink" | "budget" | "budgetCategory" | "goal" | "goalContribution" | "expenseSplit" | "expenseSplitShare" | "settlement"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1158,6 +1160,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.TransactionCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.TransactionCountAggregateOutputType> | number
+        }
+      }
+    }
+    CurrencyExchange: {
+      payload: Prisma.$CurrencyExchangePayload<ExtArgs>
+      fields: Prisma.CurrencyExchangeFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CurrencyExchangeFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CurrencyExchangePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CurrencyExchangeFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CurrencyExchangePayload>
+        }
+        findFirst: {
+          args: Prisma.CurrencyExchangeFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CurrencyExchangePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CurrencyExchangeFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CurrencyExchangePayload>
+        }
+        findMany: {
+          args: Prisma.CurrencyExchangeFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CurrencyExchangePayload>[]
+        }
+        create: {
+          args: Prisma.CurrencyExchangeCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CurrencyExchangePayload>
+        }
+        createMany: {
+          args: Prisma.CurrencyExchangeCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CurrencyExchangeCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CurrencyExchangePayload>[]
+        }
+        delete: {
+          args: Prisma.CurrencyExchangeDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CurrencyExchangePayload>
+        }
+        update: {
+          args: Prisma.CurrencyExchangeUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CurrencyExchangePayload>
+        }
+        deleteMany: {
+          args: Prisma.CurrencyExchangeDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CurrencyExchangeUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CurrencyExchangeUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CurrencyExchangePayload>[]
+        }
+        upsert: {
+          args: Prisma.CurrencyExchangeUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CurrencyExchangePayload>
+        }
+        aggregate: {
+          args: Prisma.CurrencyExchangeAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCurrencyExchange>
+        }
+        groupBy: {
+          args: Prisma.CurrencyExchangeGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CurrencyExchangeGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CurrencyExchangeCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CurrencyExchangeCountAggregateOutputType> | number
+        }
+      }
+    }
+    WorkspaceConsolidationRate: {
+      payload: Prisma.$WorkspaceConsolidationRatePayload<ExtArgs>
+      fields: Prisma.WorkspaceConsolidationRateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.WorkspaceConsolidationRateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkspaceConsolidationRatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.WorkspaceConsolidationRateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkspaceConsolidationRatePayload>
+        }
+        findFirst: {
+          args: Prisma.WorkspaceConsolidationRateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkspaceConsolidationRatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.WorkspaceConsolidationRateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkspaceConsolidationRatePayload>
+        }
+        findMany: {
+          args: Prisma.WorkspaceConsolidationRateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkspaceConsolidationRatePayload>[]
+        }
+        create: {
+          args: Prisma.WorkspaceConsolidationRateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkspaceConsolidationRatePayload>
+        }
+        createMany: {
+          args: Prisma.WorkspaceConsolidationRateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.WorkspaceConsolidationRateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkspaceConsolidationRatePayload>[]
+        }
+        delete: {
+          args: Prisma.WorkspaceConsolidationRateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkspaceConsolidationRatePayload>
+        }
+        update: {
+          args: Prisma.WorkspaceConsolidationRateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkspaceConsolidationRatePayload>
+        }
+        deleteMany: {
+          args: Prisma.WorkspaceConsolidationRateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.WorkspaceConsolidationRateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.WorkspaceConsolidationRateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkspaceConsolidationRatePayload>[]
+        }
+        upsert: {
+          args: Prisma.WorkspaceConsolidationRateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkspaceConsolidationRatePayload>
+        }
+        aggregate: {
+          args: Prisma.WorkspaceConsolidationRateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateWorkspaceConsolidationRate>
+        }
+        groupBy: {
+          args: Prisma.WorkspaceConsolidationRateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WorkspaceConsolidationRateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.WorkspaceConsolidationRateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WorkspaceConsolidationRateCountAggregateOutputType> | number
         }
       }
     }
@@ -1941,6 +2091,39 @@ export const TransactionScalarFieldEnum = {
 export type TransactionScalarFieldEnum = (typeof TransactionScalarFieldEnum)[keyof typeof TransactionScalarFieldEnum]
 
 
+export const CurrencyExchangeScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  fromAccountId: 'fromAccountId',
+  toAccountId: 'toAccountId',
+  fromAmountCents: 'fromAmountCents',
+  toAmountCents: 'toAmountCents',
+  occurredOn: 'occurredOn',
+  description: 'description',
+  createdByUserId: 'createdByUserId',
+  fromTransactionId: 'fromTransactionId',
+  toTransactionId: 'toTransactionId',
+  createdAt: 'createdAt'
+} as const
+
+export type CurrencyExchangeScalarFieldEnum = (typeof CurrencyExchangeScalarFieldEnum)[keyof typeof CurrencyExchangeScalarFieldEnum]
+
+
+export const WorkspaceConsolidationRateScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  quoteCurrency: 'quoteCurrency',
+  rateScaled: 'rateScaled',
+  scale: 'scale',
+  label: 'label',
+  asOf: 'asOf',
+  updatedByUserId: 'updatedByUserId',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WorkspaceConsolidationRateScalarFieldEnum = (typeof WorkspaceConsolidationRateScalarFieldEnum)[keyof typeof WorkspaceConsolidationRateScalarFieldEnum]
+
+
 export const CrossWorkspaceLinkScalarFieldEnum = {
   id: 'id',
   kind: 'kind',
@@ -2412,6 +2595,8 @@ export type GlobalOmitConfig = {
   category?: Prisma.CategoryOmit
   financeAccount?: Prisma.FinanceAccountOmit
   transaction?: Prisma.TransactionOmit
+  currencyExchange?: Prisma.CurrencyExchangeOmit
+  workspaceConsolidationRate?: Prisma.WorkspaceConsolidationRateOmit
   crossWorkspaceLink?: Prisma.CrossWorkspaceLinkOmit
   budget?: Prisma.BudgetOmit
   budgetCategory?: Prisma.BudgetCategoryOmit

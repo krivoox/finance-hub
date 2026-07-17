@@ -53,7 +53,7 @@ export function assertCategoryRequiredForType(
   categoryId: string | null | undefined,
 ): void {
   const hasCategory = typeof categoryId === "string" && categoryId.length > 0;
-  if (type === "transfer") {
+  if (type === "transfer" || type === "fx_debit" || type === "fx_credit") {
     if (hasCategory) throw new CategoryNotAllowedError();
     return;
   }
@@ -116,6 +116,7 @@ export function assertTransferCounterparty(
     if (!hasCounterparty) throw new CounterpartyRequiredError();
     return;
   }
+  // income / expense / fx_* must not carry a counterparty
   if (hasCounterparty) throw new CounterpartyNotAllowedError();
 }
 

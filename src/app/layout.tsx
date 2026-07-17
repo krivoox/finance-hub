@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import { ThemeProvider } from "@teispace/next-themes";
 import { getTheme, getThemeScript } from "@teispace/next-themes/server";
 
@@ -49,10 +50,6 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} min-h-full md:h-full`}
       suppressHydrationWarning
     >
-      <head>
-        {/* Anti-FOUC: runs before paint; outside the React client tree (Next 16 / React 19). */}
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
-      </head>
       {/*
         suppressHydrationWarning: extensions (e.g. ColorZilla) inject
         attributes like cz-shortcut-listen on <body> before React hydrates.
@@ -61,6 +58,12 @@ export default async function RootLayout({
         className="flex min-h-full flex-col overflow-x-hidden md:h-full md:overflow-hidden"
         suppressHydrationWarning
       >
+        {/* Anti-FOUC theme: beforeInteractive injects into <head> (Next Script). */}
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
+          dangerouslySetInnerHTML={{ __html: themeScript }}
+        />
         <ThemeProvider
           {...themeProviderOptions}
           initialTheme={initialTheme ?? undefined}

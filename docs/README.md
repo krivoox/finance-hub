@@ -44,6 +44,7 @@
 | 13 | [Detalle de movimiento](./specs/13-transaction-detail.md) | P1 |
 | 14 | [Dinero cross-workspace](./specs/14-cross-workspace-money.md) | P1 |
 | 15 | [Onboarding de workspace](./specs/15-workspace-onboarding.md) | P0 |
+| 16 | [Canje de moneda (FX)](./specs/16-currency-exchange.md) | P1 |
 
 ## Decisiones de arquitectura (ADR)
 
@@ -54,6 +55,7 @@
 | [003](./adr/003-tdd-domain-only.md) | TDD solo en lógica de negocio |
 | [004](./adr/004-stack-siturn.md) | Stack Siturn (template) |
 | [005](./adr/005-changelog-semver.md) | Changelog automatizado y SemVer |
+| [006](./adr/006-multi-currency-ars-usd.md) | Multi-moneda ARS + USD |
 
 ## Formato de una spec
 

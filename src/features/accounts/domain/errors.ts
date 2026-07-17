@@ -12,12 +12,22 @@ export class AccountDomainError extends Error {
   }
 }
 
+/** @deprecated Prefer UnsupportedAccountCurrencyError (ADR-006). Kept for message shape. */
 export class AccountCurrencyMismatchError extends AccountDomainError {
   constructor(accountCurrency: string, workspaceBaseCurrency: string) {
     super(
       `Account currency ${accountCurrency} does not match workspace base currency ${workspaceBaseCurrency}`,
     );
     this.name = "AccountCurrencyMismatchError";
+  }
+}
+
+export class UnsupportedAccountCurrencyError extends AccountDomainError {
+  constructor(currency: string) {
+    super(
+      `Account currency "${currency}" is not supported. Allowed: ARS, USD.`,
+    );
+    this.name = "UnsupportedAccountCurrencyError";
   }
 }
 

@@ -31,12 +31,17 @@ export {
 } from "./guards";
 
 export {
+  CREATEABLE_TRANSACTION_TYPES,
   TRANSACTION_DESCRIPTION_MAX_LENGTH,
   TRANSACTION_TYPES,
   TRANSACTION_TYPE_TO_CATEGORY_KIND,
   isTransactionType,
 } from "./types";
-export type { TransactionLike, TransactionType } from "./types";
+export type {
+  CreateableTransactionType,
+  TransactionLike,
+  TransactionType,
+} from "./types";
 
 export { toBalanceEffect, toBalanceEffects } from "./effect";
 

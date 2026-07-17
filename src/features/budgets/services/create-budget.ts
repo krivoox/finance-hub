@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { requireMembership } from "@/features/workspaces/services";
 import {
+  assertBudgetCurrencyAllowed,
   assertCanMutateBudgets,
   assertValidBudgetLimit,
   assertValidBudgetName,
@@ -62,11 +63,7 @@ export async function createBudget({
   if (!workspace) throw new Error("Workspace not found");
 
   const budgetCurrency = currency ?? workspace.baseCurrency;
-  if (budgetCurrency !== workspace.baseCurrency) {
-    throw new BudgetDomainError(
-      "La moneda del presupuesto debe coincidir con la del workspace",
-    );
-  }
+  assertBudgetCurrencyAllowed(budgetCurrency);
 
   const uniqueCategoryIds = Array.from(new Set(categoryIds));
   if (uniqueCategoryIds.length > 0) {

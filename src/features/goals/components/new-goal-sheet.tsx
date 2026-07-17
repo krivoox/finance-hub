@@ -11,6 +11,7 @@ import { NewGoalForm } from "./new-goal-form";
 type AccountOption = {
   id: string;
   name: string;
+  currency: string;
 };
 
 type NewGoalSheetProps = {
@@ -31,7 +32,7 @@ export function NewGoalSheet({
       open={open}
       onOpenChange={setOpen}
       title="Nuevo objetivo"
-      description={`Ahorro o pago de deuda en ${workspaceCurrency}.`}
+      description="Ahorro o pago de deuda (ARS o USD)."
       size="md"
       trigger={
         <Button className="h-10 w-full gap-1.5 sm:h-8 sm:w-auto">

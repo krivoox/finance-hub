@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ACCOUNT_CURRENCIES } from "@/domain/money/currencies";
 import { GOAL_KINDS, GOAL_NAME_MAX_LENGTH } from "@/features/goals/domain";
 
 const goalNameSchema = z
@@ -23,6 +24,7 @@ export const createGoalSchema = z.object({
   name: goalNameSchema,
   kind: goalKindSchema,
   targetAmountCents: positiveIntCents,
+  currency: z.enum(ACCOUNT_CURRENCIES).optional(),
   targetDate: isoDateSchema.optional().nullable(),
   linkedAccountId: z.string().min(1).optional().nullable(),
 });

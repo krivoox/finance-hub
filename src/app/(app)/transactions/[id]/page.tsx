@@ -24,8 +24,16 @@ type PageProps = {
   params: Promise<{ id: string }>;
 };
 
+function badgeVariantForType(
+  type: TransactionType,
+): "income" | "expense" | "transfer" {
+  if (type === "income" || type === "fx_credit") return "income";
+  if (type === "expense" || type === "fx_debit") return "expense";
+  return "transfer";
+}
+
 function signedAmountCents(type: TransactionType, amountCents: number): number {
-  if (type === "income") return amountCents;
+  if (type === "income" || type === "fx_credit") return amountCents;
   return -amountCents;
 }
 
@@ -152,7 +160,7 @@ export default async function TransactionDetailPage({ params }: PageProps) {
 
       <div className="space-y-8">
         <header className="space-y-2">
-          <Badge variant={detail.type}>
+          <Badge variant={badgeVariantForType(detail.type)}>
             {TRANSACTION_TYPE_LABEL_ES[detail.type]}
           </Badge>
           <p className="text-3xl font-semibold tabular-nums tracking-tight text-foreground sm:text-4xl">
@@ -172,9 +180,9 @@ export default async function TransactionDetailPage({ params }: PageProps) {
           </div>
           <div className="space-y-1">
             <dt className="text-muted-foreground">
-              {detail.type === "income"
+              {detail.type === "income" || detail.type === "fx_credit"
                 ? "Se acredita en"
-                : detail.type === "expense"
+                : detail.type === "expense" || detail.type === "fx_debit"
                   ? "Se descuenta de"
                   : "Cuentas"}
             </dt>

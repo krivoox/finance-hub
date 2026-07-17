@@ -30,6 +30,7 @@ Una transferencia mueve valor entre dos cuentas del mismo workspace sin ser ingr
 ## 4. Reglas de negocio
 
 - `accountId ≠ counterpartyAccountId`
+- **Currencies iguales** (same-currency only). Canje ARS↔USD → [SPEC-16](./16-currency-exchange.md)
 - Sin category (o category null)
 - No cuenta como spent en budgets
 - En credit_card: definir efecto según convención de deuda (tests)
@@ -77,4 +78,4 @@ Una transferencia mueve valor entre dos cuentas del mismo workspace sin ser ingr
 - Transferencias `type=transfer` entre workspaces (no relajar FR-02)
 - Aportes / fondeo entre espacios → ver [SPEC-14](./14-cross-workspace-money.md) (`CreateCrossWorkspaceContribution`)
 - Gastos del hogar pagados con cuenta personal → SPEC-14 (expense con account foreign)
-- FX / fees
+- Canje cross-currency / fees → [SPEC-16](./16-currency-exchange.md)

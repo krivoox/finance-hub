@@ -32,6 +32,7 @@ type FormValues = {
   startDate: string;
   endDate: string;
   limitUnits: string;
+  currency: "ARS" | "USD";
   categoryIds: string[];
 };
 
@@ -76,6 +77,10 @@ export function NewBudgetForm({
       startDate: todayIsoDate(),
       endDate: "",
       limitUnits: "",
+      currency:
+        workspaceCurrency === "USD" || workspaceCurrency === "ARS"
+          ? workspaceCurrency
+          : "ARS",
       categoryIds: [],
     },
   });
@@ -117,6 +122,7 @@ export function NewBudgetForm({
             ? values.endDate || undefined
             : undefined,
         limitCents,
+        currency: values.currency,
         categoryIds: values.categoryIds ?? [],
       });
       if (!result.ok) {
@@ -130,6 +136,7 @@ export function NewBudgetForm({
         startDate: values.startDate,
         endDate: "",
         limitUnits: "",
+        currency: values.currency,
         categoryIds: [],
       });
       router.refresh();
@@ -173,7 +180,7 @@ export function NewBudgetForm({
           <FormField
             label="Límite"
             htmlFor="budget-limit"
-            hint={`En ${workspaceCurrency}`}
+            hint="Monto máximo del periodo"
           >
             <Input
               id="budget-limit"
@@ -186,6 +193,17 @@ export function NewBudgetForm({
               aria-invalid={Boolean(errors.limitUnits)}
               {...register("limitUnits", { required: true })}
             />
+          </FormField>
+
+          <FormField label="Moneda" htmlFor="budget-currency">
+            <select
+              id="budget-currency"
+              className={SELECT_CLASSES}
+              {...register("currency")}
+            >
+              <option value="ARS">ARS</option>
+              <option value="USD">USD</option>
+            </select>
           </FormField>
         </FormSection>
 

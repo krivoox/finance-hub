@@ -12,8 +12,8 @@ import {
 } from "@/features/transactions/actions";
 import { createExpenseWithSplitAction } from "@/features/splits/actions";
 import {
-  TRANSACTION_TYPES,
-  type TransactionType,
+  CREATEABLE_TRANSACTION_TYPES,
+  type CreateableTransactionType,
 } from "@/features/transactions/domain";
 import {
   FormActions,
@@ -70,7 +70,7 @@ type NewTransactionFormProps = {
 };
 
 type FormValues = {
-  type: TransactionType;
+  type: CreateableTransactionType;
   amountUnits: string;
   occurredOn: string;
   accountId: string;
@@ -95,7 +95,7 @@ function parseAmountCents(raw: string): number | null {
   return amountCents;
 }
 
-const TYPE_OPTIONS = TRANSACTION_TYPES.map((value) => ({
+const TYPE_OPTIONS = CREATEABLE_TRANSACTION_TYPES.map((value) => ({
   value,
   label: TRANSACTION_TYPE_LABEL_ES[value],
 }));

@@ -11,7 +11,7 @@ export const SETTINGS_TABS = [
   {
     id: "workspace" as const,
     label: "Workspace",
-    description: "Crear espacios grupales",
+    description: "Espacios grupales y tasa FX",
   },
   {
     id: "categorias" as const,

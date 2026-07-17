@@ -6,11 +6,13 @@ export {
   InvalidAccountNameError,
   InvalidCreditLimitError,
   InvalidInitialBalanceError,
+  UnsupportedAccountCurrencyError,
 } from "./errors";
 
 export {
   ACCOUNT_NAME_MAX_LENGTH,
   assertAccountAcceptsTransactions,
+  assertAccountCurrencyAllowed,
   assertCurrencyMatchesWorkspace,
   assertValidAccountName,
   assertValidCreditLimit,

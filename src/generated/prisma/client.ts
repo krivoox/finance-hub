@@ -92,6 +92,16 @@ export type FinanceAccount = Prisma.FinanceAccountModel
  */
 export type Transaction = Prisma.TransactionModel
 /**
+ * Model CurrencyExchange
+ * 
+ */
+export type CurrencyExchange = Prisma.CurrencyExchangeModel
+/**
+ * Model WorkspaceConsolidationRate
+ * 
+ */
+export type WorkspaceConsolidationRate = Prisma.WorkspaceConsolidationRateModel
+/**
  * Model CrossWorkspaceLink
  * 
  */

@@ -149,4 +149,41 @@ describe("calculateAccountBalance — SPEC-03 §5 balance derivation", () => {
       expect(calculateAccountBalance(account, txs).amountCents).toBe(2_000);
     });
   });
+
+  describe("currency exchange — SPEC-16 fx_debit / fx_credit", () => {
+    it("fx_debit subtracts like expense on a checking account", () => {
+      const account = { ...CHECKING, initialBalanceCents: 1_000_000 };
+      const txs: BalanceEffectTx[] = [
+        { type: "fx_debit", amountCents: 1_000_000, accountId: account.id },
+      ];
+      expect(calculateAccountBalance(account, txs).amountCents).toBe(0);
+    });
+
+    it("fx_credit adds like income on a checking account", () => {
+      const account = {
+        ...CHECKING,
+        id: "acc-usd",
+        currency: "USD",
+        initialBalanceCents: 0,
+      };
+      const txs: BalanceEffectTx[] = [
+        { type: "fx_credit", amountCents: 70_000, accountId: account.id },
+      ];
+      expect(calculateAccountBalance(account, txs).amountCents).toBe(70_000);
+    });
+
+    it("inverts polarity on credit cards", () => {
+      const account = { ...CREDIT, initialBalanceCents: 0 };
+      expect(
+        calculateAccountBalance(account, [
+          { type: "fx_debit", amountCents: 5_000, accountId: account.id },
+        ]).amountCents,
+      ).toBe(5_000);
+      expect(
+        calculateAccountBalance(account, [
+          { type: "fx_credit", amountCents: 2_000, accountId: account.id },
+        ]).amountCents,
+      ).toBe(-2_000);
+    });
+  });
 });
