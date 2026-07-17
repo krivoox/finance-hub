@@ -7,5 +7,8 @@ export { removeMemberAction } from "./remove-member";
 export { transferOwnershipAction } from "./transfer-ownership";
 export { setActiveWorkspaceAction } from "./set-active-workspace";
 export { rememberInviteTokenAction } from "./remember-invite-token";
+export { completeWorkspaceSetupAction } from "./complete-workspace-setup";
+export { dismissWorkspaceSetupAction } from "./dismiss-workspace-setup";
+export { updateWorkspaceIdentityAction } from "./update-workspace-identity";
 
 export type { ActionResult } from "./errors";

@@ -1,7 +1,9 @@
 import { redirect } from "next/navigation";
+import Link from "next/link";
 
 import { ContentPanel } from "@/components/app-shell/content-panel";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -31,7 +33,7 @@ export default async function AccountsPage() {
         description="Saldos de bancos, billeteras y tarjetas."
       >
         <p className="text-sm text-muted-foreground">
-          Todavía no tenés un workspace. Creá uno para empezar a registrar
+          Todavía no tenés un espacio. Creá uno para empezar a registrar
           cuentas.
         </p>
       </ContentPanel>
@@ -44,6 +46,8 @@ export default async function AccountsPage() {
   });
 
   const canMutate = workspace.role !== "viewer";
+  const canSetup =
+    workspace.role === "owner" || workspace.role === "admin";
 
   return (
     <ContentPanel
@@ -59,11 +63,16 @@ export default async function AccountsPage() {
       }
     >
       {accounts.length === 0 ? (
-        <div className="flex flex-col items-start gap-3 py-8 sm:py-12">
+        <div className="flex flex-col items-start gap-4 py-8 sm:py-12">
           <p className="text-sm text-muted-foreground">
-            Aún no hay cuentas en este workspace. Creá la primera para empezar a
+            Aún no hay cuentas en este espacio. Creá la primera para empezar a
             registrar movimientos.
           </p>
+          {canSetup ? (
+            <Button asChild className="h-10">
+              <Link href="/onboarding">Configurar espacio</Link>
+            </Button>
+          ) : null}
         </div>
       ) : (
         <Table>

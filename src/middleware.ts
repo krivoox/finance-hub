@@ -38,12 +38,17 @@ export function middleware(request: NextRequest) {
   // but they MUST be able to open invite links.
   if (isAuthenticated && isAuthForm) {
     const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
+    url.pathname = "/onboarding";
     url.search = "";
     return NextResponse.redirect(url);
   }
 
-  return NextResponse.next();
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-pathname", pathname);
+
+  return NextResponse.next({
+    request: { headers: requestHeaders },
+  });
 }
 
 export const config = {

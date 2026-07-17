@@ -3,22 +3,19 @@
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/session";
 import {
-  createGroupWorkspaceSchema,
-  type CreateGroupWorkspaceInput,
+  updateWorkspaceIdentitySchema,
+  type UpdateWorkspaceIdentityInput,
 } from "@/features/workspaces/schemas";
-import {
-  createGroupWorkspace as createGroupWorkspaceService,
-  setActiveWorkspaceCookie,
-} from "@/features/workspaces/services";
+import { updateWorkspaceIdentity as updateWorkspaceIdentityService } from "@/features/workspaces/services";
 import { domainErrorToMessage, type ActionResult } from "./errors";
 
-export async function createGroupWorkspaceAction(
-  input: CreateGroupWorkspaceInput,
-): Promise<ActionResult<{ workspaceId: string }>> {
+export async function updateWorkspaceIdentityAction(
+  input: UpdateWorkspaceIdentityInput,
+): Promise<ActionResult<{ name: string; baseCurrency: string }>> {
   const session = await getSession();
   if (!session?.user?.id) return { ok: false, error: "No autenticado" };
 
-  const parsed = createGroupWorkspaceSchema.safeParse(input);
+  const parsed = updateWorkspaceIdentitySchema.safeParse(input);
   if (!parsed.success) {
     return {
       ok: false,
@@ -27,14 +24,18 @@ export async function createGroupWorkspaceAction(
   }
 
   try {
-    const result = await createGroupWorkspaceService({
+    const updated = await updateWorkspaceIdentityService({
       userId: session.user.id,
+      workspaceId: parsed.data.workspaceId,
       name: parsed.data.name,
       baseCurrency: parsed.data.baseCurrency,
     });
-    await setActiveWorkspaceCookie(result.workspaceId);
     revalidatePath("/", "layout");
-    return { ok: true, data: result };
+    revalidatePath("/onboarding");
+    return {
+      ok: true,
+      data: { name: updated.name, baseCurrency: updated.baseCurrency },
+    };
   } catch (err) {
     return { ok: false, error: domainErrorToMessage(err) };
   }

@@ -62,3 +62,23 @@ export const setActiveWorkspaceSchema = z.object({
 export type SetActiveWorkspaceInput = z.infer<
   typeof setActiveWorkspaceSchema
 >;
+
+export const workspaceSetupIdSchema = z.object({
+  workspaceId: z.string().min(1),
+});
+export type WorkspaceSetupIdInput = z.infer<typeof workspaceSetupIdSchema>;
+
+export const updateWorkspaceIdentitySchema = z
+  .object({
+    workspaceId: z.string().min(1),
+    name: workspaceNameSchema.optional(),
+    baseCurrency: z
+      .enum(SUPPORTED_CURRENCIES, { message: "Moneda no soportada" })
+      .optional(),
+  })
+  .refine((data) => data.name !== undefined || data.baseCurrency !== undefined, {
+    message: "Indicá un nombre o una moneda",
+  });
+export type UpdateWorkspaceIdentityInput = z.infer<
+  typeof updateWorkspaceIdentitySchema
+>;
