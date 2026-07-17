@@ -13,6 +13,19 @@ Un usuario puede pertenecer a varios workspaces. El **activo** se elige en el se
 
 No hay “cuenta personal dentro del grupo”: lo personal y lo compartido se separan **cambiando de workspace**.
 
+## First-run (onboarding)
+
+Tras **registrarte** o **crear un workspace grupal**, si el espacio activo no tiene cuentas, la app abre `/onboarding`: un modal a pantalla completa (sin menú lateral) para:
+
+1. Nombrar el espacio y elegir moneda.
+2. Crear al menos una cuenta (obligatorio).
+3. Opcional: registrar un primer gasto.
+4. Ir al panel.
+
+Si omitís el setup sin cuentas, no se vuelve a forzar el redirect (cookie `fh-setup-dismissed`); en **Cuentas** sigue el CTA “Configurar espacio”.
+
+Detalle: [15-workspace-onboarding.md](../specs/15-workspace-onboarding.md).
+
 ## Roles
 
 | Rol | Ver datos | Mutar finanzas | Gestionar miembros / invitaciones | Transferir ownership |
@@ -56,6 +69,7 @@ Detalle: [14-cross-workspace-money.md](../specs/14-cross-workspace-money.md).
 ## Referencias
 
 - Spec: [02-workspaces.md](../specs/02-workspaces.md)
+- Onboarding: [15-workspace-onboarding.md](../specs/15-workspace-onboarding.md)
 - Grupos / splits: [09-financial-groups.md](../specs/09-financial-groups.md), [10-expense-splitting.md](../specs/10-expense-splitting.md)
 - Detalle movimiento: [13-transaction-detail.md](../specs/13-transaction-detail.md)
 - ADR tenancy: [002-workspace-tenancy.md](../adr/002-workspace-tenancy.md)

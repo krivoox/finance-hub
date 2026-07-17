@@ -35,8 +35,9 @@ export function NewGroupWorkspaceForm() {
         toast.error(result.error);
         return;
       }
-      toast.success("Workspace creado");
+      toast.success("Espacio creado");
       reset({ name: "", baseCurrency: "ARS" });
+      router.push("/onboarding");
       router.refresh();
     });
   });

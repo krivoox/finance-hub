@@ -73,7 +73,11 @@ Los formularios de carga (movimientos, cuentas, presupuestos, objetivos) **no vi
 
 **Por qué no modal centrado:** los forms tienen muchos campos y secciones condicionales (splits, categorías). Un modal estrecho scrollería mal y competiría visualmente. El sheet escala mejor mobile → desktop y es el patrón de Dub / Linear / Stripe.
 
-**Patrón:**
+### 3.3 Onboarding first-run (excepción)
+
+El setup inicial del workspace (`/onboarding`, SPEC-15) **no** usa AppShell ni FormSheet: es un **modal full-viewport** sobre canvas soft, sin sidebar (para no escapar por el menú). Progreso = línea hairline superior. Detalle: `docs/specs/15-workspace-onboarding.md`.
+
+**Patrón FormSheet (resto de creates):**
 - CTA en `ContentPanel.actions` (y sidebar “Registrar” → `/transactions?new=1`)
 - Lista limpia: tablas / progreso sin formulario encima
 - Formulario: 1 columna, secciones tipadas, `SegmentedControl` para ≤4 opciones

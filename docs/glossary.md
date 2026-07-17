@@ -3,7 +3,7 @@
 | Término | Definición |
 |---------|------------|
 | Workspace | Espacio financiero (personal o grupal) que agrupa cuentas y movimientos |
-| Onboarding de workspace | First-run que deja un espacio usable (≥1 cuenta; gasto inicial opcional) y muestra el ritmo del ledger |
+| Onboarding de workspace | First-run en `/onboarding` (modal sin shell): ≥1 cuenta; gasto inicial opcional; ready = estado derivado |
 | Account | Cuenta: banco, efectivo, billetera, tarjeta de crédito, etc. |
 | Transaction | Movimiento: ingreso, gasto o transferencia |
 | Income | Ingreso que aumenta el saldo de una cuenta |

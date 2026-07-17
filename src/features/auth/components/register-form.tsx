@@ -40,7 +40,7 @@ export function RegisterForm({
       email: values.email,
       password: values.password,
       name: values.displayName,
-      callbackURL: "/dashboard",
+      callbackURL: "/onboarding",
     });
 
     if (error) {
@@ -68,7 +68,7 @@ export function RegisterForm({
     }
 
     setIsSubmitting(false);
-    router.push("/dashboard");
+    router.push("/onboarding");
     router.refresh();
   };
 

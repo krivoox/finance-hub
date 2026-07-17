@@ -46,6 +46,7 @@ Contenedor de datos financieros. Puede ser personal (1 miembro) o grupal (N miem
 
 - Todo Account, Category, Transaction, Budget y Goal pertenece a exactamente un Workspace.
 - Un User puede pertenecer a varios Workspaces vía Membership.
+- Un workspace está **listo para usar** (onboarding, SPEC-15) cuando tiene ≥1 Account no archivada. Es un estado **derivado**; no hay campo de “setup completado” en el modelo.
 
 ### Membership
 

@@ -158,7 +158,15 @@ export default async function AccountsPage() {
 - Cliente: `src/lib/auth-client.ts` → `signIn`, `signUp`, `signOut`, `useSession`
 - Handler: `src/app/api/auth/[...all]/route.ts`
 - Tras registro: crear Workspace `personal` + Membership `owner` (SPEC-01) en servicio de aplicación, no en el Client Component
-- Middleware: cookie prefijo `better-auth*`; proteger `/dashboard`; rutas `/login`, `/registro`
+- Post-registro / sesión en forms de auth: navegar a `/onboarding` (SPEC-15) si el espacio aún no está listo
+- Middleware: cookie prefijo `better-auth*`; proteger rutas autenticadas; forms `/login`, `/registro` redirigen a `/onboarding` si hay sesión
+- Cookies de producto: `fh-workspace-id` (activo), `fh-setup-dismissed` (omitió onboarding con 0 cuentas), `fh-invite-token` (invite pendiente)
+
+### 6.1 Onboarding (fuera del shell)
+
+- Ruta: `src/app/(onboarding)/onboarding` — layout soft full-viewport **sin** AppShell/sidebar
+- Gate: `src/app/(app)/layout.tsx` redirige a `/onboarding` cuando `GetWorkspaceSetupStatus.needsSetup`
+- Detalle de producto: [specs/15-workspace-onboarding.md](./specs/15-workspace-onboarding.md)
 
 ## 7. Datos
 

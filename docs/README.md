@@ -20,7 +20,7 @@
 | [tdd-workflow.md](./tdd-workflow.md) | Cómo aplicar TDD en este repo |
 | [roadmap.md](./roadmap.md) | Orden de implementación sugerido |
 | [glossary.md](./glossary.md) | Glosario de términos de negocio |
-| [guides/workspaces-and-invites.md](./guides/workspaces-and-invites.md) | Workspaces, roles e invitaciones (producto) |
+| [guides/workspaces-and-invites.md](./guides/workspaces-and-invites.md) | Workspaces, roles, invitaciones y first-run (onboarding) |
 | [guides/git-flow.md](./guides/git-flow.md) | Git Flow: `main`/`develop`, PRs, borrado de ramas, Vercel |
 | [guides/changelog.md](./guides/changelog.md) | Changelog, Conventional Commits, SemVer y releases |
 | [DESIGN.md](../DESIGN.md) | Design system UI/UX (tokens, shell Dub-like, variantes) |

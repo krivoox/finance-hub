@@ -35,6 +35,7 @@ Los usuarios deben autenticarse para acceder a sus workspaces y datos financiero
 | FR-05 | Actualizar `displayName`, `preferredCurrency`, `timezone` |
 | FR-06 | Flujo de reset de password por email |
 | FR-07 | Al registrarse, crear automáticamente un Workspace `personal` con membership `owner` |
+| FR-08 | Tras registro exitoso (sin invitación pendiente que deje otro activo), la UI navega a `/onboarding` (SPEC-15) |
 
 ## 5. Reglas de negocio
 
@@ -60,6 +61,7 @@ Los usuarios deben autenticarse para acceder a sus workspaces y datos financiero
 - [ ] Login inválido no revela si el email existe.
 - [ ] `GetCurrentUser` funciona en Server Components / Server Actions.
 - [ ] UpdateProfile valida currency (ISO 4217) y timezone (IANA).
+- [x] Post-registro: redirect a `/onboarding` (SPEC-15).
 
 ## 8. Escenarios de test (TDD)
 
