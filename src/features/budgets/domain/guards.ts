@@ -12,8 +12,10 @@ import {
   InvalidBudgetNameError,
   MissingBudgetEndDateError,
   UnexpectedBudgetEndDateError,
+  UnsupportedBudgetCurrencyError,
 } from "./errors";
 import { BUDGET_NAME_MAX_LENGTH, type BudgetPeriod } from "./types";
+import { isAccountCurrency } from "@/domain/money/currencies";
 
 /**
  * SPEC-07 §4 — Name must be non-empty (after trimming) and at most
@@ -90,3 +92,12 @@ export function assertValidBudgetPeriodBounds(
 }
 
 export const BUDGET_LIMIT_MIN_CENTS = 1;
+
+/**
+ * SPEC-07 / ADR-006 — Budget currency must be ARS|USD (may differ from base).
+ */
+export function assertBudgetCurrencyAllowed(currency: string): void {
+  if (!isAccountCurrency(currency)) {
+    throw new UnsupportedBudgetCurrencyError(currency);
+  }
+}

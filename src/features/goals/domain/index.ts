@@ -13,6 +13,7 @@ export {
   GOAL_NAME_MAX_LENGTH,
   applyContribution,
   assertCanContribute,
+  assertGoalCurrencyAllowed,
   assertGoalCurrencyMatchesWorkspace,
   assertValidContribution,
   assertValidGoalName,

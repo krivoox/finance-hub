@@ -8,10 +8,12 @@ export {
   InvalidBudgetPeriodError,
   MissingBudgetEndDateError,
   UnexpectedBudgetEndDateError,
+  UnsupportedBudgetCurrencyError,
 } from "./errors";
 
 export {
   BUDGET_LIMIT_MIN_CENTS,
+  assertBudgetCurrencyAllowed,
   assertValidBudgetLimit,
   assertValidBudgetName,
   assertValidBudgetPeriodBounds,

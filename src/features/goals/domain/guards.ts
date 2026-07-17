@@ -13,6 +13,7 @@ import {
   InvalidTargetAmountError,
 } from "./errors";
 import type { GoalStatus } from "./types";
+import { isAccountCurrency } from "@/domain/money/currencies";
 
 export const GOAL_NAME_MAX_LENGTH = 80;
 
@@ -161,14 +162,20 @@ export function progressPercent(
 // ---------------------------------------------------------------------------
 
 /**
- * SPEC-08 §4 (MVP: no FX) — A goal's currency must match the workspace's
- * baseCurrency.
+ * SPEC-08 / ADR-006 — Goal currency must be ARS|USD (may differ from base).
+ */
+export function assertGoalCurrencyAllowed(goalCurrency: string): void {
+  if (!isAccountCurrency(goalCurrency)) {
+    throw new GoalCurrencyMismatchError(goalCurrency, "ARS|USD");
+  }
+}
+
+/**
+ * @deprecated Prefer assertGoalCurrencyAllowed (ADR-006).
  */
 export function assertGoalCurrencyMatchesWorkspace(
   goalCurrency: string,
-  workspaceBaseCurrency: string,
+  _workspaceBaseCurrency: string,
 ): void {
-  if (goalCurrency !== workspaceBaseCurrency) {
-    throw new GoalCurrencyMismatchError(goalCurrency, workspaceBaseCurrency);
-  }
+  assertGoalCurrencyAllowed(goalCurrency);
 }

@@ -143,7 +143,7 @@ Campos comunes:
 |-------|------|-------|
 | id | Id | |
 | workspaceId | Id | |
-| type | `income` \| `expense` \| `transfer` | |
+| type | `income` \| `expense` \| `transfer` \| `fx_debit` \| `fx_credit` | |
 | amount | Money | siempre > 0 |
 | occurredOn | Date | fecha contable |
 | description | string? | |
@@ -155,10 +155,46 @@ Campos comunes:
 
 **Invariantes**
 
-- `amount.currency` debe coincidir con la cuenta afectada (MVP: sin FX).
-- Transfer: `accountId ≠ counterpartyAccountId`, ambas del mismo workspace.
+- `amount.currency` debe coincidir con la cuenta afectada.
+- Transfer: `accountId ≠ counterpartyAccountId`, ambas del mismo workspace, **misma currency**.
+- Canje (`fx_debit` / `fx_credit`): ver `CurrencyExchange`; no cuentan en cashflow ni budget spent.
 - Income/expense: `accountId` puede ser de otro workspace del mismo usuario (funded externo, SPEC-14); el `workspaceId` de la tx es el contexto de registro (categorías, budgets, splits).
 - No se puede borrar una cuenta con transacciones (archivar).
+
+### CurrencyExchange
+
+Canje entre dos cuentas del mismo workspace con monedas distintas (SPEC-16).
+
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| id | Id | |
+| workspaceId | Id | |
+| fromAccountId | Id | débito |
+| toAccountId | Id | crédito |
+| fromAmountCents | number | > 0 |
+| toAmountCents | number | > 0 |
+| fromTransactionId | Id | tx `fx_debit` |
+| toTransactionId | Id | tx `fx_credit` |
+| occurredOn | Date | |
+| description | string? | |
+
+**Invariantes**
+
+- Monedas distintas; ambas en `ACCOUNT_CURRENCIES` (ARS|USD).
+- Dos efectos de ledger: −from en origen, +to en destino.
+- Delete en cascada sobre el par de txs.
+
+### WorkspaceConsolidationRate
+
+Tasa manual única activa por workspace para patrimonio estimado.
+
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| workspaceId | Id | unique |
+| quoteCurrency | CurrencyCode | tipicamente USD cuando base=ARS |
+| rateScaled | number | enteros; scale documentado en dominio |
+| label | string | ej. "Blue", "MEP", "Manual" |
+| asOf | Date | |
 
 ### CrossWorkspaceLink
 
@@ -277,4 +313,4 @@ Los saldos de cuenta y balances entre miembros son **lecturas derivadas**, no es
 1. Autorización: toda mutación verifica Membership + role.
 2. Soft-delete / archive preferido a hard-delete cuando hay historial.
 3. Idempotencia: comandos de creación pueden aceptar `clientRequestId` (fase P1+).
-4. MVP sin conversión de divisas: un workspace opera en `baseCurrency`; cuentas en otra moneda quedan fuera o bloqueadas hasta FX.
+4. Multi-moneda (ADR-006): cuentas ARS|USD; ledger nativo por moneda; canje explícito (`CurrencyExchange`); patrimonio consolidado solo con tasa manual del workspace. `baseCurrency` = consolidación y defaults — no única moneda permitida.

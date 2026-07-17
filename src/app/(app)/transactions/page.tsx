@@ -31,15 +31,17 @@ import type { TransactionType } from "@/features/transactions/domain";
 function amountVariant(
   type: TransactionType,
 ): "income" | "expense" | "transfer" {
-  return type;
+  if (type === "fx_credit" || type === "income") return "income";
+  if (type === "fx_debit" || type === "expense") return "expense";
+  return "transfer";
 }
 
 function signedAmountCents(
   type: TransactionType,
   amountCents: number,
 ): number {
-  if (type === "income") return amountCents;
-  if (type === "expense") return -amountCents;
+  if (type === "income" || type === "fx_credit") return amountCents;
+  if (type === "expense" || type === "fx_debit") return -amountCents;
   return -amountCents;
 }
 
@@ -202,12 +204,16 @@ export default async function TransactionsPage() {
               const categoryLabel =
                 tx.type === "transfer"
                   ? "Transferencia"
-                  : (tx.categoryName ?? "—");
+                  : tx.type === "fx_debit" || tx.type === "fx_credit"
+                    ? "Cambio de moneda"
+                    : (tx.categoryName ?? "—");
               const description =
                 tx.description ??
                 (tx.type === "transfer"
                   ? "Transferencia"
-                  : (tx.categoryName ?? "Movimiento"));
+                  : tx.type === "fx_debit" || tx.type === "fx_credit"
+                    ? "Cambio de moneda"
+                    : (tx.categoryName ?? "Movimiento"));
               const descriptionWithChip = tx.isExternalToWorkspace
                 ? `${tx.registrationWorkspaceName ?? "Otro espacio"} · ${description}`
                 : description;

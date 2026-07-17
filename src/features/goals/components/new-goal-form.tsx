@@ -1,8 +1,8 @@
 "use client";
 
-import { useTransition } from "react";
+import { useMemo, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { createGoalAction } from "@/features/goals/actions";
@@ -25,6 +25,7 @@ import { GOAL_KIND_LABEL_ES } from "./goal-kind-labels";
 type AccountOption = {
   id: string;
   name: string;
+  currency: string;
 };
 
 type NewGoalFormProps = {
@@ -39,6 +40,7 @@ type FormValues = {
   name: string;
   kind: GoalKind;
   targetAmountUnits: string;
+  currency: "ARS" | "USD";
   targetDate: string;
   linkedAccountId: string;
 };
@@ -70,10 +72,20 @@ export function NewGoalForm({
       name: "",
       kind: "save",
       targetAmountUnits: "",
+      currency:
+        workspaceCurrency === "USD" || workspaceCurrency === "ARS"
+          ? workspaceCurrency
+          : "ARS",
       targetDate: "",
       linkedAccountId: "",
     },
   });
+
+  const selectedCurrency = useWatch({ control, name: "currency" });
+  const linkedAccounts = useMemo(
+    () => accounts.filter((a) => a.currency === selectedCurrency),
+    [accounts, selectedCurrency],
+  );
 
   const onSubmit = handleSubmit((values) => {
     const parsedUnits = Number(values.targetAmountUnits.replace(",", "."));
@@ -92,6 +104,7 @@ export function NewGoalForm({
       name: values.name,
       kind: values.kind,
       targetAmountCents,
+      currency: values.currency,
       targetDate: values.targetDate.trim() ? values.targetDate : null,
       linkedAccountId: values.linkedAccountId ? values.linkedAccountId : null,
     };
@@ -113,6 +126,7 @@ export function NewGoalForm({
         name: "",
         kind: values.kind,
         targetAmountUnits: "",
+        currency: values.currency,
         targetDate: "",
         linkedAccountId: "",
       });
@@ -159,7 +173,7 @@ export function NewGoalForm({
         <FormField
           label="Objetivo"
           htmlFor="goal-target"
-          hint={`En ${workspaceCurrency}`}
+          hint="Monto meta"
         >
           <Input
             id="goal-target"
@@ -172,6 +186,17 @@ export function NewGoalForm({
             aria-invalid={Boolean(errors.targetAmountUnits)}
             {...register("targetAmountUnits", { required: true })}
           />
+        </FormField>
+
+        <FormField label="Moneda" htmlFor="goal-currency">
+          <select
+            id="goal-currency"
+            className={SELECT_CLASSES}
+            {...register("currency")}
+          >
+            <option value="ARS">ARS</option>
+            <option value="USD">USD</option>
+          </select>
         </FormField>
 
         <FormField label="Fecha meta" htmlFor="goal-target-date" optional>
@@ -193,7 +218,7 @@ export function NewGoalForm({
             {...register("linkedAccountId")}
           >
             <option value="">Sin vincular</option>
-            {accounts.map((a) => (
+            {linkedAccounts.map((a) => (
               <option key={a.id} value={a.id}>
                 {a.name}
               </option>

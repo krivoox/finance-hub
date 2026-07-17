@@ -61,6 +61,8 @@ export const ModelName = {
   Category: 'Category',
   FinanceAccount: 'FinanceAccount',
   Transaction: 'Transaction',
+  CurrencyExchange: 'CurrencyExchange',
+  WorkspaceConsolidationRate: 'WorkspaceConsolidationRate',
   CrossWorkspaceLink: 'CrossWorkspaceLink',
   Budget: 'Budget',
   BudgetCategory: 'BudgetCategory',
@@ -234,6 +236,39 @@ export const TransactionScalarFieldEnum = {
 } as const
 
 export type TransactionScalarFieldEnum = (typeof TransactionScalarFieldEnum)[keyof typeof TransactionScalarFieldEnum]
+
+
+export const CurrencyExchangeScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  fromAccountId: 'fromAccountId',
+  toAccountId: 'toAccountId',
+  fromAmountCents: 'fromAmountCents',
+  toAmountCents: 'toAmountCents',
+  occurredOn: 'occurredOn',
+  description: 'description',
+  createdByUserId: 'createdByUserId',
+  fromTransactionId: 'fromTransactionId',
+  toTransactionId: 'toTransactionId',
+  createdAt: 'createdAt'
+} as const
+
+export type CurrencyExchangeScalarFieldEnum = (typeof CurrencyExchangeScalarFieldEnum)[keyof typeof CurrencyExchangeScalarFieldEnum]
+
+
+export const WorkspaceConsolidationRateScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  quoteCurrency: 'quoteCurrency',
+  rateScaled: 'rateScaled',
+  scale: 'scale',
+  label: 'label',
+  asOf: 'asOf',
+  updatedByUserId: 'updatedByUserId',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WorkspaceConsolidationRateScalarFieldEnum = (typeof WorkspaceConsolidationRateScalarFieldEnum)[keyof typeof WorkspaceConsolidationRateScalarFieldEnum]
 
 
 export const CrossWorkspaceLinkScalarFieldEnum = {

@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ACCOUNT_CURRENCIES } from "@/domain/money/currencies";
 import {
   ACCOUNT_NAME_MAX_LENGTH,
   ACCOUNT_TYPES,
@@ -28,6 +29,7 @@ export const createAccountSchema = z
     name: accountNameSchema,
     type: accountTypeSchema,
     initialBalanceCents: nonNegativeIntCents,
+    currency: z.enum(ACCOUNT_CURRENCIES).optional(),
     creditLimitCents: positiveIntCents.optional(),
   })
   .refine(

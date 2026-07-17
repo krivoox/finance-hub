@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  GoalCurrencyMismatchError,
   GoalNotActiveError,
   InvalidContributionAmountError,
   InvalidGoalNameError,
@@ -9,6 +10,7 @@ import {
   GOAL_NAME_MAX_LENGTH,
   applyContribution,
   assertCanContribute,
+  assertGoalCurrencyAllowed,
   assertValidContribution,
   assertValidGoalName,
   assertValidTargetAmount,
@@ -226,6 +228,19 @@ describe("assertValidTargetAmount — SPEC-08 §4 (targetAmount > 0)", () => {
   it("rejects non-integers", () => {
     expect(() => assertValidTargetAmount(1.5)).toThrow(
       InvalidTargetAmountError,
+    );
+  });
+});
+
+describe("assertGoalCurrencyAllowed — ADR-006", () => {
+  it("accepts ARS and USD", () => {
+    expect(() => assertGoalCurrencyAllowed("ARS")).not.toThrow();
+    expect(() => assertGoalCurrencyAllowed("USD")).not.toThrow();
+  });
+
+  it("rejects other currencies", () => {
+    expect(() => assertGoalCurrencyAllowed("EUR")).toThrow(
+      GoalCurrencyMismatchError,
     );
   });
 });

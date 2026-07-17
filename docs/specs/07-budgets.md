@@ -32,9 +32,11 @@ Los presupuestos limitan el gasto por categoría(s) en un periodo para controlar
 
 ## 4. Reglas de negocio
 
-- Solo expenses cuentan; transfers e incomes no.
-- categoryIds vacío = todas las expense del workspace.
-- limit > 0.
+- Solo expenses cuentan; transfers, incomes y `fx_*` (SPEC-16) no.
+- **Spent solo suma expenses con `tx.currency === budget.currency`.**
+- `budget.currency ∈ { ARS, USD }`; default al crear = `workspace.baseCurrency`.
+- categoryIds vacío = todas las expense del workspace **en esa moneda**.
+- limit > 0 (en la moneda del budget).
 - Periodos no solapados para el mismo set exacto de categorías (MVP: permitir solape pero documentar; preferir warning en UI).
 - Spent usa `occurredOn` en el rango [start, end] inclusive.
 
@@ -83,6 +85,11 @@ Los presupuestos limitan el gasto por categoría(s) en un periodo para controlar
 - **Given** transfer en el periodo  
 - **Then** spent sin cambio
 
+### T-05b Otra moneda ignorada
+
+- **Given** budget ARS; expense USD misma categoría y periodo  
+- **Then** spent sin cambio
+
 ### T-06 Todas las categorías
 
 - **Given** categoryIds=[]  
@@ -100,6 +107,7 @@ Los presupuestos limitan el gasto por categoría(s) en un periodo para controlar
 - Presupuestos enrollables / rollover automático
 - Notificaciones push
 - Presupuesto por cuenta
+- Budget multi-moneda mixto / conversión automática de spent
 
 ## 9. Notas de implementación
 

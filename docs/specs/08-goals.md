@@ -31,6 +31,9 @@ Objetivos: fondo de emergencia, ahorro para compra, cancelación de deudas. Segu
 
 ## 4. Reglas de negocio
 
+- `goal.currency ∈ { ARS, USD }`; default al crear = `workspace.baseCurrency`.
+- `linkedAccountId` si está presente: misma moneda que el goal.
+- Aportes en la moneda del goal (sin conversión FX).
 - targetAmount > 0; currentAmount >= 0; current no supera target en aportes (exceso → complete y opcional reject overflow o cap).
 - Decisión MVP: aporte que excede se acepta y status=completed; current puede ser >= target.
 - debt_payoff: currentAmount representa lo pagado hacia la deuda.
@@ -87,3 +90,4 @@ Objetivos: fondo de emergencia, ahorro para compra, cancelación de deudas. Segu
 - Intereses / proyecciones de inversión
 - Sugerencias de aporte mensual (analytics P2)
 - Vinculación automática a cada transfer
+- Funding de goal vía canje FX automático

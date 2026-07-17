@@ -8,7 +8,9 @@
 | Transaction | Movimiento: ingreso, gasto o transferencia |
 | Income | Ingreso que aumenta el saldo de una cuenta |
 | Expense | Gasto que disminuye el saldo de una cuenta |
-| Transfer | Movimiento interno entre dos cuentas del mismo workspace |
+| Transfer | Movimiento interno entre dos cuentas del mismo workspace (misma moneda) |
+| Currency exchange / Canje | Cambio ARS↔USD: dos montos + link; tipos `fx_debit` / `fx_credit` |
+| Consolidation rate | Tasa manual del workspace para patrimonio estimado en `baseCurrency` |
 | Cross-workspace contribution | Aporte: expense en un espacio + income en otro, ligados |
 | Externally funded expense | Gasto registrado en un workspace pagado con cuenta de otro |
 | Category | Etiqueta de clasificación de ingresos/gastos |

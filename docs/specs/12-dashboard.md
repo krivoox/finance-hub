@@ -23,23 +23,26 @@ Pantalla principal: visión clara del estado financiero del workspace activo (pe
 | ID | Requisito |
 |----|-----------|
 | FR-01 | Query `GetDashboard` agrega datos del workspace |
-| FR-02 | Bloques: total balance, cashflow del periodo corriente, budgets warning/exceeded, goals activas, txs recientes |
+| FR-02 | Bloques: balances por moneda, cashflow del periodo, budgets warning/exceeded, goals activas, txs recientes |
 | FR-03 | Si group: incluir member balances summary |
 | FR-04 | Periodo corriente según timezone (mes calendario) |
 | FR-05 | UI consume solo el DTO del query (sin recalcular negocio) |
+| FR-06 | Si hay ≥2 monedas con saldo y tasa de consolidación: patrimonio `≈` en `baseCurrency` + caption TC |
+| FR-07 | Sin tasa: solo breakdown por moneda (no inventar conversión 1:1) |
 
 ## 4. Reglas de negocio
 
-- Total balance: suma de accounts no archivadas con convención credit.
-- Cashflow: incomes − expenses del mes (transfers excluidas).
-- “Recientes”: últimas N transacciones (default 10).
+- Balances nativos: suma por moneda de accounts no archivadas (convención credit). Nunca sumar ARS+USD crudos.
+- Patrimonio consolidado: lectura con `WorkspaceConsolidationRate` (manual); prefijo `≈` en UI.
+- Cashflow: incomes − expenses del mes **por moneda** (transfers y `fx_*` excluidos).
+- “Recientes”: últimas N transacciones (default 10); cada una en su moneda.
 - Dashboard es **read model**; lógica de cálculo reutiliza servicios de dominio ya testeados.
 
 ## 5. Comandos y consultas
 
 | Tipo | Nombre | Output (conceptual) |
 |------|--------|---------------------|
-| Query | `GetDashboard` | `{ totalBalance, cashflow, budgetsAtRisk, goals, recentTransactions, memberBalances? }` |
+| Query | `GetDashboard` | `{ balancesByCurrency, totalBalance (base), consolidated?, fxRate?, cashflow, budgetsAtRisk, goals, recentTransactions, memberBalances? }` |
 
 ## 6. Criterios de aceptación
 
@@ -53,12 +56,18 @@ Pantalla principal: visión clara del estado financiero del workspace activo (pe
 
 - **Given** sin accounts  
 - **When** GetDashboard  
-- **Then** totalBalance=0, lists empty
+- **Then** balances vacíos / totalBalance=0, lists empty
 
 ### T-02 Cashflow mes
 
-- **Given** income 100000, expense 40000 este mes; expense mes pasado 999  
-- **Then** cashflow.income=100000, expense=40000, net=60000
+- **Given** income 100000 ARS, expense 40000 ARS este mes; expense mes pasado 999  
+- **Then** cashflow.income=100000, expense=40000, net=60000 (en la moneda del resumen)
+
+### T-02b Multi-moneda
+
+- **Given** 500_000 ARS + 1_000 USD; tasa 1 USD = 1_400 ARS  
+- **When** GetDashboard  
+- **Then** balancesByCurrency expone ambos; consolidated ≈ 1_900_000 ARS + caption TC
 
 ### T-03 Budgets at risk
 

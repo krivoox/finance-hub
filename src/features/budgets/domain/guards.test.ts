@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  assertBudgetCurrencyAllowed,
   assertValidBudgetLimit,
   assertValidBudgetName,
   assertValidBudgetPeriodBounds,
@@ -9,6 +10,7 @@ import {
   InvalidBudgetNameError,
   MissingBudgetEndDateError,
   UnexpectedBudgetEndDateError,
+  UnsupportedBudgetCurrencyError,
 } from "./index";
 
 describe("assertValidBudgetName", () => {
@@ -110,5 +112,18 @@ describe("assertValidBudgetPeriodBounds", () => {
         new Date("2026-02-15T00:00:00Z"),
       ),
     ).not.toThrow();
+  });
+});
+
+describe("assertBudgetCurrencyAllowed — ADR-006", () => {
+  it("accepts ARS and USD", () => {
+    expect(() => assertBudgetCurrencyAllowed("ARS")).not.toThrow();
+    expect(() => assertBudgetCurrencyAllowed("USD")).not.toThrow();
+  });
+
+  it("rejects other currencies", () => {
+    expect(() => assertBudgetCurrencyAllowed("EUR")).toThrow(
+      UnsupportedBudgetCurrencyError,
+    );
   });
 });

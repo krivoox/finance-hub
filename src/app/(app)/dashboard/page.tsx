@@ -100,6 +100,9 @@ export default async function DashboardPage() {
       <div className="flex flex-col gap-8 sm:gap-10">
         <DashboardSnapshot
           balance={dashboard.totalBalance}
+          balancesByCurrency={dashboard.balancesByCurrency}
+          consolidated={dashboard.consolidated}
+          fxRate={dashboard.fxRate}
           cashflow={dashboard.monthlyCashflow}
           periodLabel={periodLabel}
         />

@@ -4,7 +4,7 @@ import { requireMembership } from "@/features/workspaces/services";
 import {
   GoalLinkedAccountInvalidError,
   assertCanMutateGoals,
-  assertGoalCurrencyMatchesWorkspace,
+  assertGoalCurrencyAllowed,
   assertValidGoalName,
   assertValidTargetAmount,
   normalizeGoalName,
@@ -19,6 +19,7 @@ export type CreateGoalServiceInput = {
   name: string;
   kind: GoalKind;
   targetAmountCents: number;
+  currency?: string;
   targetDate?: string | null;
   linkedAccountId?: string | null;
 };
@@ -27,8 +28,8 @@ export type CreateGoalServiceInput = {
  * SPEC-08 FR-01 — Create a goal inside the caller's workspace.
  *
  * Domain guards run first so we surface user-friendly errors before hitting
- * Postgres. The goal's currency defaults to the workspace's baseCurrency
- * (MVP: no FX, see SPEC-08 §4).
+ * Postgres. Currency defaults to workspace baseCurrency; ARS|USD allowed
+ * (ADR-006). Linked account must match goal currency.
  */
 export async function createGoal(
   input: CreateGoalServiceInput,
@@ -52,8 +53,8 @@ export async function createGoal(
   if (!workspace) {
     throw new Error("Workspace not found");
   }
-  const currency = workspace.baseCurrency;
-  assertGoalCurrencyMatchesWorkspace(currency, workspace.baseCurrency);
+  const currency = input.currency ?? workspace.baseCurrency;
+  assertGoalCurrencyAllowed(currency);
 
   let linkedAccountId: string | null = null;
   if (input.linkedAccountId) {
