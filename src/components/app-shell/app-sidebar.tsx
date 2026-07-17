@@ -37,6 +37,8 @@ import {
   type WorkspaceOption,
 } from "@/features/workspaces/components/workspace-switcher";
 
+import { ThemeToggle } from "@/components/theme-toggle";
+
 import {
   applyNavBadges,
   footerNavItems,
@@ -238,6 +240,7 @@ export function AppSidebar({
         <SidebarGroup className="p-0">
           <SidebarGroupContent>
             <NavMenuItems items={footerItems} />
+            <ThemeToggle />
           </SidebarGroupContent>
         </SidebarGroup>
 

@@ -5,10 +5,9 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
-  Finance Hub theme — inspired by Dub's product UI.
-  All colors live here as semantic tokens. Components must use
-  Tailwind semantic classes (bg-background, text-muted-foreground, etc.)
-  or CVA variants — never raw hex / zinc-* / blue-* in product UI.
+  Finance Hub theme — inspired by Dub's product UI, tuned for money flows.
+  Subtle cool chroma (not flat gray) in light + crafted dark.
+  Components must use Tailwind semantic classes or CVA — never raw hex / zinc-* / blue-*.
 */
 
 @theme inline {
@@ -31,13 +30,11 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
 
-  /* Interactive / info (Dub active blue) */
   --color-info: var(--info);
   --color-info-foreground: var(--info-foreground);
   --color-info-muted: var(--info-muted);
   --color-info-muted-foreground: var(--info-muted-foreground);
 
-  /* Semantic status */
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-success-muted: var(--success-muted);
@@ -45,7 +42,6 @@
   --color-warning-foreground: var(--warning-foreground);
   --color-warning-muted: var(--warning-muted);
 
-  /* Finance domain */
   --color-income: var(--income);
   --color-income-foreground: var(--income-foreground);
   --color-income-muted: var(--income-muted);
@@ -56,7 +52,6 @@
   --color-transfer-foreground: var(--transfer-foreground);
   --color-transfer-muted: var(--transfer-muted);
 
-  /* App shell / dual sidebar */
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -89,139 +84,139 @@
 }
 
 :root {
-  /* Canvas: soft cool-neutral gray (Dub app shell) */
-  --background: oklch(0.97 0 0);
-  --foreground: oklch(0.205 0 0);
+  /* Cool paper — slight blue chroma so the app is not pure white */
+  --background: oklch(0.965 0.012 250);
+  --foreground: oklch(0.22 0.02 260);
 
-  /* Floating content panel */
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.205 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.205 0 0);
+  --card: oklch(0.995 0.004 250);
+  --card-foreground: oklch(0.22 0.02 260);
+  --popover: oklch(0.995 0.004 250);
+  --popover-foreground: oklch(0.22 0.02 260);
 
-  /* Brand primary = near-black ink (Dub Dark) */
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.22 0.02 260);
+  --primary-foreground: oklch(0.985 0.005 250);
 
-  --secondary: oklch(0.955 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.955 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.955 0 0);
-  --accent-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.945 0.014 250);
+  --secondary-foreground: oklch(0.22 0.02 260);
+  --muted: oklch(0.945 0.014 250);
+  --muted-foreground: oklch(0.5 0.025 260);
+  --accent: oklch(0.94 0.02 250);
+  --accent-foreground: oklch(0.22 0.02 260);
 
-  --destructive: oklch(0.577 0.215 27);
-  --border: oklch(0.9 0 0);
-  --input: oklch(0.9 0 0);
-  --ring: oklch(0.623 0.188 259.8);
+  --destructive: oklch(0.55 0.2 25);
+  --border: oklch(0.88 0.015 250);
+  --input: oklch(0.88 0.015 250);
+  --ring: oklch(0.55 0.18 255);
 
-  /* Dub-style interactive blue */
-  --info: oklch(0.546 0.215 262.88);
-  --info-foreground: oklch(0.985 0 0);
-  --info-muted: oklch(0.951 0.026 255);
-  --info-muted-foreground: oklch(0.488 0.2 262);
+  --info: oklch(0.52 0.19 255);
+  --info-foreground: oklch(0.985 0.005 250);
+  --info-muted: oklch(0.94 0.035 255);
+  --info-muted-foreground: oklch(0.42 0.14 255);
 
-  --success: oklch(0.55 0.15 155);
-  --success-foreground: oklch(0.985 0 0);
-  --success-muted: oklch(0.95 0.04 155);
-  --warning: oklch(0.75 0.15 75);
-  --warning-foreground: oklch(0.3 0.06 55);
-  --warning-muted: oklch(0.96 0.04 85);
+  --success: oklch(0.52 0.14 155);
+  --success-foreground: oklch(0.985 0.01 155);
+  --success-muted: oklch(0.94 0.045 155);
+  --warning: oklch(0.72 0.14 75);
+  --warning-foreground: oklch(0.32 0.07 55);
+  --warning-muted: oklch(0.95 0.05 85);
 
   --income: var(--success);
   --income-foreground: var(--success-foreground);
   --income-muted: var(--success-muted);
   --expense: var(--destructive);
-  --expense-foreground: oklch(0.985 0 0);
-  --expense-muted: oklch(0.95 0.03 25);
+  --expense-foreground: oklch(0.985 0.01 25);
+  --expense-muted: oklch(0.95 0.035 25);
   --transfer: var(--info);
   --transfer-foreground: var(--info-foreground);
   --transfer-muted: var(--info-muted);
 
-  /* Single sidebar (neutral active, like shadcn dashboard) */
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.37 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.94 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.9 0 0);
+  --sidebar: oklch(0.985 0.008 250);
+  --sidebar-foreground: oklch(0.4 0.03 260);
+  --sidebar-primary: oklch(0.22 0.02 260);
+  --sidebar-primary-foreground: oklch(0.985 0.005 250);
+  --sidebar-accent: oklch(0.93 0.025 250);
+  --sidebar-accent-foreground: oklch(0.22 0.02 260);
+  --sidebar-border: oklch(0.88 0.015 250);
   --sidebar-ring: var(--ring);
 
-  /* Icon rail (dark strip) */
-  --sidebar-rail: oklch(0.205 0 0);
-  --sidebar-rail-foreground: oklch(0.78 0 0);
+  --sidebar-rail: oklch(0.22 0.02 260);
+  --sidebar-rail-foreground: oklch(0.78 0.02 250);
   --sidebar-rail-accent: oklch(1 0 0);
 
-  --chart-1: oklch(0.546 0.215 262.88);
-  --chart-2: oklch(0.55 0.15 155);
-  --chart-3: oklch(0.75 0.15 75);
-  --chart-4: oklch(0.6 0.12 300);
-  --chart-5: oklch(0.65 0.1 220);
+  --chart-1: oklch(0.52 0.19 255);
+  --chart-2: oklch(0.52 0.14 155);
+  --chart-3: oklch(0.72 0.14 75);
+  --chart-4: oklch(0.55 0.14 300);
+  --chart-5: oklch(0.58 0.1 220);
 
   --radius: 0.75rem;
 }
 
 .dark {
-  --background: oklch(0.16 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.65 0.2 25);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.623 0.188 259.8);
+  /* Deep ink with cool chroma — elevated cards, vivid finance hues */
+  --background: oklch(0.14 0.018 255);
+  --foreground: oklch(0.96 0.01 250);
 
-  --info: oklch(0.65 0.18 262);
-  --info-foreground: oklch(0.985 0 0);
-  --info-muted: oklch(0.28 0.05 262);
-  --info-muted-foreground: oklch(0.78 0.1 262);
+  --card: oklch(0.19 0.02 255);
+  --card-foreground: oklch(0.96 0.01 250);
+  --popover: oklch(0.2 0.022 255);
+  --popover-foreground: oklch(0.96 0.01 250);
 
-  --success: oklch(0.7 0.14 155);
-  --success-foreground: oklch(0.2 0.04 155);
-  --success-muted: oklch(0.28 0.05 155);
+  --primary: oklch(0.96 0.01 250);
+  --primary-foreground: oklch(0.18 0.02 255);
+
+  --secondary: oklch(0.24 0.022 255);
+  --secondary-foreground: oklch(0.96 0.01 250);
+  --muted: oklch(0.24 0.022 255);
+  --muted-foreground: oklch(0.72 0.02 250);
+  --accent: oklch(0.26 0.035 255);
+  --accent-foreground: oklch(0.96 0.01 250);
+
+  --destructive: oklch(0.68 0.18 25);
+  --border: oklch(0.96 0.01 250 / 12%);
+  --input: oklch(0.96 0.01 250 / 14%);
+  --ring: oklch(0.65 0.16 255);
+
+  --info: oklch(0.7 0.15 255);
+  --info-foreground: oklch(0.16 0.03 255);
+  --info-muted: oklch(0.26 0.05 255);
+  --info-muted-foreground: oklch(0.82 0.08 255);
+
+  --success: oklch(0.74 0.14 155);
+  --success-foreground: oklch(0.18 0.04 155);
+  --success-muted: oklch(0.26 0.05 155);
   --warning: oklch(0.8 0.12 85);
-  --warning-foreground: oklch(0.25 0.05 75);
-  --warning-muted: oklch(0.3 0.05 85);
+  --warning-foreground: oklch(0.24 0.05 75);
+  --warning-muted: oklch(0.28 0.05 85);
 
   --income: var(--success);
   --income-foreground: var(--success-foreground);
   --income-muted: var(--success-muted);
   --expense: var(--destructive);
-  --expense-foreground: oklch(0.985 0 0);
-  --expense-muted: oklch(0.3 0.06 25);
+  --expense-foreground: oklch(0.16 0.03 25);
+  --expense-muted: oklch(0.28 0.06 25);
   --transfer: var(--info);
   --transfer-foreground: var(--info-foreground);
   --transfer-muted: var(--info-muted);
 
-  --sidebar: oklch(0.18 0 0);
-  --sidebar-foreground: oklch(0.78 0 0);
-  --sidebar-primary: oklch(0.985 0 0);
-  --sidebar-primary-foreground: oklch(0.205 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar: oklch(0.16 0.02 255);
+  --sidebar-foreground: oklch(0.78 0.02 250);
+  --sidebar-primary: oklch(0.96 0.01 250);
+  --sidebar-primary-foreground: oklch(0.18 0.02 255);
+  --sidebar-accent: oklch(0.24 0.03 255);
+  --sidebar-accent-foreground: oklch(0.96 0.01 250);
+  --sidebar-border: oklch(0.96 0.01 250 / 10%);
   --sidebar-ring: var(--ring);
 
-  --sidebar-rail: oklch(0.12 0 0);
-  --sidebar-rail-foreground: oklch(0.7 0 0);
+  --sidebar-rail: oklch(0.12 0.015 255);
+  --sidebar-rail-foreground: oklch(0.7 0.02 250);
   --sidebar-rail-accent: oklch(1 0 0);
 
-  --chart-1: oklch(0.65 0.18 262);
-  --chart-2: oklch(0.7 0.14 155);
+  --chart-1: oklch(0.7 0.15 255);
+  --chart-2: oklch(0.74 0.14 155);
   --chart-3: oklch(0.8 0.12 85);
-  --chart-4: oklch(0.7 0.12 300);
-  --chart-5: oklch(0.7 0.1 220);
+  --chart-4: oklch(0.72 0.12 300);
+  --chart-5: oklch(0.72 0.1 220);
 }
 
 @layer base {
@@ -236,9 +231,34 @@
 
   body {
     @apply bg-background text-foreground;
+    background-image:
+      radial-gradient(
+        ellipse 80% 50% at 100% -10%,
+        color-mix(in oklch, var(--info) 12%, transparent),
+        transparent 55%
+      ),
+      radial-gradient(
+        ellipse 60% 40% at 0% 100%,
+        color-mix(in oklch, var(--success) 8%, transparent),
+        transparent 50%
+      );
+    background-attachment: fixed;
   }
 
-  /* Tabular nums for money / metrics */
+  .dark body {
+    background-image:
+      radial-gradient(
+        ellipse 70% 45% at 90% -5%,
+        color-mix(in oklch, var(--info) 18%, transparent),
+        transparent 55%
+      ),
+      radial-gradient(
+        ellipse 50% 35% at 5% 105%,
+        color-mix(in oklch, var(--success) 10%, transparent),
+        transparent 50%
+      );
+  }
+
   .tabular {
     font-variant-numeric: tabular-nums;
   }

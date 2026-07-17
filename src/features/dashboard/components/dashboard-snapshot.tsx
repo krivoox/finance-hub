@@ -23,24 +23,31 @@ export function DashboardSnapshot({
     : netNegative
       ? "text-expense"
       : "text-foreground";
+  const netSurface = netPositive
+    ? "bg-income-muted/70"
+    : netNegative
+      ? "bg-expense-muted/70"
+      : "bg-muted/70";
 
   return (
-    <section aria-label="Resumen financiero" className="space-y-6">
+    <section aria-label="Resumen financiero" className="flex flex-col gap-6">
       <div>
         <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
           Patrimonio
         </p>
-        <p className="mt-1 text-3xl font-semibold tracking-tight tabular-nums text-foreground text-balance sm:text-4xl">
+        <p className="mt-1 text-3xl font-semibold tracking-tight text-balance text-foreground tabular-nums sm:text-4xl">
           {formatMoney(balance.amountCents, balance.currency)}
         </p>
       </div>
 
-      <div className="grid gap-6 border-t border-border pt-6 sm:grid-cols-[minmax(0,1.2fr)_1fr_1fr]">
-        <div>
+      <div className="grid gap-3 border-t border-border pt-6 sm:grid-cols-[minmax(0,1.3fr)_1fr_1fr] sm:gap-4">
+        <div className={`rounded-xl px-4 py-3 ${netSurface}`}>
           <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
             Flujo del mes
           </p>
-          <p className={`mt-1 text-2xl font-semibold tracking-tight tabular-nums ${netTone}`}>
+          <p
+            className={`mt-1 text-2xl font-semibold tracking-tight tabular-nums ${netTone}`}
+          >
             {formatSignedMoney(cashflow.netCents, cashflow.currency)}
           </p>
           <p className="mt-1 text-xs text-muted-foreground capitalize">
@@ -48,7 +55,7 @@ export function DashboardSnapshot({
           </p>
         </div>
 
-        <div>
+        <div className="rounded-xl bg-income-muted/60 px-4 py-3">
           <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
             Ingresos
           </p>
@@ -57,7 +64,7 @@ export function DashboardSnapshot({
           </p>
         </div>
 
-        <div>
+        <div className="rounded-xl bg-expense-muted/60 px-4 py-3">
           <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
             Gastos
           </p>
