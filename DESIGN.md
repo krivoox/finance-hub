@@ -12,12 +12,12 @@
 |----------|-----------|
 | **Quién** | Persona o pareja que abre la app entre tareas del día para registrar un gasto, mirar saldos o revisar el presupuesto. |
 | **Qué debe lograr** | Entender el estado del dinero en segundos y actuar (registrar, transferir, ajustar presupuesto). |
-| **Cómo debe sentirse** | Calmado, preciso, premium-light — como un escritorio financiero limpio, no un dashboard ruidoso. |
+| **Cómo debe sentirse** | Calmado, preciso, premium — escritorio financiero con color sutil (no flat white) y dark mode de primera. |
 
 **Dominio (metáforas):** ledger, saldos, flujo de caja, presupuestos, objetivos, splits compartidos.  
-**Mundo de color:** papel blanco, tinta negra, gris frío de escritorio, azul de acción (selección), verde ingreso, rojo egreso.  
-**Firma:** sidebar único (workspace + CTA + nav agrupada + usuario) + panel de contenido; sin franja de iconos oscura.  
-**Defaults que rechazamos:** cards genéricas en grid 3×N, purple-indigo SaaS, cream+serif terracotta, dark-mode-first, hex sueltos en componentes.
+**Mundo de color:** papel frío con croma azul suave, tinta, verde ingreso, rojo egreso, azul de acción. Dark: ink profundo con el mismo croma.  
+**Firma:** sidebar único (workspace + CTA + nav agrupada + tema + usuario) + panel de contenido; Sankey de flujo en el dashboard.  
+**Defaults que rechazamos:** cards genéricas en grid 3×N, purple-indigo SaaS, cream+serif terracotta, dark-mode-first sin toggle, hex sueltos en componentes.
 
 ---
 
@@ -58,6 +58,7 @@ Sidebar único estilo dashboard (shadcn inset) — **sin** rail de iconos oscuro
 | Item nav active | `data-active` → `bg-sidebar-accent` | Highlight neutro (no azul) |
 | Grupos | `SidebarGroupLabel` | Ej. Planificación, Compartido |
 | Header app | `SidebarTrigger` + título | Barra superior del inset |
+| Tema | `ThemeToggle` en footer | Claro / Oscuro / Sistema |
 | Content panel | `bg-card` · `rounded-xl` · `border` | Dentro de `SidebarInset` |
 
 **Mobile:** el sidebar shadcn abre como **sheet** a pantalla completa (no icon rail). El content panel es edge-to-edge sin radio; `md+` añade inset, borde y `rounded-xl`.
@@ -157,6 +158,16 @@ Definidos en `:root` / `.dark` de `src/app/globals.css` y expuestos a Tailwind v
 ### Charts
 
 `chart-1` … `chart-5` — series de analytics. No inventar paletas ad-hoc en componentes de gráfico.
+
+**Sankey (flujo del mes):** diagrama de flujo ingresos → hub → categorías / disponible. Colores vía `income` / `expense` / `foreground`. Dominio: `buildCashflowSankey`; UI: `DashboardCashflowSankey`.
+
+### Tema claro / oscuro
+
+- Provider: `@teispace/next-themes` (fork compatible React 19 / Next 16) en `app/layout.tsx`.
+- Anti-FOUC: `getThemeScript()` en `<head>` + `noScript` en el provider (evita el warning de `<script>` en client components).
+- Opciones compartidas: `src/lib/theme.ts`. Toggle en sidebar (`ThemeToggle`): Claro / Oscuro / Sistema.
+- Tokens en `:root` y `.dark` de `globals.css` — ink con croma frío; no invert-gray.
+- Atmósfera: degradados radiales sutiles en `body` (info + success).
 
 ---
 
@@ -283,10 +294,11 @@ Luego alinear variantes a este documento (nunca dejar colores de demo).
 
 Orden de lectura fijo — no aplanar todo al mismo peso:
 
-1. **Snapshot** — un solo bloque: Patrimonio (hero `text-4xl`) → Flujo neto del mes (secundario, color income/expense) → Ingresos/Gastos como soporte. Sin grid de 3 cards iguales.
-2. **Atención** — presupuestos en riesgo, insights, balances de grupo. Si no hay nada: un quiet “Sin alertas”.
-3. **Progreso + gastos** — dos columnas: objetivos con barra · top categorías del mes.
-4. **Actividad** — movimientos recientes (tabla).
+1. **Snapshot** — un solo bloque: Patrimonio (hero `text-3xl`/`sm:text-4xl`) → Flujo neto + Ingresos/Gastos en superficies `income-muted` / `expense-muted` (color sutil, no cards decorativas).
+2. **Sankey** — tabs: *Ingresos → gastos* y *Cuentas → gastos*. Solo si hay datos.
+3. **Atención** — presupuestos en riesgo, insights, balances de grupo. Si no hay nada: un quiet “Sin alertas”.
+4. **Progreso + gastos** — dos columnas: objetivos con barra · top categorías del mes.
+5. **Actividad** — movimientos recientes (tabla).
 
 Componentes en `src/features/dashboard/components/`. La page solo compone el DTO.
 

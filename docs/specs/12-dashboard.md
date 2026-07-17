@@ -85,7 +85,8 @@ Pantalla principal: visión clara del estado financiero del workspace activo (pe
 
 - Una composición clara; métricas accionables
 - Seguir `DESIGN.md` y skill interface-design
-- No meter analytics densos en el primer viewport; deep-dive en SPEC-11
+- Snapshot con acentos `income`/`expense` sutiles; Sankey con tabs *Ingresos → gastos* y *Cuentas → gastos*
+- No meter analytics densos adicionales en el primer viewport; deep-dive en SPEC-11
 
 ## 10. Notas de implementación
 

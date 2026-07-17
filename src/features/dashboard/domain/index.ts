@@ -30,3 +30,21 @@ export type {
   MonthlySeriesPoint,
   SpendingByCategoryRow,
 } from "./analytics-types";
+
+export { buildCashflowSankey } from "./cashflow-sankey";
+export type {
+  BuildCashflowSankeyInput,
+  CashflowSankey,
+  CashflowSankeyLink,
+  CashflowSankeyNode,
+  CashflowSankeyNodeKind,
+} from "./cashflow-sankey";
+
+export {
+  aggregateSpendingFlows,
+  buildAccountExpenseSankey,
+} from "./account-sankey";
+export type {
+  BuildAccountExpenseSankeyInput,
+  SpendingFlow,
+} from "./account-sankey";
