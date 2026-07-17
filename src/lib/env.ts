@@ -16,9 +16,15 @@ const envSchema = z.object({
   BETTER_AUTH_SECRET: isProd
     ? z.string().min(32, "BETTER_AUTH_SECRET must be at least 32 chars")
     : z.string().min(1).default("dev-secret-please-change-me-32-chars-min"),
-  BETTER_AUTH_URL: z.string().url().default("http://localhost:3000"),
+  /** Canonical app URL. On Vercel Preview this is overridden by VERCEL_URL. */
+  BETTER_AUTH_URL: z.string().url().optional(),
   /** Comma-separated extra origins (e.g. "https://app.example.com,http://192.168.0.28:3000"). */
   BETTER_AUTH_TRUSTED_ORIGINS: z.string().optional(),
+
+  /** Vercel system: "production" | "preview" | "development". */
+  VERCEL_ENV: z.enum(["production", "preview", "development"]).optional(),
+  /** Vercel system: deployment hostname without protocol. */
+  VERCEL_URL: z.string().optional(),
 
   NEXT_PUBLIC_SUPABASE_URL: z
     .string()
@@ -34,6 +40,32 @@ const envSchema = z.object({
     .default("0"),
 });
 
+/**
+ * Resolve Better Auth base URL so Preview deployments match the request Origin.
+ *
+ * Preview URLs are ephemeral (`*.vercel.app`). If `BETTER_AUTH_URL` is shared
+ * with Production, CSRF origin checks reject sign-in on develop/PR previews.
+ */
+function resolveBetterAuthUrl(input: {
+  BETTER_AUTH_URL?: string;
+  VERCEL_ENV?: "production" | "preview" | "development";
+  VERCEL_URL?: string;
+}): string {
+  if (input.VERCEL_ENV === "preview" && input.VERCEL_URL) {
+    return `https://${input.VERCEL_URL}`;
+  }
+
+  if (input.BETTER_AUTH_URL) {
+    return input.BETTER_AUTH_URL;
+  }
+
+  if (input.VERCEL_URL) {
+    return `https://${input.VERCEL_URL}`;
+  }
+
+  return "http://localhost:3000";
+}
+
 const parsed = envSchema.safeParse(process.env);
 
 if (!parsed.success) {
@@ -45,5 +77,10 @@ if (!parsed.success) {
   );
 }
 
-export const env = parsed.data;
+const data = parsed.data;
+
+export const env = {
+  ...data,
+  BETTER_AUTH_URL: resolveBetterAuthUrl(data),
+};
 export type Env = typeof env;
