@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **workspaces:** Add first-run onboarding with two-step setup
+
 ### Fixed
 
 - **changelog:** Stop git-cliff from calling GitHub API (#7)
