@@ -42,5 +42,7 @@ export type AnalyticsTransaction = {
   amountCents: number;
   categoryId: string | null;
   categoryName?: string | null;
+  accountId?: string | null;
+  accountName?: string | null;
   occurredOn: Date;
 };

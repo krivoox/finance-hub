@@ -32,6 +32,7 @@ function tx(
     occurredOn: overrides.occurredOn ?? new Date("2026-07-05T00:00:00Z"),
     categoryId:
       "categoryId" in overrides ? (overrides.categoryId ?? null) : "cat-food",
+    currency: overrides.currency,
   };
 }
 
@@ -175,6 +176,29 @@ describe("SPEC-07 T-05 — transfers/incomes se ignoran", () => {
       new Date("2026-07-10T00:00:00Z"),
     );
     expect(spent).toBe(0);
+  });
+});
+
+describe("SPEC-07 T-05b — otra moneda ignorada", () => {
+  it("expense USD no suma a budget ARS", () => {
+    const b = budget({ currency: "ARS", categoryIds: ["cat-food"] });
+    const spent = computeBudgetSpent(
+      b,
+      [
+        tx({
+          amountCents: 40_000,
+          categoryId: "cat-food",
+          currency: "USD",
+        }),
+        tx({
+          amountCents: 10_000,
+          categoryId: "cat-food",
+          currency: "ARS",
+        }),
+      ],
+      new Date("2026-07-10T00:00:00Z"),
+    );
+    expect(spent).toBe(10_000);
   });
 });
 

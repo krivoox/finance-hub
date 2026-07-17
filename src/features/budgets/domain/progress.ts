@@ -5,8 +5,10 @@
  * return the derived spent/remaining/status for the active period.
  *
  * Business rules encoded here:
- *   - Only `type === "expense"` transactions count (transfers and incomes are
- *     ignored, SPEC-07 §4 / T-05).
+ *   - Only `type === "expense"` transactions count (transfers, incomes and
+ *     `fx_*` are ignored, SPEC-07 §4 / T-05 / SPEC-16).
+ *   - When candidates carry `currency`, only expenses matching
+ *     `budget.currency` count (SPEC-07 T-05b / ADR-006).
  *   - `occurredOn` must fall in `[start, end]` inclusive (SPEC-07 §4 / T-04).
  *   - When `categoryIds` is non-empty, only expenses whose `categoryId` is in
  *     the set count. When it is empty, every expense counts regardless of
@@ -33,13 +35,18 @@ export const BUDGET_WARNING_RATIO = 0.8;
 export function listMatchingBudgetExpenses<T extends BudgetExpenseCandidate>(
   budget: Pick<
     BudgetLike,
-    "period" | "startDate" | "endDate" | "categoryIds"
+    "period" | "startDate" | "endDate" | "categoryIds" | "currency"
   >,
   transactions: readonly T[],
   referenceDate: Date = new Date(),
 ): T[] {
   const bounds = getBudgetPeriodBounds(budget, referenceDate);
-  return filterMatchingExpenses(transactions, budget.categoryIds, bounds);
+  return filterMatchingExpenses(
+    transactions,
+    budget.categoryIds,
+    bounds,
+    budget.currency,
+  );
 }
 
 /**
@@ -49,7 +56,7 @@ export function listMatchingBudgetExpenses<T extends BudgetExpenseCandidate>(
 export function computeBudgetSpent(
   budget: Pick<
     BudgetLike,
-    "period" | "startDate" | "endDate" | "categoryIds"
+    "period" | "startDate" | "endDate" | "categoryIds" | "currency"
   >,
   transactions: readonly BudgetExpenseCandidate[],
   referenceDate: Date = new Date(),
@@ -100,6 +107,7 @@ export function computeBudgetProgress(
     transactions,
     budget.categoryIds,
     bounds,
+    budget.currency,
   );
   const spentCents = matching.reduce((sum, tx) => sum + tx.amountCents, 0);
   const remainingCents = computeBudgetRemaining(budget.limitCents, spentCents);
@@ -122,6 +130,7 @@ function filterMatchingExpenses<T extends BudgetExpenseCandidate>(
   transactions: readonly T[],
   categoryIds: readonly string[],
   bounds: BudgetPeriodBounds,
+  budgetCurrency: string,
 ): T[] {
   const startMs = bounds.start.getTime();
   const endMs = bounds.end.getTime();
@@ -131,6 +140,8 @@ function filterMatchingExpenses<T extends BudgetExpenseCandidate>(
   const matched: T[] = [];
   for (const tx of transactions) {
     if (tx.type !== "expense") continue;
+
+    if (tx.currency !== undefined && tx.currency !== budgetCurrency) continue;
 
     const occurredMs = tx.occurredOn.getTime();
     if (occurredMs < startMs || occurredMs > endMs) continue;

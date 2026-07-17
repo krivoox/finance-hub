@@ -81,6 +81,7 @@ const loadBudgetSnapshot = cache(
           amountCents: true,
           occurredOn: true,
           categoryId: true,
+          currency: true,
         },
       }),
       // SPEC-14 — exclude contribution outflows from consumer budget "all expenses".
@@ -105,6 +106,7 @@ const loadBudgetSnapshot = cache(
         amountCents: r.amountCents,
         occurredOn: r.occurredOn,
         categoryId: r.categoryId,
+        currency: r.currency,
       }));
 
     return { budgets, expenses };

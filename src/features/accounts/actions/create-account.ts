@@ -30,6 +30,7 @@ export async function createAccountAction(
       name: parsed.data.name,
       type: parsed.data.type,
       initialBalanceCents: parsed.data.initialBalanceCents,
+      currency: parsed.data.currency,
       creditLimitCents: parsed.data.creditLimitCents,
     });
     revalidatePath("/accounts");

@@ -9,7 +9,7 @@
 
 ## 1. Contexto
 
-Las cuentas representan dónde está el dinero (o deuda, en tarjetas de crédito). El saldo es derivado.
+Las cuentas representan dónde está el dinero (o deuda, en tarjetas de crédito). El saldo es derivado. Un workspace puede tener cuentas en **ARS y USD** (multi-ledger); la moneda de la cuenta es fija.
 
 ## 2. Actores
 
@@ -19,26 +19,29 @@ Las cuentas representan dónde está el dinero (o deuda, en tarjetas de crédito
 ## 3. Historias de usuario
 
 1. Quiero crear cuentas de distintos tipos con saldo inicial.
-2. Quiero ver el saldo actual de cada cuenta.
-3. Quiero archivar una cuenta que ya no uso sin perder historial.
-4. Quiero editar nombre y, en crédito, el límite.
+2. Quiero crear una cuenta en dólares en un workspace en pesos.
+3. Quiero ver el saldo actual de cada cuenta en su moneda.
+4. Quiero archivar una cuenta que ya no uso sin perder historial.
+5. Quiero editar nombre y, en crédito, el límite.
 
 ## 4. Requisitos funcionales
 
 | ID | Requisito |
 |----|-----------|
-| FR-01 | Crear account con type, currency, initialBalance |
-| FR-02 | Listar accounts activas (y opción incluir archivadas) |
-| FR-03 | Calcular `currentBalance` = initial + efectos de txs |
-| FR-04 | Actualizar name; creditLimit si type=credit_card |
+| FR-01 | Crear account con type, currency (ARS\|USD), initialBalance |
+| FR-02 | Listar accounts activas (y opción incluir archivadas); agrupar/mostrar por moneda |
+| FR-03 | Calcular `currentBalance` = initial + efectos de txs **solo en la moneda de la cuenta** |
+| FR-04 | Actualizar name; creditLimit si type=credit_card (currency **inmutable**) |
 | FR-05 | Archivar / desarchivar |
 | FR-06 | Rechazar nuevas txs en cuenta archivada |
 
 ## 5. Reglas de negocio
 
-- MVP: `currency` debe igualar `workspace.baseCurrency` (sin FX).
-- `initialBalance` puede ser 0.
-- Credit card: saldo positivo = deuda (convención documentada en dominio: balance de crédito representa lo adeudado; expenses en crédito aumentan deuda).
+- `currency ∈ { ARS, USD }` (`ACCOUNT_CURRENCIES`). Puede diferir de `workspace.baseCurrency`.
+- `currency` es **inmutable** tras CreateAccount.
+- Default de currency al crear = `workspace.baseCurrency` si no se envía.
+- `initialBalance` puede ser 0 (en la moneda de la cuenta).
+- Credit card: saldo positivo = deuda (convención documentada en dominio).
 - No hard-delete si hay transacciones.
 - Nombre no vacío, max 80 chars.
 
@@ -46,7 +49,7 @@ Las cuentas representan dónde está el dinero (o deuda, en tarjetas de crédito
 
 - `currentBalance >= 0` significa monto adeudado.
 - Un expense en la tarjeta **aumenta** el balance (más deuda).
-- Un payment (expense desde checking hacia reducir deuda, o tipo específico) se modela en SPEC-06 / ajustes; en MVP, un income/payment category en la tarjeta **disminuye** deuda.
+- Un income/payment en la tarjeta **disminuye** deuda.
 
 Documentar en código con tests explícitos.
 
@@ -54,7 +57,7 @@ Documentar en código con tests explícitos.
 
 | Tipo | Nombre | Input | Output |
 |------|--------|-------|--------|
-| Command | `CreateAccount` | workspaceId, name, type, currency, initialBalanceCents, creditLimitCents? | Account |
+| Command | `CreateAccount` | workspaceId, name, type, currency?, initialBalanceCents, creditLimitCents? | Account |
 | Command | `UpdateAccount` | accountId, name?, creditLimitCents? | Account |
 | Command | `ArchiveAccount` | accountId | Account |
 | Command | `UnarchiveAccount` | accountId | Account |
@@ -63,23 +66,30 @@ Documentar en código con tests explícitos.
 
 ## 7. Criterios de aceptación
 
-- [ ] Saldo refleja income/expense/transfer correctamente (tests).
+- [ ] Saldo refleja income/expense/transfer/fx_* correctamente (tests).
 - [ ] Cuenta archivada no acepta CreateTransaction.
-- [ ] Currency distinta a baseCurrency → error en MVP.
+- [ ] Currency no whitelisted → error `UnsupportedAccountCurrency`.
+- [ ] Cuenta USD en workspace ARS → OK.
 
 ## 8. Escenarios de test (TDD)
 
 ### T-01 Crear y saldo inicial
 
 - **Given** workspace ARS  
-- **When** create checking con 10_000 centavos  
-- **Then** currentBalance = 10000
+- **When** create checking ARS con 10_000 centavos  
+- **Then** currentBalance = 10000 ARS
 
-### T-02 Currency mismatch
+### T-02 Currency no soportada
+
+- **Given** workspace ARS  
+- **When** create account EUR  
+- **Then** error `UnsupportedAccountCurrency`
+
+### T-02b Cuenta USD en workspace ARS
 
 - **Given** workspace ARS  
 - **When** create account USD  
-- **Then** error `CurrencyMismatch`
+- **Then** account creada con currency=USD
 
 ### T-03 Saldo tras expense
 
@@ -102,9 +112,12 @@ Documentar en código con tests explícitos.
 ## 9. Fuera de alcance
 
 - Conciliación bancaria
-- Multi-currency / FX
+- Canje ARS↔USD → [SPEC-16](./16-currency-exchange.md)
 - Cuentas de inversión
+- Monedas fuera de ARS\|USD
+- Cambiar currency de una cuenta con historial
 
 ## 10. Notas
 
 Servicio de dominio `calculateAccountBalance(account, transactions)` puro y testeable.
+Transferencias same-currency: [SPEC-06](./06-transfers.md). Canje: [SPEC-16](./16-currency-exchange.md).

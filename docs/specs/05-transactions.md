@@ -100,10 +100,13 @@ Ingresos y gastos son el núcleo del ledger. Las transferencias se especifican e
 
 - Adjuntos / OCR de tickets
 - Recurrencia automática (fase P2)
-- Multi-currency
+- Canje de moneda → [SPEC-16](./16-currency-exchange.md) (`fx_debit` / `fx_credit`)
 
 ## 9. Notas
 
 Preferir un modelo único `Transaction` con `type` discriminado; tests cubren cada variante.
+
+- `amount.currency` = `account.currency` (invariante; multi-ledger OK).
+- Tipos `fx_debit` / `fx_credit` (SPEC-16) **no** cuentan en budget spent ni cashflow.
 
 Detalle de UI: [SPEC-13](./13-transaction-detail.md). Dinero entre workspaces: [SPEC-14](./14-cross-workspace-money.md).

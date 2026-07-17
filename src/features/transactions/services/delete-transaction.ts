@@ -4,8 +4,8 @@ import { assertCanMutateTransactions } from "@/features/transactions/domain";
 import { requireTransactionMembership } from "./require-transaction-membership";
 
 /**
- * SPEC-05 FR-03 / SPEC-06 FR-04 / SPEC-14 FR-07 —
- * Hard-delete a transaction. Contribution pairs cascade (both legs + link).
+ * SPEC-05 FR-03 / SPEC-06 FR-04 / SPEC-14 FR-07 / SPEC-16 FR-04 —
+ * Hard-delete a transaction. Contribution / FX pairs cascade (both legs + link).
  */
 export async function deleteTransaction({
   userId,
@@ -19,6 +19,36 @@ export async function deleteTransaction({
     transactionId,
   );
   assertCanMutateTransactions(membership.role);
+
+  const fxExchange = await prisma.currencyExchange.findFirst({
+    where: {
+      OR: [
+        { fromTransactionId: transaction.id },
+        { toTransactionId: transaction.id },
+      ],
+    },
+    select: {
+      id: true,
+      fromTransactionId: true,
+      toTransactionId: true,
+    },
+  });
+
+  if (fxExchange) {
+    const twinId =
+      fxExchange.fromTransactionId === transaction.id
+        ? fxExchange.toTransactionId
+        : fxExchange.fromTransactionId;
+
+    await prisma.$transaction(async (tx) => {
+      await tx.currencyExchange.delete({ where: { id: fxExchange.id } });
+      await tx.transaction.deleteMany({
+        where: { id: { in: [transaction.id, twinId] } },
+      });
+    });
+
+    return { id: transaction.id, cascadedIds: [twinId] };
+  }
 
   const link = await prisma.crossWorkspaceLink.findFirst({
     where: {

@@ -33,7 +33,8 @@ Documento técnico obligatorio. Stack fijado en [stack.md](./stack.md) (plantill
 9. **Zustand** solo estado de UI.
 10. **TDD** en lógica de negocio; **no** tests de UI ([tdd-workflow.md](./tdd-workflow.md), ADR-003).
 11. **Dinero** en centavos enteros (ADR-001); tenancy por **Workspace** (ADR-002).
-12. **Git Flow:** no commitear en `develop` ni `main`; ramas `feat/`, `fix/`, `chore/`.
+12. **Git Flow:** no commitear en `develop` ni `main` (excepto bot de CI para changelog/release); ramas `feat/`, `fix/`, `chore/`; borrar ramas al mergear. Detalle: [guides/git-flow.md](./guides/git-flow.md).
+13. **Changelog / SemVer:** Keep a Changelog + Conventional Commits + git-cliff; Unreleased en `develop`, release en `main`. Detalle: [guides/changelog.md](./guides/changelog.md), ADR-005.
 
 ## 3. Diagrama de capas
 
@@ -157,7 +158,15 @@ export default async function AccountsPage() {
 - Cliente: `src/lib/auth-client.ts` → `signIn`, `signUp`, `signOut`, `useSession`
 - Handler: `src/app/api/auth/[...all]/route.ts`
 - Tras registro: crear Workspace `personal` + Membership `owner` (SPEC-01) en servicio de aplicación, no en el Client Component
-- Middleware: cookie prefijo `better-auth*`; proteger `/dashboard`; rutas `/login`, `/registro`
+- Post-registro / sesión en forms de auth: navegar a `/onboarding` (SPEC-15) si el espacio aún no está listo
+- Middleware: cookie prefijo `better-auth*`; proteger rutas autenticadas; forms `/login`, `/registro` redirigen a `/onboarding` si hay sesión
+- Cookies de producto: `fh-workspace-id` (activo), `fh-setup-dismissed` (omitió onboarding con 0 cuentas), `fh-invite-token` (invite pendiente)
+
+### 6.1 Onboarding (fuera del shell)
+
+- Ruta: `src/app/(onboarding)/onboarding` — layout soft full-viewport **sin** AppShell/sidebar
+- Gate: `src/app/(app)/layout.tsx` redirige a `/onboarding` cuando `GetWorkspaceSetupStatus.needsSetup`
+- Detalle de producto: [specs/15-workspace-onboarding.md](./specs/15-workspace-onboarding.md)
 
 ## 7. Datos
 

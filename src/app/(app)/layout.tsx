@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 import { AppShell } from "@/components/app-shell/app-shell";
 import { getNavBadges } from "@/components/app-shell/get-nav-badges";
 import type { NavBadges } from "@/components/app-shell/nav-config";
@@ -6,8 +7,18 @@ import { getSession } from "@/lib/session";
 import { getCurrentUser } from "@/features/auth/services/get-current-user";
 import {
   getActiveWorkspaceForUser,
+  getWorkspaceSetupStatus,
   listMyWorkspaces,
 } from "@/features/workspaces/services";
+
+/** Routes that live outside this layout but may still set x-pathname while app chrome loads. */
+const SETUP_EXEMPT_PREFIXES = ["/invitaciones"];
+
+function isSetupExempt(pathname: string): boolean {
+  return SETUP_EXEMPT_PREFIXES.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
+}
 
 function initialsFromName(name: string): string {
   const parts = name.trim().split(/\s+/).slice(0, 2);
@@ -38,15 +49,29 @@ export default async function AppLayout({
       : Promise.resolve({} as NavBadges),
   );
 
-  const [user, workspaces, activeWorkspace, navBadges] = await Promise.all([
-    getCurrentUser(),
-    listMyWorkspaces(session.user.id),
-    activeWorkspacePromise,
-    navBadgesPromise,
-  ]);
+  const [user, workspaces, activeWorkspace, navBadges, headerList] =
+    await Promise.all([
+      getCurrentUser(),
+      listMyWorkspaces(session.user.id),
+      activeWorkspacePromise,
+      navBadgesPromise,
+      headers(),
+    ]);
 
   if (!user) {
     redirect("/login");
+  }
+
+  const pathname = headerList.get("x-pathname") ?? "";
+
+  if (activeWorkspace && !isSetupExempt(pathname)) {
+    const setup = await getWorkspaceSetupStatus({
+      userId: session.user.id,
+      workspaceId: activeWorkspace.id,
+    });
+    if (setup.needsSetup) {
+      redirect("/onboarding");
+    }
   }
 
   const displayName = user.displayName ?? user.name;

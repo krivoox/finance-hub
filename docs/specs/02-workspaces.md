@@ -28,7 +28,7 @@ El Workspace es la unidad de tenancy (ADR-002). Agrupa cuentas, movimientos y, s
 | ID | Requisito |
 |----|-----------|
 | FR-01 | Listar workspaces del usuario actual |
-| FR-02 | Crear workspace `group` con nombre y `baseCurrency` |
+| FR-02 | Crear workspace `group` con nombre y `baseCurrency`; setear workspace activo y dirigir a onboarding si no hay cuentas (SPEC-15) |
 | FR-03 | Renombrar workspace (owner/admin) |
 | FR-04 | Invitar usuario existente o pendiente por email |
 | FR-05 | Aceptar / rechazar invitación |
@@ -75,6 +75,7 @@ El Workspace es la unidad de tenancy (ADR-002). Agrupa cuentas, movimientos y, s
 - [x] UI en `/groups`: owner/admin invita, copia link, ve pending.
 - [x] Página pública `/invitaciones/[token]` para registro/login/aceptar.
 - [x] Registro desde invitación → workspace personal + membership en el grupo + workspace activo del grupo.
+- [x] `CreateGroupWorkspace` setea workspace activo y redirige a `/onboarding` (SPEC-15).
 
 ## 8. Escenarios de test (TDD)
 
@@ -124,6 +125,8 @@ El Workspace es la unidad de tenancy (ADR-002). Agrupa cuentas, movimientos y, s
 ## 10. Notas
 
 Toda spec posterior asume `workspaceId` + authz por membership.
+
+First-run post-creación (cuentas + preview): [SPEC-15 — Onboarding de workspace](./15-workspace-onboarding.md).
 
 Guía de producto: [workspaces-and-invites.md](../guides/workspaces-and-invites.md).
 

@@ -1,29 +1,33 @@
 import { describe, expect, it } from "vitest";
 import {
   AccountArchivedError,
-  AccountCurrencyMismatchError,
   InvalidAccountNameError,
+  UnsupportedAccountCurrencyError,
   assertAccountAcceptsTransactions,
+  assertAccountCurrencyAllowed,
   assertCurrencyMatchesWorkspace,
   assertValidAccountName,
 } from "./guards";
 
-describe("assertCurrencyMatchesWorkspace — SPEC-03 T-02", () => {
-  it("passes when account currency equals workspace baseCurrency", () => {
-    expect(() =>
-      assertCurrencyMatchesWorkspace("ARS", "ARS"),
-    ).not.toThrow();
+describe("assertAccountCurrencyAllowed — SPEC-03 T-02 / T-02b", () => {
+  it("passes for ARS", () => {
+    expect(() => assertAccountCurrencyAllowed("ARS")).not.toThrow();
   });
 
-  it("throws AccountCurrencyMismatchError otherwise (MVP: no FX)", () => {
-    expect(() => assertCurrencyMatchesWorkspace("USD", "ARS")).toThrow(
-      AccountCurrencyMismatchError,
+  it("passes for USD even when workspace base is ARS (T-02b)", () => {
+    expect(() => assertAccountCurrencyAllowed("USD")).not.toThrow();
+    expect(() => assertCurrencyMatchesWorkspace("USD", "ARS")).not.toThrow();
+  });
+
+  it("throws UnsupportedAccountCurrencyError for EUR", () => {
+    expect(() => assertAccountCurrencyAllowed("EUR")).toThrow(
+      UnsupportedAccountCurrencyError,
     );
   });
 
-  it("is case-sensitive: currencies must be exact ISO codes", () => {
-    expect(() => assertCurrencyMatchesWorkspace("ars", "ARS")).toThrow(
-      AccountCurrencyMismatchError,
+  it("rejects lowercase codes", () => {
+    expect(() => assertAccountCurrencyAllowed("ars")).toThrow(
+      UnsupportedAccountCurrencyError,
     );
   });
 });

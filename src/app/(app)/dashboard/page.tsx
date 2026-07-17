@@ -6,8 +6,13 @@ import { Button } from "@/components/ui/button";
 import { getSession } from "@/lib/session";
 import { getCurrentUser } from "@/features/auth/services/get-current-user";
 import { getActiveWorkspaceForUser } from "@/features/workspaces/services";
+import {
+  buildAccountExpenseSankey,
+  buildCashflowSankey,
+} from "@/features/dashboard/domain";
 import { getDashboard, getAnalytics } from "@/features/dashboard/services";
 import { DashboardSnapshot } from "@/features/dashboard/components/dashboard-snapshot";
+import { DashboardFlowCharts } from "@/features/dashboard/components/dashboard-flow-charts";
 import { DashboardAttention } from "@/features/dashboard/components/dashboard-attention";
 import { DashboardGoals } from "@/features/dashboard/components/dashboard-goals";
 import { DashboardSpending } from "@/features/dashboard/components/dashboard-spending";
@@ -41,8 +46,6 @@ export default async function DashboardPage() {
   const timezone = profile?.timezone ?? "UTC";
   const now = new Date();
 
-  // Shared `now` + request-cached budget snapshot: both share one DB load for
-  // budgets/expenses while fetching analytics txs in parallel with dashboard.
   const [dashboard, analytics] = await Promise.all([
     getDashboard({
       userId: session.user.id,
@@ -63,6 +66,17 @@ export default async function DashboardPage() {
   const periodLabel = formatPeriodLabel(dashboard.period.start, timezone);
   const canMutate = workspace.role !== "viewer";
 
+  const cashflowSankey = buildCashflowSankey({
+    incomeCents: analytics.cashflow.incomeCents,
+    expenseCents: analytics.cashflow.expenseCents,
+    spendingByCategory: analytics.spendingByCategory,
+  });
+  const accountSankey = buildAccountExpenseSankey({
+    flows: analytics.spendingFlows,
+  });
+  const hasFlowCharts =
+    cashflowSankey.nodes.length > 0 || accountSankey.nodes.length > 0;
+
   return (
     <ContentPanel
       title="Resumen"
@@ -78,16 +92,28 @@ export default async function DashboardPage() {
       {/*
         Visual rhythm (SPEC-12):
         1. Snapshot — patrimonio + flujo neto (focal)
-        2. Atención — alertas / insights / balances de grupo
-        3. Progreso + gastos — dos columnas
-        4. Actividad — movimientos recientes
+        2. Sankey — flujo ingresos → gastos / disponible
+        3. Atención — alertas / insights / balances de grupo
+        4. Progreso + gastos — dos columnas
+        5. Actividad — movimientos recientes
       */}
-      <div className="space-y-8 sm:space-y-10">
+      <div className="flex flex-col gap-8 sm:gap-10">
         <DashboardSnapshot
           balance={dashboard.totalBalance}
+          balancesByCurrency={dashboard.balancesByCurrency}
+          consolidated={dashboard.consolidated}
+          fxRate={dashboard.fxRate}
           cashflow={dashboard.monthlyCashflow}
           periodLabel={periodLabel}
         />
+
+        {hasFlowCharts ? (
+          <DashboardFlowCharts
+            currency={currency}
+            cashflowSankey={cashflowSankey}
+            accountSankey={accountSankey}
+          />
+        ) : null}
 
         <div className="border-t border-border pt-6 sm:pt-8">
           <DashboardAttention

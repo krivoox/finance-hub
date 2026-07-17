@@ -77,6 +77,7 @@ BETTER_AUTH_URL=http://localhost:3000
 
 - Secret: `openssl rand -base64 32` → `BETTER_AUTH_SECRET`
 - Producción: `DATABASE_URL` → pooler (`:6543`, `?pgbouncer=true`); `DIRECT_URL` → sesión directa para migraciones
+- `BETTER_AUTH_URL`: dominio canónico (fallback). En Vercel **Production** = dominio de `main`. En **Preview** el runtime prioriza `VERCEL_URL` y Better Auth usa Dynamic Base URL con `*.vercel.app` (ver `src/lib/env.ts` + `src/lib/auth.ts`). Preferible: no setear `BETTER_AUTH_URL` en Environment Preview. Opcional: `BETTER_AUTH_TRUSTED_ORIGINS`
 - `PRISMA_LOG_QUERIES`: `1` / `true` imprime `prisma:query` en desarrollo; por defecto off (Zod en `src/lib/env.ts`). No afecta producción (solo `error`).
 
 ## Scripts esperados (`package.json`)

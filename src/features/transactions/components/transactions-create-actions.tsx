@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeftRight, Plus } from "lucide-react";
+import { ArrowLeftRight, Plus, RefreshCw } from "lucide-react";
 
 import { FormSheet } from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
+import { NewCurrencyExchangeForm } from "@/features/currency-exchange/components/new-currency-exchange-form";
 
 import {
   ContributeCrossWorkspaceForm,
@@ -81,11 +82,15 @@ export function TransactionsCreateActions({
   const newParam = searchParams.get("new");
 
   const [txOpen, setTxOpen] = useState(false);
+  const [fxOpen, setFxOpen] = useState(false);
   const [crossOpen, setCrossOpen] = useState(false);
 
   useEffect(() => {
     if (newParam === "1" || newParam === "transaction") {
       setTxOpen(true);
+    }
+    if (newParam === "fx" || newParam === "exchange") {
+      setFxOpen(true);
     }
     if (newParam === "cross") {
       setCrossOpen(true);
@@ -97,12 +102,18 @@ export function TransactionsCreateActions({
     if (!open) clearCreateQuery(pathname, searchParams, router);
   }
 
+  function handleFxOpenChange(open: boolean) {
+    setFxOpen(open);
+    if (!open) clearCreateQuery(pathname, searchParams, router);
+  }
+
   function handleCrossOpenChange(open: boolean) {
     setCrossOpen(open);
     if (!open) clearCreateQuery(pathname, searchParams, router);
   }
 
   const hasAccounts = accounts.length > 0;
+  const canFx = accounts.length >= 2;
   const canCross = contributionAccounts.length >= 2;
 
   return (
@@ -115,7 +126,10 @@ export function TransactionsCreateActions({
           description={`Gasto, ingreso o transferencia en ${workspaceCurrency}.`}
           size="lg"
           trigger={
-            <Button className="h-10 w-full gap-1.5 sm:h-8 sm:w-auto" disabled={!hasAccounts}>
+            <Button
+              className="h-10 w-full gap-1.5 sm:h-8 sm:w-auto"
+              disabled={!hasAccounts}
+            >
               <Plus className="size-4" strokeWidth={1.75} />
               Registrar
             </Button>
@@ -140,6 +154,36 @@ export function TransactionsCreateActions({
             </p>
           )}
         </FormSheet>
+
+        {canFx ? (
+          <FormSheet
+            open={fxOpen}
+            onOpenChange={handleFxOpenChange}
+            title="Cambio de moneda"
+            description="Canjeá entre cuentas ARS y USD del mismo workspace."
+            size="md"
+            trigger={
+              <Button
+                variant="outline"
+                className="h-10 w-full gap-1.5 sm:h-8 sm:w-auto"
+              >
+                <RefreshCw className="size-4" strokeWidth={1.75} />
+                Cambio
+              </Button>
+            }
+          >
+            <NewCurrencyExchangeForm
+              workspaceId={workspaceId}
+              accounts={accounts.map((a) => ({
+                id: a.id,
+                name: a.name,
+                currency: a.currency,
+              }))}
+              onSuccess={() => handleFxOpenChange(false)}
+              onCancel={() => handleFxOpenChange(false)}
+            />
+          </FormSheet>
+        ) : null}
 
         {canCross ? (
           <FormSheet

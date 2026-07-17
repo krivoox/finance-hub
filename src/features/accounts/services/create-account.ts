@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireMembership } from "@/features/workspaces/services";
 import {
   assertCanMutateAccounts,
-  assertCurrencyMatchesWorkspace,
+  assertAccountCurrencyAllowed,
   assertValidAccountName,
   assertValidCreditLimit,
   assertValidInitialBalance,
@@ -18,8 +18,8 @@ export type CreateAccountServiceInput = {
   type: AccountType;
   initialBalanceCents: number;
   /**
-   * Optional. Defaults to `workspace.baseCurrency`. If provided, must equal
-   * `workspace.baseCurrency` — see SPEC-03 §5 (MVP: no FX).
+   * Optional. Defaults to `workspace.baseCurrency`.
+   * Must be ARS or USD (ADR-006); may differ from baseCurrency.
    */
   currency?: string;
   creditLimitCents?: number | null;
@@ -59,7 +59,7 @@ export async function createAccount({
   }
 
   const accountCurrency = currency ?? workspace.baseCurrency;
-  assertCurrencyMatchesWorkspace(accountCurrency, workspace.baseCurrency);
+  assertAccountCurrencyAllowed(accountCurrency);
 
   const created = (await prisma.financeAccount.create({
     data: {

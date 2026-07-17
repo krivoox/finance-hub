@@ -6,7 +6,10 @@ import {
   createGroupWorkspaceSchema,
   type CreateGroupWorkspaceInput,
 } from "@/features/workspaces/schemas";
-import { createGroupWorkspace as createGroupWorkspaceService } from "@/features/workspaces/services";
+import {
+  createGroupWorkspace as createGroupWorkspaceService,
+  setActiveWorkspaceCookie,
+} from "@/features/workspaces/services";
 import { domainErrorToMessage, type ActionResult } from "./errors";
 
 export async function createGroupWorkspaceAction(
@@ -29,6 +32,7 @@ export async function createGroupWorkspaceAction(
       name: parsed.data.name,
       baseCurrency: parsed.data.baseCurrency,
     });
+    await setActiveWorkspaceCookie(result.workspaceId);
     revalidatePath("/", "layout");
     return { ok: true, data: result };
   } catch (err) {

@@ -62,3 +62,19 @@ export {
   getInviteTokenCookie,
   setInviteTokenCookie,
 } from "./invite-cookie";
+
+export {
+  SETUP_DISMISSED_COOKIE,
+  addSetupDismissedWorkspace,
+  clearSetupDismissedWorkspace,
+  getDismissedSetupWorkspaceIds,
+  isSetupDismissed,
+} from "./setup-cookie";
+
+export { getWorkspaceSetupStatus } from "./get-workspace-setup-status";
+export type { WorkspaceSetupStatus } from "./get-workspace-setup-status";
+
+export { completeWorkspaceSetup } from "./complete-workspace-setup";
+export { dismissWorkspaceSetup } from "./dismiss-workspace-setup";
+export { updateWorkspaceIdentity } from "./update-workspace-identity";
+export type { UpdateWorkspaceIdentityInput } from "./update-workspace-identity";

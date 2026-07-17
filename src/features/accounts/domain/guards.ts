@@ -2,12 +2,14 @@
  * Pure account invariants used by services and Server Actions (SPEC-03 §5).
  */
 
+import { isAccountCurrency } from "@/domain/money/currencies";
 import {
   AccountArchivedError,
   AccountCurrencyMismatchError,
   InvalidAccountNameError,
   InvalidCreditLimitError,
   InvalidInitialBalanceError,
+  UnsupportedAccountCurrencyError,
 } from "./errors";
 import type { AccountType } from "./types";
 
@@ -17,24 +19,30 @@ export {
   InvalidAccountNameError,
   InvalidCreditLimitError,
   InvalidInitialBalanceError,
+  UnsupportedAccountCurrencyError,
 };
 
 export const ACCOUNT_NAME_MAX_LENGTH = 80;
 
 /**
- * SPEC-03 §5 — In MVP, an account's currency must match the workspace base
- * currency (no FX). Exact string equality; ISO 4217 codes are case-sensitive.
+ * SPEC-03 / ADR-006 — Account currency must be in ACCOUNT_CURRENCIES (ARS|USD).
+ * May differ from workspace.baseCurrency.
+ */
+export function assertAccountCurrencyAllowed(accountCurrency: string): void {
+  if (!isAccountCurrency(accountCurrency)) {
+    throw new UnsupportedAccountCurrencyError(accountCurrency);
+  }
+}
+
+/**
+ * @deprecated Use assertAccountCurrencyAllowed (ADR-006). Kept for callers
+ * that still pass baseCurrency during transition.
  */
 export function assertCurrencyMatchesWorkspace(
   accountCurrency: string,
-  workspaceBaseCurrency: string,
+  _workspaceBaseCurrency: string,
 ): void {
-  if (accountCurrency !== workspaceBaseCurrency) {
-    throw new AccountCurrencyMismatchError(
-      accountCurrency,
-      workspaceBaseCurrency,
-    );
-  }
+  assertAccountCurrencyAllowed(accountCurrency);
 }
 
 /**

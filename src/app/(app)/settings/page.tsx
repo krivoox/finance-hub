@@ -9,6 +9,8 @@ import {
 import { getCurrentUser } from "@/features/auth/services/get-current-user";
 import { listCategories } from "@/features/categories/services";
 import { CategoriesSettingsPanel } from "@/features/categories/components/categories-settings-panel";
+import { ConsolidationRateForm } from "@/features/currency-exchange/components/consolidation-rate-form";
+import { getConsolidationRate } from "@/features/currency-exchange/services";
 import {
   parseSettingsTab,
   SettingsTabsNav,
@@ -40,14 +42,21 @@ export default async function SettingsPage({ searchParams }: PageProps) {
     ? workspace.role !== "viewer"
     : false;
 
-  const categories =
+  const [categories, consolidationRate] = await Promise.all([
     activeTab === "categorias" && workspace
-      ? await listCategories({
+      ? listCategories({
           userId: user.id,
           workspaceId: workspace.id,
           includeArchived: true,
         })
-      : [];
+      : Promise.resolve([]),
+    activeTab === "workspace" && workspace
+      ? getConsolidationRate({
+          userId: user.id,
+          workspaceId: workspace.id,
+        })
+      : Promise.resolve(null),
+  ]);
 
   return (
     <ContentPanel
@@ -76,17 +85,47 @@ export default async function SettingsPage({ searchParams }: PageProps) {
       ) : null}
 
       {activeTab === "workspace" ? (
-        <section className="space-y-4">
-          <header>
-            <h2 className="text-sm font-semibold text-foreground">
-              Nuevo workspace grupal
-            </h2>
-            <p className="text-xs text-muted-foreground">
-              Creá un workspace compartido con miembros y saldos comunes.
-            </p>
-          </header>
-          <NewGroupWorkspaceForm />
-        </section>
+        <div className="space-y-10">
+          {workspace ? (
+            <section className="space-y-4">
+              <header>
+                <h2 className="text-sm font-semibold text-foreground">
+                  Tasa de consolidación
+                </h2>
+                <p className="text-xs text-muted-foreground">
+                  Usada en el dashboard para estimar el patrimonio ≈ en{" "}
+                  {workspace.baseCurrency} cuando hay saldos ARS y USD.
+                </p>
+              </header>
+              <ConsolidationRateForm
+                workspaceId={workspace.id}
+                canMutate={workspace.role !== "viewer"}
+                initial={
+                  consolidationRate
+                    ? {
+                        rateScaled: consolidationRate.rateScaled,
+                        scale: consolidationRate.scale,
+                        label: consolidationRate.label,
+                        asOf: consolidationRate.asOf,
+                      }
+                    : null
+                }
+              />
+            </section>
+          ) : null}
+
+          <section className="space-y-4">
+            <header>
+              <h2 className="text-sm font-semibold text-foreground">
+                Nuevo workspace grupal
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Creá un workspace compartido con miembros y saldos comunes.
+              </p>
+            </header>
+            <NewGroupWorkspaceForm />
+          </section>
+        </div>
       ) : null}
 
       {activeTab === "categorias" ? (

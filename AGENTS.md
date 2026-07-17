@@ -26,12 +26,16 @@ Visión: convertirse en el centro de administración financiera del hogar.
 | **[docs/README.md](./docs/README.md)** | Índice de specs, dominio, TDD |
 | **[docs/stack.md](./docs/stack.md)** | Stack fijado (Siturn / template) |
 | **[docs/architecture.md](./docs/architecture.md)** | Capas, carpetas, auth, datos, patrones |
+| **[docs/guides/git-flow.md](./docs/guides/git-flow.md)** | Git Flow, ramas, PRs, higiene |
+| **[docs/guides/changelog.md](./docs/guides/changelog.md)** | Changelog, Conventional Commits, SemVer |
 | **[DESIGN.md](./DESIGN.md)** | Sistema visual |
 | **README.md** | Setup local |
 
 - Cambios técnicos / estructura → `docs/stack.md` + `docs/architecture.md`
 - UI → `DESIGN.md`
 - Reglas de negocio → `docs/specs/` + `docs/domain-model.md`
+- Ramas / PRs / deploy → `docs/guides/git-flow.md`
+- Changelog / versiones → `docs/guides/changelog.md`
 
 ## Fuente de verdad (implementación)
 
@@ -84,7 +88,24 @@ src/
 - Dinero: centavos enteros (ADR-001).
 - Fechas: ISO 8601; timezone explícita en periodos.
 - Multi-tenancy: `Workspace` (ADR-002).
-- Git Flow: ramas `feat/` / `fix/` / `chore/`; no commit directo a `main`/`develop`.
+
+## Git Flow (obligatorio)
+
+Detalle: **[docs/guides/git-flow.md](./docs/guides/git-flow.md)**. El agente **siempre** lo respeta.
+
+| Rama | Rol | Vercel |
+|------|-----|--------|
+| `main` | Producción | Production |
+| `develop` | Integración / QA | Preview |
+| `feat/` · `fix/` · `chore/` · `refactor/` | Trabajo | Preview de PR |
+
+Reglas:
+
+1. **Nunca** commit ni push directo a `main` o `develop`.
+2. Crear ramas desde **`develop` actualizado**; PR hacia **`develop`** (release: `develop` → `main`).
+3. Hotfix a `main` solo si es crítico; sincronizar luego a `develop`.
+4. **Borrar ramas al mergear:** el repo tiene *Automatically delete head branches*. Tras merge → borrar local + `git fetch --prune`. No acumular ramas ya mergeadas.
+5. No force-push a `main`/`develop`; no reutilizar ramas viejas.
 
 ## Checklist de feature
 
@@ -94,3 +115,5 @@ src/
 - [ ] Sin tests de UI
 - [ ] `getSession` + Zod + authz workspace en cada Server Action
 - [ ] Sin `process.env` fuera de `src/lib/env.ts`
+- [ ] Git Flow: rama `feat|fix|chore` desde `develop`; PR → `develop`
+- [ ] Tras merge: rama remota borrada + prune local

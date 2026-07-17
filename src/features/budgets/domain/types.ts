@@ -58,10 +58,12 @@ export type BudgetPeriodBounds = {
  * on the full `TransactionLike`.
  */
 export type BudgetExpenseCandidate = {
-  readonly type: "income" | "expense" | "transfer";
+  readonly type: "income" | "expense" | "transfer" | "fx_debit" | "fx_credit";
   readonly amountCents: number;
   readonly occurredOn: Date;
   readonly categoryId: string | null;
+  /** When set, spent only includes txs matching budget.currency (SPEC-07 / ADR-006). */
+  readonly currency?: string;
 };
 
 /**

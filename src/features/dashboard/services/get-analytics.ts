@@ -2,6 +2,7 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import {
   aggregateSpendingByCategory,
+  aggregateSpendingFlows,
   buildMonthlySeries,
   computeInsights,
   getCurrentMonthPeriod,
@@ -10,6 +11,7 @@ import {
   type Insight,
   type MonthlySeriesPoint,
   type SpendingByCategoryRow,
+  type SpendingFlow,
   type CashflowSummary,
 } from "@/features/dashboard/domain";
 import { listBudgetsWithStatus } from "@/features/budgets/services";
@@ -17,6 +19,7 @@ import { requireMembership } from "@/features/workspaces/services";
 
 export type GetAnalyticsResult = {
   spendingByCategory: SpendingByCategoryRow[];
+  spendingFlows: SpendingFlow[];
   cashflow: CashflowSummary;
   monthlySeries: MonthlySeriesPoint[];
   insights: Insight[];
@@ -71,8 +74,10 @@ export async function getAnalytics(input: {
         type: true,
         amountCents: true,
         categoryId: true,
+        accountId: true,
         occurredOn: true,
         category: { select: { name: true } },
+        account: { select: { name: true } },
       },
     }),
     needsBudgetCount
@@ -89,6 +94,8 @@ export async function getAnalytics(input: {
     amountCents: r.amountCents,
     categoryId: r.categoryId,
     categoryName: r.category?.name ?? null,
+    accountId: r.accountId,
+    accountName: r.account?.name ?? null,
     occurredOn: r.occurredOn,
   }));
 
@@ -101,6 +108,7 @@ export async function getAnalytics(input: {
   );
 
   const spendingByCategory = aggregateSpendingByCategory(currentTxs);
+  const spendingFlows = aggregateSpendingFlows(currentTxs);
   const previousSpending = aggregateSpendingByCategory(previousTxs);
   const budgetsExceededCount =
     input.budgetsExceededCount ??
@@ -109,6 +117,7 @@ export async function getAnalytics(input: {
 
   return {
     spendingByCategory,
+    spendingFlows,
     cashflow: summarizeCashflow(currentTxs),
     monthlySeries: buildMonthlySeries(all, months, currentPeriod.start),
     insights: computeInsights({

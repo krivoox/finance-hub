@@ -30,6 +30,7 @@ export async function createGoalAction(
       name: parsed.data.name,
       kind: parsed.data.kind,
       targetAmountCents: parsed.data.targetAmountCents,
+      currency: parsed.data.currency,
       targetDate: parsed.data.targetDate ?? null,
       linkedAccountId: parsed.data.linkedAccountId ?? null,
     });

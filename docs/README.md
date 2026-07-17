@@ -20,7 +20,9 @@
 | [tdd-workflow.md](./tdd-workflow.md) | Cómo aplicar TDD en este repo |
 | [roadmap.md](./roadmap.md) | Orden de implementación sugerido |
 | [glossary.md](./glossary.md) | Glosario de términos de negocio |
-| [guides/workspaces-and-invites.md](./guides/workspaces-and-invites.md) | Workspaces, roles e invitaciones (producto) |
+| [guides/workspaces-and-invites.md](./guides/workspaces-and-invites.md) | Workspaces, roles, invitaciones y first-run (onboarding) |
+| [guides/git-flow.md](./guides/git-flow.md) | Git Flow: `main`/`develop`, PRs, borrado de ramas, Vercel |
+| [guides/changelog.md](./guides/changelog.md) | Changelog, Conventional Commits, SemVer y releases |
 | [DESIGN.md](../DESIGN.md) | Design system UI/UX (tokens, shell Dub-like, variantes) |
 
 ## Specs (Spec-Driven Development)
@@ -41,6 +43,8 @@
 | 12 | [Dashboard](./specs/12-dashboard.md) | P1 |
 | 13 | [Detalle de movimiento](./specs/13-transaction-detail.md) | P1 |
 | 14 | [Dinero cross-workspace](./specs/14-cross-workspace-money.md) | P1 |
+| 15 | [Onboarding de workspace](./specs/15-workspace-onboarding.md) | P0 |
+| 16 | [Canje de moneda (FX)](./specs/16-currency-exchange.md) | P1 |
 
 ## Decisiones de arquitectura (ADR)
 
@@ -50,6 +54,8 @@
 | [002](./adr/002-workspace-tenancy.md) | Workspace como unidad de tenancy |
 | [003](./adr/003-tdd-domain-only.md) | TDD solo en lógica de negocio |
 | [004](./adr/004-stack-siturn.md) | Stack Siturn (template) |
+| [005](./adr/005-changelog-semver.md) | Changelog automatizado y SemVer |
+| [006](./adr/006-multi-currency-ars-usd.md) | Multi-moneda ARS + USD |
 
 ## Formato de una spec
 

@@ -16,6 +16,10 @@
  *   - `income`   on the card              → −amount  (payment / credit reduces debt)
  *   - `transfer` where the card is source → +amount  (cash advance → more debt)
  *   - `transfer` where the card is dest.  → −amount  (payment from another account)
+ *
+ * Currency exchange (SPEC-16):
+ *   - `fx_debit`  → same polarity as `expense`
+ *   - `fx_credit` → same polarity as `income` (incl. credit_card inversion)
  */
 
 import type { AccountBalance, AccountType } from "./types";
@@ -28,7 +32,7 @@ export type AccountForBalance = {
 };
 
 export type BalanceEffectTx = {
-  readonly type: "income" | "expense" | "transfer";
+  readonly type: "income" | "expense" | "transfer" | "fx_debit" | "fx_credit";
   readonly amountCents: number;
   readonly accountId: string;
   readonly counterpartyAccountId?: string | null;
@@ -68,10 +72,10 @@ function signedDelta(
 
   if (!isSource) return 0;
 
-  if (tx.type === "income") {
+  if (tx.type === "income" || tx.type === "fx_credit") {
     return isCredit ? -tx.amountCents : tx.amountCents;
   }
 
-  // expense
+  // expense | fx_debit
   return isCredit ? tx.amountCents : -tx.amountCents;
 }

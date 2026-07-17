@@ -6,19 +6,40 @@ import { env } from "@/lib/env";
 import { createPersonalWorkspaceForUser } from "@/features/workspaces/services/create-personal-workspace";
 import { acceptPendingInvitationsForEmail } from "@/features/workspaces/services/invitations";
 
-/** Extra origins from env + LAN wildcards in development (phone / other devices). */
+function hostFromUrl(url: string): string | undefined {
+  try {
+    return new URL(url).host;
+  } catch {
+    return undefined;
+  }
+}
+
+/**
+ * Extra origins for CSRF. `allowedHosts` on baseURL are also trusted, but we
+ * keep explicit Vercel + LAN entries for clarity and local device testing.
+ */
 function trustedOrigins(): string[] {
   const fromEnv =
     env.BETTER_AUTH_TRUSTED_ORIGINS?.split(",")
       .map((origin) => origin.trim())
       .filter(Boolean) ?? [];
 
+  const origins = [...fromEnv];
+
+  if (env.VERCEL_URL) {
+    origins.push(`https://${env.VERCEL_URL}`);
+  }
+
+  if (env.VERCEL_ENV === "preview" || env.VERCEL_ENV === "production") {
+    origins.push("https://*.vercel.app");
+  }
+
   if (env.NODE_ENV === "production") {
-    return fromEnv;
+    return origins;
   }
 
   return [
-    ...fromEnv,
+    ...origins,
     "http://192.168.*.*:*",
     "http://10.*.*.*:*",
     "http://172.*.*.*:*",
@@ -26,9 +47,36 @@ function trustedOrigins(): string[] {
   ];
 }
 
+/**
+ * Dynamic base URL (Better Auth): resolve per-request host so Vercel Preview /
+ * branch aliases (`*.vercel.app`) match the browser Origin. Static
+ * `BETTER_AUTH_URL` alone breaks login when Preview reuses Production URL.
+ * @see https://www.better-auth.com/docs/guides/dynamic-base-url
+ */
+function resolveBaseURL(): string | {
+  allowedHosts: string[];
+  protocol: "http" | "https";
+  fallback: string;
+} {
+  const fallback = env.BETTER_AUTH_URL;
+  const canonicalHost = hostFromUrl(fallback);
+  const allowedHosts = [
+    "localhost:*",
+    "127.0.0.1:*",
+    "*.vercel.app",
+    ...(canonicalHost ? [canonicalHost] : []),
+  ];
+
+  return {
+    allowedHosts,
+    protocol: env.NODE_ENV === "development" ? "http" : "https",
+    fallback,
+  };
+}
+
 export const auth = betterAuth({
   appName: "Finance Hub",
-  baseURL: env.BETTER_AUTH_URL,
+  baseURL: resolveBaseURL(),
   secret: env.BETTER_AUTH_SECRET,
   trustedOrigins: trustedOrigins(),
   database: prismaAdapter(prisma, { provider: "postgresql" }),

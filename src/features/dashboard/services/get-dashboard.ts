@@ -1,6 +1,9 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import {
+  computeBalancesByCurrency,
+  balancesByCurrencyEntries,
+  computeConsolidatedNetWorth,
   computeMonthlyCashflow,
   computeTotalBalance,
   getCurrentMonthPeriod,
@@ -39,12 +42,23 @@ export type GetDashboardInput = {
   recentLimit?: number;
 };
 
+export type DashboardFxRate = {
+  label: string;
+  rateScaled: number;
+  scale: number;
+  asOf: Date;
+  quoteCurrency: string;
+};
+
 export type GetDashboardResult = {
   workspaceId: string;
   workspaceType: "personal" | "group";
   currency: string;
   period: DashboardPeriod;
   totalBalance: TotalBalance;
+  balancesByCurrency: TotalBalance[];
+  consolidated?: TotalBalance;
+  fxRate?: DashboardFxRate;
   monthlyCashflow: MonthlyCashflow;
   recentTransactions: ListedTransaction[];
   accounts: AccountWithBalance[];
@@ -73,7 +87,7 @@ export async function getDashboard(
   const period = getCurrentMonthPeriod(now, input.timezone);
   const recentLimit = input.recentLimit ?? DEFAULT_RECENT_LIMIT;
 
-  const [accounts, monthTransactions, recentResult, budgets, goals] =
+  const [accounts, monthTransactions, recentResult, budgets, goals, rateRow] =
     await Promise.all([
       listAccounts({
         userId: input.userId,
@@ -94,6 +108,16 @@ export async function getDashboard(
         userId: input.userId,
         workspaceId: input.workspaceId,
       }),
+      prisma.workspaceConsolidationRate.findUnique({
+        where: { workspaceId: input.workspaceId },
+        select: {
+          label: true,
+          rateScaled: true,
+          scale: true,
+          asOf: true,
+          quoteCurrency: true,
+        },
+      }),
     ]);
 
   let memberBalances: MemberBalanceItem[] | null = null;
@@ -106,7 +130,9 @@ export async function getDashboard(
       const members = await prisma.membership.findMany({
         where: { workspaceId: input.workspaceId },
         include: {
-          user: { select: { id: true, name: true, displayName: true, email: true } },
+          user: {
+            select: { id: true, name: true, displayName: true, email: true },
+          },
         },
       });
       const nameById = new Map(
@@ -125,12 +151,37 @@ export async function getDashboard(
     }
   }
 
+  const balancesMap = computeBalancesByCurrency(accounts);
+  const balancesByCurrency = balancesByCurrencyEntries(balancesMap);
+
+  let consolidated: TotalBalance | undefined;
+  let fxRate: DashboardFxRate | undefined;
+  if (rateRow && balancesByCurrency.length > 0) {
+    fxRate = {
+      label: rateRow.label,
+      rateScaled: rateRow.rateScaled,
+      scale: rateRow.scale,
+      asOf: rateRow.asOf,
+      quoteCurrency: rateRow.quoteCurrency,
+    };
+    if (balancesByCurrency.length > 1) {
+      consolidated = computeConsolidatedNetWorth(
+        balancesMap,
+        input.currency,
+        rateRow,
+      );
+    }
+  }
+
   return {
     workspaceId: input.workspaceId,
     workspaceType: workspace.type as "personal" | "group",
     currency: input.currency,
     period,
     totalBalance: computeTotalBalance(accounts, input.currency),
+    balancesByCurrency,
+    consolidated,
+    fxRate,
     monthlyCashflow: computeMonthlyCashflow(
       monthTransactions,
       period.start,

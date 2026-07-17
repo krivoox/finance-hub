@@ -16,3 +16,13 @@ export type {
   MembershipEntry,
   MembershipRole,
 } from "./membership";
+
+export {
+  SetupDismissNotAllowed,
+  WorkspaceNotReady,
+  assertCanDismissSetup,
+  assertCanManageSetup,
+  assertReadyToComplete,
+  isWorkspaceReadyToUse,
+  shouldRedirectToOnboarding,
+} from "./setup";

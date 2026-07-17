@@ -60,7 +60,9 @@ export type AccountType = (typeof AccountType)[keyof typeof AccountType]
 export const TransactionType = {
   income: 'income',
   expense: 'expense',
-  transfer: 'transfer'
+  transfer: 'transfer',
+  fx_debit: 'fx_debit',
+  fx_credit: 'fx_credit'
 } as const
 
 export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType]
