@@ -34,6 +34,15 @@ Abrir [http://localhost:3000](http://localhost:3000).
 
 Cuando la infra Siturn esté cableada: `supabase:start` → `auth:generate` → `db:migrate` → `dev` (ver stack.md).
 
+## Smoke UI (Maestro MCP)
+
+Opcional: flows YAML + MCP en Cursor para smoke web (Chromium, beta). Setup y comandos en [`docs/guides/maestro-mcp.md`](./docs/guides/maestro-mcp.md).
+
+```bash
+# Con `npm run dev` corriendo y Maestro en PATH ($HOME/.maestro/bin):
+npm run test:maestro
+```
+
 ## Convenciones del agente
 
 - Implementar contra specs en `docs/specs/`

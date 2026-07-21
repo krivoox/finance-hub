@@ -1,0 +1,11 @@
+# Maestro workspace — Finance Hub (web via Chromium)
+# Docs: https://docs.maestro.dev/maestro-flows/workspace-management/project-configuration
+# Web (beta): https://docs.maestro.dev/get-started/supported-platform/web-browser
+
+flows:
+  - "*"
+
+# Base URL for local smoke tests. Override at runtime:
+#   maestro test .maestro/flows/smoke-login.yaml -e APP_URL=https://preview.example.com
+env:
+  APP_URL: "http://localhost:3000"

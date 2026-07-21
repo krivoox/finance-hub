@@ -10,6 +10,7 @@
     "format": "prettier --write .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:maestro": "maestro test .maestro/flows/smoke-login.yaml",
     "postinstall": "prisma generate",
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
@@ -19,7 +20,8 @@
     "prepare": "husky",
     "changelog": "node scripts/update-unreleased.mjs",
     "release": "node scripts/release.mjs",
-    "release:dry": "node scripts/release.mjs --dry-run"
+    "release:dry": "node scripts/release.mjs --dry-run",
+    "test:maestro:e2e": "./scripts/maestro-e2e-auth.sh"
   },
   "dependencies": {
     "@date-fns/tz": "^1.5.0",

@@ -1,0 +1,24 @@
+# E2E: registro → onboarding (auto sign-in).
+# Env: APP_URL, E2E_NAME, E2E_EMAIL, E2E_PASSWORD
+url: ${APP_URL}/registro
+name: E2E — registro
+tags:
+  - e2e
+  - auth
+  - web
+---
+- launchApp
+- assertVisible: "Creá tu cuenta"
+- tapOn:
+    id: "displayName"
+- inputText: ${E2E_NAME}
+- tapOn:
+    id: "email"
+- inputText: ${E2E_EMAIL}
+- tapOn:
+    id: "password"
+- inputText: ${E2E_PASSWORD}
+- tapOn: "Crear cuenta"
+- extendedWaitUntil:
+    visible: "Tu espacio está casi listo"
+    timeout: 15000

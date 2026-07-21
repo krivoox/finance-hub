@@ -12,6 +12,14 @@
 
 # testing
 /coverage
+.maestro/.screenshots/
+.maestro/.videos/
+.maestro/.reports/
+.maestro/tests/
+*.mp4
+
+# Maestro / Playwright MCP local artifacts (not product code)
+.playwright-mcp/
 
 # next.js
 /.next/
