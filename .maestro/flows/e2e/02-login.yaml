@@ -1,0 +1,23 @@
+# E2E: login con credenciales existentes → onboarding (setup incompleto).
+# Env: APP_URL, E2E_EMAIL, E2E_PASSWORD
+# Prerrequisito: sin sesión (clearState o cookies limpias).
+url: ${APP_URL}/login
+name: E2E — login
+tags:
+  - e2e
+  - auth
+  - web
+---
+- launchApp:
+    clearState: true
+- assertVisible: "Iniciá sesión"
+- tapOn:
+    id: "email"
+- inputText: ${E2E_EMAIL}
+- tapOn:
+    id: "password"
+- inputText: ${E2E_PASSWORD}
+- tapOn: "Iniciar sesión"
+- extendedWaitUntil:
+    visible: "Tu espacio está casi listo"
+    timeout: 15000

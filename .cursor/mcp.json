@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "maestro": {
+      "command": "/Users/u633559/.maestro/bin/maestro",
+      "args": ["mcp"],
+      "env": {
+        "JAVA_HOME": "/Users/u633559/.sdkman/candidates/java/current"
+      }
+    }
+  }
+}
