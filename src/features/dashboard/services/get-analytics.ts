@@ -33,10 +33,10 @@ export async function getAnalytics(input: {
   months?: number;
   /**
    * Optional when the caller already loaded budgets (e.g. getDashboard).
-   * Avoids a redundant listBudgetsWithStatus when the request snapshot is
-   * not shared (different includeArchived / cold path).
+   * Accepts a Promise so the dashboard page can share the request-scoped
+   * budget snapshot without waterfalling analytics txs behind getDashboard.
    */
-  budgetsExceededCount?: number;
+  budgetsExceededCount?: number | Promise<number>;
 }): Promise<GetAnalyticsResult> {
   await requireMembership(input.userId, input.workspaceId);
 
@@ -61,9 +61,21 @@ export async function getAnalytics(input: {
     ),
   );
 
-  const needsBudgetCount = input.budgetsExceededCount === undefined;
+  const budgetsExceededCountPromise =
+    input.budgetsExceededCount !== undefined
+      ? Promise.resolve(input.budgetsExceededCount)
+      : listBudgetsWithStatus({
+          userId: input.userId,
+          workspaceId: input.workspaceId,
+          referenceDate: now,
+        }).then(
+          (budgets) =>
+            budgets.filter(
+              (b) => !b.isArchived && b.progress.status === "exceeded",
+            ).length,
+        );
 
-  const [txRows, budgets] = await Promise.all([
+  const [txRows, budgetsExceededCount] = await Promise.all([
     prisma.transaction.findMany({
       where: {
         workspaceId: input.workspaceId,
@@ -80,13 +92,7 @@ export async function getAnalytics(input: {
         account: { select: { name: true } },
       },
     }),
-    needsBudgetCount
-      ? listBudgetsWithStatus({
-          userId: input.userId,
-          workspaceId: input.workspaceId,
-          referenceDate: now,
-        })
-      : Promise.resolve(null),
+    budgetsExceededCountPromise,
   ]);
 
   const all: AnalyticsTransaction[] = txRows.map((r) => ({
@@ -110,10 +116,6 @@ export async function getAnalytics(input: {
   const spendingByCategory = aggregateSpendingByCategory(currentTxs);
   const spendingFlows = aggregateSpendingFlows(currentTxs);
   const previousSpending = aggregateSpendingByCategory(previousTxs);
-  const budgetsExceededCount =
-    input.budgetsExceededCount ??
-    budgets!.filter((b) => !b.isArchived && b.progress.status === "exceeded")
-      .length;
 
   return {
     spendingByCategory,

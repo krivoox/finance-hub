@@ -1,0 +1,24 @@
+# Smoke: página de login pública (sin credenciales).
+# Prerrequisito: `npm run dev` en http://localhost:3000 (o APP_URL).
+#
+# CLI:
+#   maestro test .maestro/flows/smoke-login.yaml
+# MCP (Cursor): pedir al agente que ejecute este flow con la tool `run`.
+
+url: ${APP_URL}/login
+name: Smoke — login page
+tags:
+  - smoke
+  - web
+env:
+  APP_URL: "http://localhost:3000"
+
+---
+- launchApp
+- assertVisible: "Iniciá sesión"
+- assertVisible: "Email"
+- assertVisible: "Contraseña"
+- assertVisible: "Registrate"
+- tapOn: "Registrate"
+- assertVisible: "Creá tu cuenta"
+- assertVisible: "Email"

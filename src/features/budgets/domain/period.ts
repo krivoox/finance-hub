@@ -42,6 +42,33 @@ export function getBudgetPeriodBounds(
   return getMonthlyBounds(budget.startDate, referenceDate);
 }
 
+/**
+ * Smallest inclusive window covering every budget's active period at
+ * `referenceDate`. Used to limit expense queries to dates that can affect
+ * progress (instead of loading the full workspace ledger).
+ *
+ * Returns `null` when there are no budgets.
+ */
+export function unionBudgetPeriodBounds(
+  budgets: readonly Pick<BudgetLike, "period" | "startDate" | "endDate">[],
+  referenceDate: Date = new Date(),
+): BudgetPeriodBounds | null {
+  if (budgets.length === 0) return null;
+
+  let startMs = Number.POSITIVE_INFINITY;
+  let endMs = Number.NEGATIVE_INFINITY;
+
+  for (const budget of budgets) {
+    const bounds = getBudgetPeriodBounds(budget, referenceDate);
+    const s = bounds.start.getTime();
+    const e = bounds.end.getTime();
+    if (s < startMs) startMs = s;
+    if (e > endMs) endMs = e;
+  }
+
+  return { start: new Date(startMs), end: new Date(endMs) };
+}
+
 // ---------------------------------------------------------------------------
 // Monthly
 // ---------------------------------------------------------------------------

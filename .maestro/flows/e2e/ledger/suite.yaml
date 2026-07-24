@@ -1,0 +1,224 @@
+# E2E ledger suite — cuentas + movimientos (sesión continua).
+#
+# Cubre:
+#   1) Registro + omitir onboarding
+#   2) Crear 2 cuentas (páginas /accounts/new — sin sheet/modal)
+#   3) Gasto, ingreso y transferencia (/transactions/new)
+#   4) Asserts en listados
+#
+# CLI: ./scripts/maestro-e2e-ledger.sh
+# E2E_EMAIL debe ir por -e (único). No hardcodearlo en env del YAML.
+# No usar clearState a mitad: pierde la sesión Better Auth.
+
+url: ${APP_URL}/registro
+name: E2E — ledger (cuentas + movimientos)
+tags:
+  - e2e
+  - ledger
+  - accounts
+  - transactions
+  - web
+env:
+  APP_URL: "http://localhost:3000"
+  E2E_NAME: "E2E Ledger"
+  E2E_PASSWORD: "TestPass1!"
+  ACCOUNT_CASH: "Efectivo E2E"
+  ACCOUNT_BANK: "Banco E2E"
+  TX_EXPENSE: "E2E gasto comida"
+  TX_INCOME: "E2E salario"
+  TX_TRANSFER: "E2E transferencia"
+
+---
+# ---------- 1. Registro ----------
+- launchApp
+- assertVisible: "Creá tu cuenta"
+- tapOn:
+    id: "displayName"
+- inputText: ${E2E_NAME}
+- tapOn:
+    id: "email"
+- eraseText
+- inputText: ${E2E_EMAIL}
+- tapOn:
+    id: "password"
+- eraseText
+- inputText: ${E2E_PASSWORD}
+- tapOn:
+    text: "Crear cuenta"
+    below:
+      id: "password"
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible: "Omitir por ahora"
+    timeout: 25000
+
+# ---------- 2. Omitir onboarding ----------
+- tapOn: "Omitir por ahora"
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible: "Cuentas"
+    timeout: 20000
+- assertVisible: "Nueva cuenta"
+
+# ---------- 3. Primera cuenta (efectivo) ----------
+- tapOn: "Nueva cuenta"
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible:
+      id: "account-name"
+    timeout: 25000
+- tapOn:
+    id: "account-name"
+- inputText: ${ACCOUNT_CASH}
+- tapOn:
+    id: "account-type"
+- tapOn: "Efectivo"
+- tapOn:
+    id: "account-initial-balance"
+- eraseText
+- inputText: "10000"
+- tapOn:
+    text: "Crear cuenta"
+    below:
+      id: "account-initial-balance"
+- extendedWaitUntil:
+    visible: ${ACCOUNT_CASH}
+    timeout: 20000
+
+# ---------- 4. Segunda cuenta (corriente) ----------
+- tapOn: "Nueva cuenta"
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible:
+      id: "account-name"
+    timeout: 25000
+- tapOn:
+    id: "account-name"
+- inputText: ${ACCOUNT_BANK}
+- tapOn:
+    id: "account-type"
+- tapOn: "Cuenta corriente"
+- tapOn:
+    id: "account-initial-balance"
+- eraseText
+- inputText: "50000"
+- tapOn:
+    text: "Crear cuenta"
+    below:
+      id: "account-initial-balance"
+- extendedWaitUntil:
+    visible: ${ACCOUNT_BANK}
+    timeout: 20000
+- assertVisible: ${ACCOUNT_CASH}
+
+# ---------- 5. Gasto ----------
+- tapOn: "Movimientos"
+- waitForAnimationToEnd:
+    timeout: 3000
+- extendedWaitUntil:
+    visible: "Registrar"
+    timeout: 15000
+- tapOn: "Registrar"
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible:
+      id: "tx-amount"
+    timeout: 25000
+- tapOn: "Gasto"
+- tapOn:
+    id: "tx-amount"
+- inputText: "1500.50"
+- tapOn:
+    id: "tx-description"
+- inputText: ${TX_EXPENSE}
+- tapOn:
+    id: "tx-account"
+- tapOn: ${ACCOUNT_CASH}
+- tapOn:
+    id: "tx-category"
+- tapOn: "Comida"
+- tapOn:
+    text: "Registrar"
+    below:
+      id: "tx-date"
+- extendedWaitUntil:
+    visible: ${TX_EXPENSE}
+    timeout: 20000
+
+# ---------- 6. Ingreso ----------
+- tapOn: "Registrar"
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible:
+      id: "tx-amount"
+    timeout: 25000
+- tapOn: "Ingreso"
+- tapOn:
+    id: "tx-amount"
+- inputText: "80000"
+- tapOn:
+    id: "tx-description"
+- inputText: ${TX_INCOME}
+- tapOn:
+    id: "tx-account"
+- tapOn: ${ACCOUNT_BANK}
+- tapOn:
+    id: "tx-category"
+- tapOn: "Salario"
+- tapOn:
+    text: "Registrar"
+    below:
+      id: "tx-date"
+- extendedWaitUntil:
+    visible: ${TX_INCOME}
+    timeout: 20000
+
+# ---------- 7. Transferencia Banco → Efectivo ----------
+- tapOn: "Registrar"
+- waitForAnimationToEnd:
+    timeout: 5000
+- extendedWaitUntil:
+    visible:
+      id: "tx-amount"
+    timeout: 25000
+- tapOn: "Transferencia"
+- tapOn:
+    id: "tx-amount"
+- inputText: "2500"
+- tapOn:
+    id: "tx-description"
+- inputText: ${TX_TRANSFER}
+- tapOn:
+    id: "tx-account"
+- tapOn: ${ACCOUNT_BANK}
+- tapOn:
+    id: "tx-counterparty"
+- tapOn: ${ACCOUNT_CASH}
+- tapOn:
+    text: "Registrar"
+    below:
+      id: "tx-date"
+- extendedWaitUntil:
+    visible: ${TX_TRANSFER}
+    timeout: 20000
+
+# ---------- 8. Verificación listados ----------
+- assertVisible: "Movimientos"
+- assertVisible: ${TX_EXPENSE}
+- assertVisible: ${TX_INCOME}
+- assertVisible: ${TX_TRANSFER}
+
+- tapOn: "Cuentas"
+- waitForAnimationToEnd:
+    timeout: 3000
+- extendedWaitUntil:
+    visible: "Cuentas"
+    timeout: 15000
+- assertVisible: ${ACCOUNT_CASH}
+- assertVisible: ${ACCOUNT_BANK}

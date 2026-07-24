@@ -3,17 +3,8 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
 import { ContentPanel } from "@/components/app-shell/content-panel";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { formatSignedMoney } from "@/lib/format-money";
+import { getCurrentUser } from "@/features/auth/services/get-current-user";
 import { getSession } from "@/lib/session";
 import {
   getActiveWorkspaceForUser,
@@ -25,38 +16,73 @@ import {
   listTransactions,
   listPaymentAccountsForUser,
 } from "@/features/transactions/services";
+import {
+  InvalidDateRangeError,
+  LIST_PAGE_SIZE,
+  resolveListPeriod,
+  resolveListTypeFilter,
+} from "@/features/transactions/domain";
 import { TransactionsCreateActions } from "@/features/transactions/components/transactions-create-actions";
-import type { TransactionType } from "@/features/transactions/domain";
+import {
+  TransactionsEmptyState,
+  resolveTransactionsEmptyKind,
+} from "@/features/transactions/components/transactions-empty-state";
+import { TransactionsListToolbar } from "@/features/transactions/components/transactions-list-toolbar";
+import { TransactionsLedgerList } from "@/features/transactions/components/transactions-ledger-list";
+import type { ListedTransactionPageItem } from "@/features/transactions/actions";
+import {
+  formatRangeChipLabel,
+  hasNonPeriodFilters,
+  parseTransactionListSearchParams,
+} from "@/features/transactions/lib/list-search-params";
+import { listPeriodDescription } from "@/features/transactions/lib/resolve-list-period";
 
-function amountVariant(
-  type: TransactionType,
-): "income" | "expense" | "transfer" {
-  if (type === "fx_credit" || type === "income") return "income";
-  if (type === "fx_debit" || type === "expense") return "expense";
-  return "transfer";
+type PageProps = {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+};
+
+function toPageItems(
+  items: Awaited<ReturnType<typeof listTransactions>>["items"],
+): ListedTransactionPageItem[] {
+  return items.map((tx) => ({
+    id: tx.id,
+    workspaceId: tx.workspaceId,
+    type: tx.type,
+    amountCents: tx.amountCents,
+    currency: tx.currency,
+    occurredOn: tx.occurredOn.toISOString(),
+    description: tx.description,
+    categoryId: tx.categoryId,
+    accountId: tx.accountId,
+    counterpartyAccountId: tx.counterpartyAccountId,
+    createdByUserId: tx.createdByUserId,
+    createdAt: tx.createdAt.toISOString(),
+    updatedAt: tx.updatedAt.toISOString(),
+    accountName: tx.accountName,
+    accountWorkspaceId: tx.accountWorkspaceId,
+    counterpartyAccountName: tx.counterpartyAccountName,
+    categoryName: tx.categoryName,
+    createdByDisplayName: tx.createdByDisplayName,
+    isExternalToWorkspace: tx.isExternalToWorkspace,
+    registrationWorkspaceName: tx.registrationWorkspaceName,
+  }));
 }
 
-function signedAmountCents(
-  type: TransactionType,
-  amountCents: number,
-): number {
-  if (type === "income" || type === "fx_credit") return amountCents;
-  if (type === "expense" || type === "fx_debit") return -amountCents;
-  return -amountCents;
-}
-
-function formatOccurredOn(date: Date): string {
-  const y = date.getUTCFullYear();
-  const m = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const d = String(date.getUTCDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
-
-export default async function TransactionsPage() {
+export default async function TransactionsPage({ searchParams }: PageProps) {
   const session = await getSession();
   if (!session?.user?.id) {
     redirect("/login");
   }
+
+  const [rawParams, profile] = await Promise.all([
+    searchParams,
+    getCurrentUser(),
+  ]);
+
+  const listParams = parseTransactionListSearchParams(rawParams);
+  const newParam = Array.isArray(rawParams.new)
+    ? rawParams.new[0]
+    : rawParams.new;
 
   const workspace = await getActiveWorkspaceForUser(session.user.id);
   if (!workspace) {
@@ -74,6 +100,42 @@ export default async function TransactionsPage() {
   }
 
   const canMutate = workspace.role !== "viewer";
+  const timezone = profile?.timezone ?? "UTC";
+  const now = new Date();
+
+  let resolvedPeriod;
+  try {
+    resolvedPeriod = resolveListPeriod({
+      period: listParams.period,
+      from: listParams.from,
+      to: listParams.to,
+      now,
+      timezone,
+    });
+  } catch (err) {
+    // Crafted invalid custom URL → soft fallback to this month (domain still throws).
+    if (err instanceof InvalidDateRangeError) {
+      resolvedPeriod = resolveListPeriod({
+        period: "this_month",
+        now,
+        timezone,
+      });
+    } else {
+      throw err;
+    }
+  }
+
+  const from =
+    resolvedPeriod.kind === "bounded" ? resolvedPeriod.from : undefined;
+  const to = resolvedPeriod.kind === "bounded" ? resolvedPeriod.to : undefined;
+  const types = resolveListTypeFilter(listParams.type);
+
+  const rangeLabel =
+    listParams.period === "custom" && listParams.from && listParams.to
+      ? formatRangeChipLabel(listParams.from, listParams.to)
+      : undefined;
+
+  const panelDescription = `${listPeriodDescription(listParams.period, rangeLabel)} · ${workspace.name}`;
 
   const [accounts, categories, txPage, members, paymentGroups] =
     await Promise.all([
@@ -82,7 +144,13 @@ export default async function TransactionsPage() {
       listTransactions({
         userId: session.user.id,
         workspaceId: workspace.id,
-        limit: 50,
+        limit: LIST_PAGE_SIZE,
+        from,
+        to,
+        types,
+        accountId: listParams.accountId,
+        categoryId: listParams.categoryId,
+        cursor: listParams.cursor,
       }),
       workspace.type === "group"
         ? listMembers(session.user.id, workspace.id)
@@ -93,6 +161,7 @@ export default async function TransactionsPage() {
     ]);
 
   const activeAccounts = accounts.filter((a) => !a.isArchived);
+  const activeCategories = categories.filter((c) => !c.isArchived);
   const groupMembers =
     workspace.type === "group"
       ? members.map((m) => ({
@@ -146,13 +215,11 @@ export default async function TransactionsPage() {
             workspaceType: a.workspaceType,
           })),
         }))}
-        categories={categories
-          .filter((c) => !c.isArchived)
-          .map((c) => ({
-            id: c.id,
-            name: c.name,
-            kind: c.kind,
-          }))}
+        categories={activeCategories.map((c) => ({
+          id: c.id,
+          name: c.name,
+          kind: c.kind,
+        }))}
         groupMembers={groupMembers}
         currentUserId={session.user.id}
         contributionAccounts={contributionAccounts}
@@ -160,10 +227,23 @@ export default async function TransactionsPage() {
     </Suspense>
   ) : undefined;
 
+  const denseFilters = hasNonPeriodFilters(listParams);
+  const emptyKind = resolveTransactionsEmptyKind(listParams, denseFilters);
+
+  const listKey = [
+    listParams.period,
+    listParams.from ?? "",
+    listParams.to ?? "",
+    listParams.type,
+    listParams.accountId ?? "",
+    listParams.categoryId ?? "",
+    listParams.cursor ?? "",
+  ].join("|");
+
   return (
     <ContentPanel
       title="Movimientos"
-      description={`Ingresos, gastos y transferencias de ${workspace.name}.`}
+      description={panelDescription}
       actions={createActions}
     >
       {canMutate && activeAccounts.length === 0 ? (
@@ -175,99 +255,43 @@ export default async function TransactionsPage() {
         </p>
       ) : null}
 
+      <Suspense
+        fallback={
+          <div className="mb-5 h-9 animate-pulse rounded-full bg-muted/60" />
+        }
+      >
+        <TransactionsListToolbar
+          params={listParams}
+          accounts={activeAccounts.map((a) => ({ id: a.id, name: a.name }))}
+          categories={activeCategories.map((c) => ({
+            id: c.id,
+            name: c.name,
+          }))}
+        />
+      </Suspense>
+
       {txPage.items.length === 0 ? (
-        <div className="flex flex-col items-start gap-3 py-8 sm:py-12">
-          <p className="text-sm text-muted-foreground">
-            Todavía no hay movimientos. Registrá el primero cuando quieras.
-          </p>
-        </div>
+        <TransactionsEmptyState
+          kind={emptyKind}
+          params={listParams}
+          canMutate={canMutate}
+          newParam={newParam}
+        />
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Descripción</TableHead>
-              <TableHead className="hidden sm:table-cell">Cuenta</TableHead>
-              <TableHead className="hidden md:table-cell">Categoría</TableHead>
-              <TableHead className="hidden lg:table-cell">Registró</TableHead>
-              <TableHead className="hidden sm:table-cell">Fecha</TableHead>
-              <TableHead className="text-right">Monto</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {txPage.items.map((tx) => {
-              const accountLabel =
-                tx.type === "transfer" && tx.counterpartyAccountName
-                  ? `${tx.accountName} → ${tx.counterpartyAccountName}`
-                  : tx.isExternalToWorkspace && tx.registrationWorkspaceName
-                    ? `${tx.registrationWorkspaceName} · ${tx.accountName}`
-                    : tx.accountName;
-              const categoryLabel =
-                tx.type === "transfer"
-                  ? "Transferencia"
-                  : tx.type === "fx_debit" || tx.type === "fx_credit"
-                    ? "Cambio de moneda"
-                    : (tx.categoryName ?? "—");
-              const description =
-                tx.description ??
-                (tx.type === "transfer"
-                  ? "Transferencia"
-                  : tx.type === "fx_debit" || tx.type === "fx_credit"
-                    ? "Cambio de moneda"
-                    : (tx.categoryName ?? "Movimiento"));
-              const descriptionWithChip = tx.isExternalToWorkspace
-                ? `${tx.registrationWorkspaceName ?? "Otro espacio"} · ${description}`
-                : description;
-              return (
-                <TableRow key={tx.id} className="relative">
-                  <TableCell>
-                    <div className="flex min-w-0 flex-col gap-0.5">
-                      <Link
-                        href={`/transactions/${tx.id}`}
-                        className="font-medium text-foreground after:absolute after:inset-0 hover:underline"
-                      >
-                        {descriptionWithChip}
-                      </Link>
-                      <span className="text-xs text-muted-foreground sm:hidden">
-                        {accountLabel}
-                        {" · "}
-                        {formatOccurredOn(tx.occurredOn)}
-                      </span>
-                      {tx.accountWorkspaceId !== workspace.id &&
-                      !tx.isExternalToWorkspace ? (
-                        <span className="text-xs text-muted-foreground">
-                          Pagado desde otro espacio
-                        </span>
-                      ) : null}
-                    </div>
-                  </TableCell>
-                  <TableCell className="hidden text-muted-foreground sm:table-cell">
-                    {accountLabel}
-                  </TableCell>
-                  <TableCell className="hidden text-muted-foreground md:table-cell">
-                    {categoryLabel}
-                  </TableCell>
-                  <TableCell className="hidden text-muted-foreground lg:table-cell">
-                    {tx.createdByDisplayName}
-                  </TableCell>
-                  <TableCell className="hidden tabular-nums text-muted-foreground sm:table-cell">
-                    {formatOccurredOn(tx.occurredOn)}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Badge
-                      variant={amountVariant(tx.type)}
-                      className="tabular-nums"
-                    >
-                      {formatSignedMoney(
-                        signedAmountCents(tx.type, tx.amountCents),
-                        tx.currency,
-                      )}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
+        <TransactionsLedgerList
+          key={listKey}
+          workspaceId={workspace.id}
+          initialItems={toPageItems(txPage.items)}
+          initialNextCursor={txPage.nextCursor}
+          query={{
+            workspaceId: workspace.id,
+            type: listParams.type,
+            accountId: listParams.accountId,
+            categoryId: listParams.categoryId,
+            from,
+            to,
+          }}
+        />
       )}
     </ContentPanel>
   );

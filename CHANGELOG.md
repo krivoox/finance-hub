@@ -9,15 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **workspaces:** Add first-run onboarding with two-step setup
+- **transactions:** Add list filters, period presets, and cursor pagination
 
-- **dashboard:** Add Sankey charts, subtle color and dark mode
+### Changed
 
-- Add multi-currency ARS/USD ledger with FX exchange
+- Speed up nav and budget reads with period-windowed expenses
 
-### Fixed
-
-- **changelog:** Stop git-cliff from calling GitHub API (#7)
+[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.1.0...HEAD
 
 ## [0.1.0] - 2026-07-16
 

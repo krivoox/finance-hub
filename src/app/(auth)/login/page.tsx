@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { LoginForm } from "@/features/auth/components/login-form";
+import { getSession } from "@/lib/session";
 
 export const metadata = {
   title: "Iniciar sesión · Finance Hub",
@@ -17,6 +19,11 @@ export default async function LoginPage({
   searchParams: Promise<SearchParams>;
 }) {
   const { callbackUrl, invite, email } = await searchParams;
+
+  const session = await getSession();
+  if (session?.user?.id) {
+    redirect(callbackUrl && callbackUrl.startsWith("/") ? callbackUrl : "/dashboard");
+  }
 
   return (
     <div className="space-y-6">

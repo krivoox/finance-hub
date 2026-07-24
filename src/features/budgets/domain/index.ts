@@ -35,7 +35,7 @@ export type {
   BudgetStatus,
 } from "./types";
 
-export { getBudgetPeriodBounds } from "./period";
+export { getBudgetPeriodBounds, unionBudgetPeriodBounds } from "./period";
 
 export {
   BUDGET_WARNING_RATIO,

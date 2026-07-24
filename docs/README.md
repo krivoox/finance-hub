@@ -23,6 +23,7 @@
 | [guides/workspaces-and-invites.md](./guides/workspaces-and-invites.md) | Workspaces, roles, invitaciones y first-run (onboarding) |
 | [guides/git-flow.md](./guides/git-flow.md) | Git Flow: `main`/`develop`, PRs, borrado de ramas, Vercel |
 | [guides/changelog.md](./guides/changelog.md) | Changelog, Conventional Commits, SemVer y releases |
+| [guides/maestro-mcp.md](./guides/maestro-mcp.md) | Maestro MCP: smoke UI web (Chromium) desde Cursor |
 | [DESIGN.md](../DESIGN.md) | Design system UI/UX (tokens, shell Dub-like, variantes) |
 
 ## Specs (Spec-Driven Development)

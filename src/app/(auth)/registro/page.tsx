@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { RegisterForm } from "@/features/auth/components/register-form";
+import { getSession } from "@/lib/session";
 
 export const metadata = {
   title: "Crear cuenta · Finance Hub",
@@ -13,6 +15,11 @@ export default async function RegisterPage({
   searchParams: Promise<SearchParams>;
 }) {
   const { invite, email } = await searchParams;
+
+  const session = await getSession();
+  if (session?.user?.id) {
+    redirect("/dashboard");
+  }
 
   return (
     <div className="space-y-6">

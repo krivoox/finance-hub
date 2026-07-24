@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { getBudgetPeriodBounds } from "./period";
+import { getBudgetPeriodBounds, unionBudgetPeriodBounds } from "./period";
 import type { BudgetLike } from "./types";
 
 function budget(overrides: Partial<BudgetLike>): BudgetLike {
@@ -129,5 +129,44 @@ describe("getBudgetPeriodBounds — custom", () => {
     );
     expect(bounds.start.toISOString().slice(0, 10)).toBe("2026-01-01");
     expect(bounds.end.toISOString().slice(0, 10)).toBe("2026-03-31");
+  });
+});
+
+describe("unionBudgetPeriodBounds", () => {
+  it("returns null for an empty list", () => {
+    expect(unionBudgetPeriodBounds([])).toBeNull();
+  });
+
+  it("matches a single budget's active period", () => {
+    const bounds = unionBudgetPeriodBounds(
+      [
+        budget({
+          period: "monthly",
+          startDate: new Date("2026-01-15T00:00:00Z"),
+        }),
+      ],
+      new Date("2026-01-20T00:00:00Z"),
+    );
+    expect(bounds?.start.toISOString().slice(0, 10)).toBe("2026-01-15");
+    expect(bounds?.end.toISOString().slice(0, 10)).toBe("2026-02-14");
+  });
+
+  it("spans the min start and max end across budgets", () => {
+    const bounds = unionBudgetPeriodBounds(
+      [
+        budget({
+          period: "monthly",
+          startDate: new Date("2026-01-15T00:00:00Z"),
+        }),
+        budget({
+          period: "custom",
+          startDate: new Date("2025-12-01T00:00:00Z"),
+          endDate: new Date("2026-03-31T00:00:00Z"),
+        }),
+      ],
+      new Date("2026-01-20T00:00:00Z"),
+    );
+    expect(bounds?.start.toISOString().slice(0, 10)).toBe("2025-12-01");
+    expect(bounds?.end.toISOString().slice(0, 10)).toBe("2026-03-31");
   });
 });

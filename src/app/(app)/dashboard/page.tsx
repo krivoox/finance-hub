@@ -46,19 +46,24 @@ export default async function DashboardPage() {
   const timezone = profile?.timezone ?? "UTC";
   const now = new Date();
 
+  // Shared `now` + request-cached budget snapshot. Analytics receives the
+  // exceeded count as a Promise so its own tx query starts immediately and
+  // still skips a second listBudgetsWithStatus once the snapshot resolves.
+  const dashboardPromise = getDashboard({
+    userId: session.user.id,
+    workspaceId: workspace.id,
+    timezone,
+    currency: workspace.baseCurrency,
+    now,
+  });
   const [dashboard, analytics] = await Promise.all([
-    getDashboard({
-      userId: session.user.id,
-      workspaceId: workspace.id,
-      timezone,
-      currency: workspace.baseCurrency,
-      now,
-    }),
+    dashboardPromise,
     getAnalytics({
       userId: session.user.id,
       workspaceId: workspace.id,
       timezone,
       now,
+      budgetsExceededCount: dashboardPromise.then((d) => d.budgetsExceededCount),
     }),
   ]);
 

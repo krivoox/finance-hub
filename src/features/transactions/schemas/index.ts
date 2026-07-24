@@ -1,8 +1,5 @@
 import { z } from "zod";
-import {
-  TRANSACTION_DESCRIPTION_MAX_LENGTH,
-  TRANSACTION_TYPES,
-} from "@/features/transactions/domain";
+import { TRANSACTION_DESCRIPTION_MAX_LENGTH } from "@/features/transactions/domain";
 
 const workspaceIdSchema = z.string().min(1, "workspaceId requerido");
 const accountIdSchema = z.string().min(1, "cuenta requerida");
@@ -86,7 +83,8 @@ export const listTransactionsSchema = z.object({
   workspaceId: workspaceIdSchema,
   accountId: accountIdSchema.optional(),
   categoryId: categoryIdSchema.optional(),
-  type: z.enum(TRANSACTION_TYPES).optional(),
+  /** UI list type filter (SPEC-05). Not the full Prisma enum — fx only via `all`. */
+  type: z.enum(["all", "income", "expense", "transfer"]).optional(),
   from: occurredOnSchema.optional(),
   to: occurredOnSchema.optional(),
   cursor: transactionIdSchema.optional(),

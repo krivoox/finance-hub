@@ -33,6 +33,7 @@ Versiones de referencia: `turno-app` / Siturn (marzo 2026). Mantener alineadas s
 | Lint / format | ESLint 9 + `eslint-config-next` + Prettier | según Siturn |
 | CLI local DB | Supabase CLI | `^2.100` (devDependency) |
 | Tests (negocio) | Vitest | a configurar en Fase 0 |
+| Smoke UI (opcional) | Maestro CLI + MCP | web Chromium (beta); ver `docs/guides/maestro-mcp.md` |
 
 ## Qué hace cada pieza
 
@@ -47,6 +48,7 @@ Versiones de referencia: `turno-app` / Siturn (marzo 2026). Mantener alineadas s
 | **React Query** | Cache/fetch en Client Components |
 | **Zustand** | Solo UI (modales, sidebar, workspace activo en cliente) |
 | **Vitest** | TDD de lógica de negocio (no UI) |
+| **Maestro** | Smoke / exploración UI vía CLI o MCP (web beta); no sustituye Vitest |
 
 ## Prohibido (salvo pedido explícito)
 

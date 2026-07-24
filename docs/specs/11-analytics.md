@@ -83,5 +83,5 @@ Herramientas de análisis para comprender hábitos de consumo, oportunidades de 
 ## 9. Notas de implementación
 
 - La pantalla `/dashboard` orquesta `GetDashboard` + analytics (`getAnalytics`) en paralelo con el mismo `now`.
-- `getAnalytics` puede recibir `budgetsExceededCount` cuando el caller ya tiene el conteo (p. ej. desde budgets at risk del dashboard); si no, reutiliza `ListBudgetsWithProgress` (snapshot request-cached compartido con el dashboard).
+- `getAnalytics` recibe `budgetsExceededCount` (número o Promise) desde el dashboard para no relistar presupuestos; las queries de txs de analytics arrancan en paralelo.
 - El insight `budgetsExceededCount` sigue siendo reglas puras sobre ese conteo (TDD en domain).
