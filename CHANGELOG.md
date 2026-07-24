@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **pwa:** Recommend installing the web app on mobile
+
+[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.2.0...HEAD
+
 ## [0.2.0] - 2026-07-24
 
 ### Added
