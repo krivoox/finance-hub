@@ -5,6 +5,7 @@ import { ThemeProvider } from "@teispace/next-themes";
 import { getTheme, getThemeScript } from "@teispace/next-themes/server";
 
 import { Providers } from "@/components/providers";
+import { env } from "@/lib/env";
 import { themeProviderOptions, themeScriptOptions } from "@/lib/theme";
 import "./globals.css";
 
@@ -19,7 +20,11 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Finance Hub",
+  metadataBase: new URL(env.BETTER_AUTH_URL),
+  title: {
+    default: "Finance Hub",
+    template: "%s · Finance Hub",
+  },
   description: "Centro de administración financiera del hogar",
   applicationName: "Finance Hub",
   appleWebApp: {
@@ -71,7 +76,7 @@ export default async function RootLayout({
         attributes like cz-shortcut-listen on <body> before React hydrates.
       */}
       <body
-        className="flex min-h-full flex-col overflow-x-hidden md:h-full md:overflow-hidden"
+        className="flex min-h-full flex-col overflow-x-hidden"
         suppressHydrationWarning
       >
         {/* Anti-FOUC theme: beforeInteractive injects into <head> (Next Script). */}

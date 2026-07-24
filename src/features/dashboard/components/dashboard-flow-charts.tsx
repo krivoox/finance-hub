@@ -1,6 +1,10 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  SurfaceHeader,
+  SurfaceSection,
+} from "@/components/surface-section";
 import type { CashflowSankey } from "@/features/dashboard/domain";
 
 import { DashboardCashflowSankey } from "./dashboard-cashflow-sankey";
@@ -24,16 +28,11 @@ export function DashboardFlowCharts({
   const defaultTab = hasAccounts ? "accounts" : "cashflow";
 
   return (
-    <section
-      aria-label="Flujo del mes"
-      className="flex flex-col gap-4 border-t border-border pt-6 sm:pt-8"
-    >
-      <div>
-        <h2 className="text-sm font-semibold text-foreground">Flujo del mes</h2>
-        <p className="mt-0.5 text-xs text-muted-foreground">
-          De qué cuenta salió cada gasto, o ingresos a gastos
-        </p>
-      </div>
+    <SurfaceSection className="h-full">
+      <SurfaceHeader
+        title="Flujo del mes"
+        description="De qué cuenta salió cada gasto, o ingresos a gastos"
+      />
 
       <Tabs defaultValue={defaultTab} className="gap-3">
         <TabsList variant="line" className="w-full justify-start sm:w-auto">
@@ -47,7 +46,7 @@ export function DashboardFlowCharts({
 
         {hasAccounts ? (
           <TabsContent value="accounts" className="mt-0">
-            <div className="rounded-xl border border-border bg-muted/30 px-2 py-4 sm:px-4">
+            <div className="rounded-xl bg-muted/30 px-1 py-3 sm:px-2">
               <DashboardCashflowSankey
                 data={accountSankey}
                 currency={currency}
@@ -59,7 +58,7 @@ export function DashboardFlowCharts({
 
         {hasCashflow ? (
           <TabsContent value="cashflow" className="mt-0">
-            <div className="rounded-xl border border-border bg-muted/30 px-2 py-4 sm:px-4">
+            <div className="rounded-xl bg-muted/30 px-1 py-3 sm:px-2">
               <DashboardCashflowSankey
                 data={cashflowSankey}
                 currency={currency}
@@ -69,6 +68,6 @@ export function DashboardFlowCharts({
           </TabsContent>
         ) : null}
       </Tabs>
-    </section>
+    </SurfaceSection>
   );
 }

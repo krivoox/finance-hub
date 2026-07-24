@@ -12,10 +12,25 @@ const AUTH_FORM_ROUTES = [
 /** Public routes that both guests and signed-in users may visit. */
 const ALWAYS_PUBLIC_PREFIXES = ["/invitaciones"];
 
+/** Exact public paths (marketing + crawl surfaces). */
+const PUBLIC_EXACT = new Set([
+  "/",
+  "/robots.txt",
+  "/sitemap.xml",
+  "/llms.txt",
+]);
+
 function matchesPrefix(pathname: string, prefixes: string[]): boolean {
   return prefixes.some(
     (p) => pathname === p || pathname.startsWith(`${p}/`),
   );
+}
+
+function isPublicPath(pathname: string): boolean {
+  if (PUBLIC_EXACT.has(pathname)) return true;
+  if (matchesPrefix(pathname, AUTH_FORM_ROUTES)) return true;
+  if (matchesPrefix(pathname, ALWAYS_PUBLIC_PREFIXES)) return true;
+  return false;
 }
 
 export function middleware(request: NextRequest) {
@@ -23,9 +38,7 @@ export function middleware(request: NextRequest) {
 
   const sessionCookie = getSessionCookie(request);
   const hasSessionCookie = Boolean(sessionCookie);
-  const isAuthForm = matchesPrefix(pathname, AUTH_FORM_ROUTES);
-  const isAlwaysPublic = matchesPrefix(pathname, ALWAYS_PUBLIC_PREFIXES);
-  const isPublic = isAuthForm || isAlwaysPublic;
+  const isPublic = isPublicPath(pathname);
 
   // Cookie presence is optimistic only — never bounce auth forms away here.
   // An invalid/stale cookie would loop: /login → /onboarding → /login (flicker).
