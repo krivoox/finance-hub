@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-24
+
 ### Added
 
 - Add SEO-optimized marketing landing on /
@@ -15,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Use neutral white surfaces and clearer dark gray ladder
 
-[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.3.0...HEAD
+[0.4.0]: https://github.com/krivoox/finance-hub/compare/v0.3.0...v0.4.0
 
 ## [0.3.0] - 2026-07-24
 
@@ -44,6 +46,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Baseline product release prior to Conventional Commits enforcement (accounts, workspaces, transactions, budgets, and related MVP surfaces)
 - Changelog automation (git-cliff), Conventional Commits (commitlint + husky), and SemVer GitHub Actions workflows
 
-[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.3.0...HEAD
-[0.3.0]: https://github.com/krivoox/finance-hub/compare/v0.2.0...v0.3.0
+[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/krivoox/finance-hub/compare/v0.3.0...v0.4.0
 [0.1.0]: https://github.com/krivoox/finance-hub/releases/tag/v0.1.0
