@@ -1,0 +1,102 @@
+/**
+ * Marketing motion — patterns adapted from HyperFrames animation rules
+ * (sine-wave idle float, ambient glow bloom, geometric spiral)
+ * for the live web page. Prefer transform/opacity; honor reduced motion.
+ */
+
+@keyframes fh-float-a {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -10px, 0);
+  }
+}
+
+@keyframes fh-float-b {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, 8px, 0);
+  }
+}
+
+@keyframes fh-glow-breathe {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes fh-spiral-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fh-fade-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.fh-float-a {
+  animation: fh-float-a 5.5s ease-in-out infinite;
+}
+
+.fh-float-b {
+  animation: fh-float-b 6.5s ease-in-out infinite;
+  animation-delay: -1.2s;
+}
+
+.fh-glow-breathe {
+  animation: fh-glow-breathe 8s ease-in-out infinite;
+}
+
+.fh-spiral-spin {
+  animation: fh-spiral-spin 48s linear infinite;
+  transform-origin: 50% 50%;
+}
+
+.fh-fade-up {
+  animation: fh-fade-up 0.7s cubic-bezier(0.23, 1, 0.32, 1) both;
+}
+
+.fh-fade-up-delay-1 {
+  animation-delay: 80ms;
+}
+
+.fh-fade-up-delay-2 {
+  animation-delay: 160ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fh-float-a,
+  .fh-float-b,
+  .fh-glow-breathe,
+  .fh-spiral-spin,
+  .fh-fade-up {
+    animation: none !important;
+  }
+}
+
+/* Marketing headings — same family as product UI (Geist via --font-sans) */
+.fh-display {
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+}

@@ -14,7 +14,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
               Finance Hub
             </Link>
             <p className="text-xs text-muted-foreground">
-              Tu centro de administración financiera
+              Centro financiero del hogar
             </p>
           </div>
           {children}

@@ -46,6 +46,7 @@
 | 14 | [Dinero cross-workspace](./specs/14-cross-workspace-money.md) | P1 |
 | 15 | [Onboarding de workspace](./specs/15-workspace-onboarding.md) | P0 |
 | 16 | [Canje de moneda (FX)](./specs/16-currency-exchange.md) | P1 |
+| 17 | [Landing de marketing](./specs/17-marketing-landing.md) | P0 |
 
 ## Decisiones de arquitectura (ADR)
 
