@@ -7,6 +7,7 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { InstallPrompt } from "@/components/pwa/install-prompt";
 
 import { AppSidebar, type AppSidebarProps } from "./app-sidebar";
 import { getPageTitle } from "./nav-config";
@@ -47,6 +48,7 @@ export function AppShell({
         <div className="flex flex-1 flex-col p-0 pb-[env(safe-area-inset-bottom)] md:min-h-0 md:overflow-hidden md:p-3 md:pb-3">
           {children}
         </div>
+        <InstallPrompt />
       </SidebarInset>
     </SidebarProvider>
   );
