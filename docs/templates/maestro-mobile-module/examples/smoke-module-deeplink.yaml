@@ -1,0 +1,35 @@
+# Smoke: open federated module via deep link, then assert module UI.
+# Place under: .maestro/flows/smoke-module-deeplink.yaml
+#
+# Federated-module notes:
+#   - appId is always the HOST (shell), never a fictitious "module package"
+#   - Deep link / universal link must be registered by the host and route into the module
+#   - If there is no deep link, replace openLink with taps discovered via inspect_screen
+#   - Ensure the installed binary includes this module (correct flavor / scheme)
+#
+# CLI:
+#   maestro test .maestro/flows/smoke-module-deeplink.yaml \
+#     -e APP_ID=com.example.host \
+#     -e MODULE_DEEPLINK='myhost://module/home'
+#
+# MCP: inspect_screen after openLink to confirm real labels/ids before asserting.
+
+appId: ${APP_ID}
+name: Smoke — federated module via deeplink
+tags:
+  - smoke
+  - module
+  - mobile
+env:
+  APP_ID: "com.example.host"
+  MODULE_DEEPLINK: "myhost://module/home"
+
+---
+- launchApp:
+    clearState: true
+- openLink: ${MODULE_DEEPLINK}
+# Assert something that only the MODULE screen shows:
+- assertVisible: "Module title"
+# Stable id from the module (RN testID / Android view id / iOS accessibilityIdentifier):
+# - assertVisible:
+#     id: "module_home_root"

@@ -1,0 +1,14 @@
+# Maestro workspace — mobile host / federated module (TEMPLATE)
+# Copy to: <repo>/.maestro/config.yaml
+# Docs: https://docs.maestro.dev/maestro-flows/workspace-management/project-configuration
+#
+# Replace APP_ID with the HOST applicationId (Android) or Bundle ID (iOS).
+# Override at runtime:
+#   maestro test .maestro/flows/smoke-launch.yaml -e APP_ID=com.your.host
+
+flows:
+  - flows/**
+
+env:
+  APP_ID: "com.example.host"
+  MODULE_DEEPLINK: "myhost://module/home"

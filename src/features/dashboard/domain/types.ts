@@ -9,18 +9,17 @@
 import type { AccountBalance, AccountType } from "@/features/accounts/domain";
 import type { TransactionType } from "@/features/transactions/domain";
 
+import type { CalendarPeriod } from "@/domain/calendar";
+
 /**
  * SPEC-12 FR-04 — Boundaries of the current calendar month in the user's
  * timezone, projected onto UTC milliseconds so they can be compared against
  * date-only fields (`Transaction.occurredOn`, stored as `@db.Date`).
  *
  * `start` is inclusive (00:00 of the 1st of the month), `end` is exclusive
- * (00:00 of the 1st of the next month).
+ * (00:00 of the 1st of the next month). Alias of shared `CalendarPeriod`.
  */
-export type DashboardPeriod = {
-  readonly start: Date;
-  readonly end: Date;
-};
+export type DashboardPeriod = CalendarPeriod;
 
 /**
  * Net worth for a workspace in a single currency (SPEC-12 §4).

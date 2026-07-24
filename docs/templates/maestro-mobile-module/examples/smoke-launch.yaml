@@ -1,0 +1,34 @@
+# Smoke: launch host app and assert a stable shell element.
+# Place under: .maestro/flows/smoke-launch.yaml
+#
+# Prereqs:
+#   - Android emulator or iOS simulator running
+#   - Host app installed (build that embeds the federated module)
+#   - APP_ID = host package / bundle (NOT a standalone module id)
+#
+# CLI:
+#   maestro test .maestro/flows/smoke-launch.yaml -e APP_ID=com.example.host
+#
+# MCP: list_devices → run with device_id + this file (or paste yaml).
+#
+# Adapt:
+#   1. Set appId / APP_ID to the host identifier
+#   2. Replace assertVisible text/id with something real on host home/splash
+#   3. Prefer id: "..." / testID over marketing copy when available
+
+appId: ${APP_ID}
+name: Smoke — host launch
+tags:
+  - smoke
+  - mobile
+env:
+  APP_ID: "com.example.host"
+
+---
+- launchApp:
+    clearState: true
+# Visible string OR accessibility / test id from the HOST shell:
+- assertVisible: "Home"
+# Preferable when the host exposes stable ids:
+# - assertVisible:
+#     id: "tab_home"
