@@ -5,6 +5,10 @@ import {
   spendingRankTone,
 } from "@/components/progress-bar";
 import { Button } from "@/components/ui/button";
+import {
+  SurfaceHeader,
+  SurfaceSection,
+} from "@/components/surface-section";
 import { formatMoney } from "@/lib/format-money";
 import type { SpendingByCategoryRow } from "@/features/dashboard/domain";
 
@@ -18,20 +22,16 @@ export function DashboardSpending({ currency, rows }: DashboardSpendingProps) {
   const max = top[0]?.amountCents ?? 0;
 
   return (
-    <section aria-label="Gastos por categoría" className="space-y-4">
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <div className="min-w-0">
-          <h2 className="text-sm font-semibold text-foreground">
-            Gastos del mes
-          </h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            Top categorías
-          </p>
-        </div>
-        <Button variant="ghost" size="sm" className="shrink-0" asChild>
-          <Link href="/transactions">Ver movimientos</Link>
-        </Button>
-      </div>
+    <SurfaceSection className="h-full">
+      <SurfaceHeader
+        title="Gastos del mes"
+        description="Top categorías"
+        action={
+          <Button variant="ghost" size="sm" className="h-8 rounded-full" asChild>
+            <Link href="/transactions">Ver movimientos</Link>
+          </Button>
+        }
+      />
 
       {top.length === 0 ? (
         <p className="text-sm text-muted-foreground">
@@ -64,6 +64,6 @@ export function DashboardSpending({ currency, rows }: DashboardSpendingProps) {
           })}
         </ul>
       )}
-    </section>
+    </SurfaceSection>
   );
 }

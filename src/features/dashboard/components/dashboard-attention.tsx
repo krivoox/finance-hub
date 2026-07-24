@@ -2,6 +2,10 @@ import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  SurfaceHeader,
+  SurfaceSection,
+} from "@/components/surface-section";
 import { formatMoney } from "@/lib/format-money";
 import type {
   BudgetAtRiskItem,
@@ -30,29 +34,32 @@ export function DashboardAttention({
   const allClear = !hasBudgets && !hasInsights && !hasGroup;
 
   return (
-    <section aria-label="Atención" className="space-y-5">
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <div className="min-w-0">
-          <h2 className="text-sm font-semibold text-foreground">Atención</h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            Lo que conviene mirar ahora
-          </p>
-        </div>
-        {hasBudgets ? (
-          <Button variant="ghost" size="sm" className="shrink-0" asChild>
-            <Link href="/budgets">Ver presupuestos</Link>
-          </Button>
-        ) : null}
-      </div>
+    <SurfaceSection aria-label="Atención">
+      <SurfaceHeader
+        title="Atención"
+        description="Lo que conviene mirar ahora"
+        action={
+          hasBudgets ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 rounded-full"
+              asChild
+            >
+              <Link href="/budgets">Ver presupuestos</Link>
+            </Button>
+          ) : null
+        }
+      />
 
       {allClear ? (
-        <p className="rounded-lg bg-muted/60 px-4 py-3 text-sm text-muted-foreground">
+        <p className="rounded-xl bg-muted/60 px-4 py-3 text-sm text-muted-foreground">
           Sin alertas. Presupuestos y gastos del mes están en orden.
         </p>
       ) : (
         <div className="space-y-4">
           {hasBudgets ? (
-            <ul className="divide-y divide-border rounded-lg border border-border">
+            <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border">
               {budgetsAtRisk.map((b) => (
                 <li
                   key={b.id}
@@ -83,7 +90,7 @@ export function DashboardAttention({
               {insights.map((insight, i) => (
                 <li
                   key={`${insight.kind}-${i}`}
-                  className="rounded-lg bg-muted/60 px-4 py-3 text-sm text-foreground text-pretty"
+                  className="rounded-xl bg-muted/60 px-4 py-3 text-sm text-foreground text-pretty"
                 >
                   {formatInsight(insight, currency)}
                 </li>
@@ -97,11 +104,11 @@ export function DashboardAttention({
                 <h3 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
                   Balances del grupo
                 </h3>
-                <Button variant="ghost" size="sm" asChild>
+                <Button variant="ghost" size="sm" className="h-8 rounded-full" asChild>
                   <Link href="/groups">Ver grupo</Link>
                 </Button>
               </div>
-              <ul className="divide-y divide-border rounded-lg border border-border">
+              <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border">
                 {memberBalances.map((m) => (
                   <li
                     key={m.userId}
@@ -124,6 +131,6 @@ export function DashboardAttention({
           ) : null}
         </div>
       )}
-    </section>
+    </SurfaceSection>
   );
 }
