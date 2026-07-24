@@ -5,6 +5,10 @@ import {
   goalProgressTone,
 } from "@/components/progress-bar";
 import { Button } from "@/components/ui/button";
+import {
+  SurfaceHeader,
+  SurfaceSection,
+} from "@/components/surface-section";
 import type { GoalProgressItem } from "@/features/dashboard/domain";
 
 type DashboardGoalsProps = {
@@ -13,18 +17,16 @@ type DashboardGoalsProps = {
 
 export function DashboardGoals({ goals }: DashboardGoalsProps) {
   return (
-    <section aria-label="Objetivos" className="space-y-4">
-      <div className="flex flex-wrap items-end justify-between gap-2">
-        <div className="min-w-0">
-          <h2 className="text-sm font-semibold text-foreground">Objetivos</h2>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            Progreso de metas activas
-          </p>
-        </div>
-        <Button variant="ghost" size="sm" className="shrink-0" asChild>
-          <Link href="/goals">Ver todos</Link>
-        </Button>
-      </div>
+    <SurfaceSection>
+      <SurfaceHeader
+        title="Objetivos"
+        description="Progreso de metas activas"
+        action={
+          <Button variant="ghost" size="sm" className="h-8 rounded-full" asChild>
+            <Link href="/goals">Ver todos</Link>
+          </Button>
+        }
+      />
 
       {goals.length === 0 ? (
         <p className="text-sm text-muted-foreground">
@@ -49,6 +51,6 @@ export function DashboardGoals({ goals }: DashboardGoalsProps) {
           ))}
         </ul>
       )}
-    </section>
+    </SurfaceSection>
   );
 }

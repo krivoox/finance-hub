@@ -17,6 +17,7 @@ import { DashboardAttention } from "@/features/dashboard/components/dashboard-at
 import { DashboardGoals } from "@/features/dashboard/components/dashboard-goals";
 import { DashboardSpending } from "@/features/dashboard/components/dashboard-spending";
 import { DashboardRecent } from "@/features/dashboard/components/dashboard-recent";
+import { DashboardAccounts } from "@/features/dashboard/components/dashboard-accounts";
 import { formatPeriodLabel } from "@/features/dashboard/components/format";
 
 export default async function DashboardPage() {
@@ -46,9 +47,6 @@ export default async function DashboardPage() {
   const timezone = profile?.timezone ?? "UTC";
   const now = new Date();
 
-  // Shared `now` + request-cached budget snapshot. Analytics receives the
-  // exceeded count as a Promise so its own tx query starts immediately and
-  // still skips a second listBudgetsWithStatus once the snapshot resolves.
   const dashboardPromise = getDashboard({
     userId: session.user.id,
     workspaceId: workspace.id,
@@ -88,21 +86,19 @@ export default async function DashboardPage() {
       description={`${workspace.name} · ${periodLabel}`}
       actions={
         canMutate ? (
-          <Button asChild className="h-10 w-full sm:h-8 sm:w-auto">
+          <Button asChild className="h-10 w-full rounded-full sm:h-9 sm:w-auto">
             <Link href="/transactions?new=1">Nuevo movimiento</Link>
           </Button>
         ) : undefined
       }
     >
       {/*
-        Visual rhythm (SPEC-12):
-        1. Snapshot — patrimonio + flujo neto (focal)
-        2. Sankey — flujo ingresos → gastos / disponible
-        3. Atención — alertas / insights / balances de grupo
-        4. Progreso + gastos — dos columnas
-        5. Actividad — movimientos recientes
+        Ordered layout (landing chrome + reference dashboard rhythm):
+        1. KPI row — patrimonio / flujo / ingresos / gastos
+        2. Main + rail — Sankey | spending · accounts · atención · objetivos
+        3. Recent transactions
       */}
-      <div className="flex flex-col gap-8 sm:gap-10">
+      <div className="flex flex-col gap-5 sm:gap-6">
         <DashboardSnapshot
           balance={dashboard.totalBalance}
           balancesByCurrency={dashboard.balancesByCurrency}
@@ -112,37 +108,40 @@ export default async function DashboardPage() {
           periodLabel={periodLabel}
         />
 
-        {hasFlowCharts ? (
-          <DashboardFlowCharts
-            currency={currency}
-            cashflowSankey={cashflowSankey}
-            accountSankey={accountSankey}
-          />
-        ) : null}
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(16rem,0.75fr)] lg:items-start lg:gap-6">
+          <div className="flex min-w-0 flex-col gap-5 sm:gap-6">
+            {hasFlowCharts ? (
+              <DashboardFlowCharts
+                currency={currency}
+                cashflowSankey={cashflowSankey}
+                accountSankey={accountSankey}
+              />
+            ) : null}
 
-        <div className="border-t border-border pt-6 sm:pt-8">
-          <DashboardAttention
-            currency={currency}
-            budgetsAtRisk={dashboard.budgetsAtRisk}
-            insights={analytics.insights}
-            memberBalances={dashboard.memberBalances}
-          />
+            <div className="grid gap-5 sm:grid-cols-2 sm:gap-6">
+              <DashboardGoals goals={dashboard.goalsProgress} />
+              <DashboardAttention
+                currency={currency}
+                budgetsAtRisk={dashboard.budgetsAtRisk}
+                insights={analytics.insights}
+                memberBalances={dashboard.memberBalances}
+              />
+            </div>
+          </div>
+
+          <aside className="flex flex-col gap-5 sm:gap-6">
+            <DashboardSpending
+              currency={currency}
+              rows={analytics.spendingByCategory}
+            />
+            <DashboardAccounts accounts={dashboard.accounts} />
+          </aside>
         </div>
 
-        <div className="grid gap-8 border-t border-border pt-6 sm:pt-8 lg:grid-cols-2 lg:gap-12">
-          <DashboardGoals goals={dashboard.goalsProgress} />
-          <DashboardSpending
-            currency={currency}
-            rows={analytics.spendingByCategory}
-          />
-        </div>
-
-        <div className="border-t border-border pt-6 sm:pt-8">
-          <DashboardRecent
-            currency={currency}
-            transactions={dashboard.recentTransactions}
-          />
-        </div>
+        <DashboardRecent
+          currency={currency}
+          transactions={dashboard.recentTransactions}
+        />
       </div>
     </ContentPanel>
   );

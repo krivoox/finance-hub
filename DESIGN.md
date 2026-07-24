@@ -12,12 +12,12 @@
 |----------|-----------|
 | **Quién** | Persona o pareja que abre la app entre tareas del día para registrar un gasto, mirar saldos o revisar el presupuesto. |
 | **Qué debe lograr** | Entender el estado del dinero en segundos y actuar (registrar, transferir, ajustar presupuesto). |
-| **Cómo debe sentirse** | Calmado, preciso, premium — escritorio financiero con color sutil (no flat white) y dark mode de primera. |
+| **Cómo debe sentirse** | Calmado, preciso, premium — escritorio financiero en blanco/gris neutro, con color solo donde comunica (ingresos, egresos, foco). |
 
 **Dominio (metáforas):** ledger, saldos, flujo de caja, presupuestos, objetivos, splits compartidos.  
-**Mundo de color:** papel frío con croma azul suave, tinta, verde ingreso, rojo egreso, azul de acción. Dark: ink profundo con el mismo croma.  
+**Mundo de color:** blanco y grises neutros (sin croma azul en superficies), tinta, verde ingreso, rojo egreso, azul solo como acento de acción (`info`). Dark: charcoal neutro en escalera.  
 **Firma:** sidebar único (workspace + CTA + nav agrupada + tema + usuario) + panel de contenido; Sankey de flujo en el dashboard.  
-**Defaults que rechazamos:** cards genéricas en grid 3×N, purple-indigo SaaS, cream+serif terracotta, dark-mode-first sin toggle, hex sueltos en componentes.
+**Defaults que rechazamos:** cards genéricas en grid 3×N, purple-indigo SaaS, cream+serif terracotta, papel azulado / cool wash, dark-mode-first sin toggle, canvas beige cálido como default, CTA lime/yellow, hex sueltos en componentes.
 
 ---
 
@@ -59,7 +59,7 @@ Sidebar único estilo dashboard (shadcn inset) — **sin** rail de iconos oscuro
 | Grupos | `SidebarGroupLabel` | Ej. Planificación, Compartido |
 | Header app | `SidebarTrigger` + título | Barra superior del inset |
 | Tema | `ThemeToggle` en footer | Claro / Oscuro / Sistema |
-| Content panel | `bg-card` · `rounded-xl` · `border` | Dentro de `SidebarInset` |
+| Content panel | `bg-card` · `rounded-2xl` · `border` | Dentro de `SidebarInset`; CTAs de header en pill |
 
 **Mobile:** el sidebar shadcn abre como **sheet** a pantalla completa (no icon rail). El content panel es edge-to-edge sin radio; `md+` añade inset, borde y `rounded-xl`.
 
@@ -99,7 +99,7 @@ Componentes: `src/components/form-sheet/*`
 | (base) | &lt; 640px | Diseño por defecto: 1 columna, nav sheet, tablas con columnas esenciales |
 | `sm` | ≥ 640px | Grids de formularios 2–3 cols; más padding |
 | `md` | ≥ 768px | Sidebar fijo / colapsable a iconos; content panel con inset |
-| `lg` | ≥ 1024px | Dashboard 2 columnas (objetivos \| gastos) |
+| `lg` | ≥ 1024px | Dashboard: columna principal + rail (gastos/cuentas) |
 
 **Reglas:**
 
@@ -166,8 +166,12 @@ Definidos en `:root` / `.dark` de `src/app/globals.css` y expuestos a Tailwind v
 - Provider: `@teispace/next-themes` (fork compatible React 19 / Next 16) en `app/layout.tsx`.
 - Anti-FOUC: `getThemeScript()` en `<head>` + `noScript` en el provider (evita el warning de `<script>` en client components).
 - Opciones compartidas: `src/lib/theme.ts`. Toggle en sidebar (`ThemeToggle`): Claro / Oscuro / Sistema.
-- Tokens en `:root` y `.dark` de `globals.css` — ink con croma frío; no invert-gray.
-- Atmósfera: degradados radiales sutiles en `body` (info + success).
+- Tokens en `:root` y `.dark` de `globals.css` — superficies **acromáticas** (blanco / gris / charcoal); color solo en acentos semánticos.
+- Sin atmósfera radial en `body` (nada de wash azul/verde sobre el canvas).
+- **Default = light** (blanco neutro). Dark es de primera calidad, no la identidad de marca.
+- **Dark craft:** escala de grises charcoal neutra: `background` → `sidebar` → `card` (panel) → `secondary`/`muted` (widgets). Separación por escalón de gris, no por borders duros. Income/success = mint. CTA = ink invertido — **nunca** yellow/lime.
+- **Cómo verlo (dark):** ThemeToggle → **Oscuro**.
+- **Referencias externas:** dashboards tipo “Zarss” sirven como craft de elevación en dark, no como paleta de marca ni como default light. No adoptar canvas beige cálido ni dark-first sin toggle.
 
 ---
 
@@ -292,15 +296,15 @@ Luego alinear variantes a este documento (nunca dejar colores de demo).
 
 ### Dashboard (pantallazo en 3 segundos)
 
-Orden de lectura fijo — no aplanar todo al mismo peso:
+Orden de lectura fijo — no aplanar todo al mismo peso. Chrome = `SurfaceSection` / `KpiTile` (mismo radio y borde que la landing).
 
-1. **Snapshot** — un solo bloque: Patrimonio (hero `text-3xl`/`sm:text-4xl`) → Flujo neto + Ingresos/Gastos en superficies `income-muted` / `expense-muted` (color sutil, no cards decorativas).
-2. **Sankey** — tabs: *Ingresos → gastos* y *Cuentas → gastos*. Solo si hay datos.
-3. **Atención** — presupuestos en riesgo, insights, balances de grupo. Si no hay nada: un quiet “Sin alertas”.
-4. **Progreso + gastos** — dos columnas: objetivos con barra · top categorías del mes.
-5. **Actividad** — movimientos recientes (tabla).
+1. **KPI row** — 4 tiles accionables: Patrimonio (énfasis `primary`) · Flujo neto · Ingresos · Gastos. Multi-moneda como badges dentro del tile de patrimonio.
+2. **Main + rail** (`lg:`):
+   - Principal: Sankey (tabs *Cuentas → gastos* / *Ingresos → gastos*) + debajo Objetivos | Atención.
+   - Rail: Gastos por categoría + lista de Cuentas (saldos).
+3. **Actividad** — movimientos recientes a ancho completo.
 
-Componentes en `src/features/dashboard/components/`. La page solo compone el DTO.
+Componentes en `src/features/dashboard/components/`. La page solo compone el DTO. Superficies compartidas: `src/components/surface-section.tsx`, `src/components/kpi-tile.tsx`.
 
 ### Lista / tabla (ej. movimientos)
 

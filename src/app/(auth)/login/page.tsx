@@ -5,6 +5,7 @@ import { getSession } from "@/lib/session";
 
 export const metadata = {
   title: "Iniciar sesión · Finance Hub",
+  robots: { index: false, follow: true },
 };
 
 type SearchParams = {

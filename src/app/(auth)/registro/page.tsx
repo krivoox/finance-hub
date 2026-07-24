@@ -5,6 +5,7 @@ import { getSession } from "@/lib/session";
 
 export const metadata = {
   title: "Crear cuenta · Finance Hub",
+  robots: { index: false, follow: true },
 };
 
 type SearchParams = { invite?: string; email?: string };
