@@ -63,6 +63,8 @@ export type GetDashboardResult = {
   recentTransactions: ListedTransaction[];
   accounts: AccountWithBalance[];
   budgetsAtRisk: BudgetAtRiskItem[];
+  /** Non-archived budgets with progress.status === "exceeded". */
+  budgetsExceededCount: number;
   goalsProgress: GoalProgressItem[];
   memberBalances: MemberBalanceItem[] | null;
 };
@@ -194,6 +196,9 @@ export async function getDashboard(
     ),
     accounts,
     budgetsAtRisk: selectBudgetsAtRisk(budgets),
+    budgetsExceededCount: budgets.filter(
+      (b) => !b.isArchived && b.progress.status === "exceeded",
+    ).length,
     goalsProgress: selectActiveGoalsProgress(goals),
     memberBalances,
   };

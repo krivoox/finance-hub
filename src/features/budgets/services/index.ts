@@ -23,4 +23,6 @@ export type {
 export { listBudgetsWithStatus } from "./list-budgets-with-status";
 export type { BudgetWithProgress } from "./list-budgets-with-status";
 
+export { countBudgetsAtRisk } from "./count-budgets-at-risk";
+
 export { parseBudgetDate } from "./utils";

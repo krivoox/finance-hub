@@ -5,6 +5,7 @@ import { requireMembership } from "@/features/workspaces/services";
 import {
   assertCanReadBudgets,
   computeBudgetProgress,
+  unionBudgetPeriodBounds,
   type BudgetExpenseCandidate,
   type BudgetLike,
   type BudgetPeriod,
@@ -39,9 +40,11 @@ type BudgetSnapshot = {
 
 /**
  * Loads budgets + expense candidates once per request.
- * Primitive args so React.cache can hit when layout badge, /budgets, and
- * dashboard/analytics all need the same snapshot (referenceDate only affects
- * progress math, not the DB round-trip).
+ * Expenses are limited to the union of active period windows so we do not
+ * pull the entire workspace ledger on every nav/page.
+ *
+ * Primitive args so React.cache can hit when /budgets and dashboard share
+ * the snapshot (referenceDate only affects progress math).
  */
 const loadBudgetSnapshot = cache(
   async (
@@ -52,7 +55,7 @@ const loadBudgetSnapshot = cache(
     const { role } = await requireMembership(userId, workspaceId);
     assertCanReadBudgets(role);
 
-    const [budgets, expenseRows, contributionCategories] = await Promise.all([
+    const [budgets, contributionCategories] = await Promise.all([
       prisma.budget.findMany({
         where: {
           workspaceId,
@@ -74,16 +77,6 @@ const loadBudgetSnapshot = cache(
           categories: { select: { categoryId: true } },
         },
       }),
-      prisma.transaction.findMany({
-        where: { workspaceId, type: "expense" },
-        select: {
-          type: true,
-          amountCents: true,
-          occurredOn: true,
-          categoryId: true,
-          currency: true,
-        },
-      }),
       // SPEC-14 — exclude contribution outflows from consumer budget "all expenses".
       prisma.category.findMany({
         where: {
@@ -94,6 +87,40 @@ const loadBudgetSnapshot = cache(
         select: { id: true },
       }),
     ]);
+
+    if (budgets.length === 0) {
+      return { budgets, expenses: [] };
+    }
+
+    const periodWindow = unionBudgetPeriodBounds(
+      budgets.map((b) => ({
+        period: b.period as BudgetPeriod,
+        startDate: b.startDate,
+        endDate: b.endDate,
+      })),
+    );
+
+    const expenseRows = await prisma.transaction.findMany({
+      where: {
+        workspaceId,
+        type: "expense",
+        ...(periodWindow
+          ? {
+              occurredOn: {
+                gte: periodWindow.start,
+                lte: periodWindow.end,
+              },
+            }
+          : {}),
+      },
+      select: {
+        type: true,
+        amountCents: true,
+        occurredOn: true,
+        categoryId: true,
+        currency: true,
+      },
+    });
 
     const contributionCategoryIds = new Set(
       contributionCategories.map((c) => c.id),
@@ -118,8 +145,8 @@ const loadBudgetSnapshot = cache(
  * (optionally including archived ones) with its progress snapshot for the
  * active period.
  *
- * We load workspace expenses once and reuse the projection for every budget
- * instead of running one aggregation per budget.
+ * We load workspace expenses once (period-windowed) and reuse the projection
+ * for every budget instead of running one aggregation per budget.
  *
  * The DB snapshot is request-scoped via React.cache; progress is computed
  * per call so a different `referenceDate` never serves stale math.

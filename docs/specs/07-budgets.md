@@ -111,6 +111,6 @@ Los presupuestos limitan el gasto por categoría(s) en un periodo para controlar
 
 ## 9. Notas de implementación
 
-- Query `ListBudgetsWithProgress` (`listBudgetsWithStatus`): carga un **snapshot** request-scoped (budgets + expenses del workspace, excluyendo categorías de aporte SPEC-14) y calcula `progress` por llamada con `referenceDate`.
-- Ese snapshot se comparte en el mismo RSC (badge de nav, listado `/budgets`, dashboard/analytics) vía `React.cache` con claves primitivas — evita N lecturas idénticas de expenses sin servir progreso stale.
+- Query `ListBudgetsWithProgress` (`listBudgetsWithStatus`): carga un **snapshot** request-scoped (budgets + expenses en la ventana de periodos activos, excluyendo categorías de aporte SPEC-14) y calcula `progress` por llamada con `referenceDate`.
+- Badge de nav: `countBudgetsAtRisk` reutiliza ese snapshot (no un listado aparte del ledger completo).
 - Detalle: [architecture.md §7.1](../architecture.md).
