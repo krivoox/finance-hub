@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **transactions:** Add list filters, period presets, and cursor pagination
+
 ### Changed
 
 - Speed up nav and budget reads with period-windowed expenses
