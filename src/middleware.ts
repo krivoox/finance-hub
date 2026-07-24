@@ -22,24 +22,18 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const sessionCookie = getSessionCookie(request);
-  const isAuthenticated = Boolean(sessionCookie);
+  const hasSessionCookie = Boolean(sessionCookie);
   const isAuthForm = matchesPrefix(pathname, AUTH_FORM_ROUTES);
   const isAlwaysPublic = matchesPrefix(pathname, ALWAYS_PUBLIC_PREFIXES);
   const isPublic = isAuthForm || isAlwaysPublic;
 
-  if (!isAuthenticated && !isPublic) {
+  // Cookie presence is optimistic only — never bounce auth forms away here.
+  // An invalid/stale cookie would loop: /login → /onboarding → /login (flicker).
+  // Valid sessions are redirected from login/registro via getSession() in the page.
+  if (!hasSessionCookie && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("callbackUrl", pathname);
-    return NextResponse.redirect(url);
-  }
-
-  // Signed-in users should not stay on login/registro forms,
-  // but they MUST be able to open invite links.
-  if (isAuthenticated && isAuthForm) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/onboarding";
-    url.search = "";
     return NextResponse.redirect(url);
   }
 

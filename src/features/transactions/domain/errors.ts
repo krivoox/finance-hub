@@ -125,3 +125,13 @@ export class TransactionTypeImmutableError extends TransactionDomainError {
     this.name = "TransactionTypeImmutableError";
   }
 }
+
+/** SPEC-05 §4.3 — Custom list period failed validation (from/to rules). */
+export class InvalidDateRangeError extends TransactionDomainError {
+  constructor(
+    message = "El rango de fechas no es válido (from ≤ to, máx. 366 días)",
+  ) {
+    super(message);
+    this.name = "InvalidDateRangeError";
+  }
+}

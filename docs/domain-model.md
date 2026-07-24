@@ -161,6 +161,8 @@ Campos comunes:
 - Income/expense: `accountId` puede ser de otro workspace del mismo usuario (funded externo, SPEC-14); el `workspaceId` de la tx es el contexto de registro (categorías, budgets, splits).
 - No se puede borrar una cuenta con transacciones (archivar).
 
+**Listado (SPEC-05 FR-04):** filtros AND sobre periodo (timezone del usuario), tipo de UI (`all`|income|expense|transfer), cuenta y categoría; paginación cursor. El periodo `this_week` es lunes–domingo calendario — no el ancla weekly de Budget.
+
 ### CurrencyExchange
 
 Canje entre dos cuentas del mismo workspace con monedas distintas (SPEC-16).

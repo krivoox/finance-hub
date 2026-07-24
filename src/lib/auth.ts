@@ -67,6 +67,12 @@ function resolveBaseURL(): string | {
     ...(canonicalHost ? [canonicalHost] : []),
   ];
 
+  // LAN hosts for device testing (`next dev` on http://192.168.x.x:3000).
+  // Without these, dynamic baseURL falls back to localhost and breaks cookies/CSRF.
+  if (env.NODE_ENV !== "production") {
+    allowedHosts.push("192.168.*.*:*", "10.*.*.*:*", "172.*.*.*:*");
+  }
+
   return {
     allowedHosts,
     protocol: env.NODE_ENV === "development" ? "http" : "https",

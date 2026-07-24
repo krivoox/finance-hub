@@ -6,6 +6,7 @@
 | Onboarding de workspace | First-run en `/onboarding` (modal sin shell): ≥1 cuenta; gasto inicial opcional; ready = estado derivado |
 | Account | Cuenta: banco, efectivo, billetera, tarjeta de crédito, etc. |
 | Transaction | Movimiento: ingreso, gasto o transferencia |
+| Periodo de listado (Movimientos) | Ventana sobre `occurredOn`: `this_month` / `this_week` (lun–dom) / `all` / `custom`; default este mes en `User.timezone` (SPEC-05). Distinto del periodo weekly anclado de Budget |
 | Income | Ingreso que aumenta el saldo de una cuenta |
 | Expense | Gasto que disminuye el saldo de una cuenta |
 | Transfer | Movimiento interno entre dos cuentas del mismo workspace (misma moneda) |

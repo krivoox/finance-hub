@@ -25,7 +25,7 @@ Pantalla principal: visión clara del estado financiero del workspace activo (pe
 | FR-01 | Query `GetDashboard` agrega datos del workspace |
 | FR-02 | Bloques: balances por moneda, cashflow del periodo, budgets warning/exceeded, goals activas, txs recientes |
 | FR-03 | Si group: incluir member balances summary |
-| FR-04 | Periodo corriente según timezone (mes calendario) |
+| FR-04 | Periodo corriente según timezone (mes calendario). Misma definición de “este mes” que el listado de Movimientos ([SPEC-05](./05-transactions.md) §4.3 / `getCurrentMonthPeriod`) |
 | FR-05 | UI consume solo el DTO del query (sin recalcular negocio) |
 | FR-06 | Si hay ≥2 monedas con saldo y tasa de consolidación: patrimonio `≈` en `baseCurrency` + caption TC |
 | FR-07 | Sin tasa: solo breakdown por moneda (no inventar conversión 1:1) |

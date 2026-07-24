@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireMembership } from "@/features/workspaces/services";
 import {
   assertCanReadTransactions,
+  LIST_PAGE_SIZE,
   type TransactionType,
 } from "@/features/transactions/domain";
 import { parseOccurredOn } from "./utils";
@@ -13,7 +14,10 @@ export type ListTransactionsServiceInput = {
   workspaceId: string;
   accountId?: string;
   categoryId?: string;
+  /** Single type (legacy). Prefer `types` from `resolveListTypeFilter`. */
   type?: TransactionType;
+  /** When set, filters with `type in (…)`. Empty/undefined = all types incl. fx. */
+  types?: TransactionType[];
   from?: string;
   to?: string;
   cursor?: string;
@@ -36,12 +40,13 @@ export type ListTransactionsResult = {
   nextCursor: string | null;
 };
 
-const DEFAULT_LIMIT = 50;
 const MAX_LIMIT = 200;
 
 /**
  * SPEC-05 FR-04 + SPEC-14 FR-05 — Lists transactions of a workspace ordered by
  * `occurredOn` desc, plus txs that affect local accounts but register elsewhere.
+ *
+ * Invalid cursor → first page (soft-reset, SPEC-05 §4.5).
  */
 export async function listTransactions(
   input: ListTransactionsServiceInput,
@@ -49,7 +54,7 @@ export async function listTransactions(
   const { role } = await requireMembership(input.userId, input.workspaceId);
   assertCanReadTransactions(role);
 
-  const limit = Math.min(input.limit ?? DEFAULT_LIMIT, MAX_LIMIT);
+  const limit = Math.min(input.limit ?? LIST_PAGE_SIZE, MAX_LIMIT);
 
   const localAccountIds = (
     await prisma.financeAccount.findMany({
@@ -66,7 +71,9 @@ export async function listTransactions(
         }
       : undefined;
 
-  const filters: Record<string, unknown> = {
+  const typeFilter = resolveTypeWhere(input);
+
+  const filters = {
     AND: [
       {
         OR: [
@@ -88,7 +95,7 @@ export async function listTransactions(
             : []),
         ],
       },
-      ...(input.type ? [{ type: input.type }] : []),
+      ...(typeFilter ? [typeFilter] : []),
       ...(input.categoryId ? [{ categoryId: input.categoryId }] : []),
       ...(input.accountId
         ? [
@@ -104,6 +111,18 @@ export async function listTransactions(
     ],
   };
 
+  // Soft-reset: missing / foreign cursor → first page (SPEC-05 §4.5).
+  let cursorId = input.cursor;
+  if (cursorId) {
+    const anchor = await prisma.transaction.findUnique({
+      where: { id: cursorId },
+      select: { id: true },
+    });
+    if (!anchor) {
+      cursorId = undefined;
+    }
+  }
+
   const rows = await prisma.transaction.findMany({
     where: filters,
     orderBy: [
@@ -112,9 +131,7 @@ export async function listTransactions(
       { id: "desc" },
     ],
     take: limit + 1,
-    ...(input.cursor
-      ? { skip: 1, cursor: { id: input.cursor } }
-      : {}),
+    ...(cursorId ? { skip: 1, cursor: { id: cursorId } } : {}),
     select: {
       id: true,
       workspaceId: true,
@@ -190,4 +207,18 @@ export async function listTransactions(
     items,
     nextCursor: hasMore ? trimmed[trimmed.length - 1].id : null,
   };
+}
+
+function resolveTypeWhere(
+  input: ListTransactionsServiceInput,
+): { type: TransactionType } | { type: { in: TransactionType[] } } | null {
+  if (input.types && input.types.length > 0) {
+    return input.types.length === 1
+      ? { type: input.types[0] }
+      : { type: { in: input.types } };
+  }
+  if (input.type) {
+    return { type: input.type };
+  }
+  return null;
 }
