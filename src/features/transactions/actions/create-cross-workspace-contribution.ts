@@ -36,6 +36,7 @@ export async function createCrossWorkspaceContributionAction(
     revalidatePath("/accounts");
     revalidatePath("/dashboard");
     revalidatePath("/groups");
+    revalidatePath("/", "layout");
     return {
       ok: true,
       data: {

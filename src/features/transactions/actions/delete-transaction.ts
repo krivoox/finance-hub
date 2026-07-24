@@ -31,6 +31,7 @@ export async function deleteTransactionAction(
     revalidatePath("/transactions");
     revalidatePath("/accounts");
     revalidatePath("/dashboard");
+    revalidatePath("/", "layout");
     return { ok: true, data: { transactionId: result.id } };
   } catch (err) {
     return { ok: false, error: transactionErrorToMessage(err) };

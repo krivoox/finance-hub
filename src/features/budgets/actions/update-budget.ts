@@ -32,6 +32,8 @@ export async function updateBudgetAction(
       categoryIds: parsed.data.categoryIds,
     });
     revalidatePath("/budgets");
+    revalidatePath("/dashboard");
+    revalidatePath("/", "layout");
     return { ok: true, data: { id: result.id } };
   } catch (err) {
     return { ok: false, error: budgetErrorToMessage(err) };

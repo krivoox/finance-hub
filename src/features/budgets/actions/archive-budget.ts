@@ -34,6 +34,8 @@ export async function archiveBudgetAction(
       budgetId: parsed.data.budgetId,
     });
     revalidatePath("/budgets");
+    revalidatePath("/dashboard");
+    revalidatePath("/", "layout");
     return { ok: true };
   } catch (err) {
     return { ok: false, error: budgetErrorToMessage(err) };
@@ -60,6 +62,8 @@ export async function unarchiveBudgetAction(
       budgetId: parsed.data.budgetId,
     });
     revalidatePath("/budgets");
+    revalidatePath("/dashboard");
+    revalidatePath("/", "layout");
     return { ok: true };
   } catch (err) {
     return { ok: false, error: budgetErrorToMessage(err) };
