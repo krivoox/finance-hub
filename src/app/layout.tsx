@@ -21,6 +21,22 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Finance Hub",
   description: "Centro de administración financiera del hogar",
+  applicationName: "Finance Hub",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Finance Hub",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+  },
 };
 
 export const viewport: Viewport = {
