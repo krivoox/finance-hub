@@ -39,7 +39,7 @@ export function AppShell({
         md+: capped viewport + nested scroll inside ContentPanel.
       */}
       <SidebarInset className="flex min-h-svh flex-col md:h-svh md:max-h-svh md:overflow-hidden">
-        <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center gap-2 border-b border-border bg-background px-3 pt-[env(safe-area-inset-top)] sm:px-4 md:static">
+        <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center gap-2 border-b border-border bg-background px-3 pt-[env(safe-area-inset-top)] sm:px-4 md:static md:bg-transparent md:border-transparent">
           <SidebarTrigger className="-ml-1 size-9" />
           <p className="min-w-0 truncate text-sm font-medium text-foreground">
             {title}

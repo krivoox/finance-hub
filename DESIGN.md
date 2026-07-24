@@ -12,12 +12,12 @@
 |----------|-----------|
 | **Quién** | Persona o pareja que abre la app entre tareas del día para registrar un gasto, mirar saldos o revisar el presupuesto. |
 | **Qué debe lograr** | Entender el estado del dinero en segundos y actuar (registrar, transferir, ajustar presupuesto). |
-| **Cómo debe sentirse** | Calmado, preciso, premium — escritorio financiero con color sutil (no flat white) y dark mode de primera. |
+| **Cómo debe sentirse** | Calmado, preciso, premium — escritorio financiero en blanco/gris neutro, con color solo donde comunica (ingresos, egresos, foco). |
 
 **Dominio (metáforas):** ledger, saldos, flujo de caja, presupuestos, objetivos, splits compartidos.  
-**Mundo de color:** papel frío con croma azul suave, tinta, verde ingreso, rojo egreso, azul de acción. Dark: ink profundo con el mismo croma.  
+**Mundo de color:** blanco y grises neutros (sin croma azul en superficies), tinta, verde ingreso, rojo egreso, azul solo como acento de acción (`info`). Dark: charcoal neutro en escalera.  
 **Firma:** sidebar único (workspace + CTA + nav agrupada + tema + usuario) + panel de contenido; Sankey de flujo en el dashboard.  
-**Defaults que rechazamos:** cards genéricas en grid 3×N, purple-indigo SaaS, cream+serif terracotta, dark-mode-first sin toggle, canvas beige cálido como default, CTA lime/yellow, hex sueltos en componentes.
+**Defaults que rechazamos:** cards genéricas en grid 3×N, purple-indigo SaaS, cream+serif terracotta, papel azulado / cool wash, dark-mode-first sin toggle, canvas beige cálido como default, CTA lime/yellow, hex sueltos en componentes.
 
 ---
 
@@ -166,11 +166,12 @@ Definidos en `:root` / `.dark` de `src/app/globals.css` y expuestos a Tailwind v
 - Provider: `@teispace/next-themes` (fork compatible React 19 / Next 16) en `app/layout.tsx`.
 - Anti-FOUC: `getThemeScript()` en `<head>` + `noScript` en el provider (evita el warning de `<script>` en client components).
 - Opciones compartidas: `src/lib/theme.ts`. Toggle en sidebar (`ThemeToggle`): Claro / Oscuro / Sistema.
-- Tokens en `:root` y `.dark` de `globals.css` — ink con croma frío; no invert-gray.
-- Atmósfera: degradados radiales sutiles en `body` (info + success).
-- **Default = light** (papel frío). Dark es de primera calidad, no la identidad de marca.
-- **Dark craft:** capas charcoal frías (`background` → `sidebar` → `card` → `muted`/`popover`); hairlines más suaves; elevación por contraste de superficie + sombra quieta. Income/success = mint frío (no lima de marketing). CTA sigue siendo ink invertido — **nunca** yellow/lime como `primary`.
-- **Referencias externas:** dashboards tipo “Zarss” (beige canvas + charcoal + mint/yellow) sirven como **craft de elevación y jerarquía**, no como paleta de marca. No adoptar canvas beige cálido ni dark-first sin toggle.
+- Tokens en `:root` y `.dark` de `globals.css` — superficies **acromáticas** (blanco / gris / charcoal); color solo en acentos semánticos.
+- Sin atmósfera radial en `body` (nada de wash azul/verde sobre el canvas).
+- **Default = light** (blanco neutro). Dark es de primera calidad, no la identidad de marca.
+- **Dark craft:** escala de grises charcoal neutra: `background` → `sidebar` → `card` (panel) → `secondary`/`muted` (widgets). Separación por escalón de gris, no por borders duros. Income/success = mint. CTA = ink invertido — **nunca** yellow/lime.
+- **Cómo verlo (dark):** ThemeToggle → **Oscuro**.
+- **Referencias externas:** dashboards tipo “Zarss” sirven como craft de elevación en dark, no como paleta de marca ni como default light. No adoptar canvas beige cálido ni dark-first sin toggle.
 
 ---
 

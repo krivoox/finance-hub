@@ -25,9 +25,15 @@ export function SurfaceSection({
     <div
       className={cn(
         "rounded-2xl border border-border",
-        muted ? "bg-muted/40" : "bg-card",
-        /* Dark: quieter edge; depth from charcoal surface steps */
-        "dark:border-border/70 dark:shadow-sm",
+        /*
+          Nested elevation: panel is `card`; widgets step up.
+          Dark: secondary charcoal (clear gray ladder like Zarss).
+          Light: soft muted wash on paper.
+        */
+        muted
+          ? "bg-muted/50 dark:bg-muted"
+          : "bg-muted/35 dark:bg-secondary",
+        "dark:border-transparent dark:shadow-sm",
         flush ? "overflow-hidden" : "p-4 sm:p-5",
         className,
       )}

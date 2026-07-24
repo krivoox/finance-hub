@@ -5,9 +5,10 @@
 @custom-variant dark (&:is(.dark *));
 
 /*
-  Finance Hub theme — inspired by Dub's product UI, tuned for money flows.
-  Subtle cool chroma (not flat gray) in light + crafted dark.
-  Components must use Tailwind semantic classes or CVA — never raw hex / zinc-* / blue-*.
+  Finance Hub theme — neutral paper + charcoal dark, tuned for money flows.
+  Surfaces are achromatic (white / gray). Color lives only in semantic accents
+  (info, income, expense). Components must use Tailwind semantic classes or CVA —
+  never raw hex / zinc-* / blue-*.
 */
 
 @theme inline {
@@ -84,37 +85,37 @@
 }
 
 :root {
-  /* Cool paper — slight blue chroma so the app is not pure white */
-  --background: oklch(0.965 0.012 250);
-  --foreground: oklch(0.22 0.02 260);
+  /* Neutral white paper — no cool/blue cast on surfaces */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.2 0 0);
 
-  --card: oklch(0.995 0.004 250);
-  --card-foreground: oklch(0.22 0.02 260);
-  --popover: oklch(0.995 0.004 250);
-  --popover-foreground: oklch(0.22 0.02 260);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.2 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.2 0 0);
 
-  --primary: oklch(0.22 0.02 260);
-  --primary-foreground: oklch(0.985 0.005 250);
+  --primary: oklch(0.2 0 0);
+  --primary-foreground: oklch(0.99 0 0);
 
-  --secondary: oklch(0.945 0.014 250);
-  --secondary-foreground: oklch(0.22 0.02 260);
-  --muted: oklch(0.945 0.014 250);
-  --muted-foreground: oklch(0.5 0.025 260);
-  --accent: oklch(0.94 0.02 250);
-  --accent-foreground: oklch(0.22 0.02 260);
+  --secondary: oklch(0.96 0 0);
+  --secondary-foreground: oklch(0.2 0 0);
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.48 0 0);
+  --accent: oklch(0.955 0 0);
+  --accent-foreground: oklch(0.2 0 0);
 
   --destructive: oklch(0.55 0.2 25);
-  --border: oklch(0.88 0.015 250);
-  --input: oklch(0.88 0.015 250);
+  --border: oklch(0.9 0 0);
+  --input: oklch(0.9 0 0);
   --ring: oklch(0.55 0.18 255);
 
   --info: oklch(0.52 0.19 255);
-  --info-foreground: oklch(0.985 0.005 250);
+  --info-foreground: oklch(0.99 0 0);
   --info-muted: oklch(0.94 0.035 255);
   --info-muted-foreground: oklch(0.42 0.14 255);
 
   --success: oklch(0.52 0.14 155);
-  --success-foreground: oklch(0.985 0.01 155);
+  --success-foreground: oklch(0.99 0 0);
   --success-muted: oklch(0.94 0.045 155);
   --warning: oklch(0.72 0.14 75);
   --warning-foreground: oklch(0.32 0.07 55);
@@ -124,105 +125,103 @@
   --income-foreground: var(--success-foreground);
   --income-muted: var(--success-muted);
   --expense: var(--destructive);
-  --expense-foreground: oklch(0.985 0.01 25);
+  --expense-foreground: oklch(0.99 0 0);
   --expense-muted: oklch(0.95 0.035 25);
   --transfer: var(--info);
   --transfer-foreground: var(--info-foreground);
   --transfer-muted: var(--info-muted);
 
-  --sidebar: oklch(0.985 0.008 250);
-  --sidebar-foreground: oklch(0.4 0.03 260);
-  --sidebar-primary: oklch(0.22 0.02 260);
-  --sidebar-primary-foreground: oklch(0.985 0.005 250);
-  --sidebar-accent: oklch(0.93 0.025 250);
-  --sidebar-accent-foreground: oklch(0.22 0.02 260);
-  --sidebar-border: oklch(0.88 0.015 250);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.42 0 0);
+  --sidebar-primary: oklch(0.2 0 0);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: oklch(0.945 0 0);
+  --sidebar-accent-foreground: oklch(0.2 0 0);
+  --sidebar-border: oklch(0.9 0 0);
   --sidebar-ring: var(--ring);
 
-  --sidebar-rail: oklch(0.22 0.02 260);
-  --sidebar-rail-foreground: oklch(0.78 0.02 250);
+  --sidebar-rail: oklch(0.2 0 0);
+  --sidebar-rail-foreground: oklch(0.75 0 0);
   --sidebar-rail-accent: oklch(1 0 0);
 
   --chart-1: oklch(0.52 0.19 255);
   --chart-2: oklch(0.52 0.14 155);
   --chart-3: oklch(0.72 0.14 75);
   --chart-4: oklch(0.55 0.14 300);
-  --chart-5: oklch(0.58 0.1 220);
+  --chart-5: oklch(0.55 0.08 0);
 
   --radius: 0.75rem;
 }
 
 .dark {
   /*
-    Cool charcoal layers (elevation by surface, not warm beige).
-    Craft inspired by layered dashboards — same cold hue as light; never cream canvas.
+    Charcoal gray ladder — fully neutral (no blue cast).
+    background ≪ sidebar ≪ card (panel) ≪ secondary/muted (widgets).
+    Never warm beige canvas; never lime CTA.
   */
-  --background: oklch(0.125 0.016 255);
-  --foreground: oklch(0.97 0.008 250);
+  --background: oklch(0.09 0 0);
+  --foreground: oklch(0.985 0 0);
 
-  --card: oklch(0.175 0.018 255);
-  --card-foreground: oklch(0.97 0.008 250);
-  --popover: oklch(0.2 0.02 255);
-  --popover-foreground: oklch(0.97 0.008 250);
+  --card: oklch(0.175 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.22 0 0);
+  --popover-foreground: oklch(0.985 0 0);
 
-  /* CTA stays inverted ink (light on dark) — never lime/yellow primary */
-  --primary: oklch(0.97 0.008 250);
-  --primary-foreground: oklch(0.16 0.018 255);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.12 0 0);
 
-  --secondary: oklch(0.22 0.02 255);
-  --secondary-foreground: oklch(0.97 0.008 250);
-  --muted: oklch(0.21 0.018 255);
-  --muted-foreground: oklch(0.68 0.018 250);
-  --accent: oklch(0.24 0.028 255);
-  --accent-foreground: oklch(0.97 0.008 250);
+  --secondary: oklch(0.255 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.23 0 0);
+  --muted-foreground: oklch(0.6 0 0);
+  --accent: oklch(0.28 0 0);
+  --accent-foreground: oklch(0.985 0 0);
 
   --destructive: oklch(0.7 0.17 25);
-  /* Softer hairlines — depth comes from surface steps */
-  --border: oklch(0.97 0.008 250 / 9%);
-  --input: oklch(0.97 0.008 250 / 11%);
+  --border: oklch(1 0 0 / 5%);
+  --input: oklch(1 0 0 / 7%);
   --ring: oklch(0.68 0.14 255);
 
   --info: oklch(0.72 0.14 255);
-  --info-foreground: oklch(0.16 0.03 255);
-  --info-muted: oklch(0.24 0.045 255);
+  --info-foreground: oklch(0.14 0.03 255);
+  --info-muted: oklch(0.26 0.04 255);
   --info-muted-foreground: oklch(0.84 0.07 255);
 
-  /* Soft cool mint for income/success — not marketing lime */
-  --success: oklch(0.76 0.11 160);
-  --success-foreground: oklch(0.16 0.04 160);
-  --success-muted: oklch(0.24 0.045 160);
-  --warning: oklch(0.78 0.11 85);
-  --warning-foreground: oklch(0.22 0.05 75);
-  --warning-muted: oklch(0.26 0.045 85);
+  --success: oklch(0.76 0.1 155);
+  --success-foreground: oklch(0.14 0.04 155);
+  --success-muted: oklch(0.26 0.04 155);
+  --warning: oklch(0.78 0.1 85);
+  --warning-foreground: oklch(0.2 0.05 75);
+  --warning-muted: oklch(0.28 0.04 85);
 
   --income: var(--success);
   --income-foreground: var(--success-foreground);
   --income-muted: var(--success-muted);
   --expense: var(--destructive);
-  --expense-foreground: oklch(0.16 0.03 25);
-  --expense-muted: oklch(0.26 0.055 25);
+  --expense-foreground: oklch(0.14 0.03 25);
+  --expense-muted: oklch(0.28 0.05 25);
   --transfer: var(--info);
   --transfer-foreground: var(--info-foreground);
   --transfer-muted: var(--info-muted);
 
-  --sidebar: oklch(0.145 0.017 255);
-  --sidebar-foreground: oklch(0.74 0.018 250);
-  --sidebar-primary: oklch(0.97 0.008 250);
-  --sidebar-primary-foreground: oklch(0.16 0.018 255);
-  --sidebar-accent: oklch(0.22 0.025 255);
-  --sidebar-accent-foreground: oklch(0.97 0.008 250);
-  --sidebar-border: oklch(0.97 0.008 250 / 8%);
+  --sidebar: oklch(0.125 0 0);
+  --sidebar-foreground: oklch(0.68 0 0);
+  --sidebar-primary: oklch(0.985 0 0);
+  --sidebar-primary-foreground: oklch(0.12 0 0);
+  --sidebar-accent: oklch(0.22 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 4%);
   --sidebar-ring: var(--ring);
 
-  --sidebar-rail: oklch(0.11 0.014 255);
-  --sidebar-rail-foreground: oklch(0.68 0.018 250);
+  --sidebar-rail: oklch(0.07 0 0);
+  --sidebar-rail-foreground: oklch(0.62 0 0);
   --sidebar-rail-accent: oklch(1 0 0);
 
   --chart-1: oklch(0.72 0.14 255);
-  --chart-2: oklch(0.76 0.11 160);
-  --chart-3: oklch(0.78 0.11 85);
+  --chart-2: oklch(0.76 0.1 155);
+  --chart-3: oklch(0.78 0.1 85);
   --chart-4: oklch(0.7 0.1 300);
-  --chart-5: oklch(0.7 0.09 220);
+  --chart-5: oklch(0.65 0 0);
 }
 
 @layer base {
@@ -237,33 +236,6 @@
 
   body {
     @apply bg-background text-foreground;
-    background-image:
-      radial-gradient(
-        ellipse 80% 50% at 100% -10%,
-        color-mix(in oklch, var(--info) 12%, transparent),
-        transparent 55%
-      ),
-      radial-gradient(
-        ellipse 60% 40% at 0% 100%,
-        color-mix(in oklch, var(--success) 8%, transparent),
-        transparent 50%
-      );
-    background-attachment: fixed;
-  }
-
-  .dark body {
-    /* Quieter ambient — depth from charcoal layers, not loud glows */
-    background-image:
-      radial-gradient(
-        ellipse 65% 40% at 85% -8%,
-        color-mix(in oklch, var(--info) 12%, transparent),
-        transparent 58%
-      ),
-      radial-gradient(
-        ellipse 45% 30% at 8% 108%,
-        color-mix(in oklch, var(--success) 7%, transparent),
-        transparent 52%
-      );
   }
 
   .tabular {

@@ -41,7 +41,7 @@ export function KpiTile({
         "flex flex-col rounded-2xl border p-4 sm:p-5",
         emphasis
           ? "border-primary bg-primary text-primary-foreground dark:border-transparent dark:shadow-sm"
-          : "border-border bg-card dark:border-border/70 dark:shadow-sm",
+          : "border-border bg-muted/35 dark:border-transparent dark:bg-secondary dark:shadow-sm",
         className,
       )}
     >

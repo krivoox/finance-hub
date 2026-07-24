@@ -23,7 +23,8 @@ export function ContentPanel({
     <section
       className={cn(
         "flex flex-1 flex-col bg-card md:min-h-0 md:overflow-hidden md:rounded-2xl md:border md:border-border md:shadow-sm",
-        "dark:md:border-border/60 dark:md:shadow-md",
+        /* Dark: float the panel above charcoal canvas — no hairline, soft depth */
+        "dark:md:border-transparent dark:md:shadow-[0_8px_30px_oklch(0_0_0/0.45)]",
         className,
       )}
     >
