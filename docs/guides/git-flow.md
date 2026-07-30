@@ -91,13 +91,24 @@ git fetch --prune                    # limpia refs remotas borradas
 
 | Evento | Resultado |
 |--------|-----------|
-| Push / merge a `main` | Deploy **production** |
-| Push / merge a `develop` | Deploy **preview** (integración) |
-| Push a `feat/*` etc. | Deploy **preview** efímero del PR |
+| Push / merge a `main` | Deploy **production** → `https://finance.krivoox.com` |
+| Push / merge a `develop` | Deploy **preview** (integración) → `https://demo.krivoox.com` |
+| Push a `feat/*` etc. | Deploy **preview** efímero del PR (`*.vercel.app`) |
 
-`BETTER_AUTH_URL` de **Production** apunta al dominio canónico de `main`.
+### Dominios (`krivoox.com`)
 
-En **Preview** (`develop` / PRs) no reutilizar esa URL: el Origin del deploy (`*.vercel.app`) no coincide y Better Auth rechaza el login (CSRF). El código resuelve `BETTER_AUTH_URL` con `VERCEL_URL` cuando `VERCEL_ENV=preview` y confía `https://*.vercel.app`. Preferible: no setear `BETTER_AUTH_URL` en el Environment Preview de Vercel (solo Production + Development local).
+El apex `krivoox.com` queda libre para el **portfolio** (otro proyecto Vercel). Finance Hub usa **subdominios dedicados** (no path `/finance-hub`):
+
+| Entorno | URL | Asignación Vercel |
+|---------|-----|-------------------|
+| Production (`main`) | `https://finance.krivoox.com` | dominio de producción |
+| Preview integración (`develop`) | `https://demo.krivoox.com` | dominio con `gitBranch=develop` |
+
+Path-based (`krivoox.com/finance-hub`) se descartó: requiere proyecto gateway/portfolio con rewrites + `basePath` en Next.js + cookies/CSRF de Better Auth bajo un prefijo; frágil mientras el portfolio no exista.
+
+`BETTER_AUTH_URL` de **Production** = `https://finance.krivoox.com`.
+
+En **Preview** (`develop` / PRs) no reutilizar esa URL: el Origin del deploy (`*.vercel.app` o `demo.krivoox.com`) no coincide y Better Auth rechaza el login (CSRF). El código resuelve fallback con `VERCEL_URL` cuando `VERCEL_ENV=preview` y confía `https://*.vercel.app` + `https://*.krivoox.com` (ver `src/lib/env.ts` + `src/lib/auth.ts`). Preferible: no setear `BETTER_AUTH_URL` en el Environment Preview de Vercel (solo Production + Development local).
 
 ## Checklist rápido antes de abrir PR
 

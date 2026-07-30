@@ -32,6 +32,8 @@ function trustedOrigins(): string[] {
 
   if (env.VERCEL_ENV === "preview" || env.VERCEL_ENV === "production") {
     origins.push("https://*.vercel.app");
+    // Custom domains under krivoox.com (prod + demo aliases).
+    origins.push("https://*.krivoox.com");
   }
 
   if (env.NODE_ENV === "production") {
@@ -64,6 +66,7 @@ function resolveBaseURL(): string | {
     "localhost:*",
     "127.0.0.1:*",
     "*.vercel.app",
+    "*.krivoox.com",
     ...(canonicalHost ? [canonicalHost] : []),
   ];
 
