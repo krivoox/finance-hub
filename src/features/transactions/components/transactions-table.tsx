@@ -9,6 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { CategoryPill } from "@/features/categories/components/category-pill";
 import { formatSignedMoney } from "@/lib/format-money";
 import type { TransactionType } from "@/features/transactions/domain";
 
@@ -129,8 +130,8 @@ export function TransactionsTable({
               <TableCell className="hidden text-muted-foreground sm:table-cell">
                 {accountLabel}
               </TableCell>
-              <TableCell className="hidden text-muted-foreground md:table-cell">
-                {categoryLabel}
+              <TableCell className="hidden md:table-cell">
+                <CategoryPill label={categoryLabel} />
               </TableCell>
               <TableCell className="hidden text-muted-foreground lg:table-cell">
                 {tx.createdByDisplayName}

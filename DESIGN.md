@@ -278,6 +278,7 @@ Toda vista de datos: loading (`Skeleton`) · empty · error.
 |------------|------|--------|
 | Button | `ui/button` | `default` = ink CTA; `outline` / `ghost` secundarios |
 | Badge | `ui/badge` | Incluye `info`, `success`, `warning`, `income`, `expense`, `transfer` |
+| CategoryPill | `features/categories/components/category-pill` | Badge `secondary` neutro para categoría en tablas; sin pill si es `—` |
 | Input | `ui/input` | Fondos/bordes vía tokens |
 | Table | `ui/table` | Filas con `border-border`; headers muted |
 | Sidebar | `ui/sidebar` | Base para nav; componer rail + secundaria encima |
