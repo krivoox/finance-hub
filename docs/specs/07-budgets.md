@@ -17,6 +17,7 @@ Los presupuestos limitan el gasto por categoría(s) en un periodo para controlar
 2. Quiero ver cuánto llevo gastado vs el límite.
 3. Quiero alertarme conceptualmente cuando supero el 80% o el 100% (dato derivado; UI muestra estado).
 4. Quiero abrir un presupuesto y ver los gastos del periodo que suman a ese límite.
+5. Quiero ver en el menú lateral cuántos presupuestos necesitan atención, y si alguno ya está excedido.
 
 ## 3. Requisitos funcionales
 
@@ -29,6 +30,7 @@ Los presupuestos limitan el gasto por categoría(s) en un periodo para controlar
 | FR-05 | Actualizar límite / categorías; archivar budget |
 | FR-06 | Periodo monthly: ancla en startDate + timezone del workspace owner o user |
 | FR-07 | Detalle: listar expenses del periodo activo que matchean el budget (mismo filtro que FR-02) |
+| FR-08 | Badge de nav en Presupuestos: número = presupuestos no archivados en `warning` o `exceeded` (at-risk); si hay ≥1 `exceeded`, además icono crítico (`text-expense`); si solo `warning`, número con tono caution y sin icono rojo; si 0, sin badge. Accesible vía `aria-label` que diferencie atención vs exceso. Sin badges en otros ítems de nav (v1). |
 
 ## 4. Reglas de negocio
 
@@ -56,6 +58,10 @@ Los presupuestos limitan el gasto por categoría(s) en un periodo para controlar
 - [ ] Progress correcto con expenses en borde de fechas.
 - [ ] Transfer no incrementa spent.
 - [ ] Warning en 80%, exceeded sobre 100%.
+- [ ] Nav: 0 at-risk → sin badge.
+- [ ] Nav: solo warning → número visible, sin icono crítico.
+- [ ] Nav: ≥1 exceeded (solo o mezclado con warning) → número = total at-risk + icono crítico.
+- [ ] Nav: `aria-label` diferencia “al límite / cerca” vs “hay presupuestos excedidos”.
 
 ## 7. Escenarios de test (TDD)
 
@@ -102,6 +108,22 @@ Los presupuestos limitan el gasto por categoría(s) en un periodo para controlar
 - **When** GetBudgetDetail / `listMatchingBudgetExpenses`  
 - **Then** solo expenses comida del periodo; suma = spent
 
+### T-08 Nav signal — resumen at-risk / exceeded
+
+- **Given** budgets: on_track, warning, exceeded, warning archivado  
+- **When** `summarizeBudgetNavSignal`  
+- **Then** `{ atRisk: 2, exceeded: 1 }`
+
+### T-09 Nav badge — severidad
+
+- **Given** `budgetsAtRisk=2`, `budgetsExceeded=0`  
+- **When** `budgetNavBadgePresentation`  
+- **Then** severity=`caution`, sin señal de icono crítico; aria menciona límite
+
+- **Given** `budgetsAtRisk=3`, `budgetsExceeded≥1`  
+- **When** `budgetNavBadgePresentation`  
+- **Then** severity=`critical`; aria menciona excedidos; count=3
+
 ## 8. Fuera de alcance
 
 - Presupuestos enrollables / rollover automático
@@ -112,5 +134,5 @@ Los presupuestos limitan el gasto por categoría(s) en un periodo para controlar
 ## 9. Notas de implementación
 
 - Query `ListBudgetsWithProgress` (`listBudgetsWithStatus`): carga un **snapshot** request-scoped (budgets + expenses en la ventana de periodos activos, excluyendo categorías de aporte SPEC-14) y calcula `progress` por llamada con `referenceDate`.
-- Badge de nav: `countBudgetsAtRisk` reutiliza ese snapshot (no un listado aparte del ledger completo).
+- Badge de nav: `summarizeBudgetsAtRisk` / `summarizeBudgetNavSignal` reutiliza ese snapshot (una pasada → `{ atRisk, exceeded }`; no un listado aparte del ledger completo). Umbrales 80%/100% no cambian.
 - Detalle: [architecture.md §7.1](../architecture.md).

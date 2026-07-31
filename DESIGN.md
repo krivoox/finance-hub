@@ -256,6 +256,7 @@ Usar `src/components/progress-bar.tsx`. **Rojo (`tone="alert"` / `bg-expense`) s
 |----------|--------|
 | Objetivos (`goalProgressTone`) | `<40%` info · `40–79%` progress (`chart-5`) · `≥80%` success |
 | Presupuestos (`budgetProgressTone`) | `on_track` info · `warning` caution · `exceeded` **alert** |
+| Badge nav Presupuestos | Número = at-risk; `text-warning` si solo warning; **`text-expense` + icono** solo si hay ≥1 exceeded |
 | Ranking de gastos (`spendingRankTone`) | `chart-1` / `chart-2` / `chart-3` (cicla; nunca rojo) |
 
 ### Estados obligatorios

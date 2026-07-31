@@ -182,7 +182,7 @@ El layout `(app)` y las páginas suelen resolver **sesión, usuario, workspace a
 
 **Patrón adoptado:** envolver lecturas de tenancy / auth frecuentes con `cache()` de React (`src/lib/session.ts`, `getCurrentUser`, `getActiveWorkspaceForUser`, `requireMembership`, `listMyWorkspaces`). El cache **muere al terminar el request**; no hay TTL ni almacenamiento entre navegaciones.
 
-**Presupuestos:** `listBudgetsWithStatus` carga un snapshot request-scoped (`budgets` + expenses) y calcula `progress` por call. Los expenses se filtran a la **unión de periodos activos** (`unionBudgetPeriodBounds`), no al ledger completo. El badge de nav usa `countBudgetsAtRisk` sobre ese snapshot. Layout badge, `/budgets` y `GetDashboard` comparten la misma carga SQL en el request.
+**Presupuestos:** `listBudgetsWithStatus` carga un snapshot request-scoped (`budgets` + expenses) y calcula `progress` por call. Los expenses se filtran a la **unión de periodos activos** (`unionBudgetPeriodBounds`), no al ledger completo. El badge de nav usa `summarizeBudgetsAtRisk` / `summarizeBudgetNavSignal` sobre ese snapshot (`atRisk` + `exceeded` en una pasada). Layout badge, `/budgets` y `GetDashboard` comparten la misma carga SQL en el request.
 
 Mutaciones que afectan el badge (gastos, update/archive budget, etc.) llaman `revalidatePath("/", "layout")` para refrescar el shell.
 
