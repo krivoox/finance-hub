@@ -9,9 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Restore nav feedback, loading skeletons, and mobile FormSheets
+- **transactions:** Show categories as pills in table
 
-[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.5.0...HEAD
+- **categories:** Stable chart tones for category pills
+
+- **nav:** Alert icon on budgets badge when exceeded
+
+### Fixed
+
+- **nav:** Slightly increase gap in budgets alert badge
+
+[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.6.0...HEAD
 
 ## [0.4.0] - 2026-07-24
 
