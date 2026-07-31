@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { ChevronsUpDown, LogOut, Plus, Search } from "lucide-react";
+import { AlertTriangle, ChevronsUpDown, LogOut, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -32,6 +32,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { signOut } from "@/lib/auth-client";
+import { cn } from "@/lib/utils";
 import { navigateAndRefresh } from "@/lib/navigation";
 import {
   WorkspaceSwitcher,
@@ -167,7 +168,19 @@ function NavMenuItems({ items }: { items: NavItem[] }) {
               </Link>
             </SidebarMenuButton>
             {item.badge != null && item.badge > 0 ? (
-              <SidebarMenuBadge>{item.badge}</SidebarMenuBadge>
+              <SidebarMenuBadge
+                aria-label={item.badgeAriaLabel}
+                className={cn(
+                  "gap-0.5",
+                  item.badgeSeverity === "critical" && "text-expense",
+                  item.badgeSeverity === "caution" && "text-warning",
+                )}
+              >
+                {item.badgeSeverity === "critical" ? (
+                  <AlertTriangle className="size-3 shrink-0" aria-hidden />
+                ) : null}
+                <span>{item.badge}</span>
+              </SidebarMenuBadge>
             ) : null}
           </SidebarMenuItem>
         );
