@@ -45,7 +45,7 @@ Versiones de referencia: `turno-app` / Siturn (marzo 2026). Mantener alineadas s
 | **Postgres (Supabase)** | Persistencia, constraints, RLS |
 | **Supabase SDK** | Storage / Realtime / clientes cuando haga falta — no reemplaza Prisma ni Better Auth |
 | **Zod** | Validación doble: forms (cliente) + Server Actions |
-| **React Query** | Cache/fetch en Client Components |
+| **React Query** | Cache/fetch en Client Components (UI islands); listados de dinero siguen en RSC |
 | **Zustand** | Solo UI (modales, sidebar, workspace activo en cliente) |
 | **Vitest** | TDD de lógica de negocio (no UI) |
 | **Maestro** | Smoke / exploración UI vía CLI o MCP (web beta); no sustituye Vitest |
@@ -91,6 +91,21 @@ GOOGLE_CLIENT_SECRET=
   - Preview: orígenes `*.vercel.app` y dominios Preview krivoox (`*.krivoox.com` según trusted origins). Combinar con Dynamic Base URL / `BETTER_AUTH_TRUSTED_ORIGINS` para que el callback coincida con el host del Preview. En Google Cloud hay que registrar cada URI de Preview usada (o un flujo operativo acordado); wildcards nativos de Google son limitados.
 - Account linking: Google como **trusted provider** + `requireLocalEmailVerified: false` (SPEC-01 decisión 1.B — link por email verificado por Google aunque el User local aún no tenga `emailVerified`; el default de Better Auth es `true` y produce `account_not_linked`).
 - `PRISMA_LOG_QUERIES`: `1` / `true` imprime `prisma:query` en desarrollo; por defecto off (Zod en `src/lib/env.ts`). No afecta producción (solo `error`).
+
+## Next.js — Client Router Cache
+
+En `next.config.ts`:
+
+```ts
+experimental: {
+  staleTimes: {
+    dynamic: 0,   // sin cache cross-nav en segmentos dinámicos (listados de dinero)
+    static: 180,  // loading boundaries / prefetch estático
+  },
+}
+```
+
+Velocidad percibida en soft-nav: `loading.tsx` + `PageSkeleton` + cerrar sidebar móvil al click. Detalle: [architecture.md §7.2](./architecture.md#72-navegación-inmediata-y-client-router-cache).
 
 ## Scripts esperados (`package.json`)
 

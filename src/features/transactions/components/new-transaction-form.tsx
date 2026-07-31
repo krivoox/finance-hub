@@ -25,6 +25,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { nativeSelectClassName } from "@/components/ui/native-select";
+import { refreshAfterMutation } from "@/lib/navigation";
 import { TRANSACTION_TYPE_LABEL_ES } from "./transaction-type-labels";
 
 type AccountOption = {
@@ -374,8 +375,8 @@ export function NewTransactionForm({
         description: "",
       });
       setShareExpense(false);
-      router.refresh();
       onSuccess?.();
+      refreshAfterMutation(router);
     });
   });
 

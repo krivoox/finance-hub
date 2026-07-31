@@ -17,6 +17,7 @@ import {
   FormStack,
 } from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
+import { refreshAfterMutation } from "@/lib/navigation";
 import { Input } from "@/components/ui/input";
 import { nativeSelectClassName } from "@/components/ui/native-select";
 import { ACCOUNT_TYPE_LABEL_ES } from "./account-type-labels";
@@ -101,8 +102,8 @@ export function NewAccountForm({
             : "ARS",
         initialBalanceUnits: "0",
       });
-      router.refresh();
       onSuccess?.();
+      refreshAfterMutation(router);
     });
   });
 

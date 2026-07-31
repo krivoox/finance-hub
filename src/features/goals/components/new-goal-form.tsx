@@ -18,6 +18,7 @@ import {
   SegmentedControl,
 } from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
+import { refreshAfterMutation } from "@/lib/navigation";
 import { Input } from "@/components/ui/input";
 import { nativeSelectClassName } from "@/components/ui/native-select";
 import { GOAL_KIND_LABEL_ES } from "./goal-kind-labels";
@@ -130,8 +131,8 @@ export function NewGoalForm({
         targetDate: "",
         linkedAccountId: "",
       });
-      router.refresh();
       onSuccess?.();
+      refreshAfterMutation(router);
     });
   });
 

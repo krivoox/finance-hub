@@ -14,6 +14,7 @@ import {
 import { SUPPORTED_CURRENCIES } from "@/features/auth/domain/profile";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { navigateAndRefresh } from "@/lib/navigation";
 
 export function NewGroupWorkspaceForm() {
   const router = useRouter();
@@ -37,8 +38,7 @@ export function NewGroupWorkspaceForm() {
       }
       toast.success("Espacio creado");
       reset({ name: "", baseCurrency: "ARS" });
-      router.push("/onboarding");
-      router.refresh();
+      navigateAndRefresh(router, "/onboarding");
     });
   });
 
