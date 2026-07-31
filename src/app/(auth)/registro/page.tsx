@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { RegisterForm } from "@/features/auth/components/register-form";
+import { isGoogleOAuthEnabled } from "@/lib/env";
 import { getSession } from "@/lib/session";
 
 export const metadata = {
@@ -35,7 +36,11 @@ export default async function RegisterPage({
         </p>
       </div>
 
-      <RegisterForm inviteToken={invite} prefillEmail={email} />
+      <RegisterForm
+        inviteToken={invite}
+        prefillEmail={email}
+        googleEnabled={isGoogleOAuthEnabled}
+      />
 
       <p className="text-center text-xs text-muted-foreground">
         ¿Ya tenés cuenta?{" "}

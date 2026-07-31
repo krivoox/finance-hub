@@ -34,10 +34,16 @@ export function ForgotPasswordForm() {
 
   if (submitted) {
     return (
-      <p className="text-sm text-muted-foreground">
-        Si el email está registrado, recibirás un enlace para restablecer tu
-        contraseña.
-      </p>
+      <div className="space-y-2 text-sm text-muted-foreground">
+        <p>
+          Si el email está registrado con contraseña, recibirás un enlace para
+          restablecerla.
+        </p>
+        <p>
+          Si solo usás Google, no hay contraseña asociada: volvé al login y
+          elegí Continuar con Google.
+        </p>
+      </div>
     );
   }
 

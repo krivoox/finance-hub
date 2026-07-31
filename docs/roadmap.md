@@ -14,7 +14,7 @@ Orden sugerido para el agente. Cada ítem: **spec → TDD dominio/application �
 
 | Orden | Spec | Entregable |
 |-------|------|------------|
-| 1 | [01-auth](./specs/01-auth.md) | Registro/login + workspace personal |
+| 1 | [01-auth](./specs/01-auth.md) | Registro/login + workspace personal; **Continuar con Google** (OAuth + account linking 1.B) en `/login` y `/registro` |
 | 2 | [02-workspaces](./specs/02-workspaces.md) | Listado y contexto activo |
 | 3 | [03-accounts](./specs/03-accounts.md) | Cuentas + saldo derivado |
 | 4 | [04-categories](./specs/04-categories.md) | Seed + CRUD |
