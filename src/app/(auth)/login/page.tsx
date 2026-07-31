@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/features/auth/components/login-form";
+import { OAuthErrorToast } from "@/features/auth/components/oauth-error-toast";
+import { isGoogleOAuthEnabled } from "@/lib/env";
 import { getSession } from "@/lib/session";
 
 export const metadata = {
@@ -12,22 +14,40 @@ type SearchParams = {
   callbackUrl?: string;
   invite?: string;
   email?: string;
+  error?: string;
 };
+
+/** Avoid bouncing auth to PWA/meta assets used as callbackUrl by middleware. */
+function safeCallbackUrl(callbackUrl?: string): string | undefined {
+  if (!callbackUrl?.startsWith("/") || callbackUrl.startsWith("//")) {
+    return undefined;
+  }
+  if (
+    callbackUrl === "/manifest.webmanifest" ||
+    callbackUrl.startsWith("/api/")
+  ) {
+    return undefined;
+  }
+  return callbackUrl;
+}
 
 export default async function LoginPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const { callbackUrl, invite, email } = await searchParams;
+  const { callbackUrl: rawCallbackUrl, invite, email, error } =
+    await searchParams;
+  const callbackUrl = safeCallbackUrl(rawCallbackUrl);
 
   const session = await getSession();
   if (session?.user?.id) {
-    redirect(callbackUrl && callbackUrl.startsWith("/") ? callbackUrl : "/dashboard");
+    redirect(callbackUrl ?? "/dashboard");
   }
 
   return (
     <div className="space-y-6">
+      <OAuthErrorToast error={error} />
       <div className="space-y-1">
         <h1 className="text-lg font-semibold text-foreground">
           Iniciá sesión
@@ -43,6 +63,7 @@ export default async function LoginPage({
         callbackUrl={callbackUrl}
         inviteToken={invite}
         prefillEmail={email}
+        googleEnabled={isGoogleOAuthEnabled}
       />
 
       <div className="space-y-2 text-center text-xs text-muted-foreground">

@@ -6,6 +6,26 @@ import { env } from "@/lib/env";
 import { createPersonalWorkspaceForUser } from "@/features/workspaces/services/create-personal-workspace";
 import { acceptPendingInvitationsForEmail } from "@/features/workspaces/services/invitations";
 
+const googleClientId = env.GOOGLE_CLIENT_ID;
+const googleClientSecret = env.GOOGLE_CLIENT_SECRET;
+const googleSocialProviders =
+  googleClientId && googleClientSecret
+    ? {
+        google: {
+          clientId: googleClientId,
+          clientSecret: googleClientSecret,
+          prompt: "select_account" as const,
+          mapProfileToUser: (profile: {
+            name?: string | null;
+            email?: string | null;
+          }) => ({
+            name: profile.name ?? profile.email ?? "Usuario",
+            displayName: profile.name ?? undefined,
+          }),
+        },
+      }
+    : undefined;
+
 function hostFromUrl(url: string): string | undefined {
   try {
     return new URL(url).host;
@@ -88,6 +108,13 @@ export const auth = betterAuth({
   baseURL: resolveBaseURL(),
   secret: env.BETTER_AUTH_SECRET,
   trustedOrigins: trustedOrigins(),
+  /**
+   * OAuth failures (account_not_linked, state_mismatch, …) land on /login
+   * with `?error=` instead of Better Auth’s default developer error page.
+   */
+  onAPIError: {
+    errorURL: "/login",
+  },
   database: prismaAdapter(prisma, { provider: "postgresql" }),
   emailAndPassword: {
     enabled: true,
@@ -111,6 +138,26 @@ export const auth = betterAuth({
       }
     },
     revokeSessionsOnPasswordReset: true,
+  },
+  /** Google OAuth (SPEC-01). Omitted when credentials are missing (degradable). */
+  socialProviders: googleSocialProviders,
+  /**
+   * Account linking 1.B: Google is trusted so a verified Google email can link
+   * to an existing User even when Finance Hub `emailVerified` is still false.
+   *
+   * Better Auth defaults `requireLocalEmailVerified` to true — that rejects
+   * linking for password users who never verified email (our common case) and
+   * surfaces `account_not_linked`. Product decision 1.B turns that off.
+   *
+   * `updateUserInfoOnLink: false` preserves displayName / preferences.
+   */
+  account: {
+    accountLinking: {
+      enabled: true,
+      trustedProviders: ["google"],
+      requireLocalEmailVerified: false,
+      updateUserInfoOnLink: false,
+    },
   },
   user: {
     additionalFields: {
@@ -144,6 +191,11 @@ export const auth = betterAuth({
   databaseHooks: {
     user: {
       create: {
+        /**
+         * Runs only when a User row is created (email signUp or first Google
+         * login with a new email). Account linking to an existing User does
+         * not create a User → this hook does not re-run (SPEC-01 T-08/T-12).
+         */
         after: async (user) => {
           await createPersonalWorkspaceForUser({
             userId: user.id,

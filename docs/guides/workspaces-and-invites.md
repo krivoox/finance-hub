@@ -43,8 +43,10 @@ En un grupo, todos ven patrimonio consolidado y “quién debe a quién”. Solo
 2. En **Grupos**, sección miembros: ingresá email + rol (`admin` / `member` / `viewer`).
 3. Copiá el link `/invitaciones/{token}` (válido 7 días). En desarrollo también se loguea en consola.
 4. La otra persona abre el link:
-   - **Sin cuenta** → registro (email prefijado) → workspace personal + membership en el grupo + ese grupo queda activo.
-   - **Con cuenta** (mismo email) → login o botón “Unirme” → membership + workspace activo.
+   - **Sin cuenta** → registro (email prefijado) **o Continuar con Google** (mismo email) → workspace personal + membership en el grupo + ese grupo queda activo.
+   - **Con cuenta** (mismo email) → login, Continuar con Google, o botón “Unirme” → membership + workspace activo.
+
+El email de Google debe **coincidir** con el de la invitación (case-insensitive), igual que el path email/password. El flujo OAuth debe preservar el token (`fh-invite-token` / `callbackURL`). Detalle: [SPEC-01](../specs/01-auth.md) + [SPEC-02](../specs/02-workspaces.md).
 
 ## Qué ve cada uno
 

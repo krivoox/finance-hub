@@ -8,6 +8,10 @@ import { toast } from "sonner";
 import { signIn } from "@/lib/auth-client";
 import { loginSchema, type LoginInput } from "@/features/auth/schemas";
 import { acceptInvitationAction } from "@/features/workspaces/actions";
+import {
+  AuthMethodDivider,
+  GoogleSignInButton,
+} from "@/features/auth/components/google-sign-in-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -15,10 +19,12 @@ export function LoginForm({
   callbackUrl,
   inviteToken,
   prefillEmail,
+  googleEnabled = false,
 }: {
   callbackUrl?: string;
   inviteToken?: string;
   prefillEmail?: string;
+  googleEnabled?: boolean;
 }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -62,47 +68,60 @@ export function LoginForm({
   };
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-      <div className="space-y-1">
-        <label htmlFor="email" className="text-xs font-medium text-foreground">
-          Email
-        </label>
-        <Input
-          id="email"
-          type="email"
-          autoComplete="email"
-          aria-invalid={Boolean(errors.email)}
-          {...register("email")}
-        />
-        {errors.email ? (
-          <p className="text-xs text-destructive">{errors.email.message}</p>
-        ) : null}
-      </div>
+    <div className="space-y-4">
+      {googleEnabled ? (
+        <>
+          <GoogleSignInButton
+            mode="login"
+            inviteToken={inviteToken}
+            callbackUrl={callbackUrl}
+          />
+          <AuthMethodDivider />
+        </>
+      ) : null}
 
-      <div className="space-y-1">
-        <label
-          htmlFor="password"
-          className="text-xs font-medium text-foreground"
-        >
-          Contraseña
-        </label>
-        <Input
-          id="password"
-          type="password"
-          autoComplete="current-password"
-          aria-invalid={Boolean(errors.password)}
-          {...register("password")}
-        />
-        {errors.password ? (
-          <p className="text-xs text-destructive">
-            {errors.password.message}
-          </p>
-        ) : null}
-      </div>
+      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
+        <div className="space-y-1">
+          <label htmlFor="email" className="text-xs font-medium text-foreground">
+            Email
+          </label>
+          <Input
+            id="email"
+            type="email"
+            autoComplete="email"
+            aria-invalid={Boolean(errors.email)}
+            {...register("email")}
+          />
+          {errors.email ? (
+            <p className="text-xs text-destructive">{errors.email.message}</p>
+          ) : null}
+        </div>
 
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? "Iniciando sesión..." : "Iniciar sesión"}
-      </Button>
-    </form>
+        <div className="space-y-1">
+          <label
+            htmlFor="password"
+            className="text-xs font-medium text-foreground"
+          >
+            Contraseña
+          </label>
+          <Input
+            id="password"
+            type="password"
+            autoComplete="current-password"
+            aria-invalid={Boolean(errors.password)}
+            {...register("password")}
+          />
+          {errors.password ? (
+            <p className="text-xs text-destructive">
+              {errors.password.message}
+            </p>
+          ) : null}
+        </div>
+
+        <Button type="submit" className="h-10 w-full" disabled={isSubmitting}>
+          {isSubmitting ? "Iniciando sesión..." : "Iniciar sesión"}
+        </Button>
+      </form>
+    </div>
   );
 }

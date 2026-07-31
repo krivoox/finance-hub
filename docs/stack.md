@@ -40,7 +40,7 @@ Versiones de referencia: `turno-app` / Siturn (marzo 2026). Mantener alineadas s
 | Pieza | Rol en Finance Hub |
 |-------|-------------------|
 | **Next.js** | Monolito: UI + Server Actions + Route Handlers |
-| **Better Auth** | Única auth de producto (email/password). **No** Supabase Auth |
+| **Better Auth** | Única auth de producto (email/password + Google OAuth opcional). **No** Supabase Auth |
 | **Prisma** | Schema, migraciones, queries tipadas en servidor |
 | **Postgres (Supabase)** | Persistencia, constraints, RLS |
 | **Supabase SDK** | Storage / Realtime / clientes cuando haga falta — no reemplaza Prisma ni Better Auth |
@@ -73,6 +73,10 @@ DIRECT_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres
 BETTER_AUTH_SECRET=
 BETTER_AUTH_URL=http://localhost:3000
 
+# Google OAuth (opcional; Continuar con Google — SPEC-01)
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
 # Opcional (solo desarrollo): loguear cada statement SQL de Prisma
 # PRISMA_LOG_QUERIES=0
 ```
@@ -80,6 +84,12 @@ BETTER_AUTH_URL=http://localhost:3000
 - Secret: `openssl rand -base64 32` → `BETTER_AUTH_SECRET`
 - Producción: `DATABASE_URL` → pooler (`:6543`, `?pgbouncer=true`); `DIRECT_URL` → sesión directa para migraciones
 - `BETTER_AUTH_URL`: dominio canónico (fallback). En Vercel **Production** = `https://finance.krivoox.com`. En **Preview** el runtime prioriza `VERCEL_URL` y Better Auth usa Dynamic Base URL con `*.vercel.app` + `*.krivoox.com` (`demo.krivoox.com` en `develop`; ver `src/lib/env.ts` + `src/lib/auth.ts`). Preferible: no setear `BETTER_AUTH_URL` en Environment Preview. Opcional: `BETTER_AUTH_TRUSTED_ORIGINS`
+- `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`: provider social Google en Better Auth (`socialProviders.google`). Sin ellas, email/password sigue funcionando; el botón Google se oculta (feature degradable). Centralizar en `src/lib/env.ts` (opcionales).
+- **Redirect URIs (Google Cloud Console)** — path fijo Better Auth: `{origin}/api/auth/callback/google`
+  - Local: `http://localhost:3000/api/auth/callback/google`
+  - Production: `https://finance.krivoox.com/api/auth/callback/google` (u origen canónico vigente)
+  - Preview: orígenes `*.vercel.app` y dominios Preview krivoox (`*.krivoox.com` según trusted origins). Combinar con Dynamic Base URL / `BETTER_AUTH_TRUSTED_ORIGINS` para que el callback coincida con el host del Preview. En Google Cloud hay que registrar cada URI de Preview usada (o un flujo operativo acordado); wildcards nativos de Google son limitados.
+- Account linking: Google como **trusted provider** + `requireLocalEmailVerified: false` (SPEC-01 decisión 1.B — link por email verificado por Google aunque el User local aún no tenga `emailVerified`; el default de Better Auth es `true` y produce `account_not_linked`).
 - `PRISMA_LOG_QUERIES`: `1` / `true` imprime `prisma:query` en desarrollo; por defecto off (Zod en `src/lib/env.ts`). No afecta producción (solo `error`).
 
 ## Scripts esperados (`package.json`)

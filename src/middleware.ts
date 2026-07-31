@@ -12,12 +12,13 @@ const AUTH_FORM_ROUTES = [
 /** Public routes that both guests and signed-in users may visit. */
 const ALWAYS_PUBLIC_PREFIXES = ["/invitaciones"];
 
-/** Exact public paths (marketing + crawl surfaces). */
+/** Exact public paths (marketing + crawl surfaces + PWA). */
 const PUBLIC_EXACT = new Set([
   "/",
   "/robots.txt",
   "/sitemap.xml",
   "/llms.txt",
+  "/manifest.webmanifest",
 ]);
 
 function matchesPrefix(pathname: string, prefixes: string[]): boolean {
@@ -60,6 +61,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api/auth|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/((?!api/auth|_next/static|_next/image|favicon.ico|manifest.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };
