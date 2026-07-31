@@ -20,6 +20,7 @@ type TableTransaction = {
   currency: string;
   occurredOn: Date | string;
   description: string | null;
+  categoryId: string | null;
   categoryName: string | null;
   accountName: string;
   accountWorkspaceId: string;
@@ -131,7 +132,10 @@ export function TransactionsTable({
                 {accountLabel}
               </TableCell>
               <TableCell className="hidden md:table-cell">
-                <CategoryPill label={categoryLabel} />
+                <CategoryPill
+                  label={categoryLabel}
+                  toneSeed={tx.categoryId}
+                />
               </TableCell>
               <TableCell className="hidden text-muted-foreground lg:table-cell">
                 {tx.createdByDisplayName}
