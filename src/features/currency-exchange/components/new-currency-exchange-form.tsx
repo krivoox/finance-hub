@@ -17,6 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { nativeSelectClassName } from "@/components/ui/native-select";
+import { refreshAfterMutation } from "@/lib/navigation";
 
 type AccountOption = {
   id: string;
@@ -144,8 +145,8 @@ export function NewCurrencyExchangeForm({
         return;
       }
       toast.success("Cambio de moneda registrado");
-      router.refresh();
       onSuccess?.();
+      refreshAfterMutation(router);
     });
   });
 

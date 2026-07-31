@@ -32,6 +32,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { signOut } from "@/lib/auth-client";
+import { navigateAndRefresh } from "@/lib/navigation";
 import {
   WorkspaceSwitcher,
   type WorkspaceOption,
@@ -76,8 +77,7 @@ function SidebarUserMenu({ user }: { user: SidebarUser }) {
       const { error } = await signOut({
         fetchOptions: {
           onSuccess: () => {
-            router.push("/login");
-            router.refresh();
+            navigateAndRefresh(router, "/login");
           },
         },
       });
@@ -143,9 +143,11 @@ function SidebarUserMenu({ user }: { user: SidebarUser }) {
 
 function NavMenuItems({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
+  const { isMobile, setOpenMobile } = useSidebar();
+  const [isPending, startTransition] = useTransition();
 
   return (
-    <SidebarMenu>
+    <SidebarMenu className={isPending ? "opacity-70 transition-opacity" : undefined}>
       {items.map((item) => {
         const Icon = item.icon;
         const active = isNavItemActive(pathname, item.href);
@@ -153,7 +155,13 @@ function NavMenuItems({ items }: { items: NavItem[] }) {
         return (
           <SidebarMenuItem key={item.href}>
             <SidebarMenuButton asChild isActive={active} tooltip={item.title}>
-              <Link href={item.href}>
+              <Link
+                href={item.href}
+                onClick={() => {
+                  if (isMobile) setOpenMobile(false);
+                  startTransition(() => {});
+                }}
+              >
                 <Icon strokeWidth={1.75} />
                 <span>{item.title}</span>
               </Link>
@@ -174,6 +182,7 @@ export function AppSidebar({
   activeWorkspace,
   navBadges = {},
 }: AppSidebarProps) {
+  const { isMobile, setOpenMobile } = useSidebar();
   const mainItems = applyNavBadges(mainNavItems, navBadges);
   const groups = navGroups.map((group) => ({
     ...group,
@@ -196,7 +205,12 @@ export function AppSidebar({
               asChild
               className="h-10 flex-1 justify-center gap-2 rounded-full px-3 text-center align-middle md:h-8 group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:flex-none group-data-[collapsible=icon]:rounded-lg group-data-[collapsible=icon]:p-0"
             >
-              <Link href="/transactions?new=1">
+              <Link
+                href="/transactions?new=1"
+                onClick={() => {
+                  if (isMobile) setOpenMobile(false);
+                }}
+              >
                 <Plus className="size-4" strokeWidth={1.75} />
                 <span className="flex flex-wrap group-data-[collapsible=icon]:sr-only">
                   Registrar
@@ -211,7 +225,12 @@ export function AppSidebar({
             aria-label="Buscar"
             asChild
           >
-            <Link href="/transactions">
+            <Link
+              href="/transactions"
+              onClick={() => {
+                if (isMobile) setOpenMobile(false);
+              }}
+            >
               <Search className="size-4" strokeWidth={1.75} />
             </Link>
           </Button>

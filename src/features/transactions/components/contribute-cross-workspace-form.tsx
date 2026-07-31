@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { nativeSelectClassName } from "@/components/ui/native-select";
+import { refreshAfterMutation } from "@/lib/navigation";
 
 export type ContributionAccountOption = {
   id: string;
@@ -120,8 +121,8 @@ export function ContributeCrossWorkspaceForm({
         return;
       }
       toast.success("Aporte registrado");
-      router.refresh();
       onSuccess?.();
+      refreshAfterMutation(router);
     });
   });
 

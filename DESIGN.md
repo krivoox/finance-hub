@@ -69,8 +69,10 @@ Los formularios de carga (movimientos, cuentas, presupuestos, objetivos) **no vi
 
 | Viewport | Comportamiento |
 |----------|----------------|
-| Móvil | Sheet a pantalla completa desde la derecha (`w-full`) |
+| Móvil | Sheet a **pantalla completa** (`w-full` / `h-dvh`, sin borde lateral) |
 | `sm+` | Drawer fijo (`sm:max-w-md` / `lg` para movimientos) — la lista queda visible detrás |
+
+**Cerrar:** botón X en el header del sheet — `outline`, `rounded-full`, target táctil ≥40px en móvil (`size-10`). Neutro (alineado al chrome del panel); no usar `destructive` (reservado a egresos y acciones destructivas).
 
 **Por qué no modal centrado:** los forms tienen muchos campos y secciones condicionales (splits, categorías). Un modal estrecho scrollería mal y competiría visualmente. El sheet escala mejor mobile → desktop y es el patrón de Dub / Linear / Stripe.
 

@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { navigateAndRefresh } from "@/lib/navigation";
 import { acceptInvitationAction } from "@/features/workspaces/actions";
 
 export function AcceptInviteButton({ token }: { token: string }) {
@@ -18,8 +19,7 @@ export function AcceptInviteButton({ token }: { token: string }) {
         return;
       }
       toast.success("Te uniste al workspace");
-      router.push("/dashboard");
-      router.refresh();
+      navigateAndRefresh(router, "/dashboard");
     });
   }
 

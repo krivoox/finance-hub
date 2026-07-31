@@ -13,6 +13,7 @@ import {
   SegmentedControl,
 } from "@/components/form-sheet";
 import { Badge } from "@/components/ui/badge";
+import { refreshAfterMutation } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -98,7 +99,7 @@ export function CategoriesSettingsPanel({
               kind={kind}
               onSuccess={() => {
                 setCreateOpen(false);
-                router.refresh();
+                refreshAfterMutation(router);
               }}
               onCancel={() => setCreateOpen(false)}
             />
@@ -150,7 +151,7 @@ export function CategoriesSettingsPanel({
                       workspaceId={workspaceId}
                       categoryId={category.id}
                       categoryName={category.name}
-                      onDone={() => router.refresh()}
+                      onDone={() => refreshAfterMutation(router)}
                     />
                   </div>
                 ) : null}
@@ -194,7 +195,7 @@ export function CategoriesSettingsPanel({
             initialName={renameTarget.name}
             onSuccess={() => {
               setRenameTarget(null);
-              router.refresh();
+              refreshAfterMutation(router);
             }}
             onCancel={() => setRenameTarget(null)}
           />

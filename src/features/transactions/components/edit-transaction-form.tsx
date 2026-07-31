@@ -17,6 +17,10 @@ import {
   FormStack,
 } from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
+import {
+  navigateAndRefresh,
+  refreshAfterMutation,
+} from "@/lib/navigation";
 import { Input } from "@/components/ui/input";
 import { nativeSelectClassName } from "@/components/ui/native-select";
 
@@ -116,8 +120,8 @@ export function EditTransactionForm({
         return;
       }
       toast.success("Movimiento actualizado");
-      router.refresh();
       onSuccess?.();
+      refreshAfterMutation(router);
     });
   });
 
@@ -129,8 +133,7 @@ export function EditTransactionForm({
         return;
       }
       toast.success("Movimiento eliminado");
-      router.push("/transactions");
-      router.refresh();
+      navigateAndRefresh(router, "/transactions");
     });
   };
 

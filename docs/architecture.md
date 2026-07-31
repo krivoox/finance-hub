@@ -198,6 +198,28 @@ Mutaciones que afectan el badge (gastos, update/archive budget, etc.) llaman `re
 
 Tras mutaciones se sigue invalidando con `revalidatePath` (página + layout cuando el shell debe refrescar). Eso **re-ejecuta** el request; el `React.cache` no evita trabajo entre navegaciones.
 
+### 7.2 Navegación inmediata y Client Router Cache
+
+Las páginas autenticadas son **RSC** (Prisma en servidor). El feedback al navegar no depende de cachear listados de dinero: depende de `loading.tsx` + cerrar el sidebar al click.
+
+| Pieza | Rol |
+|-------|-----|
+| `loading.tsx` bajo `src/app/(app)/` (+ por ruta) | Suspense de segmento: skeleton inmediato; el shell sigue vivo |
+| Cerrar sidebar móvil en click de `Link` | Feedback inmediato; no esperar el RSC destino |
+| `experimental.staleTimes.dynamic: 0` | **Sin** Client Router Cache en segmentos dinámicos (default Next 15+) — evita aterrizar en un payload pre-mutación tras crear un gasto |
+| `experimental.staleTimes.static: 180` | Reuso de loading boundaries / prefetch completo en segmentos estáticos |
+| `src/lib/navigation.ts` | Helpers client post-mutación (`refreshAfterMutation`, `navigateAndRefresh`, `replaceAndRefresh`) |
+
+**Contrato post-mutación (Client Components):**
+
+1. Server Action llama `revalidatePath` (y `revalidatePath("/", "layout")` si el shell cambia).
+2. En el cliente: `onSuccess?.()` primero (cerrar sheet, limpiar UI local).
+3. Luego `refreshAfterMutation(router)` si permanece en la misma ruta, o `navigateAndRefresh` / `replaceAndRefresh` si hay soft-nav.
+
+El `refresh` se difiere con `setTimeout(0)` para que corra **después** del `push`/`replace` y no pierda la carrera contra el Client Router Cache.
+
+**Listados con paginación client-side:** no copiar `initialItems` de props a `useState` en el mount — derivar la primera página de props y usar state solo para páginas extra (`loadMore`).
+
 ## 8. Flujo de una mutación
 
 ```txt

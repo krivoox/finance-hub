@@ -18,8 +18,10 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { cn } from "@/lib/utils";
+import { refreshAfterMutation } from "@/lib/navigation";
 
 export type WorkspaceOption = {
   id: string;
@@ -49,6 +51,7 @@ export function WorkspaceSwitcher({
   workspaces,
 }: WorkspaceSwitcherProps) {
   const router = useRouter();
+  const { isMobile, setOpenMobile } = useSidebar();
   const [isPending, startTransition] = useTransition();
 
   const activeName = active?.name ?? "Sin workspace";
@@ -67,7 +70,7 @@ export function WorkspaceSwitcher({
         toast.error(result.error);
         return;
       }
-      router.refresh();
+      refreshAfterMutation(router);
     });
   };
 
@@ -130,7 +133,10 @@ export function WorkspaceSwitcher({
             })}
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onSelect={() => router.push("/settings?tab=workspace")}
+              onSelect={() => {
+                if (isMobile) setOpenMobile(false);
+                router.push("/settings?tab=workspace");
+              }}
               className="text-muted-foreground"
             >
               + Nuevo workspace grupal
