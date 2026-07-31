@@ -19,7 +19,7 @@ User
 
 ### User
 
-Persona autenticada.
+Persona autenticada. Identidad de producto vía **Better Auth** (email/password y/o Google OAuth). Un email = un User (case-insensitive). Las credenciales OAuth viven en el modelo infra `Account` de Better Auth (no confundir con la entidad financiera Account).
 
 | Campo | Tipo | Notas |
 |-------|------|-------|
@@ -29,6 +29,11 @@ Persona autenticada.
 | preferredCurrency | CurrencyCode | default del usuario |
 | timezone | IANA timezone | para periodos |
 | createdAt | DateTime | |
+
+**Invariantes (auth / alta)**
+
+- Primer alta (signUp o primer Google con email nuevo): se crea Workspace `personal` + membership `owner` (SPEC-01 / hook `user.create.after`).
+- Linking Google a User existente (mismo email, Google verifica email): **no** recrea workspace personal; **no** sobrescribe `displayName` ni preferencias (SPEC-01).
 
 ### Workspace
 

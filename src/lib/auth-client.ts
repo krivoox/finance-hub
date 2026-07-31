@@ -8,4 +8,5 @@ export const authClient = createAuthClient({
   plugins: [inferAdditionalFields<typeof auth>()],
 });
 
+/** Includes `signIn.email` and `signIn.social` (Google when configured). */
 export const { signIn, signUp, signOut, useSession, getSession } = authClient;

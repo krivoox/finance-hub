@@ -33,6 +33,13 @@ const envSchema = z.object({
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().default(""),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
 
+  /**
+   * Google OAuth (SPEC-01). Optional — without both vars, email/password still
+   * works and the Continuar con Google button stays hidden.
+   */
+  GOOGLE_CLIENT_ID: z.string().min(1).optional(),
+  GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
+
   /** Set to "1" / "true" to log every Prisma SQL statement in development. */
   PRISMA_LOG_QUERIES: z
     .enum(["0", "1", "true", "false"])
@@ -83,4 +90,10 @@ export const env = {
   ...data,
   BETTER_AUTH_URL: resolveBetterAuthUrl(data),
 };
+
+/** True when Google social sign-in can be offered (both credentials present). */
+export const isGoogleOAuthEnabled = Boolean(
+  env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET,
+);
+
 export type Env = typeof env;

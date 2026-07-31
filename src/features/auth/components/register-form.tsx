@@ -8,15 +8,21 @@ import { toast } from "sonner";
 import { signUp } from "@/lib/auth-client";
 import { registerSchema, type RegisterInput } from "@/features/auth/schemas";
 import { acceptInvitationAction } from "@/features/workspaces/actions";
+import {
+  AuthMethodDivider,
+  GoogleSignInButton,
+} from "@/features/auth/components/google-sign-in-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export function RegisterForm({
   inviteToken,
   prefillEmail,
+  googleEnabled = false,
 }: {
   inviteToken?: string;
   prefillEmail?: string;
+  googleEnabled?: boolean;
 }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -73,80 +79,89 @@ export function RegisterForm({
   };
 
   return (
-    <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-      {inviteToken ? (
-        <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-          Al registrarte vas a tener tu espacio personal y también vas a unirte
-          al workspace al que te invitaron.
-        </p>
+    <div className="space-y-4">
+      {googleEnabled ? (
+        <>
+          <GoogleSignInButton mode="register" inviteToken={inviteToken} />
+          <AuthMethodDivider />
+        </>
       ) : null}
 
-      <div className="space-y-1">
-        <label
-          htmlFor="displayName"
-          className="text-xs font-medium text-foreground"
-        >
-          Nombre
-        </label>
-        <Input
-          id="displayName"
-          type="text"
-          autoComplete="name"
-          aria-invalid={Boolean(errors.displayName)}
-          {...register("displayName")}
-        />
-        {errors.displayName ? (
-          <p className="text-xs text-destructive">
-            {errors.displayName.message}
+      <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
+        {inviteToken ? (
+          <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+            Al registrarte vas a tener tu espacio personal y también vas a
+            unirte al workspace al que te invitaron.
           </p>
         ) : null}
-      </div>
 
-      <div className="space-y-1">
-        <label htmlFor="email" className="text-xs font-medium text-foreground">
-          Email
-        </label>
-        <Input
-          id="email"
-          type="email"
-          autoComplete="email"
-          readOnly={emailLocked}
-          aria-invalid={Boolean(errors.email)}
-          {...register("email")}
-        />
-        {errors.email ? (
-          <p className="text-xs text-destructive">{errors.email.message}</p>
-        ) : null}
-      </div>
+        <div className="space-y-1">
+          <label
+            htmlFor="displayName"
+            className="text-xs font-medium text-foreground"
+          >
+            Nombre
+          </label>
+          <Input
+            id="displayName"
+            type="text"
+            autoComplete="name"
+            aria-invalid={Boolean(errors.displayName)}
+            {...register("displayName")}
+          />
+          {errors.displayName ? (
+            <p className="text-xs text-destructive">
+              {errors.displayName.message}
+            </p>
+          ) : null}
+        </div>
 
-      <div className="space-y-1">
-        <label
-          htmlFor="password"
-          className="text-xs font-medium text-foreground"
-        >
-          Contraseña
-        </label>
-        <Input
-          id="password"
-          type="password"
-          autoComplete="new-password"
-          aria-invalid={Boolean(errors.password)}
-          {...register("password")}
-        />
-        {errors.password ? (
-          <p className="text-xs text-destructive">
-            {errors.password.message}
-          </p>
-        ) : (
-          <p className="text-[10px] text-muted-foreground">
-            Mínimo 8 caracteres.
-          </p>
-        )}
-      </div>
+        <div className="space-y-1">
+          <label htmlFor="email" className="text-xs font-medium text-foreground">
+            Email
+          </label>
+          <Input
+            id="email"
+            type="email"
+            autoComplete="email"
+            readOnly={emailLocked}
+            aria-invalid={Boolean(errors.email)}
+            {...register("email")}
+          />
+          {errors.email ? (
+            <p className="text-xs text-destructive">{errors.email.message}</p>
+          ) : null}
+        </div>
 
-      <Button type="submit" className="w-full" disabled={isSubmitting}>
-        {isSubmitting ? "Creando cuenta..." : "Crear cuenta"}
-      </Button>
-    </form>
+        <div className="space-y-1">
+          <label
+            htmlFor="password"
+            className="text-xs font-medium text-foreground"
+          >
+            Contraseña
+          </label>
+          <Input
+            id="password"
+            type="password"
+            autoComplete="new-password"
+            aria-invalid={Boolean(errors.password)}
+            {...register("password")}
+          />
+          {errors.password ? (
+            <p className="text-xs text-destructive">
+              {errors.password.message}
+            </p>
+          ) : (
+            <p className="text-[10px] text-muted-foreground">
+              Mínimo 8 caracteres.
+            </p>
+          )}
+        </div>
+
+        <Button type="submit" className="h-10 w-full" disabled={isSubmitting}>
+          {isSubmitting ? "Creando cuenta..." : "Crear cuenta"}
+        </Button>
+      </form>
+    </div>
   );
 }
