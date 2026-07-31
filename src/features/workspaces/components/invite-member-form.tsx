@@ -8,6 +8,7 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { refreshAfterMutation } from "@/lib/navigation";
 import { inviteMemberAction } from "@/features/workspaces/actions";
 
 const formSchema = z.object({
@@ -41,7 +42,7 @@ export function InviteMemberForm({ workspaceId }: { workspaceId: string }) {
       setInviteUrl(result.data.inviteUrl);
       toast.success("Invitación creada");
       form.reset({ email: "", role: "member" });
-      router.refresh();
+      refreshAfterMutation(router);
     });
   }
 

@@ -14,6 +14,7 @@ import {
 } from "@/features/auth/components/google-sign-in-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { navigateAndRefresh } from "@/lib/navigation";
 
 export function LoginForm({
   callbackUrl,
@@ -63,8 +64,7 @@ export function LoginForm({
     }
 
     setIsSubmitting(false);
-    router.push(callbackUrl ?? "/dashboard");
-    router.refresh();
+    navigateAndRefresh(router, callbackUrl ?? "/dashboard");
   };
 
   return (

@@ -14,6 +14,7 @@ import {
 } from "@/features/auth/components/google-sign-in-button";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { navigateAndRefresh } from "@/lib/navigation";
 
 export function RegisterForm({
   inviteToken,
@@ -74,8 +75,7 @@ export function RegisterForm({
     }
 
     setIsSubmitting(false);
-    router.push("/onboarding");
-    router.refresh();
+    navigateAndRefresh(router, "/onboarding");
   };
 
   return (

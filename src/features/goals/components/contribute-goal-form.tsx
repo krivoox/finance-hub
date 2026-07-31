@@ -17,6 +17,7 @@ import {
 } from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { refreshAfterMutation } from "@/lib/navigation";
 
 type ContributeGoalFormProps = {
   goalId: string;
@@ -101,8 +102,8 @@ export function ContributeGoalForm({
         contributedOn: values.contributedOn,
         note: "",
       });
-      router.refresh();
       onSuccess?.();
+      refreshAfterMutation(router);
     });
   });
 

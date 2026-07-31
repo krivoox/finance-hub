@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 
 import { Button } from "@/components/ui/button";
 import { listTransactionsPageAction } from "@/features/transactions/actions";
@@ -28,6 +28,9 @@ type TransactionsLedgerListProps = {
 /**
  * SPEC-05 §4.5 — First page from RSC; “Cargar más” appends via cursor.
  * Remount (key on page) when filters change so cursor state resets.
+ * After mutations, `refreshAfterMutation` updates RSC props — first page is
+ * derived from `initialItems` (not copied into useState) so the list cannot
+ * stay stale while “load more” extras reset.
  */
 export function TransactionsLedgerList({
   workspaceId,
@@ -35,10 +38,20 @@ export function TransactionsLedgerList({
   initialNextCursor,
   query,
 }: TransactionsLedgerListProps) {
-  const [items, setItems] = useState(() => [...initialItems]);
+  const [extraItems, setExtraItems] = useState<ListedTransactionPageItem[]>(
+    [],
+  );
   const [nextCursor, setNextCursor] = useState(initialNextCursor);
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+
+  useEffect(() => {
+    setExtraItems([]);
+    setNextCursor(initialNextCursor);
+    setError(null);
+  }, [initialItems, initialNextCursor]);
+
+  const items = [...initialItems, ...extraItems];
 
   return (
     <>
@@ -72,7 +85,7 @@ export function TransactionsLedgerList({
                   setError(result.error);
                   return;
                 }
-                setItems((prev) => [...prev, ...result.data.items]);
+                setExtraItems((prev) => [...prev, ...result.data.items]);
                 setNextCursor(result.data.nextCursor);
               });
             }}

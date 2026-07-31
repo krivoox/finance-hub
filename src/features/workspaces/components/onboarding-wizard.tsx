@@ -17,6 +17,7 @@ import {
 } from "@/features/workspaces/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { navigateAndRefresh } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { LedgerPreview, type LedgerPreviewAccount } from "./ledger-preview";
 
@@ -227,8 +228,7 @@ export function OnboardingWizard({
         toast.error(result.error);
         return;
       }
-      router.push("/accounts");
-      router.refresh();
+      navigateAndRefresh(router, "/accounts");
     });
   };
 
@@ -270,8 +270,7 @@ export function OnboardingWizard({
       }
 
       toast.success("Cuenta creada");
-      router.push("/dashboard");
-      router.refresh();
+      navigateAndRefresh(router, "/dashboard");
     });
   });
 

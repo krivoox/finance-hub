@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 
 import { NewAccountForm } from "@/features/accounts/components/new-account-form";
+import { navigateAndRefresh } from "@/lib/navigation";
 
 export function NewAccountPageForm({
   workspaceId,
@@ -18,8 +19,7 @@ export function NewAccountPageForm({
       workspaceId={workspaceId}
       workspaceCurrency={workspaceCurrency}
       onSuccess={() => {
-        router.push("/accounts");
-        router.refresh();
+        navigateAndRefresh(router, "/accounts");
       }}
       onCancel={() => {
         router.push("/accounts");

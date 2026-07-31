@@ -7,6 +7,7 @@ import { ArrowLeftRight, Plus, RefreshCw } from "lucide-react";
 import { FormSheet } from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { NewCurrencyExchangeForm } from "@/features/currency-exchange/components/new-currency-exchange-form";
+import { replaceAndRefresh } from "@/lib/navigation";
 
 import {
   ContributeCrossWorkspaceForm,
@@ -57,12 +58,18 @@ function clearCreateQuery(
   pathname: string,
   searchParams: URLSearchParams,
   router: ReturnType<typeof useRouter>,
+  opts?: { refresh?: boolean },
 ) {
   if (!searchParams.has("new")) return;
   const next = new URLSearchParams(searchParams.toString());
   next.delete("new");
   const qs = next.toString();
-  router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  const href = qs ? `${pathname}?${qs}` : pathname;
+  if (opts?.refresh) {
+    replaceAndRefresh(router, href, { scroll: false });
+  } else {
+    router.replace(href, { scroll: false });
+  }
 }
 
 export function TransactionsCreateActions({
@@ -97,19 +104,19 @@ export function TransactionsCreateActions({
     }
   }, [newParam]);
 
-  function handleTxOpenChange(open: boolean) {
+  function handleTxOpenChange(open: boolean, opts?: { refresh?: boolean }) {
     setTxOpen(open);
-    if (!open) clearCreateQuery(pathname, searchParams, router);
+    if (!open) clearCreateQuery(pathname, searchParams, router, opts);
   }
 
-  function handleFxOpenChange(open: boolean) {
+  function handleFxOpenChange(open: boolean, opts?: { refresh?: boolean }) {
     setFxOpen(open);
-    if (!open) clearCreateQuery(pathname, searchParams, router);
+    if (!open) clearCreateQuery(pathname, searchParams, router, opts);
   }
 
-  function handleCrossOpenChange(open: boolean) {
+  function handleCrossOpenChange(open: boolean, opts?: { refresh?: boolean }) {
     setCrossOpen(open);
-    if (!open) clearCreateQuery(pathname, searchParams, router);
+    if (!open) clearCreateQuery(pathname, searchParams, router, opts);
   }
 
   const hasAccounts = accounts.length > 0;
@@ -145,7 +152,7 @@ export function TransactionsCreateActions({
               categories={categories}
               groupMembers={groupMembers}
               currentUserId={currentUserId}
-              onSuccess={() => handleTxOpenChange(false)}
+              onSuccess={() => handleTxOpenChange(false, { refresh: true })}
               onCancel={() => handleTxOpenChange(false)}
             />
           ) : (
@@ -179,7 +186,7 @@ export function TransactionsCreateActions({
                 name: a.name,
                 currency: a.currency,
               }))}
-              onSuccess={() => handleFxOpenChange(false)}
+              onSuccess={() => handleFxOpenChange(false, { refresh: true })}
               onCancel={() => handleFxOpenChange(false)}
             />
           </FormSheet>
@@ -205,7 +212,7 @@ export function TransactionsCreateActions({
             <ContributeCrossWorkspaceForm
               accounts={contributionAccounts}
               currencyHint={workspaceCurrency}
-              onSuccess={() => handleCrossOpenChange(false)}
+              onSuccess={() => handleCrossOpenChange(false, { refresh: true })}
               onCancel={() => handleCrossOpenChange(false)}
             />
           </FormSheet>

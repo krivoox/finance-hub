@@ -4,13 +4,16 @@ import type { ReactNode } from "react";
 
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { XIcon } from "lucide-react";
 
 type FormSheetProps = {
   open: boolean;
@@ -47,27 +50,41 @@ export function FormSheet({
       {trigger ? <SheetTrigger asChild>{trigger}</SheetTrigger> : null}
       <SheetContent
         side="right"
-        showCloseButton
+        showCloseButton={false}
         className={cn(
-          // Override Sheet defaults (`data-[side=right]:h-full`) so the panel
-          // stays viewport-capped on mobile and the body can scroll.
-          "w-full gap-0 overflow-hidden p-0",
-          "h-dvh max-h-dvh data-[side=right]:h-dvh data-[side=right]:max-h-dvh",
+          // Full-bleed on mobile; capped drawer from sm+. Use data-[side=…]
+          // so we win over SheetContent’s side-specific width/border defaults.
+          "gap-0 overflow-hidden p-0",
+          "h-dvh max-h-dvh w-full data-[side=right]:h-dvh data-[side=right]:max-h-dvh data-[side=right]:w-full",
+          "data-[side=right]:border-l-0 sm:data-[side=right]:border-l",
           "pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]",
-          size === "md" && "sm:max-w-md",
-          size === "lg" && "sm:max-w-lg",
+          size === "md" && "sm:max-w-md data-[side=right]:sm:max-w-md",
+          size === "lg" && "sm:max-w-lg data-[side=right]:sm:max-w-lg",
           className,
         )}
       >
-        <SheetHeader className="shrink-0 gap-1 border-b border-border px-4 py-4 pr-12 sm:px-5">
-          <SheetTitle className="text-base font-semibold tracking-tight text-balance">
-            {title}
-          </SheetTitle>
-          {description ? (
-            <SheetDescription className="text-pretty">
-              {description}
-            </SheetDescription>
-          ) : null}
+        <SheetHeader className="shrink-0 flex-row items-start gap-3 border-b border-border px-4 py-4 sm:px-5">
+          <div className="min-w-0 flex-1 space-y-1">
+            <SheetTitle className="text-base font-semibold tracking-tight text-balance">
+              {title}
+            </SheetTitle>
+            {description ? (
+              <SheetDescription className="text-pretty">
+                {description}
+              </SheetDescription>
+            ) : null}
+          </div>
+          <SheetClose asChild>
+            <Button
+              type="button"
+              variant="outline"
+              size="icon"
+              className="size-10 shrink-0 rounded-full sm:size-8"
+            >
+              <XIcon className="size-4" strokeWidth={1.75} />
+              <span className="sr-only">Cerrar</span>
+            </Button>
+          </SheetClose>
         </SheetHeader>
         <div className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-y-contain px-4 py-4 pb-8 sm:px-5 sm:py-5 sm:pb-6">
           {children}
