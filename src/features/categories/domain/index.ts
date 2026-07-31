@@ -19,6 +19,11 @@ export {
   validateCreateCategoryInput,
 } from "./categories";
 
+export {
+  CATEGORY_PILL_TONES,
+  categoryPillTone,
+} from "./category-pill-tone";
+
 export type {
   CategoryKind,
   CategoryLike,
@@ -26,3 +31,5 @@ export type {
   CreateCategoryValidated,
   UniqueNameOptions,
 } from "./categories";
+
+export type { CategoryPillTone } from "./category-pill-tone";
