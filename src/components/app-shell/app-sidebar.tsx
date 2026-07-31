@@ -171,7 +171,7 @@ function NavMenuItems({ items }: { items: NavItem[] }) {
               <SidebarMenuBadge
                 aria-label={item.badgeAriaLabel}
                 className={cn(
-                  "gap-0.5",
+                  "gap-1",
                   item.badgeSeverity === "critical" && "text-expense",
                   item.badgeSeverity === "caution" && "text-warning",
                 )}
