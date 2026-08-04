@@ -138,6 +138,13 @@ export default async function GoalsPage() {
                       goalId={goal.id}
                       goalName={goal.name}
                       goalCurrency={goal.currency}
+                      linkedAccountId={goal.linkedAccountId}
+                      linkedAccountName={goal.linkedAccountName}
+                      accounts={activeAccounts.map((a) => ({
+                        id: a.id,
+                        name: a.name,
+                        currency: a.currency,
+                      }))}
                     />
                   ) : null}
                 </div>

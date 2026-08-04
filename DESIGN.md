@@ -81,7 +81,8 @@ Los formularios de carga (movimientos, cuentas, presupuestos, objetivos) **no vi
 El setup inicial del workspace (`/onboarding`, SPEC-15) **no** usa AppShell ni FormSheet: es un **modal full-viewport** sobre canvas soft, sin sidebar (para no escapar por el menú). Progreso = línea hairline superior. Detalle: `docs/specs/15-workspace-onboarding.md`.
 
 **Patrón FormSheet (resto de creates):**
-- CTA en `ContentPanel.actions` (y sidebar “Registrar” → `/transactions?new=1`)
+- CTA en `ContentPanel.actions` (y sidebar “Registrar” → abre el FormSheet global al instante)
+- Deep-link opcional: `/transactions?new=1` abre el mismo sheet
 - Lista limpia: tablas / progreso sin formulario encima
 - Formulario: 1 columna, secciones tipadas, `SegmentedControl` para ≤4 opciones
 - Cerrar al éxito / Cancelar

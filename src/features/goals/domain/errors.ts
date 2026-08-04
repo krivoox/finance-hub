@@ -66,3 +66,16 @@ export class GoalLinkedAccountInvalidError extends GoalDomainError {
     this.name = "GoalLinkedAccountInvalidError";
   }
 }
+
+/**
+ * SPEC-08 T-06 / FR-06 — Contributions require a destination account
+ * (`goal.linkedAccountId`). Without it the transfer cannot be created.
+ */
+export class GoalLinkedAccountRequiredError extends GoalDomainError {
+  constructor(
+    message = "El objetivo necesita una cuenta vinculada para registrar aportes",
+  ) {
+    super(message);
+    this.name = "GoalLinkedAccountRequiredError";
+  }
+}

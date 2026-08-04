@@ -10,12 +10,13 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatMoney } from "@/lib/format-money";
 import { getSession } from "@/lib/session";
-import {
-  BudgetNotFoundError,
-} from "@/features/budgets/domain";
-import { getBudgetDetail } from "@/features/budgets/services";
+import { BudgetNotFoundError } from "@/features/budgets/domain";
+import { BudgetDetailActions } from "@/features/budgets/components/budget-detail-actions";
 import { BUDGET_PERIOD_LABEL_ES } from "@/features/budgets/components/period-labels";
+import { getBudgetDetail } from "@/features/budgets/services";
+import { listCategories } from "@/features/categories/services";
 import { ForbiddenError } from "@/features/workspaces/domain";
+import { requireMembership } from "@/features/workspaces/services";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -50,11 +51,12 @@ export default async function BudgetDetailPage({ params }: PageProps) {
   }
 
   const { id } = await params;
+  const userId = session.user.id;
 
   let detail;
   try {
     detail = await getBudgetDetail({
-      userId: session.user.id,
+      userId,
       budgetId: id,
     });
   } catch (err) {
@@ -62,6 +64,33 @@ export default async function BudgetDetailPage({ params }: PageProps) {
     if (err instanceof ForbiddenError) redirect("/budgets");
     throw err;
   }
+
+  const [categories, membership] = await Promise.all([
+    listCategories({
+      userId,
+      workspaceId: detail.workspaceId,
+      includeArchived: true,
+    }),
+    requireMembership(userId, detail.workspaceId),
+  ]);
+
+  const canMutate = membership.role !== "viewer";
+
+  const expenseCategories = categories
+    .filter((c) => c.kind === "expense" && !c.isArchived)
+    .map((c) => ({ id: c.id, name: c.name }));
+
+  // Keep currently linked categories visible even if archived.
+  const selectedArchived = categories
+    .filter(
+      (c) =>
+        c.kind === "expense" &&
+        c.isArchived &&
+        detail.categoryIds.includes(c.id),
+    )
+    .map((c) => ({ id: c.id, name: `${c.name} (archivada)` }));
+
+  const pickerCategories = [...expenseCategories, ...selectedArchived];
 
   const pct =
     detail.limitCents > 0
@@ -77,6 +106,19 @@ export default async function BudgetDetailPage({ params }: PageProps) {
     <ContentPanel
       title={detail.name}
       description={`${BUDGET_PERIOD_LABEL_ES[detail.period]} · ${formatDateEs(detail.progress.periodStart)} – ${formatDateEs(detail.progress.periodEnd)}`}
+      actions={
+        canMutate ? (
+          <BudgetDetailActions
+            budgetId={detail.id}
+            name={detail.name}
+            limitCents={detail.limitCents}
+            currency={detail.currency}
+            categoryIds={detail.categoryIds}
+            categories={pickerCategories}
+            isArchived={detail.isArchived}
+          />
+        ) : undefined
+      }
     >
       <div className="mb-6">
         <Button variant="ghost" size="sm" className="-ml-2" asChild>

@@ -120,6 +120,7 @@ type AccountType =
 
 - El saldo actual se deriva: `initialBalance + Σ efectos de transacciones` (no se edita a mano salvo ajuste explícito).
 - Cuentas archivadas no aceptan nuevas transacciones.
+- En `credit_card`, el balance derivado es **deuda** (positivo = adeudado). Expense / transfer-out suben deuda; income / transfer-in (pago desde otra cuenta) la bajan. Detalle: SPEC-03 / SPEC-06.
 
 ### Category
 
@@ -165,8 +166,9 @@ Campos comunes:
 - Canje (`fx_debit` / `fx_credit`): ver `CurrencyExchange`; no cuentan en cashflow ni budget spent.
 - Income/expense: `accountId` puede ser de otro workspace del mismo usuario (funded externo, SPEC-14); el `workspaceId` de la tx es el contexto de registro (categorías, budgets, splits).
 - No se puede borrar una cuenta con transacciones (archivar).
+- Transfer ligada a `GoalContribution` (SPEC-08 H4): delete cascada deshace el aporte; update de monto/cuentas rechazado.
 
-**Listado (SPEC-05 FR-04):** filtros AND sobre periodo (timezone del usuario), tipo de UI (`all`|income|expense|transfer), cuenta y categoría; paginación cursor. El periodo `this_week` es lunes–domingo calendario — no el ancla weekly de Budget.
+**Listado (SPEC-05 FR-04):** filtros AND sobre periodo (timezone del usuario), tipo de UI (`all`|income|expense|transfer), cuenta y categoría; paginación cursor. El periodo `this_week` es lunes–domingo calendario — no el ancla weekly de Budget. DTO puede incluir `goalContribution` (join) para badge de aporte a objetivo — la tx sigue siendo `type=transfer`.
 
 ### CurrencyExchange
 
@@ -259,10 +261,36 @@ Objetivo de ahorro o pago de deuda.
 | name | string | |
 | kind | `save` \| `debt_payoff` | |
 | targetAmount | Money | |
-| currentAmount | Money | aportado / pagado |
+| currentAmount | Money | aportado / pagado (denormalizado; suma de contribuciones) |
 | targetDate | Date? | |
-| linkedAccountId | Id? | opcional |
+| linkedAccountId | Id? | opcional al crear; **requerido para aportar** (destino de la transfer) |
 | status | `active` \| `completed` \| `cancelled` | |
+
+**Invariantes (H4 / SPEC-08)**
+
+- Un aporte (`ContributeToGoal`) materializa siempre: `Transaction` `type=transfer` (origen = cuenta elegida, destino = `linkedAccountId`) + `GoalContribution` + avance de `currentAmount` / auto-complete — atómico.
+- `debt_payoff` usa el **mismo** patrón transfer; si el destino es `credit_card`, el efecto de deuda es el de SPEC-06 (pago baja deuda).
+- Sin FX en el aporte: monedas de origen, destino y goal alineadas.
+
+### GoalContribution
+
+Evento de aporte a un Goal. Inmutable en MVP salvo cascada al borrar la transfer vinculada.
+
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| id | Id | |
+| goalId | Id | |
+| amountCents | number | > 0; = monto de la transfer |
+| contributedOn | Date | = `occurredOn` de la transfer |
+| note | string? | espejo de `description` de la transfer |
+| createdByUserId | Id | |
+| transactionId | Id | **unique**, 1:1 con la `Transaction` transfer |
+
+**Invariantes**
+
+- Toda contribución H4 tiene exactamente una transfer; no hay aporte “solo contador”.
+- Delete de la transfer: elimina la contribución y restaura `Goal.currentAmount` (y status `completed`→`active` si aplica).
+- Update de amount/cuentas de la transfer ligada: rechazado (`TransferLinkedToGoal`).
 
 ### Split (gasto compartido)
 
@@ -310,7 +338,7 @@ Pago entre miembros para saldar balances de splits.
 | Account | Account | — |
 | Transaction | Transaction | — |
 | Budget | Budget | — |
-| Goal | Goal | — |
+| Goal | Goal | GoalContribution[] |
 | Split | Split | shares |
 
 Los saldos de cuenta y balances entre miembros son **lecturas derivadas**, no estado mutable independiente (salvo settlements que ajustan el ledger de deudas).

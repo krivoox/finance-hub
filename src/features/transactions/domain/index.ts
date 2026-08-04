@@ -16,6 +16,7 @@ export {
   TransactionDomainError,
   TransactionNotFoundError,
   TransactionTypeImmutableError,
+  TransferLinkedToGoalError,
 } from "./errors";
 
 export {
@@ -53,6 +54,7 @@ export {
   assertTransactionCurrencyMatchesAccount,
   assertTransferAccounts,
   assertTransferCounterparty,
+  assertTransferNotLinkedToGoal,
   assertValidAmount,
   normalizeDescription,
 } from "./guards";

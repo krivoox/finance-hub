@@ -17,16 +17,27 @@ import {
 } from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { nativeSelectClassName } from "@/components/ui/native-select";
 import { refreshAfterMutation } from "@/lib/navigation";
+
+type AccountOption = {
+  id: string;
+  name: string;
+  currency: string;
+};
 
 type ContributeGoalFormProps = {
   goalId: string;
   goalCurrency: string;
+  linkedAccountId: string | null;
+  linkedAccountName: string | null;
+  accounts: readonly AccountOption[];
   onSuccess?: () => void;
   onCancel?: () => void;
 };
 
 type FormValues = {
+  fromAccountId: string;
   amountUnits: string;
   contributedOn: string;
   note: string;
@@ -43,11 +54,21 @@ function todayIsoDate(): string {
 export function ContributeGoalForm({
   goalId,
   goalCurrency,
+  linkedAccountId,
+  linkedAccountName,
+  accounts,
   onSuccess,
   onCancel,
 }: ContributeGoalFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+
+  const originAccounts = accounts.filter(
+    (a) =>
+      a.currency === goalCurrency &&
+      a.id !== linkedAccountId,
+  );
+
   const {
     register,
     handleSubmit,
@@ -55,6 +76,7 @@ export function ContributeGoalForm({
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
+      fromAccountId: originAccounts[0]?.id ?? "",
       amountUnits: "",
       contributedOn: todayIsoDate(),
       note: "",
@@ -62,6 +84,13 @@ export function ContributeGoalForm({
   });
 
   const onSubmit = handleSubmit((values) => {
+    if (!linkedAccountId) {
+      toast.error(
+        "Este objetivo no tiene cuenta vinculada. Editá el objetivo antes de aportar.",
+      );
+      return;
+    }
+
     const parsedUnits = Number(values.amountUnits.replace(",", "."));
     if (!Number.isFinite(parsedUnits) || parsedUnits <= 0) {
       toast.error("Aporte inválido");
@@ -75,6 +104,7 @@ export function ContributeGoalForm({
 
     const input: ContributeToGoalInput = {
       goalId,
+      fromAccountId: values.fromAccountId,
       amountCents,
       contributedOn: values.contributedOn,
       note: values.note.trim() ? values.note.trim() : null,
@@ -98,6 +128,7 @@ export function ContributeGoalForm({
           : "Aporte registrado",
       );
       reset({
+        fromAccountId: values.fromAccountId,
         amountUnits: "",
         contributedOn: values.contributedOn,
         note: "",
@@ -108,10 +139,51 @@ export function ContributeGoalForm({
   });
 
   const isBusy = isPending || isSubmitting;
+  const canContribute = Boolean(linkedAccountId) && originAccounts.length > 0;
 
   return (
     <form className="flex flex-col gap-6" onSubmit={onSubmit} noValidate>
       <FormStack>
+        {!linkedAccountId ? (
+          <p className="text-sm text-muted-foreground">
+            Vinculá una cuenta al objetivo para poder aportar (el dinero se
+            transferirá hacia esa cuenta).
+          </p>
+        ) : null}
+
+        <FormField
+          label="Sale de"
+          htmlFor={`contribute-from-${goalId}`}
+        >
+          <select
+            id={`contribute-from-${goalId}`}
+            className={nativeSelectClassName}
+            disabled={!canContribute}
+            aria-invalid={Boolean(errors.fromAccountId)}
+            {...register("fromAccountId", { required: true })}
+          >
+            {originAccounts.length === 0 ? (
+              <option value="">Sin cuentas disponibles</option>
+            ) : (
+              originAccounts.map((a) => (
+                <option key={a.id} value={a.id}>
+                  {a.name}
+                </option>
+              ))
+            )}
+          </select>
+        </FormField>
+
+        <FormField label="Entra en" htmlFor={`contribute-to-${goalId}`}>
+          <Input
+            id={`contribute-to-${goalId}`}
+            value={linkedAccountName ?? "Sin cuenta vinculada"}
+            readOnly
+            disabled
+            className="bg-muted"
+          />
+        </FormField>
+
         <FormField
           label="Aporte"
           htmlFor={`contribute-amount-${goalId}`}
@@ -125,6 +197,7 @@ export function ContributeGoalForm({
             step="0.01"
             placeholder="0,00"
             className="tabular-nums"
+            disabled={!canContribute}
             aria-invalid={Boolean(errors.amountUnits)}
             {...register("amountUnits", { required: true })}
           />
@@ -134,6 +207,7 @@ export function ContributeGoalForm({
           <Input
             id={`contribute-date-${goalId}`}
             type="date"
+            disabled={!canContribute}
             {...register("contributedOn", { required: true })}
           />
         </FormField>
@@ -146,6 +220,7 @@ export function ContributeGoalForm({
           <Input
             id={`contribute-note-${goalId}`}
             placeholder="Aguinaldo, transferencia…"
+            disabled={!canContribute}
             {...register("note")}
           />
         </FormField>
@@ -166,7 +241,7 @@ export function ContributeGoalForm({
         <Button
           type="submit"
           className="h-10 w-full sm:h-8 sm:w-auto"
-          disabled={isBusy}
+          disabled={isBusy || !canContribute}
         >
           {isBusy ? "Registrando..." : "Aportar"}
         </Button>

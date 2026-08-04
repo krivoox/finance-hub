@@ -9,11 +9,11 @@ import { Button } from "@/components/ui/button";
 import { NewCurrencyExchangeForm } from "@/features/currency-exchange/components/new-currency-exchange-form";
 import { replaceAndRefresh } from "@/lib/navigation";
 
+import { useNewTransactionSheetStore } from "../stores/new-transaction-sheet-store";
 import {
   ContributeCrossWorkspaceForm,
   type ContributionAccountOption,
 } from "./contribute-cross-workspace-form";
-import { NewTransactionForm } from "./new-transaction-form";
 
 type AccountOption = {
   id: string;
@@ -24,33 +24,10 @@ type AccountOption = {
   workspaceType?: "personal" | "group";
 };
 
-type PaymentAccountGroup = {
-  workspaceId: string;
-  workspaceName: string;
-  workspaceType: "personal" | "group";
-  accounts: readonly AccountOption[];
-};
-
-type CategoryOption = {
-  id: string;
-  name: string;
-  kind: "income" | "expense";
-};
-
-type MemberOption = {
-  userId: string;
-  displayName: string;
-};
-
 type TransactionsCreateActionsProps = {
   workspaceId: string;
-  workspaceName: string;
   workspaceCurrency: string;
   accounts: readonly AccountOption[];
-  paymentAccountGroups?: readonly PaymentAccountGroup[];
-  categories: readonly CategoryOption[];
-  groupMembers?: readonly MemberOption[];
-  currentUserId?: string;
   contributionAccounts?: readonly ContributionAccountOption[];
 };
 
@@ -72,30 +49,26 @@ function clearCreateQuery(
   }
 }
 
+/**
+ * Page-local create CTAs for FX / cross-workspace. “Registrar” opens the
+ * global new-transaction sheet (mounted in AppShell).
+ */
 export function TransactionsCreateActions({
   workspaceId,
-  workspaceName,
   workspaceCurrency,
   accounts,
-  paymentAccountGroups = [],
-  categories,
-  groupMembers = [],
-  currentUserId,
   contributionAccounts = [],
 }: TransactionsCreateActionsProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const newParam = searchParams.get("new");
+  const openNewTransaction = useNewTransactionSheetStore((s) => s.openSheet);
 
-  const [txOpen, setTxOpen] = useState(false);
   const [fxOpen, setFxOpen] = useState(false);
   const [crossOpen, setCrossOpen] = useState(false);
 
   useEffect(() => {
-    if (newParam === "1" || newParam === "transaction") {
-      setTxOpen(true);
-    }
     if (newParam === "fx" || newParam === "exchange") {
       setFxOpen(true);
     }
@@ -103,11 +76,6 @@ export function TransactionsCreateActions({
       setCrossOpen(true);
     }
   }, [newParam]);
-
-  function handleTxOpenChange(open: boolean, opts?: { refresh?: boolean }) {
-    setTxOpen(open);
-    if (!open) clearCreateQuery(pathname, searchParams, router, opts);
-  }
 
   function handleFxOpenChange(open: boolean, opts?: { refresh?: boolean }) {
     setFxOpen(open);
@@ -119,48 +87,20 @@ export function TransactionsCreateActions({
     if (!open) clearCreateQuery(pathname, searchParams, router, opts);
   }
 
-  const hasAccounts = accounts.length > 0;
   const canFx = accounts.length >= 2;
   const canCross = contributionAccounts.length >= 2;
 
   return (
     <>
       <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-        <FormSheet
-          open={txOpen}
-          onOpenChange={handleTxOpenChange}
-          title="Nuevo movimiento"
-          description={`Gasto, ingreso o transferencia en ${workspaceCurrency}.`}
-          size="lg"
-          trigger={
-            <Button
-              className="h-10 w-full gap-1.5 sm:h-8 sm:w-auto"
-              disabled={!hasAccounts}
-            >
-              <Plus className="size-4" strokeWidth={1.75} />
-              Registrar
-            </Button>
-          }
+        <Button
+          type="button"
+          className="h-10 w-full gap-1.5 sm:h-8 sm:w-auto"
+          onClick={() => openNewTransaction()}
         >
-          {hasAccounts ? (
-            <NewTransactionForm
-              workspaceId={workspaceId}
-              workspaceName={workspaceName}
-              workspaceCurrency={workspaceCurrency}
-              accounts={accounts}
-              paymentAccountGroups={paymentAccountGroups}
-              categories={categories}
-              groupMembers={groupMembers}
-              currentUserId={currentUserId}
-              onSuccess={() => handleTxOpenChange(false, { refresh: true })}
-              onCancel={() => handleTxOpenChange(false)}
-            />
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              Necesitás al menos una cuenta activa para registrar movimientos.
-            </p>
-          )}
-        </FormSheet>
+          <Plus className="size-4" strokeWidth={1.75} />
+          Registrar
+        </Button>
 
         {canFx ? (
           <FormSheet

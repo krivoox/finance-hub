@@ -33,7 +33,10 @@ Una transferencia mueve valor entre dos cuentas del mismo workspace sin ser ingr
 - **Currencies iguales** (same-currency only). Canje ARS↔USD → [SPEC-16](./16-currency-exchange.md)
 - Sin category (o category null)
 - No cuenta como spent en budgets
-- En credit_card: definir efecto según convención de deuda (tests)
+- En `credit_card` (convención SPEC-03): la polaridad del efecto se invierte al derivar saldo
+  - Tarjeta como **destino** = pago → **baja** la deuda
+  - Tarjeta como **origen** = cash advance → **sube** la deuda
+  - El comando sigue siendo `CreateTransfer` (no hay tipo `payment`)
 
 ## 5. Comandos y consultas
 
@@ -73,9 +76,36 @@ Una transferencia mueve valor entre dos cuentas del mismo workspace sin ser ingr
 - **When** transfer  
 - **Then** spent del budget sin cambio
 
+### T-05 Pago de tarjeta (destino credit_card)
+
+- **Given** checking 10000; credit_card deuda 8000  
+- **When** transfer 3000 checking → credit_card  
+- **Then** checking=7000; credit_card deuda=5000; type=`transfer`
+
+### T-06 Cash advance (origen credit_card)
+
+- **Given** credit_card deuda 0; cash 0  
+- **When** transfer 2000 credit_card → cash  
+- **Then** credit_card deuda=2000; cash=2000
+
 ## 8. Fuera de alcance
 
 - Transferencias `type=transfer` entre workspaces (no relajar FR-02)
 - Aportes / fondeo entre espacios → ver [SPEC-14](./14-cross-workspace-money.md) (`CreateCrossWorkspaceContribution`)
 - Gastos del hogar pagados con cuenta personal → SPEC-14 (expense con account foreign)
 - Canje cross-currency / fees → [SPEC-16](./16-currency-exchange.md)
+- CTA / sheet dedicado “Pagar tarjeta” (sigue siendo `CreateTransfer` por debajo; UI genérica de transferencia hoy)
+
+## 9. Notas
+
+- UI: formulario “Nuevo movimiento” → tipo Transferencia; labels “Cuenta origen” / “Cuenta destino”.
+- Un **Ingreso** registrado sobre la tarjeta también baja deuda (SPEC-03) pero no descuenta otra cuenta: no es el flujo recomendado para pagar el resumen.
+
+## 10. Relación con objetivos (SPEC-08 H4)
+
+`ContributeToGoal` **crea** una transfer (origen elegido → `goal.linkedAccountId`) bajo las mismas invariantes de esta spec (misma moneda, cuentas activas, sin categoría, no afecta budgets).
+
+- No hay `TransactionType` nuevo: el listado sigue filtrando `type=transfer`.
+- La señal “aporte a objetivo” es metadata vía `GoalContribution.transactionId` (badge en DTO), no un tipo distinto.
+- `debt_payoff` con destino `credit_card` = pago de deuda vía transfer (mismo efecto T-05).
+- Delete/update de transfers ligadas a goal: reglas en SPEC-08 §4.3 (`TransferLinkedToGoal` / cascada undo).

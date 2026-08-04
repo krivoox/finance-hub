@@ -47,11 +47,15 @@ Las cuentas representan dónde está el dinero (o deuda, en tarjetas de crédito
 
 ### Convención de saldo en credit_card
 
-- `currentBalance >= 0` significa monto adeudado.
+- `currentBalance >= 0` significa monto adeudado (no se modela la deuda como saldo negativo).
 - Un expense en la tarjeta **aumenta** el balance (más deuda).
-- Un income/payment en la tarjeta **disminuye** deuda.
+- Un income en la tarjeta **disminuye** deuda (ajuste/crédito; **no** mueve liquidez de otra cuenta).
+- **Pago típico del resumen:** transferencia same-currency **hacia** la tarjeta (origen = banco/efectivo/billetera, destino = `credit_card`) → baja la deuda y descuenta el origen ([SPEC-06](./06-transfers.md)).
+- Transferencia **desde** la tarjeta (origen = tarjeta) → aumenta deuda (adelanto en efectivo).
 
-Documentar en código con tests explícitos.
+Documentar en código con tests explícitos (`calculateAccountBalance`).
+
+**UI actual:** no hay CTA dedicado “Pagar tarjeta”; el usuario registra una **Transferencia** (Movimientos → Registrar). Tips in-app / CTA de pago = backlog de producto (no implementados).
 
 ## 6. Comandos y consultas
 

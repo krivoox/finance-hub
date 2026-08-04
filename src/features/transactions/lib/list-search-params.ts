@@ -2,7 +2,8 @@
  * URL contract for `/transactions` list filters + pagination (SPEC-05 FR-04).
  *
  * Params: `period`, `from`, `to`, `type`, `accountId`, `categoryId`, `cursor`.
- * `new` is owned by create FormSheet and must be preserved when rewriting qs.
+ * `new` deep-links the global create FormSheet (`1`/`transaction`) or page-local
+ * FX/cross sheets (`fx`/`exchange`/`cross`) and must be preserved when rewriting qs.
  *
  * Period/type normalization mirrors domain (`normalizeListPeriod` /
  * `normalizeListTypeFilter`). Custom range UX validation is UI-only;
@@ -209,6 +210,21 @@ export function patchTransactionListParams(
   }
 
   return next;
+}
+
+export type TransactionsEmptyKind =
+  | "no_transactions"
+  | "no_period_results"
+  | "no_filter_match";
+
+/** Pure helper — safe to call from Server Components. */
+export function resolveTransactionsEmptyKind(
+  params: TransactionListParams,
+  hasDenseFilters: boolean,
+): TransactionsEmptyKind {
+  if (hasDenseFilters) return "no_filter_match";
+  if (params.period === "all") return "no_transactions";
+  return "no_period_results";
 }
 
 /** @internal re-export helpers used by tests / tooling */

@@ -29,6 +29,13 @@ export type CrossWorkspaceLinkDetail = {
   role: "source" | "target";
 };
 
+export type GoalContributionDetail = {
+  contributionId: string;
+  goalId: string;
+  goalName: string;
+  goalKind: "save" | "debt_payoff";
+};
+
 export type TransactionDetail = {
   id: string;
   workspaceId: string;
@@ -55,6 +62,7 @@ export type TransactionDetail = {
   isExternallyFunded: boolean;
   split: TransactionSplitDetail | null;
   crossWorkspaceLink: CrossWorkspaceLinkDetail | null;
+  goalContribution: GoalContributionDetail | null;
 };
 
 function displayName(user: {
@@ -113,6 +121,13 @@ export async function getTransactionDetail({
           paidByUserId: true,
           method: true,
           shares: { select: { userId: true, shareCents: true } },
+        },
+      },
+      goalContribution: {
+        select: {
+          id: true,
+          goalId: true,
+          goal: { select: { name: true, kind: true } },
         },
       },
       crossWorkspaceLinkAsSource: {
@@ -227,5 +242,13 @@ export async function getTransactionDetail({
     isExternallyFunded: row.account.workspaceId !== row.workspaceId,
     split,
     crossWorkspaceLink,
+    goalContribution: row.goalContribution
+      ? {
+          contributionId: row.goalContribution.id,
+          goalId: row.goalContribution.goalId,
+          goalName: row.goalContribution.goal.name,
+          goalKind: row.goalContribution.goal.kind as "save" | "debt_payoff",
+        }
+      : null,
   };
 }

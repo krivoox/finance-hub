@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
@@ -5,26 +7,22 @@ import { Button } from "@/components/ui/button";
 import {
   transactionListHref,
   type TransactionListParams,
+  type TransactionsEmptyKind,
 } from "../lib/list-search-params";
+import { OpenNewTransactionButton } from "./open-new-transaction-button";
 
-export type TransactionsEmptyKind =
-  | "no_transactions"
-  | "no_period_results"
-  | "no_filter_match";
+export type { TransactionsEmptyKind };
 
 type TransactionsEmptyStateProps = {
   kind: TransactionsEmptyKind;
   params: TransactionListParams;
   canMutate: boolean;
-  /** Preserve `?new=` when linking. */
-  newParam?: string | null;
 };
 
 export function TransactionsEmptyState({
   kind,
   params,
   canMutate,
-  newParam,
 }: TransactionsEmptyStateProps) {
   if (kind === "no_transactions") {
     return (
@@ -33,16 +31,10 @@ export function TransactionsEmptyState({
           Todavía no hay movimientos. Registrá el primero cuando quieras.
         </p>
         {canMutate ? (
-          <Button asChild className="h-10 sm:h-9">
-            <Link
-              href={transactionListHref({
-                ...params,
-                new: newParam ?? "1",
-              })}
-            >
-              Registrar
-            </Link>
-          </Button>
+          <OpenNewTransactionButton
+            className="h-10 sm:h-9"
+            label="Registrar"
+          />
         ) : null}
       </div>
     );
@@ -63,7 +55,6 @@ export function TransactionsEmptyState({
               type: "all",
               accountId: null,
               categoryId: null,
-              new: newParam,
             })}
           >
             Limpiar filtros
@@ -95,7 +86,6 @@ export function TransactionsEmptyState({
               type: params.type,
               accountId: params.accountId,
               categoryId: params.categoryId,
-              new: newParam,
             })}
           >
             Ver todo
@@ -109,7 +99,6 @@ export function TransactionsEmptyState({
                 type: params.type,
                 accountId: params.accountId,
                 categoryId: params.categoryId,
-                new: newParam,
               })}
             >
               Este mes
@@ -119,13 +108,4 @@ export function TransactionsEmptyState({
       </div>
     </div>
   );
-}
-
-export function resolveTransactionsEmptyKind(
-  params: TransactionListParams,
-  hasDenseFilters: boolean,
-): TransactionsEmptyKind {
-  if (hasDenseFilters) return "no_filter_match";
-  if (params.period === "all") return "no_transactions";
-  return "no_period_results";
 }

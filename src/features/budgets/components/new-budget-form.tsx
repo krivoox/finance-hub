@@ -2,7 +2,7 @@
 
 import { useMemo, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { createBudgetAction } from "@/features/budgets/actions";
@@ -10,6 +10,7 @@ import {
   BUDGET_PERIODS,
   type BudgetPeriod,
 } from "@/features/budgets/domain";
+import { CategoryPicker } from "@/features/categories/components/category-picker";
 import {
   FormActions,
   FormField,
@@ -233,20 +234,22 @@ export function NewBudgetForm({
             label="Categorías"
             htmlFor="budget-categories"
             optional
-            hint="Vacío = todas las de gasto. En móvil tocá y mantené para multi-selección."
+            hint="Vacío = todas las de gasto."
           >
-            <select
-              id="budget-categories"
-              multiple
-              className="flex min-h-28 w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm shadow-sm focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
-              {...register("categoryIds")}
-            >
-              {sortedCategories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+            <Controller
+              control={control}
+              name="categoryIds"
+              render={({ field }) => (
+                <CategoryPicker
+                  mode="multi"
+                  id="budget-categories"
+                  categories={sortedCategories}
+                  value={field.value}
+                  onChange={field.onChange}
+                  disabled={isBusy}
+                />
+              )}
+            />
           </FormField>
         </FormSection>
       </FormStack>

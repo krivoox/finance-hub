@@ -8,6 +8,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
+import { NewTransactionSheet } from "@/features/transactions/components/new-transaction-sheet";
 
 import { AppSidebar, type AppSidebarProps } from "./app-sidebar";
 import { getPageTitle } from "./nav-config";
@@ -25,6 +26,7 @@ export function AppShell({
 }: AppShellProps) {
   const pathname = usePathname();
   const title = getPageTitle(pathname);
+  const canMutate = activeWorkspace?.role !== "viewer";
 
   return (
     <SidebarProvider className="min-h-svh md:h-svh md:overflow-hidden">
@@ -50,6 +52,10 @@ export function AppShell({
         </div>
         <InstallPrompt />
       </SidebarInset>
+      <NewTransactionSheet
+        enabled={Boolean(activeWorkspace) && canMutate}
+        workspaceId={activeWorkspace?.id ?? null}
+      />
     </SidebarProvider>
   );
 }
