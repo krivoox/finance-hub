@@ -46,4 +46,7 @@ export {
   listMatchingBudgetExpenses,
 } from "./progress";
 
+export { summarizeBudgetNavSignal } from "./nav-signal";
+export type { BudgetNavSignal } from "./nav-signal";
+
 export { assertCanMutateBudgets, assertCanReadBudgets } from "./authz";

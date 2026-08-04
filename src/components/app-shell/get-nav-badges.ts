@@ -1,6 +1,6 @@
 import "server-only";
 
-import { countBudgetsAtRisk } from "@/features/budgets/services";
+import { summarizeBudgetsAtRisk } from "@/features/budgets/services";
 
 import type { NavBadges } from "./nav-config";
 
@@ -17,6 +17,15 @@ export async function getNavBadges({
   userId: string;
   workspaceId: string;
 }): Promise<NavBadges> {
-  const budgetsAtRisk = await countBudgetsAtRisk({ userId, workspaceId });
-  return budgetsAtRisk > 0 ? { budgetsAtRisk } : {};
+  const { atRisk, exceeded } = await summarizeBudgetsAtRisk({
+    userId,
+    workspaceId,
+  });
+
+  if (atRisk <= 0) return {};
+
+  return {
+    budgetsAtRisk: atRisk,
+    ...(exceeded > 0 ? { budgetsExceeded: exceeded } : {}),
+  };
 }

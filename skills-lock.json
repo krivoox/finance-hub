@@ -31,6 +31,12 @@
       "skillPath": ".claude/skills/interface-design/SKILL.md",
       "computedHash": "340cc79a1558f09371aa3eb689952a8b777c1d7362c24226e99693606a80828e"
     },
+    "marketing-psychology": {
+      "source": "coreyhaines31/marketingskills",
+      "sourceType": "github",
+      "skillPath": "skills/marketing-psychology/SKILL.md",
+      "computedHash": "50d735eb0f5c36f379ed2200f21aeacc9b9ad85667b5d33ec6111857352a1340"
+    },
     "organization-best-practices": {
       "source": "better-auth/skills",
       "sourceType": "github",

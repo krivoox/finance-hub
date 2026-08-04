@@ -256,7 +256,9 @@ Usar `src/components/progress-bar.tsx`. **Rojo (`tone="alert"` / `bg-expense`) s
 |----------|--------|
 | Objetivos (`goalProgressTone`) | `<40%` info · `40–79%` progress (`chart-5`) · `≥80%` success |
 | Presupuestos (`budgetProgressTone`) | `on_track` info · `warning` caution · `exceeded` **alert** |
+| Badge nav Presupuestos | Número = at-risk; `text-warning` si solo warning; **`text-expense` + icono** solo si hay ≥1 exceeded |
 | Ranking de gastos (`spendingRankTone`) | `chart-1` / `chart-2` / `chart-3` (cicla; nunca rojo) |
+| Pills de categoría (`categoryPillTone`) | hash estable → `chart-1`…`chart-5`; transferencia/FX → `transfer` |
 
 ### Estados obligatorios
 
@@ -278,6 +280,7 @@ Toda vista de datos: loading (`Skeleton`) · empty · error.
 |------------|------|--------|
 | Button | `ui/button` | `default` = ink CTA; `outline` / `ghost` secundarios |
 | Badge | `ui/badge` | Incluye `info`, `success`, `warning`, `income`, `expense`, `transfer` |
+| CategoryPill | `features/categories/components/category-pill` | Pill en tablas: tono estable `chart-1`…`chart-5` vía hash de `categoryId` (`categoryPillTone`); transferencia/FX → `transfer`; sin pill si es `—` |
 | Input | `ui/input` | Fondos/bordes vía tokens |
 | Table | `ui/table` | Filas con `border-border`; headers muted |
 | Sidebar | `ui/sidebar` | Base para nav; componer rail + secundaria encima |

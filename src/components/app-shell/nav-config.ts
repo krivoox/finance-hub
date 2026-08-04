@@ -9,11 +9,17 @@ import {
   Wallet,
 } from "lucide-react";
 
+export type NavBadgeSeverity = "caution" | "critical";
+
 export type NavItem = {
   title: string;
   href: string;
   icon: LucideIcon;
   badge?: number;
+  /** Visual severity for the badge (red icon only when critical). */
+  badgeSeverity?: NavBadgeSeverity;
+  /** Accessible label; must not rely on color alone. */
+  badgeAriaLabel?: string;
 };
 
 export type NavGroup = {
@@ -23,9 +29,43 @@ export type NavGroup = {
 
 /** Runtime badge counts from domain signals (omit or 0 = no badge). */
 export type NavBadges = {
-  /** Budgets in warning or exceeded status (SPEC-12). */
+  /** Budgets in warning or exceeded status (SPEC-07 / SPEC-12). */
   budgetsAtRisk?: number;
+  /** Budgets in exceeded status only (subset of at-risk). */
+  budgetsExceeded?: number;
 };
+
+export type BudgetNavBadgePresentation = {
+  count: number;
+  severity: NavBadgeSeverity;
+  ariaLabel: string;
+};
+
+/**
+ * Derive sidebar badge presentation from budget nav counts.
+ * Number = total at-risk; critical icon only when exceeded ≥ 1.
+ */
+export function budgetNavBadgePresentation(
+  badges: NavBadges,
+): BudgetNavBadgePresentation | null {
+  const atRisk = badges.budgetsAtRisk ?? 0;
+  if (atRisk <= 0) return null;
+
+  const exceeded = badges.budgetsExceeded ?? 0;
+  if (exceeded > 0) {
+    return {
+      count: atRisk,
+      severity: "critical",
+      ariaLabel: `Presupuestos: ${atRisk} necesitan atención; hay presupuestos excedidos`,
+    };
+  }
+
+  return {
+    count: atRisk,
+    severity: "caution",
+    ariaLabel: `Presupuestos: ${atRisk} al límite o cerca del límite`,
+  };
+}
 
 /** Primary links under the quick-create row */
 export const mainNavItems: NavItem[] = [
@@ -59,11 +99,26 @@ export function applyNavBadges(
   badges: NavBadges,
 ): NavItem[] {
   return items.map((item) => {
-    if (item.href === "/budgets") {
-      const count = badges.budgetsAtRisk ?? 0;
-      return count > 0 ? { ...item, badge: count } : { ...item, badge: undefined };
+    if (item.href !== "/budgets") {
+      return item;
     }
-    return item;
+
+    const presentation = budgetNavBadgePresentation(badges);
+    if (!presentation) {
+      return {
+        ...item,
+        badge: undefined,
+        badgeSeverity: undefined,
+        badgeAriaLabel: undefined,
+      };
+    }
+
+    return {
+      ...item,
+      badge: presentation.count,
+      badgeSeverity: presentation.severity,
+      badgeAriaLabel: presentation.ariaLabel,
+    };
   });
 }
 

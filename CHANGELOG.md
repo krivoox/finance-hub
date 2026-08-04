@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **transactions:** Show categories as pills in table
+
+- **categories:** Stable chart tones for category pills
+
+- **nav:** Alert icon on budgets badge when exceeded
+
+### Fixed
+
+- **nav:** Slightly increase gap in budgets alert badge
+
+[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.6.0...HEAD
+
 ## [0.6.0] - 2026-07-31
 
 ### Added
@@ -62,6 +76,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Baseline product release prior to Conventional Commits enforcement (accounts, workspaces, transactions, budgets, and related MVP surfaces)
 - Changelog automation (git-cliff), Conventional Commits (commitlint + husky), and SemVer GitHub Actions workflows
 
-[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.6.0...HEAD
-[0.6.0]: https://github.com/krivoox/finance-hub/compare/v0.5.0...v0.6.0
 [0.1.0]: https://github.com/krivoox/finance-hub/releases/tag/v0.1.0
