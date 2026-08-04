@@ -21,6 +21,7 @@ import {
   OccurredOnTooFutureError,
   SameAccountTransferError,
   TransactionCurrencyMismatchError,
+  TransferLinkedToGoalError,
 } from "./errors";
 import {
   TRANSACTION_DESCRIPTION_MAX_LENGTH,
@@ -197,6 +198,19 @@ export function assertOccurredOnNotTooFuture(
   const today = calendarDayIndex(now, timezone);
   if (occurred - today > ONE_DAY_MS) {
     throw new OccurredOnTooFutureError();
+  }
+}
+
+/**
+ * SPEC-08 T-15 — When a transfer is linked to a GoalContribution, mutating
+ * amount or accounts is rejected. Description / occurredOn remain editable.
+ */
+export function assertTransferNotLinkedToGoal(
+  hasGoalContribution: boolean,
+  mutatingLedgerFields: boolean,
+): void {
+  if (hasGoalContribution && mutatingLedgerFields) {
+    throw new TransferLinkedToGoalError();
   }
 }
 

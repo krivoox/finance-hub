@@ -24,15 +24,16 @@ El historial de movimientos es una tabla densa. El usuario necesita abrir un mov
 |----|-----------|
 | FR-01 | Ruta dedicada `/transactions/[id]` (deep link) |
 | FR-02 | Filas del historial (movimientos, dashboard recientes, actividad de grupo) enlazan al detalle |
-| FR-03 | Query `GetTransactionDetail` enriquece: cuentas, categoría, createdBy, split+shares, link cross-WS si existe |
+| FR-03 | Query `GetTransactionDetail` enriquece: cuentas, categoría, createdBy, split+shares, link cross-WS si existe, **aporte a goal si existe** (SPEC-08) |
 | FR-04 | Acciones Editar / Eliminar visibles solo si el rol permite mutar |
-| FR-05 | Delete con split: cascada según SPEC-10; delete con aporte cross-WS: cascada según SPEC-14 |
+| FR-05 | Delete con split: cascada según SPEC-10; delete con aporte cross-WS: cascada según SPEC-14; delete transfer con `GoalContribution`: cascada undo aporte (SPEC-08 §4.3) |
 
 ## 4. Reglas de negocio
 
 - Authz: membership en el `workspaceId` de la transacción (o en el workspace de una cuenta afectada si es listado cruzado — ver SPEC-14).
 - Viewer: solo lectura.
 - Labels de cuenta respetan privacidad SPEC-14 cuando la cuenta es de otro espacio personal.
+- Si la transfer tiene `GoalContribution`: mostrar badge/sección “Aporte a {goalName}”; update de monto/cuentas rechazado (`TransferLinkedToGoal`); delete deshace el aporte (SPEC-08).
 
 ## 5. Comandos y consultas
 
@@ -69,3 +70,5 @@ El historial de movimientos es una tabla densa. El usuario necesita abrir un mov
 ## 9. Notas
 
 UI mobile-first: héroe de monto arriba; hechos en lista label/value; acciones en footer.
+
+Edición de categoría (income/expense): mismo `CategoryPicker` modo `single` que el alta (SPEC-04 §9 / SPEC-05 §9.1). Transfers y `fx_*` sin categoría.

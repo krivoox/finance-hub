@@ -41,6 +41,7 @@ export type GoalContributionMinAggregateOutputType = {
   contributedOn: Date | null
   note: string | null
   createdByUserId: string | null
+  transactionId: string | null
   createdAt: Date | null
 }
 
@@ -51,6 +52,7 @@ export type GoalContributionMaxAggregateOutputType = {
   contributedOn: Date | null
   note: string | null
   createdByUserId: string | null
+  transactionId: string | null
   createdAt: Date | null
 }
 
@@ -61,6 +63,7 @@ export type GoalContributionCountAggregateOutputType = {
   contributedOn: number
   note: number
   createdByUserId: number
+  transactionId: number
   createdAt: number
   _all: number
 }
@@ -81,6 +84,7 @@ export type GoalContributionMinAggregateInputType = {
   contributedOn?: true
   note?: true
   createdByUserId?: true
+  transactionId?: true
   createdAt?: true
 }
 
@@ -91,6 +95,7 @@ export type GoalContributionMaxAggregateInputType = {
   contributedOn?: true
   note?: true
   createdByUserId?: true
+  transactionId?: true
   createdAt?: true
 }
 
@@ -101,6 +106,7 @@ export type GoalContributionCountAggregateInputType = {
   contributedOn?: true
   note?: true
   createdByUserId?: true
+  transactionId?: true
   createdAt?: true
   _all?: true
 }
@@ -198,6 +204,7 @@ export type GoalContributionGroupByOutputType = {
   contributedOn: Date
   note: string | null
   createdByUserId: string
+  transactionId: string
   createdAt: Date
   _count: GoalContributionCountAggregateOutputType | null
   _avg: GoalContributionAvgAggregateOutputType | null
@@ -231,8 +238,10 @@ export type GoalContributionWhereInput = {
   contributedOn?: Prisma.DateTimeFilter<"GoalContribution"> | Date | string
   note?: Prisma.StringNullableFilter<"GoalContribution"> | string | null
   createdByUserId?: Prisma.StringFilter<"GoalContribution"> | string
+  transactionId?: Prisma.StringFilter<"GoalContribution"> | string
   createdAt?: Prisma.DateTimeFilter<"GoalContribution"> | Date | string
   goal?: Prisma.XOR<Prisma.GoalScalarRelationFilter, Prisma.GoalWhereInput>
+  transaction?: Prisma.XOR<Prisma.TransactionScalarRelationFilter, Prisma.TransactionWhereInput>
 }
 
 export type GoalContributionOrderByWithRelationInput = {
@@ -242,12 +251,15 @@ export type GoalContributionOrderByWithRelationInput = {
   contributedOn?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
+  transactionId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   goal?: Prisma.GoalOrderByWithRelationInput
+  transaction?: Prisma.TransactionOrderByWithRelationInput
 }
 
 export type GoalContributionWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  transactionId?: string
   AND?: Prisma.GoalContributionWhereInput | Prisma.GoalContributionWhereInput[]
   OR?: Prisma.GoalContributionWhereInput[]
   NOT?: Prisma.GoalContributionWhereInput | Prisma.GoalContributionWhereInput[]
@@ -258,7 +270,8 @@ export type GoalContributionWhereUniqueInput = Prisma.AtLeast<{
   createdByUserId?: Prisma.StringFilter<"GoalContribution"> | string
   createdAt?: Prisma.DateTimeFilter<"GoalContribution"> | Date | string
   goal?: Prisma.XOR<Prisma.GoalScalarRelationFilter, Prisma.GoalWhereInput>
-}, "id">
+  transaction?: Prisma.XOR<Prisma.TransactionScalarRelationFilter, Prisma.TransactionWhereInput>
+}, "id" | "transactionId">
 
 export type GoalContributionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -267,6 +280,7 @@ export type GoalContributionOrderByWithAggregationInput = {
   contributedOn?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
+  transactionId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.GoalContributionCountOrderByAggregateInput
   _avg?: Prisma.GoalContributionAvgOrderByAggregateInput
@@ -285,6 +299,7 @@ export type GoalContributionScalarWhereWithAggregatesInput = {
   contributedOn?: Prisma.DateTimeWithAggregatesFilter<"GoalContribution"> | Date | string
   note?: Prisma.StringNullableWithAggregatesFilter<"GoalContribution"> | string | null
   createdByUserId?: Prisma.StringWithAggregatesFilter<"GoalContribution"> | string
+  transactionId?: Prisma.StringWithAggregatesFilter<"GoalContribution"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"GoalContribution"> | Date | string
 }
 
@@ -296,6 +311,7 @@ export type GoalContributionCreateInput = {
   createdByUserId: string
   createdAt?: Date | string
   goal: Prisma.GoalCreateNestedOneWithoutContributionsInput
+  transaction: Prisma.TransactionCreateNestedOneWithoutGoalContributionInput
 }
 
 export type GoalContributionUncheckedCreateInput = {
@@ -305,6 +321,7 @@ export type GoalContributionUncheckedCreateInput = {
   contributedOn: Date | string
   note?: string | null
   createdByUserId: string
+  transactionId: string
   createdAt?: Date | string
 }
 
@@ -316,6 +333,7 @@ export type GoalContributionUpdateInput = {
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   goal?: Prisma.GoalUpdateOneRequiredWithoutContributionsNestedInput
+  transaction?: Prisma.TransactionUpdateOneRequiredWithoutGoalContributionNestedInput
 }
 
 export type GoalContributionUncheckedUpdateInput = {
@@ -325,6 +343,7 @@ export type GoalContributionUncheckedUpdateInput = {
   contributedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -335,6 +354,7 @@ export type GoalContributionCreateManyInput = {
   contributedOn: Date | string
   note?: string | null
   createdByUserId: string
+  transactionId: string
   createdAt?: Date | string
 }
 
@@ -354,7 +374,13 @@ export type GoalContributionUncheckedUpdateManyInput = {
   contributedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type GoalContributionNullableScalarRelationFilter = {
+  is?: Prisma.GoalContributionWhereInput | null
+  isNot?: Prisma.GoalContributionWhereInput | null
 }
 
 export type GoalContributionListRelationFilter = {
@@ -374,6 +400,7 @@ export type GoalContributionCountOrderByAggregateInput = {
   contributedOn?: Prisma.SortOrder
   note?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
+  transactionId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -388,6 +415,7 @@ export type GoalContributionMaxOrderByAggregateInput = {
   contributedOn?: Prisma.SortOrder
   note?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
+  transactionId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -398,11 +426,44 @@ export type GoalContributionMinOrderByAggregateInput = {
   contributedOn?: Prisma.SortOrder
   note?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
+  transactionId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type GoalContributionSumOrderByAggregateInput = {
   amountCents?: Prisma.SortOrder
+}
+
+export type GoalContributionCreateNestedOneWithoutTransactionInput = {
+  create?: Prisma.XOR<Prisma.GoalContributionCreateWithoutTransactionInput, Prisma.GoalContributionUncheckedCreateWithoutTransactionInput>
+  connectOrCreate?: Prisma.GoalContributionCreateOrConnectWithoutTransactionInput
+  connect?: Prisma.GoalContributionWhereUniqueInput
+}
+
+export type GoalContributionUncheckedCreateNestedOneWithoutTransactionInput = {
+  create?: Prisma.XOR<Prisma.GoalContributionCreateWithoutTransactionInput, Prisma.GoalContributionUncheckedCreateWithoutTransactionInput>
+  connectOrCreate?: Prisma.GoalContributionCreateOrConnectWithoutTransactionInput
+  connect?: Prisma.GoalContributionWhereUniqueInput
+}
+
+export type GoalContributionUpdateOneWithoutTransactionNestedInput = {
+  create?: Prisma.XOR<Prisma.GoalContributionCreateWithoutTransactionInput, Prisma.GoalContributionUncheckedCreateWithoutTransactionInput>
+  connectOrCreate?: Prisma.GoalContributionCreateOrConnectWithoutTransactionInput
+  upsert?: Prisma.GoalContributionUpsertWithoutTransactionInput
+  disconnect?: Prisma.GoalContributionWhereInput | boolean
+  delete?: Prisma.GoalContributionWhereInput | boolean
+  connect?: Prisma.GoalContributionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.GoalContributionUpdateToOneWithWhereWithoutTransactionInput, Prisma.GoalContributionUpdateWithoutTransactionInput>, Prisma.GoalContributionUncheckedUpdateWithoutTransactionInput>
+}
+
+export type GoalContributionUncheckedUpdateOneWithoutTransactionNestedInput = {
+  create?: Prisma.XOR<Prisma.GoalContributionCreateWithoutTransactionInput, Prisma.GoalContributionUncheckedCreateWithoutTransactionInput>
+  connectOrCreate?: Prisma.GoalContributionCreateOrConnectWithoutTransactionInput
+  upsert?: Prisma.GoalContributionUpsertWithoutTransactionInput
+  disconnect?: Prisma.GoalContributionWhereInput | boolean
+  delete?: Prisma.GoalContributionWhereInput | boolean
+  connect?: Prisma.GoalContributionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.GoalContributionUpdateToOneWithWhereWithoutTransactionInput, Prisma.GoalContributionUpdateWithoutTransactionInput>, Prisma.GoalContributionUncheckedUpdateWithoutTransactionInput>
 }
 
 export type GoalContributionCreateNestedManyWithoutGoalInput = {
@@ -447,6 +508,62 @@ export type GoalContributionUncheckedUpdateManyWithoutGoalNestedInput = {
   deleteMany?: Prisma.GoalContributionScalarWhereInput | Prisma.GoalContributionScalarWhereInput[]
 }
 
+export type GoalContributionCreateWithoutTransactionInput = {
+  id?: string
+  amountCents: number
+  contributedOn: Date | string
+  note?: string | null
+  createdByUserId: string
+  createdAt?: Date | string
+  goal: Prisma.GoalCreateNestedOneWithoutContributionsInput
+}
+
+export type GoalContributionUncheckedCreateWithoutTransactionInput = {
+  id?: string
+  goalId: string
+  amountCents: number
+  contributedOn: Date | string
+  note?: string | null
+  createdByUserId: string
+  createdAt?: Date | string
+}
+
+export type GoalContributionCreateOrConnectWithoutTransactionInput = {
+  where: Prisma.GoalContributionWhereUniqueInput
+  create: Prisma.XOR<Prisma.GoalContributionCreateWithoutTransactionInput, Prisma.GoalContributionUncheckedCreateWithoutTransactionInput>
+}
+
+export type GoalContributionUpsertWithoutTransactionInput = {
+  update: Prisma.XOR<Prisma.GoalContributionUpdateWithoutTransactionInput, Prisma.GoalContributionUncheckedUpdateWithoutTransactionInput>
+  create: Prisma.XOR<Prisma.GoalContributionCreateWithoutTransactionInput, Prisma.GoalContributionUncheckedCreateWithoutTransactionInput>
+  where?: Prisma.GoalContributionWhereInput
+}
+
+export type GoalContributionUpdateToOneWithWhereWithoutTransactionInput = {
+  where?: Prisma.GoalContributionWhereInput
+  data: Prisma.XOR<Prisma.GoalContributionUpdateWithoutTransactionInput, Prisma.GoalContributionUncheckedUpdateWithoutTransactionInput>
+}
+
+export type GoalContributionUpdateWithoutTransactionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  amountCents?: Prisma.IntFieldUpdateOperationsInput | number
+  contributedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  goal?: Prisma.GoalUpdateOneRequiredWithoutContributionsNestedInput
+}
+
+export type GoalContributionUncheckedUpdateWithoutTransactionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  goalId?: Prisma.StringFieldUpdateOperationsInput | string
+  amountCents?: Prisma.IntFieldUpdateOperationsInput | number
+  contributedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type GoalContributionCreateWithoutGoalInput = {
   id?: string
   amountCents: number
@@ -454,6 +571,7 @@ export type GoalContributionCreateWithoutGoalInput = {
   note?: string | null
   createdByUserId: string
   createdAt?: Date | string
+  transaction: Prisma.TransactionCreateNestedOneWithoutGoalContributionInput
 }
 
 export type GoalContributionUncheckedCreateWithoutGoalInput = {
@@ -462,6 +580,7 @@ export type GoalContributionUncheckedCreateWithoutGoalInput = {
   contributedOn: Date | string
   note?: string | null
   createdByUserId: string
+  transactionId: string
   createdAt?: Date | string
 }
 
@@ -501,6 +620,7 @@ export type GoalContributionScalarWhereInput = {
   contributedOn?: Prisma.DateTimeFilter<"GoalContribution"> | Date | string
   note?: Prisma.StringNullableFilter<"GoalContribution"> | string | null
   createdByUserId?: Prisma.StringFilter<"GoalContribution"> | string
+  transactionId?: Prisma.StringFilter<"GoalContribution"> | string
   createdAt?: Prisma.DateTimeFilter<"GoalContribution"> | Date | string
 }
 
@@ -510,6 +630,7 @@ export type GoalContributionCreateManyGoalInput = {
   contributedOn: Date | string
   note?: string | null
   createdByUserId: string
+  transactionId: string
   createdAt?: Date | string
 }
 
@@ -520,6 +641,7 @@ export type GoalContributionUpdateWithoutGoalInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transaction?: Prisma.TransactionUpdateOneRequiredWithoutGoalContributionNestedInput
 }
 
 export type GoalContributionUncheckedUpdateWithoutGoalInput = {
@@ -528,6 +650,7 @@ export type GoalContributionUncheckedUpdateWithoutGoalInput = {
   contributedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -537,6 +660,7 @@ export type GoalContributionUncheckedUpdateManyWithoutGoalInput = {
   contributedOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  transactionId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -549,8 +673,10 @@ export type GoalContributionSelect<ExtArgs extends runtime.Types.Extensions.Inte
   contributedOn?: boolean
   note?: boolean
   createdByUserId?: boolean
+  transactionId?: boolean
   createdAt?: boolean
   goal?: boolean | Prisma.GoalDefaultArgs<ExtArgs>
+  transaction?: boolean | Prisma.TransactionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["goalContribution"]>
 
 export type GoalContributionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -560,8 +686,10 @@ export type GoalContributionSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   contributedOn?: boolean
   note?: boolean
   createdByUserId?: boolean
+  transactionId?: boolean
   createdAt?: boolean
   goal?: boolean | Prisma.GoalDefaultArgs<ExtArgs>
+  transaction?: boolean | Prisma.TransactionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["goalContribution"]>
 
 export type GoalContributionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -571,8 +699,10 @@ export type GoalContributionSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   contributedOn?: boolean
   note?: boolean
   createdByUserId?: boolean
+  transactionId?: boolean
   createdAt?: boolean
   goal?: boolean | Prisma.GoalDefaultArgs<ExtArgs>
+  transaction?: boolean | Prisma.TransactionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["goalContribution"]>
 
 export type GoalContributionSelectScalar = {
@@ -582,24 +712,29 @@ export type GoalContributionSelectScalar = {
   contributedOn?: boolean
   note?: boolean
   createdByUserId?: boolean
+  transactionId?: boolean
   createdAt?: boolean
 }
 
-export type GoalContributionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "goalId" | "amountCents" | "contributedOn" | "note" | "createdByUserId" | "createdAt", ExtArgs["result"]["goalContribution"]>
+export type GoalContributionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "goalId" | "amountCents" | "contributedOn" | "note" | "createdByUserId" | "transactionId" | "createdAt", ExtArgs["result"]["goalContribution"]>
 export type GoalContributionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   goal?: boolean | Prisma.GoalDefaultArgs<ExtArgs>
+  transaction?: boolean | Prisma.TransactionDefaultArgs<ExtArgs>
 }
 export type GoalContributionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   goal?: boolean | Prisma.GoalDefaultArgs<ExtArgs>
+  transaction?: boolean | Prisma.TransactionDefaultArgs<ExtArgs>
 }
 export type GoalContributionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   goal?: boolean | Prisma.GoalDefaultArgs<ExtArgs>
+  transaction?: boolean | Prisma.TransactionDefaultArgs<ExtArgs>
 }
 
 export type $GoalContributionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "GoalContribution"
   objects: {
     goal: Prisma.$GoalPayload<ExtArgs>
+    transaction: Prisma.$TransactionPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -608,6 +743,7 @@ export type $GoalContributionPayload<ExtArgs extends runtime.Types.Extensions.In
     contributedOn: Date
     note: string | null
     createdByUserId: string
+    transactionId: string
     createdAt: Date
   }, ExtArgs["result"]["goalContribution"]>
   composites: {}
@@ -1004,6 +1140,7 @@ readonly fields: GoalContributionFieldRefs;
 export interface Prisma__GoalContributionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   goal<T extends Prisma.GoalDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.GoalDefaultArgs<ExtArgs>>): Prisma.Prisma__GoalClient<runtime.Types.Result.GetResult<Prisma.$GoalPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  transaction<T extends Prisma.TransactionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TransactionDefaultArgs<ExtArgs>>): Prisma.Prisma__TransactionClient<runtime.Types.Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1039,6 +1176,7 @@ export interface GoalContributionFieldRefs {
   readonly contributedOn: Prisma.FieldRef<"GoalContribution", 'DateTime'>
   readonly note: Prisma.FieldRef<"GoalContribution", 'String'>
   readonly createdByUserId: Prisma.FieldRef<"GoalContribution", 'String'>
+  readonly transactionId: Prisma.FieldRef<"GoalContribution", 'String'>
   readonly createdAt: Prisma.FieldRef<"GoalContribution", 'DateTime'>
 }
     

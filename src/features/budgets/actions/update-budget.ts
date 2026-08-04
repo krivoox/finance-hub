@@ -32,6 +32,7 @@ export async function updateBudgetAction(
       categoryIds: parsed.data.categoryIds,
     });
     revalidatePath("/budgets");
+    revalidatePath(`/budgets/${result.id}`);
     revalidatePath("/dashboard");
     revalidatePath("/", "layout");
     return { ok: true, data: { id: result.id } };

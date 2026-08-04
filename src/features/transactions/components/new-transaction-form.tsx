@@ -15,6 +15,7 @@ import {
   CREATEABLE_TRANSACTION_TYPES,
   type CreateableTransactionType,
 } from "@/features/transactions/domain";
+import { CategoryPicker } from "@/features/categories/components/category-picker";
 import {
   FormActions,
   FormField,
@@ -497,22 +498,23 @@ export function NewTransactionForm({
             </FormField>
           ) : (
             <FormField label="Categoría" htmlFor="tx-category">
-              <select
-                id="tx-category"
-                className={SELECT_CLASSES}
-                disabled={!showCategory}
-                aria-invalid={Boolean(errors.categoryId)}
-                {...register("categoryId", {
-                  required: showCategory,
-                })}
-              >
-                <option value="">Elegí una categoría…</option>
-                {filteredCategories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+              <Controller
+                control={control}
+                name="categoryId"
+                rules={{ required: showCategory }}
+                render={({ field }) => (
+                  <CategoryPicker
+                    mode="single"
+                    id="tx-category"
+                    categories={filteredCategories}
+                    value={field.value || null}
+                    onChange={(id) => field.onChange(id ?? "")}
+                    disabled={!showCategory || isBusy}
+                    aria-invalid={Boolean(errors.categoryId)}
+                    placeholder="Elegir categoría"
+                  />
+                )}
+              />
             </FormField>
           )}
 

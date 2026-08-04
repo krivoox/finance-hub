@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import {
@@ -10,6 +10,7 @@ import {
   updateTransactionAction,
 } from "@/features/transactions/actions";
 import type { TransactionType } from "@/features/transactions/domain";
+import { CategoryPicker } from "@/features/categories/components/category-picker";
 import {
   FormActions,
   FormField,
@@ -39,6 +40,8 @@ type EditTransactionFormProps = {
   counterpartyAccountId: string | null;
   accounts: readonly AccountOption[];
   categories: readonly CategoryOption[];
+  /** SPEC-08 H4 — amount/accounts locked when transfer is a goal contribution. */
+  linkedToGoal?: boolean;
   onSuccess?: () => void;
   onCancel?: () => void;
 };
@@ -76,6 +79,7 @@ export function EditTransactionForm({
   counterpartyAccountId,
   accounts,
   categories,
+  linkedToGoal = false,
   onSuccess,
   onCancel,
 }: EditTransactionFormProps) {
@@ -87,7 +91,7 @@ export function EditTransactionForm({
     type === "income" ? c.kind === "income" : c.kind === "expense",
   );
 
-  const { register, handleSubmit } = useForm<FormValues>({
+  const { register, handleSubmit, control } = useForm<FormValues>({
     defaultValues: {
       amountUnits: centsToUnits(amountCents),
       occurredOn,
@@ -99,21 +103,27 @@ export function EditTransactionForm({
   });
 
   const onSubmit = handleSubmit((values) => {
-    const parsed = parseAmountCents(values.amountUnits);
-    if (parsed === null) {
-      toast.error("Monto inválido");
-      return;
+    if (!linkedToGoal) {
+      const parsed = parseAmountCents(values.amountUnits);
+      if (parsed === null) {
+        toast.error("Monto inválido");
+        return;
+      }
     }
     startTransition(async () => {
       const result = await updateTransactionAction({
         transactionId,
-        amountCents: parsed,
         occurredOn: values.occurredOn,
         description: values.description.trim() || null,
-        accountId: values.accountId,
-        ...(type === "transfer"
-          ? { counterpartyAccountId: values.counterpartyAccountId }
-          : { categoryId: values.categoryId }),
+        ...(linkedToGoal
+          ? {}
+          : {
+              amountCents: parseAmountCents(values.amountUnits)!,
+              accountId: values.accountId,
+              ...(type === "transfer"
+                ? { counterpartyAccountId: values.counterpartyAccountId }
+                : { categoryId: values.categoryId }),
+            }),
       });
       if (!result.ok) {
         toast.error(result.error);
@@ -149,6 +159,13 @@ export function EditTransactionForm({
     <div className="flex flex-col gap-6">
       <form className="flex flex-col gap-6" onSubmit={onSubmit} noValidate>
         <FormStack>
+          {linkedToGoal ? (
+            <p className="text-sm text-muted-foreground">
+              Este movimiento es un aporte a un objetivo: podés editar fecha y
+              descripción. Para cambiar el monto, eliminá el movimiento (deshace
+              el aporte).
+            </p>
+          ) : null}
           <FormSection>
             <FormField
               label="Monto"
@@ -160,7 +177,7 @@ export function EditTransactionForm({
                 type="text"
                 inputMode="decimal"
                 className="tabular-nums"
-                disabled={isBusy}
+                disabled={isBusy || linkedToGoal}
                 {...register("amountUnits")}
               />
             </FormField>
@@ -192,7 +209,7 @@ export function EditTransactionForm({
               <select
                 id="edit-tx-account"
                 className={nativeSelectClassName}
-                disabled={isBusy}
+                disabled={isBusy || linkedToGoal}
                 {...register("accountId")}
               >
                 {accounts.map((a) => (
@@ -211,7 +228,7 @@ export function EditTransactionForm({
                 <select
                   id="edit-tx-counterparty"
                   className={nativeSelectClassName}
-                  disabled={isBusy}
+                  disabled={isBusy || linkedToGoal}
                   {...register("counterpartyAccountId")}
                 >
                   {accounts.map((a) => (
@@ -223,18 +240,22 @@ export function EditTransactionForm({
               </FormField>
             ) : (
               <FormField label="Categoría" htmlFor="edit-tx-category">
-                <select
-                  id="edit-tx-category"
-                  className={nativeSelectClassName}
-                  disabled={isBusy}
-                  {...register("categoryId")}
-                >
-                  {kindCategories.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
+                <Controller
+                  control={control}
+                  name="categoryId"
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <CategoryPicker
+                      mode="single"
+                      id="edit-tx-category"
+                      categories={kindCategories}
+                      value={field.value || null}
+                      onChange={(id) => field.onChange(id ?? "")}
+                      disabled={isBusy}
+                      placeholder="Elegir categoría"
+                    />
+                  )}
+                />
               </FormField>
             )}
           </FormSection>
@@ -279,7 +300,9 @@ export function EditTransactionForm({
         ) : (
           <div className="space-y-3 rounded-lg border border-destructive/20 bg-destructive/5 p-3">
             <p className="text-sm text-muted-foreground text-pretty">
-              ¿Eliminar este movimiento? No se puede deshacer.
+              {linkedToGoal
+                ? "¿Eliminar este aporte? Se deshace el progreso del objetivo y no se puede deshacer."
+                : "¿Eliminar este movimiento? No se puede deshacer."}
             </p>
             <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <Button

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { AlertTriangle, ChevronsUpDown, LogOut, Plus, Search } from "lucide-react";
+import { AlertTriangle, ChevronsUpDown, LogOut, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -34,6 +34,7 @@ import {
 import { signOut } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { navigateAndRefresh } from "@/lib/navigation";
+import { useNewTransactionSheetStore } from "@/features/transactions/stores/new-transaction-sheet-store";
 import {
   WorkspaceSwitcher,
   type WorkspaceOption,
@@ -196,6 +197,7 @@ export function AppSidebar({
   navBadges = {},
 }: AppSidebarProps) {
   const { isMobile, setOpenMobile } = useSidebar();
+  const openNewTransaction = useNewTransactionSheetStore((s) => s.openSheet);
   const mainItems = applyNavBadges(mainNavItems, navBadges);
   const groups = navGroups.map((group) => ({
     ...group,
@@ -212,42 +214,23 @@ export function AppSidebar({
           workspaces={workspaces}
         />
 
-        <div className="flex items-center gap-2 px-0.5 group-data-[collapsible=icon]:flex-col">
-          {canMutate ? (
+        {canMutate ? (
+          <div className="px-0.5">
             <Button
-              asChild
-              className="h-10 flex-1 justify-center gap-2 rounded-full px-3 text-center align-middle md:h-8 group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:flex-none group-data-[collapsible=icon]:rounded-lg group-data-[collapsible=icon]:p-0"
-            >
-              <Link
-                href="/transactions?new=1"
-                onClick={() => {
-                  if (isMobile) setOpenMobile(false);
-                }}
-              >
-                <Plus className="size-4" strokeWidth={1.75} />
-                <span className="flex flex-wrap group-data-[collapsible=icon]:sr-only">
-                  Registrar
-                </span>
-              </Link>
-            </Button>
-          ) : null}
-          <Button
-            variant="outline"
-            size="icon"
-            className="size-10 shrink-0 rounded-lg md:size-8"
-            aria-label="Buscar"
-            asChild
-          >
-            <Link
-              href="/transactions"
+              type="button"
+              className="h-10 w-full justify-center gap-2 rounded-full px-3 text-center align-middle md:h-8 group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:w-auto group-data-[collapsible=icon]:rounded-lg group-data-[collapsible=icon]:p-0"
               onClick={() => {
                 if (isMobile) setOpenMobile(false);
+                openNewTransaction();
               }}
             >
-              <Search className="size-4" strokeWidth={1.75} />
-            </Link>
-          </Button>
-        </div>
+              <Plus className="size-4" strokeWidth={1.75} />
+              <span className="flex flex-wrap group-data-[collapsible=icon]:sr-only">
+                Registrar
+              </span>
+            </Button>
+          </div>
+        ) : null}
       </SidebarHeader>
 
       <SidebarContent>

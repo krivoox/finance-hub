@@ -32,6 +32,7 @@ export type CreateGoalInput = z.infer<typeof createGoalSchema>;
 
 export const contributeToGoalSchema = z.object({
   goalId: z.string().min(1),
+  fromAccountId: z.string().min(1, "Elegí la cuenta de origen"),
   amountCents: positiveIntCents,
   contributedOn: isoDateSchema,
   note: z.string().trim().max(240, "Máximo 240 caracteres").optional().nullable(),

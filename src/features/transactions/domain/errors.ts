@@ -135,3 +135,16 @@ export class InvalidDateRangeError extends TransactionDomainError {
     this.name = "InvalidDateRangeError";
   }
 }
+
+/**
+ * SPEC-08 T-15 / §4.3 — Transfers linked to a GoalContribution cannot change
+ * amount or accounts. Edit description/date only (or delete to undo).
+ */
+export class TransferLinkedToGoalError extends TransactionDomainError {
+  constructor(
+    message = "Esta transferencia es un aporte a un objetivo: no se pueden cambiar monto ni cuentas",
+  ) {
+    super(message);
+    this.name = "TransferLinkedToGoalError";
+  }
+}

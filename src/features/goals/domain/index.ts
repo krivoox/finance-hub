@@ -2,6 +2,7 @@ export {
   GoalCurrencyMismatchError,
   GoalDomainError,
   GoalLinkedAccountInvalidError,
+  GoalLinkedAccountRequiredError,
   GoalNotActiveError,
   GoalNotFoundError,
   InvalidContributionAmountError,
@@ -13,6 +14,7 @@ export {
   GOAL_NAME_MAX_LENGTH,
   applyContribution,
   assertCanContribute,
+  assertGoalContributionTransferAccounts,
   assertGoalCurrencyAllowed,
   assertGoalCurrencyMatchesWorkspace,
   assertValidContribution,
@@ -20,10 +22,16 @@ export {
   assertValidTargetAmount,
   normalizeGoalName,
   progressPercent,
+  reverseContribution,
 } from "./guards";
 export type {
   ApplyContributionInput,
   ApplyContributionResult,
+  AssertGoalContributionTransferAccountsInput,
+  AssertGoalContributionTransferAccountsResult,
+  GoalContributionAccountLike,
+  ReverseContributionInput,
+  ReverseContributionResult,
 } from "./guards";
 
 export {

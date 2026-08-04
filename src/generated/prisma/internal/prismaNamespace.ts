@@ -2185,6 +2185,7 @@ export const GoalContributionScalarFieldEnum = {
   contributedOn: 'contributedOn',
   note: 'note',
   createdByUserId: 'createdByUserId',
+  transactionId: 'transactionId',
   createdAt: 'createdAt'
 } as const
 

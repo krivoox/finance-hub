@@ -1,11 +1,17 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
+import {
+  reverseContribution,
+  type GoalStatus,
+} from "@/features/goals/domain";
 import { assertCanMutateTransactions } from "@/features/transactions/domain";
 import { requireTransactionMembership } from "./require-transaction-membership";
 
 /**
- * SPEC-05 FR-03 / SPEC-06 FR-04 / SPEC-14 FR-07 / SPEC-16 FR-04 —
- * Hard-delete a transaction. Contribution / FX pairs cascade (both legs + link).
+ * SPEC-05 FR-03 / SPEC-06 FR-04 / SPEC-08 H4 / SPEC-14 FR-07 / SPEC-16 FR-04 —
+ * Hard-delete a transaction. Contribution / FX pairs cascade (both legs +
+ * link). Goal-linked transfers undo the GoalContribution and restore goal
+ * progress.
  */
 export async function deleteTransaction({
   userId,
@@ -19,6 +25,49 @@ export async function deleteTransaction({
     transactionId,
   );
   assertCanMutateTransactions(membership.role);
+
+  const goalContribution = await prisma.goalContribution.findUnique({
+    where: { transactionId: transaction.id },
+    select: {
+      id: true,
+      amountCents: true,
+      goal: {
+        select: {
+          id: true,
+          currentAmountCents: true,
+          targetAmountCents: true,
+          status: true,
+        },
+      },
+    },
+  });
+
+  if (goalContribution) {
+    const { newCurrentAmountCents, newStatus } = reverseContribution(
+      {
+        currentAmountCents: goalContribution.goal.currentAmountCents,
+        targetAmountCents: goalContribution.goal.targetAmountCents,
+        status: goalContribution.goal.status as GoalStatus,
+      },
+      goalContribution.amountCents,
+    );
+
+    await prisma.$transaction(async (tx) => {
+      await tx.goalContribution.delete({
+        where: { id: goalContribution.id },
+      });
+      await tx.goal.update({
+        where: { id: goalContribution.goal.id },
+        data: {
+          currentAmountCents: newCurrentAmountCents,
+          status: newStatus,
+        },
+      });
+      await tx.transaction.delete({ where: { id: transaction.id } });
+    });
+
+    return { id: transaction.id, cascadedIds: [] };
+  }
 
   const fxExchange = await prisma.currencyExchange.findFirst({
     where: {
