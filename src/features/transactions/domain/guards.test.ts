@@ -13,6 +13,7 @@ import {
   OccurredOnTooFutureError,
   SameAccountTransferError,
   TransactionCurrencyMismatchError,
+  TransferLinkedToGoalError,
   assertAccountActive,
   assertAccountBelongsToWorkspace,
   assertCategoryKindMatches,
@@ -21,6 +22,7 @@ import {
   assertTransactionCurrencyMatchesAccount,
   assertTransferAccounts,
   assertTransferCounterparty,
+  assertTransferNotLinkedToGoal,
   assertValidAmount,
   normalizeDescription,
 } from "./index";
@@ -344,6 +346,29 @@ describe("normalizeDescription", () => {
     const tooLong = "x".repeat(500);
     expect(() => normalizeDescription(tooLong)).toThrow(
       InvalidDescriptionError,
+    );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// SPEC-08 T-15 — Transfer linked to goal contribution
+// ---------------------------------------------------------------------------
+describe("assertTransferNotLinkedToGoal — SPEC-08 T-15", () => {
+  it("allows updates when there is no goal contribution", () => {
+    expect(() =>
+      assertTransferNotLinkedToGoal(false, true),
+    ).not.toThrow();
+  });
+
+  it("allows non-ledger field updates on a linked transfer", () => {
+    expect(() =>
+      assertTransferNotLinkedToGoal(true, false),
+    ).not.toThrow();
+  });
+
+  it("rejects amount/account mutations on a linked transfer", () => {
+    expect(() => assertTransferNotLinkedToGoal(true, true)).toThrow(
+      TransferLinkedToGoalError,
     );
   });
 });

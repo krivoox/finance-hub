@@ -28,6 +28,12 @@ type TableTransaction = {
   createdByDisplayName: string;
   isExternalToWorkspace: boolean;
   registrationWorkspaceName: string | null;
+  goalContribution: {
+    contributionId: string;
+    goalId: string;
+    goalName: string;
+    goalKind: "save" | "debt_payoff";
+  } | null;
 };
 
 function amountVariant(
@@ -109,12 +115,24 @@ export function TransactionsTable({
             <TableRow key={tx.id} className="relative">
               <TableCell>
                 <div className="flex min-w-0 flex-col gap-0.5">
-                  <Link
-                    href={`/transactions/${tx.id}`}
-                    className="font-medium text-foreground after:absolute after:inset-0 hover:underline"
-                  >
-                    {descriptionWithChip}
-                  </Link>
+                  <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                    <Link
+                      href={`/transactions/${tx.id}`}
+                      className="font-medium text-foreground after:absolute after:inset-0 hover:underline"
+                    >
+                      {descriptionWithChip}
+                    </Link>
+                    {tx.goalContribution ? (
+                      <Badge
+                        variant="info"
+                        className="relative z-10"
+                      >
+                        {tx.goalContribution.goalKind === "debt_payoff"
+                          ? "Pago de deuda"
+                          : "Aporte a objetivo"}
+                      </Badge>
+                    ) : null}
+                  </div>
                   <span className="text-xs text-muted-foreground sm:hidden">
                     {accountLabel}
                     {" · "}

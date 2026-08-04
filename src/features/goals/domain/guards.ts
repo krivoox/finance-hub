@@ -7,6 +7,7 @@
 
 import {
   GoalCurrencyMismatchError,
+  GoalLinkedAccountRequiredError,
   GoalNotActiveError,
   InvalidContributionAmountError,
   InvalidGoalNameError,
@@ -14,6 +15,12 @@ import {
 } from "./errors";
 import type { GoalStatus } from "./types";
 import { isAccountCurrency } from "@/domain/money/currencies";
+import {
+  assertAccountActive,
+  assertAccountBelongsToWorkspace,
+  assertTransactionCurrencyMatchesAccount,
+  assertTransferAccounts,
+} from "@/features/transactions/domain";
 
 export const GOAL_NAME_MAX_LENGTH = 80;
 
@@ -178,4 +185,117 @@ export function assertGoalCurrencyMatchesWorkspace(
   _workspaceBaseCurrency: string,
 ): void {
   assertGoalCurrencyAllowed(goalCurrency);
+}
+
+// ---------------------------------------------------------------------------
+// ContributeToGoal = transfer accounts (H4)
+// ---------------------------------------------------------------------------
+
+export type GoalContributionAccountLike = {
+  readonly id: string;
+  readonly workspaceId: string;
+  readonly currency: string;
+  readonly isArchived: boolean;
+};
+
+export type AssertGoalContributionTransferAccountsInput = {
+  readonly goalWorkspaceId: string;
+  readonly goalCurrency: string;
+  readonly linkedAccountId: string | null;
+  readonly fromAccountId: string;
+  readonly fromAccount: GoalContributionAccountLike;
+  readonly linkedAccount: GoalContributionAccountLike | null;
+};
+
+export type AssertGoalContributionTransferAccountsResult = {
+  readonly fromAccountId: string;
+  readonly toAccountId: string;
+};
+
+/**
+ * SPEC-08 T-06 / T-08 / T-09 / T-10 / T-16 — Resolve transfer legs for a goal
+ * contribution. Destination is always `linkedAccountId` (not chosen by user).
+ *
+ * Reuses transfer guards (same account, archived, workspace, currency).
+ */
+export function assertGoalContributionTransferAccounts(
+  input: AssertGoalContributionTransferAccountsInput,
+): AssertGoalContributionTransferAccountsResult {
+  if (
+    typeof input.linkedAccountId !== "string" ||
+    input.linkedAccountId.length === 0
+  ) {
+    throw new GoalLinkedAccountRequiredError();
+  }
+  if (!input.linkedAccount) {
+    throw new GoalLinkedAccountRequiredError(
+      "La cuenta vinculada del objetivo no existe",
+    );
+  }
+
+  assertTransferAccounts(input.fromAccountId, input.linkedAccountId);
+  assertAccountBelongsToWorkspace(
+    input.fromAccount.workspaceId,
+    input.goalWorkspaceId,
+  );
+  assertAccountBelongsToWorkspace(
+    input.linkedAccount.workspaceId,
+    input.goalWorkspaceId,
+  );
+  assertAccountActive(input.fromAccount.isArchived);
+  assertAccountActive(input.linkedAccount.isArchived);
+  assertTransactionCurrencyMatchesAccount(
+    input.fromAccount.currency,
+    input.linkedAccount.currency,
+  );
+  assertTransactionCurrencyMatchesAccount(
+    input.goalCurrency,
+    input.fromAccount.currency,
+  );
+
+  return {
+    fromAccountId: input.fromAccountId,
+    toAccountId: input.linkedAccountId,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Reverse contribution on transfer delete (H4)
+// ---------------------------------------------------------------------------
+
+export type ReverseContributionInput = {
+  readonly currentAmountCents: number;
+  readonly targetAmountCents: number;
+  readonly status: GoalStatus;
+};
+
+export type ReverseContributionResult = {
+  readonly newCurrentAmountCents: number;
+  readonly newStatus: GoalStatus;
+};
+
+/**
+ * SPEC-08 T-13 / T-14 / §4.3 — Undo a contribution after its transfer is
+ * deleted. Subtracts the amount and reopens `completed` → `active` when the
+ * remaining current falls below target. Never reopens `cancelled`.
+ */
+export function reverseContribution(
+  goal: ReverseContributionInput,
+  amountCents: number,
+): ReverseContributionResult {
+  assertValidContribution(amountCents);
+
+  const newCurrentAmountCents = Math.max(
+    0,
+    goal.currentAmountCents - amountCents,
+  );
+
+  if (goal.status === "cancelled") {
+    return { newCurrentAmountCents, newStatus: "cancelled" };
+  }
+
+  const newStatus: GoalStatus =
+    newCurrentAmountCents >= goal.targetAmountCents ? "completed" : "active";
+
+  return { newCurrentAmountCents, newStatus };
 }

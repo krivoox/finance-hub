@@ -24,6 +24,7 @@ type EditTransactionSheetProps = {
   counterpartyAccountId: string | null;
   accounts: readonly AccountOption[];
   categories: readonly CategoryOption[];
+  linkedToGoal?: boolean;
 };
 
 export function EditTransactionSheet({
@@ -38,6 +39,7 @@ export function EditTransactionSheet({
   counterpartyAccountId,
   accounts,
   categories,
+  linkedToGoal = false,
 }: EditTransactionSheetProps) {
   const [open, setOpen] = useState(false);
 
@@ -46,7 +48,11 @@ export function EditTransactionSheet({
       open={open}
       onOpenChange={setOpen}
       title="Editar movimiento"
-      description="Actualizá monto, fecha, cuenta o categoría."
+      description={
+        linkedToGoal
+          ? "Aporte a objetivo: solo fecha y descripción."
+          : "Actualizá monto, fecha, cuenta o categoría."
+      }
       size="md"
       trigger={
         <Button
@@ -70,6 +76,7 @@ export function EditTransactionSheet({
         counterpartyAccountId={counterpartyAccountId}
         accounts={accounts}
         categories={categories}
+        linkedToGoal={linkedToGoal}
         onSuccess={() => setOpen(false)}
         onCancel={() => setOpen(false)}
       />

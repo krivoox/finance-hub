@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   GoalCurrencyMismatchError,
+  GoalLinkedAccountRequiredError,
   GoalNotActiveError,
   InvalidContributionAmountError,
   InvalidGoalNameError,
@@ -10,13 +11,20 @@ import {
   GOAL_NAME_MAX_LENGTH,
   applyContribution,
   assertCanContribute,
+  assertGoalContributionTransferAccounts,
   assertGoalCurrencyAllowed,
   assertValidContribution,
   assertValidGoalName,
   assertValidTargetAmount,
   normalizeGoalName,
   progressPercent,
+  reverseContribution,
 } from "./guards";
+import {
+  AccountArchivedError,
+  SameAccountTransferError,
+  TransactionCurrencyMismatchError,
+} from "@/features/transactions/domain";
 
 // ---------------------------------------------------------------------------
 // SPEC-08 T-05 — Invalid contribution amounts
@@ -242,5 +250,200 @@ describe("assertGoalCurrencyAllowed — ADR-006", () => {
     expect(() => assertGoalCurrencyAllowed("EUR")).toThrow(
       GoalCurrencyMismatchError,
     );
+  });
+});
+
+// ---------------------------------------------------------------------------
+// SPEC-08 T-06 / T-08 / T-09 / T-10 / T-16 — contribution transfer accounts
+// ---------------------------------------------------------------------------
+const WS = "ws_1";
+
+function account(
+  id: string,
+  overrides: Partial<{
+    workspaceId: string;
+    currency: string;
+    isArchived: boolean;
+  }> = {},
+) {
+  return {
+    id,
+    workspaceId: overrides.workspaceId ?? WS,
+    currency: overrides.currency ?? "ARS",
+    isArchived: overrides.isArchived ?? false,
+  };
+}
+
+describe("assertGoalContributionTransferAccounts — SPEC-08 H4", () => {
+  it("T-16 · resolves from → linked when both accounts are valid", () => {
+    const result = assertGoalContributionTransferAccounts({
+      goalWorkspaceId: WS,
+      goalCurrency: "ARS",
+      linkedAccountId: "B",
+      fromAccountId: "A",
+      fromAccount: account("A"),
+      linkedAccount: account("B"),
+    });
+    expect(result).toEqual({ fromAccountId: "A", toAccountId: "B" });
+  });
+
+  it("T-06 · requires linkedAccountId", () => {
+    expect(() =>
+      assertGoalContributionTransferAccounts({
+        goalWorkspaceId: WS,
+        goalCurrency: "ARS",
+        linkedAccountId: null,
+        fromAccountId: "A",
+        fromAccount: account("A"),
+        linkedAccount: null,
+      }),
+    ).toThrow(GoalLinkedAccountRequiredError);
+  });
+
+  it("T-08 · rejects when fromAccount equals linkedAccount", () => {
+    expect(() =>
+      assertGoalContributionTransferAccounts({
+        goalWorkspaceId: WS,
+        goalCurrency: "ARS",
+        linkedAccountId: "B",
+        fromAccountId: "B",
+        fromAccount: account("B"),
+        linkedAccount: account("B"),
+      }),
+    ).toThrow(SameAccountTransferError);
+  });
+
+  it("T-09 · rejects currency mismatch between from and linked", () => {
+    expect(() =>
+      assertGoalContributionTransferAccounts({
+        goalWorkspaceId: WS,
+        goalCurrency: "ARS",
+        linkedAccountId: "B",
+        fromAccountId: "C",
+        fromAccount: account("C", { currency: "USD" }),
+        linkedAccount: account("B", { currency: "ARS" }),
+      }),
+    ).toThrow(TransactionCurrencyMismatchError);
+  });
+
+  it("T-09 · rejects when goal currency differs from from-account", () => {
+    expect(() =>
+      assertGoalContributionTransferAccounts({
+        goalWorkspaceId: WS,
+        goalCurrency: "ARS",
+        linkedAccountId: "B",
+        fromAccountId: "C",
+        fromAccount: account("C", { currency: "USD" }),
+        linkedAccount: account("B", { currency: "USD" }),
+      }),
+    ).toThrow(TransactionCurrencyMismatchError);
+  });
+
+  it("T-10 · rejects archived from-account", () => {
+    expect(() =>
+      assertGoalContributionTransferAccounts({
+        goalWorkspaceId: WS,
+        goalCurrency: "ARS",
+        linkedAccountId: "B",
+        fromAccountId: "A",
+        fromAccount: account("A", { isArchived: true }),
+        linkedAccount: account("B"),
+      }),
+    ).toThrow(AccountArchivedError);
+  });
+
+  it("rejects archived linked account", () => {
+    expect(() =>
+      assertGoalContributionTransferAccounts({
+        goalWorkspaceId: WS,
+        goalCurrency: "ARS",
+        linkedAccountId: "B",
+        fromAccountId: "A",
+        fromAccount: account("A"),
+        linkedAccount: account("B", { isArchived: true }),
+      }),
+    ).toThrow(AccountArchivedError);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// SPEC-08 T-13 / T-14 — reverseContribution on transfer delete
+// ---------------------------------------------------------------------------
+describe("reverseContribution — SPEC-08 T-13 / T-14", () => {
+  it("T-13 · subtracts the contribution amount from current", () => {
+    const result = reverseContribution(
+      {
+        currentAmountCents: 20_000,
+        targetAmountCents: 500_000,
+        status: "active",
+      },
+      20_000,
+    );
+    expect(result.newCurrentAmountCents).toBe(0);
+    expect(result.newStatus).toBe("active");
+  });
+
+  it("T-14 · reopens completed → active when current falls below target", () => {
+    const result = reverseContribution(
+      {
+        currentAmountCents: 500_000,
+        targetAmountCents: 500_000,
+        status: "completed",
+      },
+      100_000,
+    );
+    expect(result.newCurrentAmountCents).toBe(400_000);
+    expect(result.newStatus).toBe("active");
+  });
+
+  it("keeps completed when remaining current is still >= target", () => {
+    const result = reverseContribution(
+      {
+        currentAmountCents: 600_000,
+        targetAmountCents: 500_000,
+        status: "completed",
+      },
+      50_000,
+    );
+    expect(result.newCurrentAmountCents).toBe(550_000);
+    expect(result.newStatus).toBe("completed");
+  });
+
+  it("never reopens a cancelled goal", () => {
+    const result = reverseContribution(
+      {
+        currentAmountCents: 100_000,
+        targetAmountCents: 500_000,
+        status: "cancelled",
+      },
+      50_000,
+    );
+    expect(result.newCurrentAmountCents).toBe(50_000);
+    expect(result.newStatus).toBe("cancelled");
+  });
+
+  it("floors current at 0 (defensive)", () => {
+    const result = reverseContribution(
+      {
+        currentAmountCents: 10_000,
+        targetAmountCents: 500_000,
+        status: "active",
+      },
+      20_000,
+    );
+    expect(result.newCurrentAmountCents).toBe(0);
+  });
+
+  it("rejects invalid amounts", () => {
+    expect(() =>
+      reverseContribution(
+        {
+          currentAmountCents: 10_000,
+          targetAmountCents: 500_000,
+          status: "active",
+        },
+        0,
+      ),
+    ).toThrow(InvalidContributionAmountError);
   });
 });

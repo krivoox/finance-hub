@@ -10,6 +10,7 @@ import {
   assertTransactionCurrencyMatchesAccount,
   assertTransferAccounts,
   assertTransferCounterparty,
+  assertTransferNotLinkedToGoal,
   assertValidAmount,
   normalizeDescription,
   TransactionDomainError,
@@ -35,9 +36,10 @@ export type UpdateTransactionServiceInput = {
 };
 
 /**
- * SPEC-05 FR-02 / SPEC-06 FR-04 — Update mutable fields of a transaction.
- * `type` is immutable: to change income↔expense the caller must delete and
- * recreate.
+ * SPEC-05 FR-02 / SPEC-06 FR-04 / SPEC-08 §4.3 — Update mutable fields of a
+ * transaction. `type` is immutable. Transfers linked to a GoalContribution
+ * cannot change amount or accounts (description / date remain editable and
+ * sync the contribution note / contributedOn).
  */
 export async function updateTransaction(
   input: UpdateTransactionServiceInput,
@@ -50,14 +52,30 @@ export async function updateTransaction(
 
   const type: TransactionType = transaction.type;
 
-  const nextAmount = input.amountCents ?? transaction.amountCents;
-  assertValidAmount(nextAmount);
+  const goalContribution = await prisma.goalContribution.findUnique({
+    where: { transactionId: transaction.id },
+    select: { id: true },
+  });
 
+  const nextAmount = input.amountCents ?? transaction.amountCents;
   const nextAccountId = input.accountId ?? transaction.accountId;
   const nextCounterparty =
     input.counterpartyAccountId !== undefined
       ? input.counterpartyAccountId
       : transaction.counterpartyAccountId;
+
+  const mutatingLedgerFields =
+    nextAmount !== transaction.amountCents ||
+    nextAccountId !== transaction.accountId ||
+    nextCounterparty !== transaction.counterpartyAccountId;
+
+  assertTransferNotLinkedToGoal(
+    goalContribution !== null,
+    mutatingLedgerFields,
+  );
+
+  assertValidAmount(nextAmount);
+
   const nextCategoryId =
     input.categoryId !== undefined ? input.categoryId : transaction.categoryId;
 
@@ -164,18 +182,32 @@ export async function updateTransaction(
       ? normalizeDescription(input.description)
       : transaction.description;
 
-  const updated = await prisma.transaction.update({
-    where: { id: transaction.id },
-    data: {
-      amountCents: nextAmount,
-      accountId: nextAccountId,
-      counterpartyAccountId: type === "transfer" ? nextCounterparty : null,
-      categoryId: type === "transfer" ? null : nextCategoryId,
-      description: nextDescription,
-      currency: origin.currency,
-      ...(nextOccurredOn ? { occurredOn: nextOccurredOn } : {}),
-    },
-    select: TRANSACTION_SELECT,
+  const updated = await prisma.$transaction(async (tx) => {
+    const row = await tx.transaction.update({
+      where: { id: transaction.id },
+      data: {
+        amountCents: nextAmount,
+        accountId: nextAccountId,
+        counterpartyAccountId: type === "transfer" ? nextCounterparty : null,
+        categoryId: type === "transfer" ? null : nextCategoryId,
+        description: nextDescription,
+        currency: origin.currency,
+        ...(nextOccurredOn ? { occurredOn: nextOccurredOn } : {}),
+      },
+      select: TRANSACTION_SELECT,
+    });
+
+    if (goalContribution) {
+      await tx.goalContribution.update({
+        where: { id: goalContribution.id },
+        data: {
+          ...(input.description !== undefined ? { note: nextDescription } : {}),
+          ...(nextOccurredOn ? { contributedOn: nextOccurredOn } : {}),
+        },
+      });
+    }
+
+    return row;
   });
 
   // SPEC-14 FR-08 — keep contribution twin in sync for amount/date/description.

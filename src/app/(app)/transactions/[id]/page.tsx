@@ -140,6 +140,7 @@ export default async function TransactionDetailPage({ params }: PageProps) {
             categoryId={detail.categoryId}
             accountId={detail.accountId}
             counterpartyAccountId={detail.counterpartyAccountId}
+            linkedToGoal={detail.goalContribution !== null}
             accounts={accountOptions}
             categories={categories
               .filter((c) => !c.isArchived)
@@ -160,9 +161,18 @@ export default async function TransactionDetailPage({ params }: PageProps) {
 
       <div className="space-y-8">
         <header className="space-y-2">
-          <Badge variant={badgeVariantForType(detail.type)}>
-            {TRANSACTION_TYPE_LABEL_ES[detail.type]}
-          </Badge>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant={badgeVariantForType(detail.type)}>
+              {TRANSACTION_TYPE_LABEL_ES[detail.type]}
+            </Badge>
+            {detail.goalContribution ? (
+              <Badge variant="info">
+                {detail.goalContribution.goalKind === "debt_payoff"
+                  ? "Pago de deuda"
+                  : "Aporte a objetivo"}
+              </Badge>
+            ) : null}
+          </div>
           <p className="text-3xl font-semibold tabular-nums tracking-tight text-foreground sm:text-4xl">
             {formatSignedMoney(
               signedAmountCents(detail.type, detail.amountCents),
@@ -211,6 +221,22 @@ export default async function TransactionDetailPage({ params }: PageProps) {
             </div>
           ) : null}
         </dl>
+
+        {detail.goalContribution ? (
+          <section className="space-y-3 border-t border-border pt-6">
+            <h2 className="text-sm font-semibold text-foreground">
+              {detail.goalContribution.goalKind === "debt_payoff"
+                ? "Pago de deuda"
+                : "Aporte a objetivo"}
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {detail.goalContribution.goalName}
+            </p>
+            <Button variant="outline" size="sm" asChild>
+              <Link href="/goals">Ver objetivos</Link>
+            </Button>
+          </section>
+        ) : null}
 
         {detail.split ? (
           <section className="space-y-3 border-t border-border pt-6">

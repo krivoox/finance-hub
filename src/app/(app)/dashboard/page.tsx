@@ -1,8 +1,6 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { ContentPanel } from "@/components/app-shell/content-panel";
-import { Button } from "@/components/ui/button";
 import { getSession } from "@/lib/session";
 import { getCurrentUser } from "@/features/auth/services/get-current-user";
 import { getActiveWorkspaceForUser } from "@/features/workspaces/services";
@@ -18,6 +16,7 @@ import { DashboardGoals } from "@/features/dashboard/components/dashboard-goals"
 import { DashboardSpending } from "@/features/dashboard/components/dashboard-spending";
 import { DashboardRecent } from "@/features/dashboard/components/dashboard-recent";
 import { DashboardAccounts } from "@/features/dashboard/components/dashboard-accounts";
+import { DashboardNewTransactionButton } from "@/features/dashboard/components/dashboard-new-transaction-button";
 import { formatPeriodLabel } from "@/features/dashboard/components/format";
 
 export default async function DashboardPage() {
@@ -84,13 +83,7 @@ export default async function DashboardPage() {
     <ContentPanel
       title="Resumen"
       description={`${workspace.name} · ${periodLabel}`}
-      actions={
-        canMutate ? (
-          <Button asChild className="h-10 w-full rounded-full sm:h-9 sm:w-auto">
-            <Link href="/transactions?new=1">Nuevo movimiento</Link>
-          </Button>
-        ) : undefined
-      }
+      actions={canMutate ? <DashboardNewTransactionButton /> : undefined}
     >
       {/*
         Ordered layout (landing chrome + reference dashboard rhythm):

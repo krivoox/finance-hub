@@ -44,7 +44,8 @@ export type GoalLike = {
 };
 
 /**
- * Minimal view of a Goal contribution. Immutable in MVP.
+ * Minimal view of a Goal contribution. Immutable in MVP except cascade
+ * undo when the linked transfer is deleted (SPEC-08 H4).
  */
 export type GoalContributionLike = {
   readonly id: string;
@@ -53,4 +54,6 @@ export type GoalContributionLike = {
   readonly contributedOn: Date;
   readonly note: string | null;
   readonly createdByUserId: string;
+  /** 1:1 with the transfer Transaction (SPEC-08 §4.3). */
+  readonly transactionId: string;
 };

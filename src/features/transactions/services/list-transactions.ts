@@ -33,6 +33,13 @@ export type ListedTransaction = TransactionRecord & {
   /** True when listed because it hits a local account but registers elsewhere. */
   isExternalToWorkspace: boolean;
   registrationWorkspaceName: string | null;
+  /** SPEC-08 H4 — present when this transfer is a goal contribution. */
+  goalContribution: {
+    contributionId: string;
+    goalId: string;
+    goalName: string;
+    goalKind: "save" | "debt_payoff";
+  } | null;
 };
 
 export type ListTransactionsResult = {
@@ -150,6 +157,13 @@ export async function listTransactions(
       account: { select: { name: true, workspaceId: true } },
       counterpartyAccount: { select: { name: true } },
       category: { select: { name: true } },
+      goalContribution: {
+        select: {
+          id: true,
+          goalId: true,
+          goal: { select: { name: true, kind: true } },
+        },
+      },
     },
   });
 
@@ -200,6 +214,14 @@ export async function listTransactions(
         nameByUserId.get(r.createdByUserId) ?? r.createdByUserId,
       isExternalToWorkspace: isExternal,
       registrationWorkspaceName: isExternal ? r.workspace.name : null,
+      goalContribution: r.goalContribution
+        ? {
+            contributionId: r.goalContribution.id,
+            goalId: r.goalContribution.goalId,
+            goalName: r.goalContribution.goal.name,
+            goalKind: r.goalContribution.goal.kind as "save" | "debt_payoff",
+          }
+        : null,
     };
   });
 

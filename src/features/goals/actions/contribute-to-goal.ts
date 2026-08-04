@@ -11,7 +11,13 @@ import { goalErrorToMessage, type ActionResult } from "./errors";
 
 export async function contributeToGoalAction(
   input: ContributeToGoalInput,
-): Promise<ActionResult<{ contributionId: string; goalStatus: string }>> {
+): Promise<
+  ActionResult<{
+    contributionId: string;
+    transactionId: string;
+    goalStatus: string;
+  }>
+> {
   const session = await getSession();
   if (!session?.user?.id) return { ok: false, error: "No autenticado" };
 
@@ -24,17 +30,26 @@ export async function contributeToGoalAction(
   }
 
   try {
-    const { goal, contributionId } = await contributeToGoalService({
-      userId: session.user.id,
-      goalId: parsed.data.goalId,
-      amountCents: parsed.data.amountCents,
-      contributedOn: parsed.data.contributedOn,
-      note: parsed.data.note ?? null,
-    });
+    const { goal, contributionId, transactionId } =
+      await contributeToGoalService({
+        userId: session.user.id,
+        goalId: parsed.data.goalId,
+        fromAccountId: parsed.data.fromAccountId,
+        amountCents: parsed.data.amountCents,
+        contributedOn: parsed.data.contributedOn,
+        note: parsed.data.note ?? null,
+      });
     revalidatePath("/goals");
+    revalidatePath("/transactions");
+    revalidatePath("/accounts");
+    revalidatePath("/dashboard");
     return {
       ok: true,
-      data: { contributionId, goalStatus: goal.status },
+      data: {
+        contributionId,
+        transactionId,
+        goalStatus: goal.status,
+      },
     };
   } catch (err) {
     return { ok: false, error: goalErrorToMessage(err) };

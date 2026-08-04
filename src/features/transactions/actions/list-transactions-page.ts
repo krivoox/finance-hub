@@ -34,6 +34,12 @@ export type ListedTransactionPageItem = {
   createdByDisplayName: string;
   isExternalToWorkspace: boolean;
   registrationWorkspaceName: string | null;
+  goalContribution: {
+    contributionId: string;
+    goalId: string;
+    goalName: string;
+    goalKind: "save" | "debt_payoff";
+  } | null;
 };
 
 export type ListTransactionsPageData = {
@@ -97,6 +103,7 @@ export async function listTransactionsPageAction(
           createdByDisplayName: tx.createdByDisplayName,
           isExternalToWorkspace: tx.isExternalToWorkspace,
           registrationWorkspaceName: tx.registrationWorkspaceName,
+          goalContribution: tx.goalContribution,
         })),
         nextCursor: result.nextCursor,
       },

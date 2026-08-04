@@ -48,6 +48,7 @@ La página `/transactions` (Movimientos) es el listado principal del ledger del 
 - El listado es del **ledger completo** del workspace (más txs que afectan cuentas locales con registro en otro workspace, SPEC-14 FR-05).
 - **No** es cashflow del dashboard: en el periodo pueden aparecer `income`, `expense`, `transfer` y (según filtro de tipo) `fx_debit` / `fx_credit`.
 - Orden: `occurredOn` desc, luego `createdAt` desc, luego `id` desc (desempate estable para cursor).
+- **Aporte a objetivo (SPEC-08 H4):** las transfers creadas por `ContributeToGoal` aparecen como `type=transfer`. El DTO de listado debe incluir `goalContribution: null | { contributionId, goalId, goalName, goalKind }` (join) para badge/label en UI — **sin** cambiar la matriz de filtro `type`.
 
 ### 4.3 Periodo (mutuamente excluyente)
 

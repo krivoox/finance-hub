@@ -34,6 +34,7 @@ export async function archiveBudgetAction(
       budgetId: parsed.data.budgetId,
     });
     revalidatePath("/budgets");
+    revalidatePath(`/budgets/${parsed.data.budgetId}`);
     revalidatePath("/dashboard");
     revalidatePath("/", "layout");
     return { ok: true };
@@ -62,6 +63,7 @@ export async function unarchiveBudgetAction(
       budgetId: parsed.data.budgetId,
     });
     revalidatePath("/budgets");
+    revalidatePath(`/budgets/${parsed.data.budgetId}`);
     revalidatePath("/dashboard");
     revalidatePath("/", "layout");
     return { ok: true };

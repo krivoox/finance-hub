@@ -293,6 +293,7 @@ model Transaction {
   crossWorkspaceLinkAsTarget CrossWorkspaceLink? @relation("CrossWsLinkTarget")
   currencyExchangeAsFrom     CurrencyExchange?   @relation("ExchangeFromTx")
   currencyExchangeAsTo       CurrencyExchange?   @relation("ExchangeToTx")
+  goalContribution           GoalContribution?
 
   @@index([workspaceId, occurredOn])
   @@index([workspaceId, type, occurredOn])
@@ -408,13 +409,15 @@ model BudgetCategory {
 // SPEC-08 — Savings and debt-payoff goals with tracked progress.
 //
 // `currentAmountCents` is the sum of contributions and is denormalized on
-// the Goal row for cheap reads and simple auto-complete transitions. In MVP,
-// contributions do NOT auto-create Transactions (see SPEC-08 §4).
+// the Goal row for cheap reads and simple auto-complete transitions.
+// Each contribution (H4) materializes a transfer Transaction toward
+// `linkedAccountId` (see GoalContribution.transactionId).
 //
-// `linkedAccountId` is optional — an emergency fund goal may link to a
-// savings account, a debt-payoff goal may link to the credit card being paid
-// off. The FinanceAccount relation is `Restrict` on delete so archived goals
-// keep their reference.
+// `linkedAccountId` is optional at create — required to contribute (destination
+// of the transfer). An emergency fund may link to a savings account; a
+// debt-payoff goal may link to the credit card being paid off. The
+// FinanceAccount relation is `Restrict` on delete so archived goals keep
+// their reference.
 model Goal {
   id                 String     @id @default(cuid())
   workspaceId        String
@@ -438,9 +441,9 @@ model Goal {
   @@map("goal")
 }
 
-// SPEC-08 — Individual contribution event towards a Goal. `amountCents` is
-// always strictly positive. Rows are immutable in MVP (no updates); a wrong
-// contribution is corrected by adding a compensating one via a P2 command.
+// SPEC-08 H4 — Contribution event towards a Goal, always linked 1:1 to a
+// transfer Transaction. Rows are immutable except cascade undo when the
+// transfer is deleted (restores Goal.currentAmount / status).
 model GoalContribution {
   id              String   @id @default(cuid())
   goalId          String
@@ -448,9 +451,11 @@ model GoalContribution {
   contributedOn   DateTime @db.Date
   note            String?
   createdByUserId String
+  transactionId   String   @unique
   createdAt       DateTime @default(now())
 
-  goal Goal @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  goal        Goal        @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
 
   @@index([goalId, contributedOn])
   @@map("goal_contribution")

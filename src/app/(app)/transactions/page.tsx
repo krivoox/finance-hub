@@ -8,7 +8,6 @@ import { getCurrentUser } from "@/features/auth/services/get-current-user";
 import { getSession } from "@/lib/session";
 import {
   getActiveWorkspaceForUser,
-  listMembers,
 } from "@/features/workspaces/services";
 import { listAccounts } from "@/features/accounts/services";
 import { listCategories } from "@/features/categories/services";
@@ -23,10 +22,7 @@ import {
   resolveListTypeFilter,
 } from "@/features/transactions/domain";
 import { TransactionsCreateActions } from "@/features/transactions/components/transactions-create-actions";
-import {
-  TransactionsEmptyState,
-  resolveTransactionsEmptyKind,
-} from "@/features/transactions/components/transactions-empty-state";
+import { TransactionsEmptyState } from "@/features/transactions/components/transactions-empty-state";
 import { TransactionsListToolbar } from "@/features/transactions/components/transactions-list-toolbar";
 import { TransactionsLedgerList } from "@/features/transactions/components/transactions-ledger-list";
 import type { ListedTransactionPageItem } from "@/features/transactions/actions";
@@ -34,6 +30,7 @@ import {
   formatRangeChipLabel,
   hasNonPeriodFilters,
   parseTransactionListSearchParams,
+  resolveTransactionsEmptyKind,
 } from "@/features/transactions/lib/list-search-params";
 import { listPeriodDescription } from "@/features/transactions/lib/resolve-list-period";
 
@@ -65,6 +62,7 @@ function toPageItems(
     createdByDisplayName: tx.createdByDisplayName,
     isExternalToWorkspace: tx.isExternalToWorkspace,
     registrationWorkspaceName: tx.registrationWorkspaceName,
+    goalContribution: tx.goalContribution,
   }));
 }
 
@@ -80,9 +78,6 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
   ]);
 
   const listParams = parseTransactionListSearchParams(rawParams);
-  const newParam = Array.isArray(rawParams.new)
-    ? rawParams.new[0]
-    : rawParams.new;
 
   const workspace = await getActiveWorkspaceForUser(session.user.id);
   if (!workspace) {
@@ -137,39 +132,27 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
 
   const panelDescription = `${listPeriodDescription(listParams.period, rangeLabel)} · ${workspace.name}`;
 
-  const [accounts, categories, txPage, members, paymentGroups] =
-    await Promise.all([
-      listAccounts({ userId: session.user.id, workspaceId: workspace.id }),
-      listCategories({ userId: session.user.id, workspaceId: workspace.id }),
-      listTransactions({
-        userId: session.user.id,
-        workspaceId: workspace.id,
-        limit: LIST_PAGE_SIZE,
-        from,
-        to,
-        types,
-        accountId: listParams.accountId,
-        categoryId: listParams.categoryId,
-        cursor: listParams.cursor,
-      }),
-      workspace.type === "group"
-        ? listMembers(session.user.id, workspace.id)
-        : Promise.resolve([]),
-      canMutate
-        ? listPaymentAccountsForUser(session.user.id)
-        : Promise.resolve([]),
-    ]);
+  const [accounts, categories, txPage, paymentGroups] = await Promise.all([
+    listAccounts({ userId: session.user.id, workspaceId: workspace.id }),
+    listCategories({ userId: session.user.id, workspaceId: workspace.id }),
+    listTransactions({
+      userId: session.user.id,
+      workspaceId: workspace.id,
+      limit: LIST_PAGE_SIZE,
+      from,
+      to,
+      types,
+      accountId: listParams.accountId,
+      categoryId: listParams.categoryId,
+      cursor: listParams.cursor,
+    }),
+    canMutate
+      ? listPaymentAccountsForUser(session.user.id)
+      : Promise.resolve([]),
+  ]);
 
   const activeAccounts = accounts.filter((a) => !a.isArchived);
   const activeCategories = categories.filter((c) => !c.isArchived);
-  const groupMembers =
-    workspace.type === "group"
-      ? members.map((m) => ({
-          userId: m.userId,
-          displayName:
-            m.user.displayName?.trim() || m.user.name || m.user.email,
-        }))
-      : [];
 
   const contributionAccounts = paymentGroups.flatMap((g) =>
     g.accounts.map((a) => ({
@@ -192,7 +175,6 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
     >
       <TransactionsCreateActions
         workspaceId={workspace.id}
-        workspaceName={workspace.name}
         workspaceCurrency={workspace.baseCurrency}
         accounts={activeAccounts.map((a) => ({
           id: a.id,
@@ -202,26 +184,6 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
           workspaceName: workspace.name,
           workspaceType: workspace.type,
         }))}
-        paymentAccountGroups={paymentGroups.map((g) => ({
-          workspaceId: g.workspaceId,
-          workspaceName: g.workspaceName,
-          workspaceType: g.workspaceType,
-          accounts: g.accounts.map((a) => ({
-            id: a.id,
-            name: a.name,
-            currency: a.currency,
-            workspaceId: a.workspaceId,
-            workspaceName: a.workspaceName,
-            workspaceType: a.workspaceType,
-          })),
-        }))}
-        categories={activeCategories.map((c) => ({
-          id: c.id,
-          name: c.name,
-          kind: c.kind,
-        }))}
-        groupMembers={groupMembers}
-        currentUserId={session.user.id}
         contributionAccounts={contributionAccounts}
       />
     </Suspense>
@@ -275,7 +237,6 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
           kind={emptyKind}
           params={listParams}
           canMutate={canMutate}
-          newParam={newParam}
         />
       ) : (
         <TransactionsLedgerList
