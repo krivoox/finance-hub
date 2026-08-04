@@ -82,7 +82,8 @@ GOOGLE_CLIENT_SECRET=
 ```
 
 - Secret: `openssl rand -base64 32` → `BETTER_AUTH_SECRET`
-- Producción: `DATABASE_URL` → pooler (`:6543`, `?pgbouncer=true`); `DIRECT_URL` → sesión directa para migraciones
+- Producción / preview: `DATABASE_URL` → pooler (`:6543`, `?pgbouncer=true`); `DIRECT_URL` → sesión directa para migraciones
+- Runtime Prisma (`src/lib/prisma.ts`): `pg.Pool` explícito con `idleTimeoutMillis` corto + `keepAlive`, y `withDbRetry` en `getSession`. Mitiga errores intermitentes `Connection terminated unexpectedly` / Better Auth `FAILED_TO_GET_SESSION` cuando el pooler corta sockets idle y el proceso Next reutiliza el client.
 - `BETTER_AUTH_URL`: dominio canónico (fallback). En Vercel **Production** = `https://finance.krivoox.com`. En **Preview** el runtime prioriza `VERCEL_URL` y Better Auth usa Dynamic Base URL con `*.vercel.app` + `*.krivoox.com` (`demo.krivoox.com` en `develop`; ver `src/lib/env.ts` + `src/lib/auth.ts`). Preferible: no setear `BETTER_AUTH_URL` en Environment Preview. Opcional: `BETTER_AUTH_TRUSTED_ORIGINS`
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`: provider social Google en Better Auth (`socialProviders.google`). Sin ellas, email/password sigue funcionando; el botón Google se oculta (feature degradable). Centralizar en `src/lib/env.ts` (opcionales).
 - **Redirect URIs (Google Cloud Console)** — path fijo Better Auth: `{origin}/api/auth/callback/google`

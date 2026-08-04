@@ -55,7 +55,7 @@ Las cuentas representan dónde está el dinero (o deuda, en tarjetas de crédito
 
 Documentar en código con tests explícitos (`calculateAccountBalance`).
 
-**UI actual:** no hay CTA dedicado “Pagar tarjeta”; el usuario registra una **Transferencia** (Movimientos → Registrar). Tips in-app / CTA de pago = backlog de producto (no implementados).
+**UI:** en `/accounts`, filas `credit_card` con deuda > 0 ofrecen CTA **Pagar** (FormSheet → `CreateTransfer` origen asset → tarjeta). Tip contextual dismissible (`tip.credit_card_pay`, localStorage `fh:tips:v1`). Alternativa manual: Movimientos → Transferencia.
 
 ## 6. Comandos y consultas
 
