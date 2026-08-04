@@ -6,6 +6,9 @@
       "env": {
         "JAVA_HOME": "/Users/u633559/.sdkman/candidates/java/current"
       }
+    },
+    "mercadopago-mcp-server": {
+      "url": "https://mcp.mercadopago.com/mcp"
     }
   }
 }
