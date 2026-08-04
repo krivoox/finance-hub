@@ -94,11 +94,13 @@ Una transferencia mueve valor entre dos cuentas del mismo workspace sin ser ingr
 - Aportes / fondeo entre espacios → ver [SPEC-14](./14-cross-workspace-money.md) (`CreateCrossWorkspaceContribution`)
 - Gastos del hogar pagados con cuenta personal → SPEC-14 (expense con account foreign)
 - Canje cross-currency / fees → [SPEC-16](./16-currency-exchange.md)
-- CTA / sheet dedicado “Pagar tarjeta” (sigue siendo `CreateTransfer` por debajo; UI genérica de transferencia hoy)
+- Tip en sheet “Nuevo movimiento” al elegir tarjeta (P1)
+- Preferencias de tips en servidor / sync entre dispositivos
 
 ## 9. Notas
 
-- UI: formulario “Nuevo movimiento” → tipo Transferencia; labels “Cuenta origen” / “Cuenta destino”.
+- UI genérica: formulario “Nuevo movimiento” → tipo Transferencia; labels “Cuenta origen” / “Cuenta destino”.
+- UI dedicada: `/accounts` → **Pagar** abre FormSheet “Pagar tarjeta” (destino locked, origen seleccionable, monto default = deuda) y llama `createTransferAction`.
 - Un **Ingreso** registrado sobre la tarjeta también baja deuda (SPEC-03) pero no descuenta otra cuenta: no es el flujo recomendado para pagar el resumen.
 
 ## 10. Relación con objetivos (SPEC-08 H4)

@@ -281,6 +281,7 @@ Toda vista de datos: loading (`Skeleton`) · empty · error.
 |------------|------|--------|
 | Button | `ui/button` | `default` = ink CTA; `outline` / `ghost` secundarios |
 | Badge | `ui/badge` | Incluye `info`, `success`, `warning`, `income`, `expense`, `transfer` |
+| UsageTip | `components/usage-tip` | Tip contextual dismissible (`fh:tips:v1`); nota al margen + CTA opcional |
 | CategoryPill | `features/categories/components/category-pill` | Pill en tablas: tono estable `chart-1`…`chart-5` vía hash de `categoryId` (`categoryPillTone`); transferencia/FX → `transfer`; sin pill si es `—` |
 | Input | `ui/input` | Fondos/bordes vía tokens |
 | Table | `ui/table` | Filas con `border-border`; headers muted |
