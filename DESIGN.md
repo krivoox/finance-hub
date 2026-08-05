@@ -248,6 +248,7 @@ Excepción: assets SVG/marketing fuera del app shell pueden usar valores literal
 - Montos siempre `tabular-nums`.
 - Signo y color vía variante (`income` / `expense`), no concatenando strings de color en el JSX.
 - Fechas: formato consistente; no inventar layouts de fecha por pantalla.
+- **Elegir fecha:** siempre `DateField` (trigger tipo input con `DD/MM/YYYY` + popover con `Calendar`). Prohibido `<input type="date">` nativo: rompe tokens, idioma y densidad. El valor interno sigue siendo `DateOnly` (`YYYY-MM-DD`); campos opcionales usan `clearable`.
 
 ### Barras de progreso (`ProgressBar`)
 
@@ -284,7 +285,10 @@ Toda vista de datos: loading (`Skeleton`) · empty · error.
 | UsageTip | `components/usage-tip` | Tip contextual dismissible (`fh:tips:v1`); nota al margen + CTA opcional |
 | CategoryPill | `features/categories/components/category-pill` | Pill en tablas: tono estable `chart-1`…`chart-5` vía hash de `categoryId` (`categoryPillTone`); transferencia/FX → `transfer`; sin pill si es `—` |
 | Input | `ui/input` | Fondos/bordes vía tokens |
+| Calendar | `ui/calendar` | react-day-picker con tokens: selección `info`, hoy `info-muted`, locale `es` (semana Lu–Do), celdas 40px en móvil / 36px `sm+` |
+| DateField | `components/date-field` | Campo de fecha (trigger + popover `Calendar`), atajo “Hoy”, `clearable` en fechas opcionales |
 | Table | `ui/table` | Filas con `border-border`; headers muted |
+| Data table | `components/data-table` | Selección: `useRowSelection`, checkbox header/fila, `BulkActionsBar` |
 | Sidebar | `ui/sidebar` | Base para nav; componer rail + secundaria encima |
 | Avatar, Dropdown, Tooltip, Separator, Sheet, Skeleton | `ui/*` | Primitivos estándar |
 | ProgressBar | `components/progress-bar` | Tonos semánticos; rojo solo en `alert` |
@@ -301,24 +305,35 @@ Luego alinear variantes a este documento (nunca dejar colores de demo).
 
 ## 9. Patrones de pantalla
 
-### Dashboard (pantallazo en 3 segundos)
+### Panel / Dashboard (pantallazo en 3 segundos)
 
-Orden de lectura fijo — no aplanar todo al mismo peso. Chrome = `SurfaceSection` / `KpiTile` (mismo radio y borde que la landing).
+Orden de lectura fijo — no aplanar todo al mismo peso. Chrome = `SurfaceSection` / `KpiTile` (mismo radio y borde que la landing). Base = una columna apilada; el grid de 2 columnas entra en `lg:`.
 
-1. **KPI row** — 4 tiles accionables: Patrimonio (énfasis `primary`) · Flujo neto · Ingresos · Gastos. Multi-moneda como badges dentro del tile de patrimonio.
-2. **Main + rail** (`lg:`):
-   - Principal: Sankey (tabs *Cuentas → gastos* / *Ingresos → gastos*) + debajo Objetivos | Atención.
-   - Rail: Gastos por categoría + lista de Cuentas (saldos).
-3. **Actividad** — movimientos recientes a ancho completo.
+1. **Hero + actividad** (`lg:` 1.5fr | 1fr):
+   - `DashboardBalance` — patrimonio (`text-3xl sm:text-4xl`, `≈` si es consolidado), badges multi-moneda, **serie mensual** (`MonthlyNetBars` con modos Balance / Ingresos / Gastos: en Balance, barras divergentes income↑ / expense↓ sobre baseline punteada; tooltip al hover/foco), delta `±% flujo vs. mes anterior` cuando hay mes comparable, y pie con 3 stats `KpiTile variant="plain"`: Ingresos · Gastos · Flujo del mes.
+   - `DashboardRecent` — últimos movimientos como **lista** (icono de tipo + descripción + categoría/fecha + monto firmado). Sin tabla: en el rail y en móvil las columnas secundarias no aportan. Cada tx en **su** moneda.
+2. **Objetivos | Atención** — progreso de metas (con ahorrado / objetivo) y alertas de presupuesto / insights / balances de grupo.
+3. **Flujo del mes** — Sankey a ancho completo (tabs *Cuentas → gastos* / *Ingresos → gastos*).
+4. **Próximas recurrentes** — preview read-only (SPEC-18): chip de día + mes a la izquierda (`hoy` resaltado con `info`), grid de 2 columnas en `sm:`.
+5. **Distribución de gastos | Cuentas** — donut por categoría (paleta `chart-1…5`, cola agrupada en “Otras” con gris neutro) + leyenda con monto y %; lista de cuentas con icono por tipo y convención credit card (`− monto` en `expense` cuando hay deuda).
 
-Componentes en `src/features/dashboard/components/`. La page solo compone el DTO. Superficies compartidas: `src/components/surface-section.tsx`, `src/components/kpi-tile.tsx`.
+**Reglas de honestidad numérica:** el número grande es patrimonio; la tendencia y el delta describen **flujo neto mensual** y se etiquetan como tales. Todo cálculo (neto por mes, shares por categoría) vive en `features/dashboard/domain` con tests (`buildNetTrend`, `buildCategoryShares`) — la UI solo formatea.
 
-### Lista / tabla (ej. movimientos)
+Componentes en `src/features/dashboard/components/`. La page solo compone el DTO. Superficies compartidas: `src/components/surface-section.tsx`, `src/components/kpi-tile.tsx` (`variant="plain"` para stats dentro de una superficie existente — nunca card-in-card).
+
+**Pendiente (gap de datos):** widget de “racha” tipo heatmap — requiere una serie diaria de actividad que hoy no existe en el DTO de SPEC-12. No inventarlo con datos derivados en UI.
+
+### Lista / tabla (ej. transacciones)
 
 1. Título de página en el content panel.
 2. Search / filtros debajo (`Input` + chips con `Badge`).
-3. `Table` full-width; checkbox opcional; menú `⋯` por fila.
-4. Sin cards por fila.
+3. `Table` full-width con **checkbox de selección en la primera columna** (header = seleccionar todo). Primitivas: `src/components/data-table.tsx` (`useRowSelection`, `SelectAllHead`, `SelectRowCell`, `BulkActionsBar`).
+4. Menú `⋯` por fila cuando hay acciones de fila (pausar, editar, etc.).
+5. Sin cards por fila.
+6. Columnas alineadas: identidad · categoría · cuenta · monto · meta (fecha / frecuencia / estado). En móvil solo esenciales (`hidden sm|md|lg:table-cell`).
+7. Fechas de tabla con `formatDateOnly` (`DD/MM/YYYY`).
+8. **Meta de origen:** txs materializadas desde una recurrente (SPEC-18) muestran un indicador muted `Repeat` / 🔄 junto a la descripción (no badge de color — es meta, no jerarquía). Tooltip: “Generada por: {nombre}”. Mismo patrón que el badge de aporte a objetivo (SPEC-08).
+9. **Recurrentes — confirmar:** el botón Confirmar solo aparece si `scheduledOn ≤ hoy + 1` (`canMaterializeOn`). Ocurrencias futuras muestran “Desde {fecha}” sin CTA.
 
 ### Formulario
 

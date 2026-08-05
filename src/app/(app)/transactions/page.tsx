@@ -63,6 +63,7 @@ function toPageItems(
     isExternalToWorkspace: tx.isExternalToWorkspace,
     registrationWorkspaceName: tx.registrationWorkspaceName,
     goalContribution: tx.goalContribution,
+    recurring: tx.recurring,
   }));
 }
 
@@ -83,12 +84,12 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
   if (!workspace) {
     return (
       <ContentPanel
-        title="Movimientos"
+        title="Transacciones"
         description="Ingresos, gastos y transferencias."
       >
         <p className="text-sm text-muted-foreground">
           Todavía no tenés un workspace. Creá uno para empezar a registrar
-          movimientos.
+          transacciones.
         </p>
       </ContentPanel>
     );
@@ -204,13 +205,13 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
 
   return (
     <ContentPanel
-      title="Movimientos"
+      title="Transacciones"
       description={panelDescription}
       actions={createActions}
     >
       {canMutate && activeAccounts.length === 0 ? (
         <p className="mb-6 rounded-lg border border-dashed border-border px-4 py-3 text-sm text-muted-foreground">
-          Necesitás al menos una cuenta activa para registrar movimientos.{" "}
+          Necesitás al menos una cuenta activa para registrar transacciones.{" "}
           <Link href="/accounts" className="font-medium text-foreground underline">
             Crear cuenta
           </Link>

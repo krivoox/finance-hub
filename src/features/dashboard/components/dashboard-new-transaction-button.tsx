@@ -9,7 +9,7 @@ export function DashboardNewTransactionButton() {
   return (
     <OpenNewTransactionButton
       className="h-10 w-full rounded-full sm:h-9 sm:w-auto"
-      label="Nuevo movimiento"
+      label="Nueva transacción"
       showIcon={false}
     />
   );

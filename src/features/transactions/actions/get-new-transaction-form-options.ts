@@ -67,7 +67,7 @@ export async function getNewTransactionFormOptionsAction(): Promise<
     if (workspace.role === "viewer") {
       return {
         ok: false,
-        error: "No tenés permiso para registrar movimientos.",
+        error: "No tenés permiso para registrar transacciones.",
       };
     }
 

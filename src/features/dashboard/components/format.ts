@@ -14,6 +14,25 @@ export function formatOccurredOn(date: Date) {
   return date.toISOString().slice(0, 10);
 }
 
+const shortDateFormatter = new Intl.DateTimeFormat("es-AR", {
+  day: "numeric",
+  month: "short",
+  timeZone: "UTC",
+});
+
+/**
+ * Fecha compacta para las listas del Panel (`5 ago`). Lee en UTC porque
+ * `occurredOn` / `scheduledOn` son días calendario (`@db.Date`).
+ */
+export function formatShortDate(value: Date | string) {
+  const date =
+    typeof value === "string"
+      ? new Date(`${value.slice(0, 10)}T00:00:00.000Z`)
+      : value;
+  if (Number.isNaN(date.getTime())) return "—";
+  return shortDateFormatter.format(date).replace(".", "");
+}
+
 export function amountVariant(type: ListedTransaction["type"]) {
   if (type === "income") return "income" as const;
   if (type === "expense") return "expense" as const;

@@ -14,7 +14,7 @@ import { listPaymentAccountsForUser } from "@/features/transactions/services";
 import { NewTransactionPageForm } from "@/features/transactions/components/new-transaction-page-form";
 
 export const metadata = {
-  title: "Nuevo movimiento · Finance Hub",
+  title: "Nueva transacción · Finance Hub",
 };
 
 export default async function NewTransactionPage() {
@@ -57,7 +57,7 @@ export default async function NewTransactionPage() {
 
   return (
     <ContentPanel
-      title="Nuevo movimiento"
+      title="Nueva transacción"
       description={`Gasto, ingreso o transferencia en ${workspace.baseCurrency}.`}
       actions={
         <Button asChild variant="outline" className="h-10 sm:h-8">

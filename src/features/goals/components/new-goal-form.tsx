@@ -17,6 +17,7 @@ import {
   FormStack,
   SegmentedControl,
 } from "@/components/form-sheet";
+import { DateField } from "@/components/date-field";
 import { Button } from "@/components/ui/button";
 import { refreshAfterMutation } from "@/lib/navigation";
 import { Input } from "@/components/ui/input";
@@ -201,10 +202,20 @@ export function NewGoalForm({
         </FormField>
 
         <FormField label="Fecha meta" htmlFor="goal-target-date" optional>
-          <Input
-            id="goal-target-date"
-            type="date"
-            {...register("targetDate")}
+          <Controller
+            control={control}
+            name="targetDate"
+            render={({ field }) => (
+              <DateField
+                id="goal-target-date"
+                name={field.name}
+                clearable
+                placeholder="Sin fecha"
+                value={field.value ?? ""}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+              />
+            )}
           />
         </FormField>
 

@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { contributeToGoalAction } from "@/features/goals/actions";
@@ -15,6 +15,7 @@ import {
   FormField,
   FormStack,
 } from "@/components/form-sheet";
+import { DateField } from "@/components/date-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { nativeSelectClassName } from "@/components/ui/native-select";
@@ -73,6 +74,7 @@ export function ContributeGoalForm({
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
@@ -204,11 +206,21 @@ export function ContributeGoalForm({
         </FormField>
 
         <FormField label="Fecha" htmlFor={`contribute-date-${goalId}`}>
-          <Input
-            id={`contribute-date-${goalId}`}
-            type="date"
-            disabled={!canContribute}
-            {...register("contributedOn", { required: true })}
+          <Controller
+            control={control}
+            name="contributedOn"
+            rules={{ required: true }}
+            render={({ field }) => (
+              <DateField
+                id={`contribute-date-${goalId}`}
+                name={field.name}
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                disabled={!canContribute}
+                invalid={Boolean(errors.contributedOn)}
+              />
+            )}
           />
         </FormField>
 

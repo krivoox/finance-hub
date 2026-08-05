@@ -37,6 +37,7 @@ Orden sugerido para el agente. Cada ítem: **spec → TDD dominio/application �
 |-------|------|------------|
 | 10b | [13-transaction-detail](./specs/13-transaction-detail.md) | Ficha `/transactions/[id]` + edit/delete UI |
 | 10c | [14-cross-workspace-money](./specs/14-cross-workspace-money.md) | Aporte entre espacios + expense funded externo |
+| 10d | [18-recurring-transactions](./specs/18-recurring-transactions.md) | Plantillas recurrentes + bandeja semi-auto + rename Transacciones |
 
 ## Fase 3 — P2 Insights
 

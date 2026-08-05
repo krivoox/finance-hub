@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   PiggyBank,
   Receipt,
+  Repeat,
   Settings,
   Target,
   Users,
@@ -20,6 +21,8 @@ export type NavItem = {
   badgeSeverity?: NavBadgeSeverity;
   /** Accessible label; must not rely on color alone. */
   badgeAriaLabel?: string;
+  /** Optional nested items, always rendered as a sub-menu (hidden in icon mode). */
+  children?: NavItem[];
 };
 
 export type NavGroup = {
@@ -69,9 +72,16 @@ export function budgetNavBadgePresentation(
 
 /** Primary links under the quick-create row */
 export const mainNavItems: NavItem[] = [
-  { title: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
+  { title: "Panel", href: "/dashboard", icon: LayoutDashboard },
   { title: "Cuentas", href: "/accounts", icon: Wallet },
-  { title: "Movimientos", href: "/transactions", icon: Receipt },
+  {
+    title: "Transacciones",
+    href: "/transactions",
+    icon: Receipt,
+    children: [
+      { title: "Recurrentes", href: "/transactions/recurring", icon: Repeat },
+    ],
+  },
 ];
 
 /** Grouped sections (like Documents in the reference) */
@@ -134,11 +144,19 @@ export function getPageTitle(pathname: string): string {
   if (pathname.startsWith("/budgets/") && pathname !== "/budgets") {
     return "Presupuesto";
   }
+  if (pathname === "/transactions/recurring") return "Recurrentes";
+  if (
+    pathname.startsWith("/transactions/recurring/") &&
+    pathname !== "/transactions/recurring"
+  ) {
+    return "Recurrente";
+  }
   if (pathname.startsWith("/transactions/") && pathname !== "/transactions") {
-    return "Movimiento";
+    return "Transacción";
   }
   const all = [
     ...mainNavItems,
+    ...mainNavItems.flatMap((i) => i.children ?? []),
     ...navGroups.flatMap((g) => g.items),
     ...footerNavItems,
   ];

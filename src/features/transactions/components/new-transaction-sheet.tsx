@@ -148,7 +148,7 @@ function NewTransactionSheetInner({
     <FormSheet
       open={open}
       onOpenChange={(next) => handleOpenChange(next)}
-      title="Nuevo movimiento"
+      title="Nueva transacción"
       description={`Gasto, ingreso o transferencia en ${currencyHint}.`}
       size="lg"
     >
@@ -164,7 +164,7 @@ function NewTransactionSheetInner({
 
       {load.status === "ready" && load.options.accounts.length === 0 ? (
         <p className="text-sm text-muted-foreground text-pretty">
-          Necesitás al menos una cuenta activa para registrar movimientos.{" "}
+          Necesitás al menos una cuenta activa para registrar transacciones.{" "}
           <Link
             href="/accounts"
             className="font-medium text-foreground underline"

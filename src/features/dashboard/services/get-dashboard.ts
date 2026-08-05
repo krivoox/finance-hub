@@ -29,6 +29,10 @@ import {
 import type { TransactionType } from "@/features/transactions/domain";
 import { listBudgetsWithStatus } from "@/features/budgets/services";
 import { listGoals } from "@/features/goals/services";
+import {
+  previewUpcomingForDashboard,
+  type UpcomingRecurringItem,
+} from "@/features/recurring/services";
 import { getMemberBalances } from "@/features/splits/services";
 import { NotAGroupWorkspaceError } from "@/features/splits/domain";
 import { requireMembership } from "@/features/workspaces/services";
@@ -67,6 +71,7 @@ export type GetDashboardResult = {
   budgetsExceededCount: number;
   goalsProgress: GoalProgressItem[];
   memberBalances: MemberBalanceItem[] | null;
+  upcomingRecurring: UpcomingRecurringItem[];
 };
 
 const DEFAULT_RECENT_LIMIT = 10;
@@ -89,38 +94,49 @@ export async function getDashboard(
   const period = getCurrentMonthPeriod(now, input.timezone);
   const recentLimit = input.recentLimit ?? DEFAULT_RECENT_LIMIT;
 
-  const [accounts, monthTransactions, recentResult, budgets, goals, rateRow] =
-    await Promise.all([
-      listAccounts({
-        userId: input.userId,
-        workspaceId: input.workspaceId,
-      }),
-      loadMonthlyCashflowTransactions(input.workspaceId, period),
-      listTransactions({
-        userId: input.userId,
-        workspaceId: input.workspaceId,
-        limit: recentLimit,
-      }),
-      listBudgetsWithStatus({
-        userId: input.userId,
-        workspaceId: input.workspaceId,
-        referenceDate: now,
-      }),
-      listGoals({
-        userId: input.userId,
-        workspaceId: input.workspaceId,
-      }),
-      prisma.workspaceConsolidationRate.findUnique({
-        where: { workspaceId: input.workspaceId },
-        select: {
-          label: true,
-          rateScaled: true,
-          scale: true,
-          asOf: true,
-          quoteCurrency: true,
-        },
-      }),
-    ]);
+  const [
+    accounts,
+    monthTransactions,
+    recentResult,
+    budgets,
+    goals,
+    upcomingRecurring,
+    rateRow,
+  ] = await Promise.all([
+    listAccounts({
+      userId: input.userId,
+      workspaceId: input.workspaceId,
+    }),
+    loadMonthlyCashflowTransactions(input.workspaceId, period),
+    listTransactions({
+      userId: input.userId,
+      workspaceId: input.workspaceId,
+      limit: recentLimit,
+    }),
+    listBudgetsWithStatus({
+      userId: input.userId,
+      workspaceId: input.workspaceId,
+      referenceDate: now,
+    }),
+    listGoals({
+      userId: input.userId,
+      workspaceId: input.workspaceId,
+    }),
+    previewUpcomingForDashboard({
+      userId: input.userId,
+      workspaceId: input.workspaceId,
+    }),
+    prisma.workspaceConsolidationRate.findUnique({
+      where: { workspaceId: input.workspaceId },
+      select: {
+        label: true,
+        rateScaled: true,
+        scale: true,
+        asOf: true,
+        quoteCurrency: true,
+      },
+    }),
+  ]);
 
   let memberBalances: MemberBalanceItem[] | null = null;
   if (workspace.type === "group") {
@@ -201,6 +217,7 @@ export async function getDashboard(
     ).length,
     goalsProgress: selectActiveGoalsProgress(goals),
     memberBalances,
+    upcomingRecurring: upcomingRecurring.slice(0, 5),
   };
 }
 

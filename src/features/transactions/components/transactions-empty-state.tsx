@@ -28,12 +28,12 @@ export function TransactionsEmptyState({
     return (
       <div className="flex flex-col items-start gap-3 py-8 sm:py-12">
         <p className="text-sm text-muted-foreground text-pretty">
-          Todavía no hay movimientos. Registrá el primero cuando quieras.
+          Todavía no hay transacciones. Registrá la primera cuando quieras.
         </p>
         {canMutate ? (
           <OpenNewTransactionButton
             className="h-10 sm:h-9"
-            label="Registrar"
+            label="Nueva transacción"
           />
         ) : null}
       </div>
@@ -44,7 +44,7 @@ export function TransactionsEmptyState({
     return (
       <div className="flex flex-col items-start gap-3 py-8 sm:py-12">
         <p className="text-sm text-muted-foreground text-pretty">
-          Ningún movimiento coincide con los filtros.
+          Ninguna transacción coincide con los filtros.
         </p>
         <Button asChild variant="outline" className="h-10 sm:h-9">
           <Link
@@ -75,7 +75,7 @@ export function TransactionsEmptyState({
   return (
     <div className="flex flex-col items-start gap-3 py-8 sm:py-12">
       <p className="text-sm text-muted-foreground text-pretty">
-        No hay movimientos {periodHint}. Probá otro rango o mirá todo el
+        No hay transacciones {periodHint}. Probá otro rango o mirá todo el
         historial.
       </p>
       <div className="flex flex-wrap gap-2">

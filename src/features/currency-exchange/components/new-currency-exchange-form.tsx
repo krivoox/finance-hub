@@ -2,7 +2,7 @@
 
 import { useMemo, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { createCurrencyExchangeAction } from "@/features/currency-exchange/actions";
@@ -14,6 +14,7 @@ import {
   FormSection,
   FormStack,
 } from "@/components/form-sheet";
+import { DateField } from "@/components/date-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { nativeSelectClassName } from "@/components/ui/native-select";
@@ -242,10 +243,19 @@ export function NewCurrencyExchangeForm({
 
         <FormSection>
           <FormField label="Fecha" htmlFor="fx-occurred-on">
-            <Input
-              id="fx-occurred-on"
-              type="date"
-              {...register("occurredOn", { required: true })}
+            <Controller
+              control={control}
+              name="occurredOn"
+              rules={{ required: true }}
+              render={({ field }) => (
+                <DateField
+                  id="fx-occurred-on"
+                  name={field.name}
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                />
+              )}
             />
           </FormField>
 

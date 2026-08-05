@@ -153,6 +153,24 @@ enum CrossWorkspaceLinkKind {
   externally_funded_expense
 }
 
+enum RecurringFrequency {
+  weekly
+  biweekly
+  monthly
+  yearly
+}
+
+enum RecurringRuleStatus {
+  active
+  paused
+  ended
+}
+
+enum RecurringPausedReason {
+  manual
+  account_archived
+}
+
 model Workspace {
   id           String        @id @default(cuid())
   name         String
@@ -172,6 +190,7 @@ model Workspace {
   settlements          Settlement[]
   currencyExchanges    CurrencyExchange[]
   consolidationRate    WorkspaceConsolidationRate?
+  recurringRules       RecurringRule[]
 
   @@map("workspace")
 }
@@ -224,11 +243,12 @@ model Category {
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 
-  workspace    Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  parent       Category?        @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Restrict)
-  children     Category[]       @relation("CategoryTree")
-  transactions Transaction[]
-  budgets      BudgetCategory[]
+  workspace      Workspace        @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  parent         Category?        @relation("CategoryTree", fields: [parentId], references: [id], onDelete: Restrict)
+  children       Category[]       @relation("CategoryTree")
+  transactions   Transaction[]
+  budgets        BudgetCategory[]
+  recurringRules RecurringRule[]
 
   @@index([workspaceId, kind])
   @@index([workspaceId, isArchived])
@@ -257,6 +277,8 @@ model FinanceAccount {
   linkedGoals            Goal[]             @relation("GoalLinkedAccount")
   exchangesFrom          CurrencyExchange[] @relation("ExchangeFromAccount")
   exchangesTo            CurrencyExchange[] @relation("ExchangeToAccount")
+  recurringAsAccount     RecurringRule[]    @relation("RecurringAccount")
+  recurringAsCounterparty RecurringRule[]   @relation("RecurringCounterparty")
 
   @@index([workspaceId, isArchived])
   @@index([workspaceId, type])
@@ -281,6 +303,8 @@ model Transaction {
   accountId             String
   counterpartyAccountId String?
   createdByUserId       String
+  recurringRuleId       String?
+  scheduledOn           DateTime?       @db.Date
   createdAt             DateTime        @default(now())
   updatedAt             DateTime        @updatedAt
 
@@ -288,6 +312,7 @@ model Transaction {
   category            Category?       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
   account             FinanceAccount  @relation("TxAccount", fields: [accountId], references: [id], onDelete: Restrict)
   counterpartyAccount FinanceAccount? @relation("TxCounterparty", fields: [counterpartyAccountId], references: [id], onDelete: Restrict)
+  recurringRule              RecurringRule?      @relation(fields: [recurringRuleId], references: [id], onDelete: Restrict)
   expenseSplit               ExpenseSplit?
   crossWorkspaceLinkAsSource CrossWorkspaceLink? @relation("CrossWsLinkSource")
   crossWorkspaceLinkAsTarget CrossWorkspaceLink? @relation("CrossWsLinkTarget")
@@ -295,12 +320,49 @@ model Transaction {
   currencyExchangeAsTo       CurrencyExchange?   @relation("ExchangeToTx")
   goalContribution           GoalContribution?
 
+  @@unique([recurringRuleId, scheduledOn])
   @@index([workspaceId, occurredOn])
   @@index([workspaceId, type, occurredOn])
   @@index([accountId])
   @@index([counterpartyAccountId])
   @@index([categoryId])
+  @@index([recurringRuleId])
   @@map("transaction")
+}
+
+// SPEC-18 — Recurring transaction templates (not ledger entries until materialized).
+model RecurringRule {
+  id                    String                 @id @default(cuid())
+  workspaceId           String
+  name                  String
+  type                  TransactionType
+  amountCents           Int
+  currency              String
+  accountId             String
+  counterpartyAccountId String?
+  categoryId            String?
+  description           String?
+  frequency             RecurringFrequency
+  startDate             DateTime               @db.Date
+  endDate               DateTime?              @db.Date
+  status                RecurringRuleStatus    @default(active)
+  pausedReason          RecurringPausedReason?
+  createdByUserId       String
+  endedAt               DateTime?
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @updatedAt
+
+  workspace           Workspace       @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  account             FinanceAccount  @relation("RecurringAccount", fields: [accountId], references: [id], onDelete: Restrict)
+  counterpartyAccount FinanceAccount? @relation("RecurringCounterparty", fields: [counterpartyAccountId], references: [id], onDelete: Restrict)
+  category            Category?       @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  transactions        Transaction[]
+
+  @@index([workspaceId, status])
+  @@index([workspaceId, type])
+  @@index([accountId])
+  @@index([counterpartyAccountId])
+  @@map("recurring_rule")
 }
 
 // SPEC-16 — Currency exchange (ARS↔USD) within one workspace: two linked txs.

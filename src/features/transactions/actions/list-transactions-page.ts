@@ -40,6 +40,12 @@ export type ListedTransactionPageItem = {
     goalName: string;
     goalKind: "save" | "debt_payoff";
   } | null;
+  recurring: {
+    ruleId: string;
+    ruleName: string;
+    scheduledOn: string;
+    isDrifted: boolean;
+  } | null;
 };
 
 export type ListTransactionsPageData = {
@@ -104,6 +110,7 @@ export async function listTransactionsPageAction(
           isExternalToWorkspace: tx.isExternalToWorkspace,
           registrationWorkspaceName: tx.registrationWorkspaceName,
           goalContribution: tx.goalContribution,
+          recurring: tx.recurring,
         })),
         nextCursor: result.nextCursor,
       },

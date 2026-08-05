@@ -23,6 +23,7 @@ import {
   FormStack,
   SegmentedControl,
 } from "@/components/form-sheet";
+import { DateField } from "@/components/date-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { nativeSelectClassName } from "@/components/ui/native-select";
@@ -352,7 +353,7 @@ export function NewTransactionForm({
       }
 
       if (!result.ok) {
-        toast.error(result.error ?? "No pudimos registrar el movimiento");
+        toast.error(result.error ?? "No pudimos registrar la transacción");
         return;
       }
 
@@ -396,7 +397,7 @@ export function NewTransactionForm({
               <FormField label="Tipo" htmlFor="tx-type">
                 <SegmentedControl
                   id="tx-type"
-                  ariaLabel="Tipo de movimiento"
+                  ariaLabel="Tipo de transacción"
                   value={field.value}
                   options={TYPE_OPTIONS}
                   disabled={isBusy}
@@ -519,11 +520,21 @@ export function NewTransactionForm({
           )}
 
           <FormField label="Fecha" htmlFor="tx-date">
-            <Input
-              id="tx-date"
-              type="date"
-              aria-invalid={Boolean(errors.occurredOn)}
-              {...register("occurredOn", { required: true })}
+            <Controller
+              control={control}
+              name="occurredOn"
+              rules={{ required: true }}
+              render={({ field }) => (
+                <DateField
+                  id="tx-date"
+                  name={field.name}
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  disabled={isBusy}
+                  invalid={Boolean(errors.occurredOn)}
+                />
+              )}
             />
           </FormField>
 
@@ -539,7 +550,7 @@ export function NewTransactionForm({
               </strong>
               {isExternalPayment ? (
                 <span className="mt-1 block text-xs text-muted-foreground">
-                  El movimiento queda en este espacio; el saldo cambia en la
+                  La transacción queda en este espacio; el saldo cambia en la
                   cuenta de otro espacio.
                 </span>
               ) : null}
