@@ -9,7 +9,8 @@ User
   └── Membership ──► Workspace
                         ├── Account
                         ├── Category
-                        ├── Transaction (Income | Expense | Transfer)
+                        ├── Transaction (Income | Expense | Transfer) ──► RecurringRule? (opcional)
+                        ├── RecurringRule
                         ├── Budget
                         ├── Goal
                         └── (si es grupal) Split / Settlement
@@ -158,6 +159,8 @@ Campos comunes:
 | counterpartyAccountId | Id? | destino en transfer |
 | createdByUserId | Id | |
 | splitId | Id? | si participa en gasto compartido |
+| recurringRuleId | Id? | plantilla que generó la tx (SPEC-18); null en manuales |
+| scheduledOn | Date? | fecha planificada por la plantilla; siempre presente si `recurringRuleId != null` |
 
 **Invariantes**
 
@@ -167,8 +170,11 @@ Campos comunes:
 - Income/expense: `accountId` puede ser de otro workspace del mismo usuario (funded externo, SPEC-14); el `workspaceId` de la tx es el contexto de registro (categorías, budgets, splits).
 - No se puede borrar una cuenta con transacciones (archivar).
 - Transfer ligada a `GoalContribution` (SPEC-08 H4): delete cascada deshace el aporte; update de monto/cuentas rechazado.
+- `(recurringRuleId, scheduledOn)` es único cuando `recurringRuleId != null` (materialización idempotente, SPEC-18).
+- `recurringRuleId != null ⇔ scheduledOn != null`.
+- Borrar/editar una tx materializada **no** libera la ocurrencia: el par sigue consumido.
 
-**Listado (SPEC-05 FR-04):** filtros AND sobre periodo (timezone del usuario), tipo de UI (`all`|income|expense|transfer), cuenta y categoría; paginación cursor. El periodo `this_week` es lunes–domingo calendario — no el ancla weekly de Budget. DTO puede incluir `goalContribution` (join) para badge de aporte a objetivo — la tx sigue siendo `type=transfer`.
+**Listado (SPEC-05 FR-04):** filtros AND sobre periodo (timezone del usuario), tipo de UI (`all`|income|expense|transfer), cuenta y categoría; paginación cursor. El periodo `this_week` es lunes–domingo calendario — no el ancla weekly de Budget. DTO puede incluir `goalContribution` (join) para badge de aporte a objetivo — la tx sigue siendo `type=transfer`. DTO puede incluir `recurring: { ruleId, ruleName, scheduledOn, isDrifted }` (join) para indicador 🔄 / `Repeat` — `isDrifted = (occurredOn !== scheduledOn)`.
 
 ### CurrencyExchange
 
@@ -330,6 +336,46 @@ Pago entre miembros para saldar balances de splits.
 | amount | Money | |
 | occurredOn | Date | |
 
+### RecurringRule
+
+Plantilla que describe **qué** movimiento se repite y **cada cuánto**. No es una `Transaction`; no afecta saldos ni budgets hasta que el usuario **materializa** una ocurrencia ([SPEC-18](./specs/18-recurring-transactions.md)).
+
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| id | Id | |
+| workspaceId | Id | tenancy |
+| name | string | descripción humana ("Alquiler", "Sueldo", "Netflix") |
+| type | `income` \| `expense` \| `transfer` | sin `fx_*` en v1 |
+| amountCents | number | > 0 |
+| currency | CurrencyCode | = `account.currency` (y counterparty en transfer) |
+| accountId | Id | cuenta principal; en transfer = origen |
+| counterpartyAccountId | Id? | destino en transfer; null en income/expense |
+| categoryId | Id? | requerido en income/expense; null en transfer |
+| description | string? | espejo opcional para la tx generada |
+| frequency | `weekly` \| `biweekly` \| `monthly` \| `yearly` | sin `daily` ni custom |
+| startDate | Date | primera ocurrencia proyectada (ancla) |
+| endDate | Date? | inclusiva; no proyecta `scheduledOn > endDate` |
+| status | `active` \| `paused` \| `ended` | |
+| pausedReason | `manual` \| `account_archived` \| null | solo si `status = paused` |
+| createdByUserId | Id | member+ |
+| endedAt | DateTime? | set al pasar a `ended` |
+| createdAt | DateTime | |
+| updatedAt | DateTime | |
+
+**Invariantes**
+
+- `type = transfer` ⇔ `counterpartyAccountId != null` y `categoryId = null`.
+- `type ∈ { income, expense }` ⇔ `counterpartyAccountId = null` y `categoryId != null` (kind compatible).
+- `accountId ≠ counterpartyAccountId`; ambas del mismo workspace; misma `currency`.
+- `amountCents > 0`; sin FX.
+- Ocurrencias proyectadas **no** se persisten: se calculan con función pura sobre la regla y una ventana (SPEC-18 §4.2). El único estado persistido de una ocurrencia es la `Transaction` que la materializa.
+- Idempotencia: `(recurringRuleId, scheduledOn)` único en `Transaction`.
+- Editar la plantilla no reescribe txs históricas: cambios de monto/cuenta/categoría afectan solo futuras no materializadas.
+- Eliminar = `ended` (soft-delete); las txs ya generadas mantienen `recurringRuleId` para el tooltip “Generada por: {name}”.
+- Al archivar una cuenta usada por la regla → `paused` con `pausedReason = account_archived`; desarchivar **no** reactiva.
+- Roles: `owner` / `admin` / `member` crean, editan, materializan; `viewer` solo lee.
+- Timezone = `User.timezone` para clasificación vencida/hoy/próxima (SPEC-01).
+
 ## Agregados sugeridos
 
 | Agregado | Raíz | Contiene |
@@ -340,6 +386,7 @@ Pago entre miembros para saldar balances de splits.
 | Budget | Budget | — |
 | Goal | Goal | GoalContribution[] |
 | Split | Split | shares |
+| RecurringRule | RecurringRule | — (ocurrencias son proyecciones; materializaciones viven bajo `Transaction`) |
 
 Los saldos de cuenta y balances entre miembros son **lecturas derivadas**, no estado mutable independiente (salvo settlements que ajustan el ledger de deudas).
 

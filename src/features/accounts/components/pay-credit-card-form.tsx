@@ -2,7 +2,7 @@
 
 import { useMemo, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import {
@@ -10,6 +10,7 @@ import {
   FormField,
   FormStack,
 } from "@/components/form-sheet";
+import { DateField } from "@/components/date-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { nativeSelectClassName } from "@/components/ui/native-select";
@@ -222,12 +223,22 @@ export function PayCreditCardForm({
         </FormField>
 
         <FormField label="Fecha" htmlFor="pay-card-date">
-          <Input
-            id="pay-card-date"
-            type="date"
-            className="h-11 sm:h-9"
-            disabled={isBusy}
-            {...register("occurredOn", { required: true })}
+          <Controller
+            control={control}
+            name="occurredOn"
+            rules={{ required: true }}
+            render={({ field }) => (
+              <DateField
+                id="pay-card-date"
+                name={field.name}
+                triggerClassName="h-11 sm:h-9"
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                disabled={isBusy}
+                invalid={Boolean(errors.occurredOn)}
+              />
+            )}
           />
         </FormField>
 

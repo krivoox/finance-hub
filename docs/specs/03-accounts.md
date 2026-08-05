@@ -55,7 +55,9 @@ Las cuentas representan dónde está el dinero (o deuda, en tarjetas de crédito
 
 Documentar en código con tests explícitos (`calculateAccountBalance`).
 
-**UI:** en `/accounts`, filas `credit_card` con deuda > 0 ofrecen CTA **Pagar** (FormSheet → `CreateTransfer` origen asset → tarjeta). Tip contextual dismissible (`tip.credit_card_pay`, localStorage `fh:tips:v1`). Alternativa manual: Movimientos → Transferencia.
+**UI:** en `/accounts`, filas `credit_card` con deuda > 0 ofrecen CTA **Pagar** (FormSheet → `CreateTransfer` origen asset → tarjeta). Tip contextual dismissible (`tip.credit_card_pay`, localStorage `fh:tips:v1`). Alternativa manual: Transacciones → Transferencia.
+
+**ArchiveAccount + recurrentes (SPEC-18):** al archivar una cuenta, toda `RecurringRule` activa del mismo workspace que use esa cuenta como `accountId` o `counterpartyAccountId` pasa a `paused` con `pausedReason = account_archived`. Desarchivar **no** reactiva esas reglas.
 
 ## 6. Comandos y consultas
 

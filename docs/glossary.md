@@ -6,11 +6,14 @@
 | Onboarding de workspace | First-run en `/onboarding` (modal sin shell): ≥1 cuenta; gasto inicial opcional; ready = estado derivado |
 | Account | Cuenta: banco, efectivo, billetera, tarjeta de crédito, etc. |
 | Credit card (tipo de cuenta) | Pasivo: saldo positivo = deuda. Pago del resumen = transferencia hacia la tarjeta (SPEC-03 / SPEC-06) |
-| Transaction | Movimiento: ingreso, gasto o transferencia |
-| Periodo de listado (Movimientos) | Ventana sobre `occurredOn`: `this_month` / `this_week` (lun–dom) / `all` / `custom`; default este mes en `User.timezone` (SPEC-05). Distinto del periodo weekly anclado de Budget |
+| Transaction | Movimiento / **transacción**: ingreso, gasto o transferencia |
+| Periodo de listado (Transacciones) | Ventana sobre `occurredOn`: `this_month` / `this_week` (lun–dom) / `all` / `custom`; default este mes en `User.timezone` (SPEC-05). Distinto del periodo weekly anclado de Budget |
 | Income | Ingreso que aumenta el saldo de una cuenta (en tarjeta: baja deuda) |
 | Expense | Gasto que disminuye el saldo de una cuenta (en tarjeta: sube deuda) |
 | Transfer | Movimiento interno entre dos cuentas del mismo workspace (misma moneda); hacia tarjeta = pago de deuda |
+| Recurring rule / Plantilla recurrente | Configuración de un movimiento que se repite (SPEC-18); no afecta saldos hasta materializar |
+| Occurrence / Ocurrencia proyectada | Fecha + datos calculados de una plantilla para un período; no es `Transaction` hasta confirmar |
+| Materializar | Confirmar una ocurrencia y crear la `Transaction` real en el ledger (SPEC-18) |
 | Currency exchange / Canje | Cambio ARS↔USD: dos montos + link; tipos `fx_debit` / `fx_credit` |
 | Consolidation rate | Tasa manual del workspace para patrimonio estimado en `baseCurrency` |
 | Cross-workspace contribution | Aporte: expense en un espacio + income en otro, ligados |

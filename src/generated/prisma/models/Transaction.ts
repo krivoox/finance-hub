@@ -46,6 +46,8 @@ export type TransactionMinAggregateOutputType = {
   accountId: string | null
   counterpartyAccountId: string | null
   createdByUserId: string | null
+  recurringRuleId: string | null
+  scheduledOn: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -62,6 +64,8 @@ export type TransactionMaxAggregateOutputType = {
   accountId: string | null
   counterpartyAccountId: string | null
   createdByUserId: string | null
+  recurringRuleId: string | null
+  scheduledOn: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -78,6 +82,8 @@ export type TransactionCountAggregateOutputType = {
   accountId: number
   counterpartyAccountId: number
   createdByUserId: number
+  recurringRuleId: number
+  scheduledOn: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -104,6 +110,8 @@ export type TransactionMinAggregateInputType = {
   accountId?: true
   counterpartyAccountId?: true
   createdByUserId?: true
+  recurringRuleId?: true
+  scheduledOn?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -120,6 +128,8 @@ export type TransactionMaxAggregateInputType = {
   accountId?: true
   counterpartyAccountId?: true
   createdByUserId?: true
+  recurringRuleId?: true
+  scheduledOn?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -136,6 +146,8 @@ export type TransactionCountAggregateInputType = {
   accountId?: true
   counterpartyAccountId?: true
   createdByUserId?: true
+  recurringRuleId?: true
+  scheduledOn?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -239,6 +251,8 @@ export type TransactionGroupByOutputType = {
   accountId: string
   counterpartyAccountId: string | null
   createdByUserId: string
+  recurringRuleId: string | null
+  scheduledOn: Date | null
   createdAt: Date
   updatedAt: Date
   _count: TransactionCountAggregateOutputType | null
@@ -278,12 +292,15 @@ export type TransactionWhereInput = {
   accountId?: Prisma.StringFilter<"Transaction"> | string
   counterpartyAccountId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   createdByUserId?: Prisma.StringFilter<"Transaction"> | string
+  recurringRuleId?: Prisma.StringNullableFilter<"Transaction"> | string | null
+  scheduledOn?: Prisma.DateTimeNullableFilter<"Transaction"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   category?: Prisma.XOR<Prisma.CategoryNullableScalarRelationFilter, Prisma.CategoryWhereInput> | null
   account?: Prisma.XOR<Prisma.FinanceAccountScalarRelationFilter, Prisma.FinanceAccountWhereInput>
   counterpartyAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
+  recurringRule?: Prisma.XOR<Prisma.RecurringRuleNullableScalarRelationFilter, Prisma.RecurringRuleWhereInput> | null
   expenseSplit?: Prisma.XOR<Prisma.ExpenseSplitNullableScalarRelationFilter, Prisma.ExpenseSplitWhereInput> | null
   crossWorkspaceLinkAsSource?: Prisma.XOR<Prisma.CrossWorkspaceLinkNullableScalarRelationFilter, Prisma.CrossWorkspaceLinkWhereInput> | null
   crossWorkspaceLinkAsTarget?: Prisma.XOR<Prisma.CrossWorkspaceLinkNullableScalarRelationFilter, Prisma.CrossWorkspaceLinkWhereInput> | null
@@ -304,12 +321,15 @@ export type TransactionOrderByWithRelationInput = {
   accountId?: Prisma.SortOrder
   counterpartyAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
+  recurringRuleId?: Prisma.SortOrderInput | Prisma.SortOrder
+  scheduledOn?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   workspace?: Prisma.WorkspaceOrderByWithRelationInput
   category?: Prisma.CategoryOrderByWithRelationInput
   account?: Prisma.FinanceAccountOrderByWithRelationInput
   counterpartyAccount?: Prisma.FinanceAccountOrderByWithRelationInput
+  recurringRule?: Prisma.RecurringRuleOrderByWithRelationInput
   expenseSplit?: Prisma.ExpenseSplitOrderByWithRelationInput
   crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkOrderByWithRelationInput
   crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkOrderByWithRelationInput
@@ -320,6 +340,7 @@ export type TransactionOrderByWithRelationInput = {
 
 export type TransactionWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  recurringRuleId_scheduledOn?: Prisma.TransactionRecurringRuleIdScheduledOnCompoundUniqueInput
   AND?: Prisma.TransactionWhereInput | Prisma.TransactionWhereInput[]
   OR?: Prisma.TransactionWhereInput[]
   NOT?: Prisma.TransactionWhereInput | Prisma.TransactionWhereInput[]
@@ -333,19 +354,22 @@ export type TransactionWhereUniqueInput = Prisma.AtLeast<{
   accountId?: Prisma.StringFilter<"Transaction"> | string
   counterpartyAccountId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   createdByUserId?: Prisma.StringFilter<"Transaction"> | string
+  recurringRuleId?: Prisma.StringNullableFilter<"Transaction"> | string | null
+  scheduledOn?: Prisma.DateTimeNullableFilter<"Transaction"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
   category?: Prisma.XOR<Prisma.CategoryNullableScalarRelationFilter, Prisma.CategoryWhereInput> | null
   account?: Prisma.XOR<Prisma.FinanceAccountScalarRelationFilter, Prisma.FinanceAccountWhereInput>
   counterpartyAccount?: Prisma.XOR<Prisma.FinanceAccountNullableScalarRelationFilter, Prisma.FinanceAccountWhereInput> | null
+  recurringRule?: Prisma.XOR<Prisma.RecurringRuleNullableScalarRelationFilter, Prisma.RecurringRuleWhereInput> | null
   expenseSplit?: Prisma.XOR<Prisma.ExpenseSplitNullableScalarRelationFilter, Prisma.ExpenseSplitWhereInput> | null
   crossWorkspaceLinkAsSource?: Prisma.XOR<Prisma.CrossWorkspaceLinkNullableScalarRelationFilter, Prisma.CrossWorkspaceLinkWhereInput> | null
   crossWorkspaceLinkAsTarget?: Prisma.XOR<Prisma.CrossWorkspaceLinkNullableScalarRelationFilter, Prisma.CrossWorkspaceLinkWhereInput> | null
   currencyExchangeAsFrom?: Prisma.XOR<Prisma.CurrencyExchangeNullableScalarRelationFilter, Prisma.CurrencyExchangeWhereInput> | null
   currencyExchangeAsTo?: Prisma.XOR<Prisma.CurrencyExchangeNullableScalarRelationFilter, Prisma.CurrencyExchangeWhereInput> | null
   goalContribution?: Prisma.XOR<Prisma.GoalContributionNullableScalarRelationFilter, Prisma.GoalContributionWhereInput> | null
-}, "id">
+}, "id" | "recurringRuleId_scheduledOn">
 
 export type TransactionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -359,6 +383,8 @@ export type TransactionOrderByWithAggregationInput = {
   accountId?: Prisma.SortOrder
   counterpartyAccountId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
+  recurringRuleId?: Prisma.SortOrderInput | Prisma.SortOrder
+  scheduledOn?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.TransactionCountOrderByAggregateInput
@@ -383,6 +409,8 @@ export type TransactionScalarWhereWithAggregatesInput = {
   accountId?: Prisma.StringWithAggregatesFilter<"Transaction"> | string
   counterpartyAccountId?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
   createdByUserId?: Prisma.StringWithAggregatesFilter<"Transaction"> | string
+  recurringRuleId?: Prisma.StringNullableWithAggregatesFilter<"Transaction"> | string | null
+  scheduledOn?: Prisma.DateTimeNullableWithAggregatesFilter<"Transaction"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Transaction"> | Date | string
 }
@@ -395,12 +423,14 @@ export type TransactionCreateInput = {
   occurredOn: Date | string
   description?: string | null
   createdByUserId: string
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutTransactionsInput
   category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
   account: Prisma.FinanceAccountCreateNestedOneWithoutTransactionsInput
   counterpartyAccount?: Prisma.FinanceAccountCreateNestedOneWithoutIncomingTransfersInput
+  recurringRule?: Prisma.RecurringRuleCreateNestedOneWithoutTransactionsInput
   expenseSplit?: Prisma.ExpenseSplitCreateNestedOneWithoutExpenseInput
   crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutSourceTransactionInput
   crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutTargetTransactionInput
@@ -421,6 +451,8 @@ export type TransactionUncheckedCreateInput = {
   accountId: string
   counterpartyAccountId?: string | null
   createdByUserId: string
+  recurringRuleId?: string | null
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedCreateNestedOneWithoutExpenseInput
@@ -439,12 +471,14 @@ export type TransactionUpdateInput = {
   occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutTransactionsNestedInput
   category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutTransactionsNestedInput
   counterpartyAccount?: Prisma.FinanceAccountUpdateOneWithoutIncomingTransfersNestedInput
+  recurringRule?: Prisma.RecurringRuleUpdateOneWithoutTransactionsNestedInput
   expenseSplit?: Prisma.ExpenseSplitUpdateOneWithoutExpenseNestedInput
   crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUpdateOneWithoutSourceTransactionNestedInput
   crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUpdateOneWithoutTargetTransactionNestedInput
@@ -465,6 +499,8 @@ export type TransactionUncheckedUpdateInput = {
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   counterpartyAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  recurringRuleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedUpdateOneWithoutExpenseNestedInput
@@ -487,6 +523,8 @@ export type TransactionCreateManyInput = {
   accountId: string
   counterpartyAccountId?: string | null
   createdByUserId: string
+  recurringRuleId?: string | null
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -499,6 +537,7 @@ export type TransactionUpdateManyMutationInput = {
   occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -515,6 +554,8 @@ export type TransactionUncheckedUpdateManyInput = {
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   counterpartyAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  recurringRuleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -529,6 +570,11 @@ export type TransactionOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type TransactionRecurringRuleIdScheduledOnCompoundUniqueInput = {
+  recurringRuleId: string
+  scheduledOn: Date | string
+}
+
 export type TransactionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   workspaceId?: Prisma.SortOrder
@@ -541,6 +587,8 @@ export type TransactionCountOrderByAggregateInput = {
   accountId?: Prisma.SortOrder
   counterpartyAccountId?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
+  recurringRuleId?: Prisma.SortOrder
+  scheduledOn?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -561,6 +609,8 @@ export type TransactionMaxOrderByAggregateInput = {
   accountId?: Prisma.SortOrder
   counterpartyAccountId?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
+  recurringRuleId?: Prisma.SortOrder
+  scheduledOn?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -577,6 +627,8 @@ export type TransactionMinOrderByAggregateInput = {
   accountId?: Prisma.SortOrder
   counterpartyAccountId?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
+  recurringRuleId?: Prisma.SortOrder
+  scheduledOn?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -762,6 +814,48 @@ export type EnumTransactionTypeFieldUpdateOperationsInput = {
   set?: $Enums.TransactionType
 }
 
+export type TransactionCreateNestedManyWithoutRecurringRuleInput = {
+  create?: Prisma.XOR<Prisma.TransactionCreateWithoutRecurringRuleInput, Prisma.TransactionUncheckedCreateWithoutRecurringRuleInput> | Prisma.TransactionCreateWithoutRecurringRuleInput[] | Prisma.TransactionUncheckedCreateWithoutRecurringRuleInput[]
+  connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutRecurringRuleInput | Prisma.TransactionCreateOrConnectWithoutRecurringRuleInput[]
+  createMany?: Prisma.TransactionCreateManyRecurringRuleInputEnvelope
+  connect?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+}
+
+export type TransactionUncheckedCreateNestedManyWithoutRecurringRuleInput = {
+  create?: Prisma.XOR<Prisma.TransactionCreateWithoutRecurringRuleInput, Prisma.TransactionUncheckedCreateWithoutRecurringRuleInput> | Prisma.TransactionCreateWithoutRecurringRuleInput[] | Prisma.TransactionUncheckedCreateWithoutRecurringRuleInput[]
+  connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutRecurringRuleInput | Prisma.TransactionCreateOrConnectWithoutRecurringRuleInput[]
+  createMany?: Prisma.TransactionCreateManyRecurringRuleInputEnvelope
+  connect?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+}
+
+export type TransactionUpdateManyWithoutRecurringRuleNestedInput = {
+  create?: Prisma.XOR<Prisma.TransactionCreateWithoutRecurringRuleInput, Prisma.TransactionUncheckedCreateWithoutRecurringRuleInput> | Prisma.TransactionCreateWithoutRecurringRuleInput[] | Prisma.TransactionUncheckedCreateWithoutRecurringRuleInput[]
+  connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutRecurringRuleInput | Prisma.TransactionCreateOrConnectWithoutRecurringRuleInput[]
+  upsert?: Prisma.TransactionUpsertWithWhereUniqueWithoutRecurringRuleInput | Prisma.TransactionUpsertWithWhereUniqueWithoutRecurringRuleInput[]
+  createMany?: Prisma.TransactionCreateManyRecurringRuleInputEnvelope
+  set?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+  disconnect?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+  delete?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+  connect?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+  update?: Prisma.TransactionUpdateWithWhereUniqueWithoutRecurringRuleInput | Prisma.TransactionUpdateWithWhereUniqueWithoutRecurringRuleInput[]
+  updateMany?: Prisma.TransactionUpdateManyWithWhereWithoutRecurringRuleInput | Prisma.TransactionUpdateManyWithWhereWithoutRecurringRuleInput[]
+  deleteMany?: Prisma.TransactionScalarWhereInput | Prisma.TransactionScalarWhereInput[]
+}
+
+export type TransactionUncheckedUpdateManyWithoutRecurringRuleNestedInput = {
+  create?: Prisma.XOR<Prisma.TransactionCreateWithoutRecurringRuleInput, Prisma.TransactionUncheckedCreateWithoutRecurringRuleInput> | Prisma.TransactionCreateWithoutRecurringRuleInput[] | Prisma.TransactionUncheckedCreateWithoutRecurringRuleInput[]
+  connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutRecurringRuleInput | Prisma.TransactionCreateOrConnectWithoutRecurringRuleInput[]
+  upsert?: Prisma.TransactionUpsertWithWhereUniqueWithoutRecurringRuleInput | Prisma.TransactionUpsertWithWhereUniqueWithoutRecurringRuleInput[]
+  createMany?: Prisma.TransactionCreateManyRecurringRuleInputEnvelope
+  set?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+  disconnect?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+  delete?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+  connect?: Prisma.TransactionWhereUniqueInput | Prisma.TransactionWhereUniqueInput[]
+  update?: Prisma.TransactionUpdateWithWhereUniqueWithoutRecurringRuleInput | Prisma.TransactionUpdateWithWhereUniqueWithoutRecurringRuleInput[]
+  updateMany?: Prisma.TransactionUpdateManyWithWhereWithoutRecurringRuleInput | Prisma.TransactionUpdateManyWithWhereWithoutRecurringRuleInput[]
+  deleteMany?: Prisma.TransactionScalarWhereInput | Prisma.TransactionScalarWhereInput[]
+}
+
 export type TransactionCreateNestedOneWithoutCurrencyExchangeAsFromInput = {
   create?: Prisma.XOR<Prisma.TransactionCreateWithoutCurrencyExchangeAsFromInput, Prisma.TransactionUncheckedCreateWithoutCurrencyExchangeAsFromInput>
   connectOrCreate?: Prisma.TransactionCreateOrConnectWithoutCurrencyExchangeAsFromInput
@@ -854,11 +948,13 @@ export type TransactionCreateWithoutWorkspaceInput = {
   occurredOn: Date | string
   description?: string | null
   createdByUserId: string
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
   account: Prisma.FinanceAccountCreateNestedOneWithoutTransactionsInput
   counterpartyAccount?: Prisma.FinanceAccountCreateNestedOneWithoutIncomingTransfersInput
+  recurringRule?: Prisma.RecurringRuleCreateNestedOneWithoutTransactionsInput
   expenseSplit?: Prisma.ExpenseSplitCreateNestedOneWithoutExpenseInput
   crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutSourceTransactionInput
   crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutTargetTransactionInput
@@ -878,6 +974,8 @@ export type TransactionUncheckedCreateWithoutWorkspaceInput = {
   accountId: string
   counterpartyAccountId?: string | null
   createdByUserId: string
+  recurringRuleId?: string | null
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedCreateNestedOneWithoutExpenseInput
@@ -929,6 +1027,8 @@ export type TransactionScalarWhereInput = {
   accountId?: Prisma.StringFilter<"Transaction"> | string
   counterpartyAccountId?: Prisma.StringNullableFilter<"Transaction"> | string | null
   createdByUserId?: Prisma.StringFilter<"Transaction"> | string
+  recurringRuleId?: Prisma.StringNullableFilter<"Transaction"> | string | null
+  scheduledOn?: Prisma.DateTimeNullableFilter<"Transaction"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Transaction"> | Date | string
 }
@@ -941,11 +1041,13 @@ export type TransactionCreateWithoutCategoryInput = {
   occurredOn: Date | string
   description?: string | null
   createdByUserId: string
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutTransactionsInput
   account: Prisma.FinanceAccountCreateNestedOneWithoutTransactionsInput
   counterpartyAccount?: Prisma.FinanceAccountCreateNestedOneWithoutIncomingTransfersInput
+  recurringRule?: Prisma.RecurringRuleCreateNestedOneWithoutTransactionsInput
   expenseSplit?: Prisma.ExpenseSplitCreateNestedOneWithoutExpenseInput
   crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutSourceTransactionInput
   crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutTargetTransactionInput
@@ -965,6 +1067,8 @@ export type TransactionUncheckedCreateWithoutCategoryInput = {
   accountId: string
   counterpartyAccountId?: string | null
   createdByUserId: string
+  recurringRuleId?: string | null
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedCreateNestedOneWithoutExpenseInput
@@ -1009,11 +1113,13 @@ export type TransactionCreateWithoutAccountInput = {
   occurredOn: Date | string
   description?: string | null
   createdByUserId: string
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutTransactionsInput
   category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
   counterpartyAccount?: Prisma.FinanceAccountCreateNestedOneWithoutIncomingTransfersInput
+  recurringRule?: Prisma.RecurringRuleCreateNestedOneWithoutTransactionsInput
   expenseSplit?: Prisma.ExpenseSplitCreateNestedOneWithoutExpenseInput
   crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutSourceTransactionInput
   crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutTargetTransactionInput
@@ -1033,6 +1139,8 @@ export type TransactionUncheckedCreateWithoutAccountInput = {
   categoryId?: string | null
   counterpartyAccountId?: string | null
   createdByUserId: string
+  recurringRuleId?: string | null
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedCreateNestedOneWithoutExpenseInput
@@ -1061,11 +1169,13 @@ export type TransactionCreateWithoutCounterpartyAccountInput = {
   occurredOn: Date | string
   description?: string | null
   createdByUserId: string
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutTransactionsInput
   category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
   account: Prisma.FinanceAccountCreateNestedOneWithoutTransactionsInput
+  recurringRule?: Prisma.RecurringRuleCreateNestedOneWithoutTransactionsInput
   expenseSplit?: Prisma.ExpenseSplitCreateNestedOneWithoutExpenseInput
   crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutSourceTransactionInput
   crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutTargetTransactionInput
@@ -1085,6 +1195,8 @@ export type TransactionUncheckedCreateWithoutCounterpartyAccountInput = {
   categoryId?: string | null
   accountId: string
   createdByUserId: string
+  recurringRuleId?: string | null
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedCreateNestedOneWithoutExpenseInput
@@ -1137,6 +1249,78 @@ export type TransactionUpdateManyWithWhereWithoutCounterpartyAccountInput = {
   data: Prisma.XOR<Prisma.TransactionUpdateManyMutationInput, Prisma.TransactionUncheckedUpdateManyWithoutCounterpartyAccountInput>
 }
 
+export type TransactionCreateWithoutRecurringRuleInput = {
+  id?: string
+  type: $Enums.TransactionType
+  amountCents: number
+  currency: string
+  occurredOn: Date | string
+  description?: string | null
+  createdByUserId: string
+  scheduledOn?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutTransactionsInput
+  category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
+  account: Prisma.FinanceAccountCreateNestedOneWithoutTransactionsInput
+  counterpartyAccount?: Prisma.FinanceAccountCreateNestedOneWithoutIncomingTransfersInput
+  expenseSplit?: Prisma.ExpenseSplitCreateNestedOneWithoutExpenseInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutSourceTransactionInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutTargetTransactionInput
+  currencyExchangeAsFrom?: Prisma.CurrencyExchangeCreateNestedOneWithoutFromTransactionInput
+  currencyExchangeAsTo?: Prisma.CurrencyExchangeCreateNestedOneWithoutToTransactionInput
+  goalContribution?: Prisma.GoalContributionCreateNestedOneWithoutTransactionInput
+}
+
+export type TransactionUncheckedCreateWithoutRecurringRuleInput = {
+  id?: string
+  workspaceId: string
+  type: $Enums.TransactionType
+  amountCents: number
+  currency: string
+  occurredOn: Date | string
+  description?: string | null
+  categoryId?: string | null
+  accountId: string
+  counterpartyAccountId?: string | null
+  createdByUserId: string
+  scheduledOn?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  expenseSplit?: Prisma.ExpenseSplitUncheckedCreateNestedOneWithoutExpenseInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUncheckedCreateNestedOneWithoutSourceTransactionInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUncheckedCreateNestedOneWithoutTargetTransactionInput
+  currencyExchangeAsFrom?: Prisma.CurrencyExchangeUncheckedCreateNestedOneWithoutFromTransactionInput
+  currencyExchangeAsTo?: Prisma.CurrencyExchangeUncheckedCreateNestedOneWithoutToTransactionInput
+  goalContribution?: Prisma.GoalContributionUncheckedCreateNestedOneWithoutTransactionInput
+}
+
+export type TransactionCreateOrConnectWithoutRecurringRuleInput = {
+  where: Prisma.TransactionWhereUniqueInput
+  create: Prisma.XOR<Prisma.TransactionCreateWithoutRecurringRuleInput, Prisma.TransactionUncheckedCreateWithoutRecurringRuleInput>
+}
+
+export type TransactionCreateManyRecurringRuleInputEnvelope = {
+  data: Prisma.TransactionCreateManyRecurringRuleInput | Prisma.TransactionCreateManyRecurringRuleInput[]
+  skipDuplicates?: boolean
+}
+
+export type TransactionUpsertWithWhereUniqueWithoutRecurringRuleInput = {
+  where: Prisma.TransactionWhereUniqueInput
+  update: Prisma.XOR<Prisma.TransactionUpdateWithoutRecurringRuleInput, Prisma.TransactionUncheckedUpdateWithoutRecurringRuleInput>
+  create: Prisma.XOR<Prisma.TransactionCreateWithoutRecurringRuleInput, Prisma.TransactionUncheckedCreateWithoutRecurringRuleInput>
+}
+
+export type TransactionUpdateWithWhereUniqueWithoutRecurringRuleInput = {
+  where: Prisma.TransactionWhereUniqueInput
+  data: Prisma.XOR<Prisma.TransactionUpdateWithoutRecurringRuleInput, Prisma.TransactionUncheckedUpdateWithoutRecurringRuleInput>
+}
+
+export type TransactionUpdateManyWithWhereWithoutRecurringRuleInput = {
+  where: Prisma.TransactionScalarWhereInput
+  data: Prisma.XOR<Prisma.TransactionUpdateManyMutationInput, Prisma.TransactionUncheckedUpdateManyWithoutRecurringRuleInput>
+}
+
 export type TransactionCreateWithoutCurrencyExchangeAsFromInput = {
   id?: string
   type: $Enums.TransactionType
@@ -1145,12 +1329,14 @@ export type TransactionCreateWithoutCurrencyExchangeAsFromInput = {
   occurredOn: Date | string
   description?: string | null
   createdByUserId: string
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutTransactionsInput
   category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
   account: Prisma.FinanceAccountCreateNestedOneWithoutTransactionsInput
   counterpartyAccount?: Prisma.FinanceAccountCreateNestedOneWithoutIncomingTransfersInput
+  recurringRule?: Prisma.RecurringRuleCreateNestedOneWithoutTransactionsInput
   expenseSplit?: Prisma.ExpenseSplitCreateNestedOneWithoutExpenseInput
   crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutSourceTransactionInput
   crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutTargetTransactionInput
@@ -1170,6 +1356,8 @@ export type TransactionUncheckedCreateWithoutCurrencyExchangeAsFromInput = {
   accountId: string
   counterpartyAccountId?: string | null
   createdByUserId: string
+  recurringRuleId?: string | null
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedCreateNestedOneWithoutExpenseInput
@@ -1192,12 +1380,14 @@ export type TransactionCreateWithoutCurrencyExchangeAsToInput = {
   occurredOn: Date | string
   description?: string | null
   createdByUserId: string
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutTransactionsInput
   category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
   account: Prisma.FinanceAccountCreateNestedOneWithoutTransactionsInput
   counterpartyAccount?: Prisma.FinanceAccountCreateNestedOneWithoutIncomingTransfersInput
+  recurringRule?: Prisma.RecurringRuleCreateNestedOneWithoutTransactionsInput
   expenseSplit?: Prisma.ExpenseSplitCreateNestedOneWithoutExpenseInput
   crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutSourceTransactionInput
   crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutTargetTransactionInput
@@ -1217,6 +1407,8 @@ export type TransactionUncheckedCreateWithoutCurrencyExchangeAsToInput = {
   accountId: string
   counterpartyAccountId?: string | null
   createdByUserId: string
+  recurringRuleId?: string | null
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedCreateNestedOneWithoutExpenseInput
@@ -1250,12 +1442,14 @@ export type TransactionUpdateWithoutCurrencyExchangeAsFromInput = {
   occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutTransactionsNestedInput
   category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutTransactionsNestedInput
   counterpartyAccount?: Prisma.FinanceAccountUpdateOneWithoutIncomingTransfersNestedInput
+  recurringRule?: Prisma.RecurringRuleUpdateOneWithoutTransactionsNestedInput
   expenseSplit?: Prisma.ExpenseSplitUpdateOneWithoutExpenseNestedInput
   crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUpdateOneWithoutSourceTransactionNestedInput
   crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUpdateOneWithoutTargetTransactionNestedInput
@@ -1275,6 +1469,8 @@ export type TransactionUncheckedUpdateWithoutCurrencyExchangeAsFromInput = {
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   counterpartyAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  recurringRuleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedUpdateOneWithoutExpenseNestedInput
@@ -1303,12 +1499,14 @@ export type TransactionUpdateWithoutCurrencyExchangeAsToInput = {
   occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutTransactionsNestedInput
   category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutTransactionsNestedInput
   counterpartyAccount?: Prisma.FinanceAccountUpdateOneWithoutIncomingTransfersNestedInput
+  recurringRule?: Prisma.RecurringRuleUpdateOneWithoutTransactionsNestedInput
   expenseSplit?: Prisma.ExpenseSplitUpdateOneWithoutExpenseNestedInput
   crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUpdateOneWithoutSourceTransactionNestedInput
   crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUpdateOneWithoutTargetTransactionNestedInput
@@ -1328,6 +1526,8 @@ export type TransactionUncheckedUpdateWithoutCurrencyExchangeAsToInput = {
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   counterpartyAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  recurringRuleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedUpdateOneWithoutExpenseNestedInput
@@ -1345,12 +1545,14 @@ export type TransactionCreateWithoutCrossWorkspaceLinkAsSourceInput = {
   occurredOn: Date | string
   description?: string | null
   createdByUserId: string
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutTransactionsInput
   category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
   account: Prisma.FinanceAccountCreateNestedOneWithoutTransactionsInput
   counterpartyAccount?: Prisma.FinanceAccountCreateNestedOneWithoutIncomingTransfersInput
+  recurringRule?: Prisma.RecurringRuleCreateNestedOneWithoutTransactionsInput
   expenseSplit?: Prisma.ExpenseSplitCreateNestedOneWithoutExpenseInput
   crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutTargetTransactionInput
   currencyExchangeAsFrom?: Prisma.CurrencyExchangeCreateNestedOneWithoutFromTransactionInput
@@ -1370,6 +1572,8 @@ export type TransactionUncheckedCreateWithoutCrossWorkspaceLinkAsSourceInput = {
   accountId: string
   counterpartyAccountId?: string | null
   createdByUserId: string
+  recurringRuleId?: string | null
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedCreateNestedOneWithoutExpenseInput
@@ -1392,12 +1596,14 @@ export type TransactionCreateWithoutCrossWorkspaceLinkAsTargetInput = {
   occurredOn: Date | string
   description?: string | null
   createdByUserId: string
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutTransactionsInput
   category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
   account: Prisma.FinanceAccountCreateNestedOneWithoutTransactionsInput
   counterpartyAccount?: Prisma.FinanceAccountCreateNestedOneWithoutIncomingTransfersInput
+  recurringRule?: Prisma.RecurringRuleCreateNestedOneWithoutTransactionsInput
   expenseSplit?: Prisma.ExpenseSplitCreateNestedOneWithoutExpenseInput
   crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutSourceTransactionInput
   currencyExchangeAsFrom?: Prisma.CurrencyExchangeCreateNestedOneWithoutFromTransactionInput
@@ -1417,6 +1623,8 @@ export type TransactionUncheckedCreateWithoutCrossWorkspaceLinkAsTargetInput = {
   accountId: string
   counterpartyAccountId?: string | null
   createdByUserId: string
+  recurringRuleId?: string | null
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedCreateNestedOneWithoutExpenseInput
@@ -1450,12 +1658,14 @@ export type TransactionUpdateWithoutCrossWorkspaceLinkAsSourceInput = {
   occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutTransactionsNestedInput
   category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutTransactionsNestedInput
   counterpartyAccount?: Prisma.FinanceAccountUpdateOneWithoutIncomingTransfersNestedInput
+  recurringRule?: Prisma.RecurringRuleUpdateOneWithoutTransactionsNestedInput
   expenseSplit?: Prisma.ExpenseSplitUpdateOneWithoutExpenseNestedInput
   crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUpdateOneWithoutTargetTransactionNestedInput
   currencyExchangeAsFrom?: Prisma.CurrencyExchangeUpdateOneWithoutFromTransactionNestedInput
@@ -1475,6 +1685,8 @@ export type TransactionUncheckedUpdateWithoutCrossWorkspaceLinkAsSourceInput = {
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   counterpartyAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  recurringRuleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedUpdateOneWithoutExpenseNestedInput
@@ -1503,12 +1715,14 @@ export type TransactionUpdateWithoutCrossWorkspaceLinkAsTargetInput = {
   occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutTransactionsNestedInput
   category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutTransactionsNestedInput
   counterpartyAccount?: Prisma.FinanceAccountUpdateOneWithoutIncomingTransfersNestedInput
+  recurringRule?: Prisma.RecurringRuleUpdateOneWithoutTransactionsNestedInput
   expenseSplit?: Prisma.ExpenseSplitUpdateOneWithoutExpenseNestedInput
   crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUpdateOneWithoutSourceTransactionNestedInput
   currencyExchangeAsFrom?: Prisma.CurrencyExchangeUpdateOneWithoutFromTransactionNestedInput
@@ -1528,6 +1742,8 @@ export type TransactionUncheckedUpdateWithoutCrossWorkspaceLinkAsTargetInput = {
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   counterpartyAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  recurringRuleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedUpdateOneWithoutExpenseNestedInput
@@ -1545,12 +1761,14 @@ export type TransactionCreateWithoutGoalContributionInput = {
   occurredOn: Date | string
   description?: string | null
   createdByUserId: string
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutTransactionsInput
   category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
   account: Prisma.FinanceAccountCreateNestedOneWithoutTransactionsInput
   counterpartyAccount?: Prisma.FinanceAccountCreateNestedOneWithoutIncomingTransfersInput
+  recurringRule?: Prisma.RecurringRuleCreateNestedOneWithoutTransactionsInput
   expenseSplit?: Prisma.ExpenseSplitCreateNestedOneWithoutExpenseInput
   crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutSourceTransactionInput
   crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutTargetTransactionInput
@@ -1570,6 +1788,8 @@ export type TransactionUncheckedCreateWithoutGoalContributionInput = {
   accountId: string
   counterpartyAccountId?: string | null
   createdByUserId: string
+  recurringRuleId?: string | null
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedCreateNestedOneWithoutExpenseInput
@@ -1603,12 +1823,14 @@ export type TransactionUpdateWithoutGoalContributionInput = {
   occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutTransactionsNestedInput
   category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutTransactionsNestedInput
   counterpartyAccount?: Prisma.FinanceAccountUpdateOneWithoutIncomingTransfersNestedInput
+  recurringRule?: Prisma.RecurringRuleUpdateOneWithoutTransactionsNestedInput
   expenseSplit?: Prisma.ExpenseSplitUpdateOneWithoutExpenseNestedInput
   crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUpdateOneWithoutSourceTransactionNestedInput
   crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUpdateOneWithoutTargetTransactionNestedInput
@@ -1628,6 +1850,8 @@ export type TransactionUncheckedUpdateWithoutGoalContributionInput = {
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   counterpartyAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  recurringRuleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedUpdateOneWithoutExpenseNestedInput
@@ -1645,12 +1869,14 @@ export type TransactionCreateWithoutExpenseSplitInput = {
   occurredOn: Date | string
   description?: string | null
   createdByUserId: string
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   workspace: Prisma.WorkspaceCreateNestedOneWithoutTransactionsInput
   category?: Prisma.CategoryCreateNestedOneWithoutTransactionsInput
   account: Prisma.FinanceAccountCreateNestedOneWithoutTransactionsInput
   counterpartyAccount?: Prisma.FinanceAccountCreateNestedOneWithoutIncomingTransfersInput
+  recurringRule?: Prisma.RecurringRuleCreateNestedOneWithoutTransactionsInput
   crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutSourceTransactionInput
   crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkCreateNestedOneWithoutTargetTransactionInput
   currencyExchangeAsFrom?: Prisma.CurrencyExchangeCreateNestedOneWithoutFromTransactionInput
@@ -1670,6 +1896,8 @@ export type TransactionUncheckedCreateWithoutExpenseSplitInput = {
   accountId: string
   counterpartyAccountId?: string | null
   createdByUserId: string
+  recurringRuleId?: string | null
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUncheckedCreateNestedOneWithoutSourceTransactionInput
@@ -1703,12 +1931,14 @@ export type TransactionUpdateWithoutExpenseSplitInput = {
   occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutTransactionsNestedInput
   category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutTransactionsNestedInput
   counterpartyAccount?: Prisma.FinanceAccountUpdateOneWithoutIncomingTransfersNestedInput
+  recurringRule?: Prisma.RecurringRuleUpdateOneWithoutTransactionsNestedInput
   crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUpdateOneWithoutSourceTransactionNestedInput
   crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUpdateOneWithoutTargetTransactionNestedInput
   currencyExchangeAsFrom?: Prisma.CurrencyExchangeUpdateOneWithoutFromTransactionNestedInput
@@ -1728,6 +1958,8 @@ export type TransactionUncheckedUpdateWithoutExpenseSplitInput = {
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   counterpartyAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  recurringRuleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUncheckedUpdateOneWithoutSourceTransactionNestedInput
@@ -1748,6 +1980,8 @@ export type TransactionCreateManyWorkspaceInput = {
   accountId: string
   counterpartyAccountId?: string | null
   createdByUserId: string
+  recurringRuleId?: string | null
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1760,11 +1994,13 @@ export type TransactionUpdateWithoutWorkspaceInput = {
   occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutTransactionsNestedInput
   counterpartyAccount?: Prisma.FinanceAccountUpdateOneWithoutIncomingTransfersNestedInput
+  recurringRule?: Prisma.RecurringRuleUpdateOneWithoutTransactionsNestedInput
   expenseSplit?: Prisma.ExpenseSplitUpdateOneWithoutExpenseNestedInput
   crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUpdateOneWithoutSourceTransactionNestedInput
   crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUpdateOneWithoutTargetTransactionNestedInput
@@ -1784,6 +2020,8 @@ export type TransactionUncheckedUpdateWithoutWorkspaceInput = {
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   counterpartyAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  recurringRuleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedUpdateOneWithoutExpenseNestedInput
@@ -1805,6 +2043,8 @@ export type TransactionUncheckedUpdateManyWithoutWorkspaceInput = {
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   counterpartyAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  recurringRuleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1820,6 +2060,8 @@ export type TransactionCreateManyCategoryInput = {
   accountId: string
   counterpartyAccountId?: string | null
   createdByUserId: string
+  recurringRuleId?: string | null
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1832,11 +2074,13 @@ export type TransactionUpdateWithoutCategoryInput = {
   occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutTransactionsNestedInput
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutTransactionsNestedInput
   counterpartyAccount?: Prisma.FinanceAccountUpdateOneWithoutIncomingTransfersNestedInput
+  recurringRule?: Prisma.RecurringRuleUpdateOneWithoutTransactionsNestedInput
   expenseSplit?: Prisma.ExpenseSplitUpdateOneWithoutExpenseNestedInput
   crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUpdateOneWithoutSourceTransactionNestedInput
   crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUpdateOneWithoutTargetTransactionNestedInput
@@ -1856,6 +2100,8 @@ export type TransactionUncheckedUpdateWithoutCategoryInput = {
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   counterpartyAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  recurringRuleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedUpdateOneWithoutExpenseNestedInput
@@ -1877,6 +2123,8 @@ export type TransactionUncheckedUpdateManyWithoutCategoryInput = {
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   counterpartyAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  recurringRuleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1892,6 +2140,8 @@ export type TransactionCreateManyAccountInput = {
   categoryId?: string | null
   counterpartyAccountId?: string | null
   createdByUserId: string
+  recurringRuleId?: string | null
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1907,6 +2157,8 @@ export type TransactionCreateManyCounterpartyAccountInput = {
   categoryId?: string | null
   accountId: string
   createdByUserId: string
+  recurringRuleId?: string | null
+  scheduledOn?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1919,11 +2171,13 @@ export type TransactionUpdateWithoutAccountInput = {
   occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutTransactionsNestedInput
   category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
   counterpartyAccount?: Prisma.FinanceAccountUpdateOneWithoutIncomingTransfersNestedInput
+  recurringRule?: Prisma.RecurringRuleUpdateOneWithoutTransactionsNestedInput
   expenseSplit?: Prisma.ExpenseSplitUpdateOneWithoutExpenseNestedInput
   crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUpdateOneWithoutSourceTransactionNestedInput
   crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUpdateOneWithoutTargetTransactionNestedInput
@@ -1943,6 +2197,8 @@ export type TransactionUncheckedUpdateWithoutAccountInput = {
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   counterpartyAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  recurringRuleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedUpdateOneWithoutExpenseNestedInput
@@ -1964,6 +2220,8 @@ export type TransactionUncheckedUpdateManyWithoutAccountInput = {
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   counterpartyAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  recurringRuleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1976,11 +2234,13 @@ export type TransactionUpdateWithoutCounterpartyAccountInput = {
   occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutTransactionsNestedInput
   category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutTransactionsNestedInput
+  recurringRule?: Prisma.RecurringRuleUpdateOneWithoutTransactionsNestedInput
   expenseSplit?: Prisma.ExpenseSplitUpdateOneWithoutExpenseNestedInput
   crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUpdateOneWithoutSourceTransactionNestedInput
   crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUpdateOneWithoutTargetTransactionNestedInput
@@ -2000,6 +2260,8 @@ export type TransactionUncheckedUpdateWithoutCounterpartyAccountInput = {
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  recurringRuleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expenseSplit?: Prisma.ExpenseSplitUncheckedUpdateOneWithoutExpenseNestedInput
@@ -2021,6 +2283,88 @@ export type TransactionUncheckedUpdateManyWithoutCounterpartyAccountInput = {
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accountId?: Prisma.StringFieldUpdateOperationsInput | string
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  recurringRuleId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type TransactionCreateManyRecurringRuleInput = {
+  id?: string
+  workspaceId: string
+  type: $Enums.TransactionType
+  amountCents: number
+  currency: string
+  occurredOn: Date | string
+  description?: string | null
+  categoryId?: string | null
+  accountId: string
+  counterpartyAccountId?: string | null
+  createdByUserId: string
+  scheduledOn?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type TransactionUpdateWithoutRecurringRuleInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  amountCents?: Prisma.IntFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutTransactionsNestedInput
+  category?: Prisma.CategoryUpdateOneWithoutTransactionsNestedInput
+  account?: Prisma.FinanceAccountUpdateOneRequiredWithoutTransactionsNestedInput
+  counterpartyAccount?: Prisma.FinanceAccountUpdateOneWithoutIncomingTransfersNestedInput
+  expenseSplit?: Prisma.ExpenseSplitUpdateOneWithoutExpenseNestedInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUpdateOneWithoutSourceTransactionNestedInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUpdateOneWithoutTargetTransactionNestedInput
+  currencyExchangeAsFrom?: Prisma.CurrencyExchangeUpdateOneWithoutFromTransactionNestedInput
+  currencyExchangeAsTo?: Prisma.CurrencyExchangeUpdateOneWithoutToTransactionNestedInput
+  goalContribution?: Prisma.GoalContributionUpdateOneWithoutTransactionNestedInput
+}
+
+export type TransactionUncheckedUpdateWithoutRecurringRuleInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  amountCents?: Prisma.IntFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountId?: Prisma.StringFieldUpdateOperationsInput | string
+  counterpartyAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  expenseSplit?: Prisma.ExpenseSplitUncheckedUpdateOneWithoutExpenseNestedInput
+  crossWorkspaceLinkAsSource?: Prisma.CrossWorkspaceLinkUncheckedUpdateOneWithoutSourceTransactionNestedInput
+  crossWorkspaceLinkAsTarget?: Prisma.CrossWorkspaceLinkUncheckedUpdateOneWithoutTargetTransactionNestedInput
+  currencyExchangeAsFrom?: Prisma.CurrencyExchangeUncheckedUpdateOneWithoutFromTransactionNestedInput
+  currencyExchangeAsTo?: Prisma.CurrencyExchangeUncheckedUpdateOneWithoutToTransactionNestedInput
+  goalContribution?: Prisma.GoalContributionUncheckedUpdateOneWithoutTransactionNestedInput
+}
+
+export type TransactionUncheckedUpdateManyWithoutRecurringRuleInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+  amountCents?: Prisma.IntFieldUpdateOperationsInput | number
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accountId?: Prisma.StringFieldUpdateOperationsInput | string
+  counterpartyAccountId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  scheduledOn?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2039,12 +2383,15 @@ export type TransactionSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   accountId?: boolean
   counterpartyAccountId?: boolean
   createdByUserId?: boolean
+  recurringRuleId?: boolean
+  scheduledOn?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   category?: boolean | Prisma.Transaction$categoryArgs<ExtArgs>
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
   counterpartyAccount?: boolean | Prisma.Transaction$counterpartyAccountArgs<ExtArgs>
+  recurringRule?: boolean | Prisma.Transaction$recurringRuleArgs<ExtArgs>
   expenseSplit?: boolean | Prisma.Transaction$expenseSplitArgs<ExtArgs>
   crossWorkspaceLinkAsSource?: boolean | Prisma.Transaction$crossWorkspaceLinkAsSourceArgs<ExtArgs>
   crossWorkspaceLinkAsTarget?: boolean | Prisma.Transaction$crossWorkspaceLinkAsTargetArgs<ExtArgs>
@@ -2065,12 +2412,15 @@ export type TransactionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   accountId?: boolean
   counterpartyAccountId?: boolean
   createdByUserId?: boolean
+  recurringRuleId?: boolean
+  scheduledOn?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   category?: boolean | Prisma.Transaction$categoryArgs<ExtArgs>
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
   counterpartyAccount?: boolean | Prisma.Transaction$counterpartyAccountArgs<ExtArgs>
+  recurringRule?: boolean | Prisma.Transaction$recurringRuleArgs<ExtArgs>
 }, ExtArgs["result"]["transaction"]>
 
 export type TransactionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -2085,12 +2435,15 @@ export type TransactionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   accountId?: boolean
   counterpartyAccountId?: boolean
   createdByUserId?: boolean
+  recurringRuleId?: boolean
+  scheduledOn?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   category?: boolean | Prisma.Transaction$categoryArgs<ExtArgs>
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
   counterpartyAccount?: boolean | Prisma.Transaction$counterpartyAccountArgs<ExtArgs>
+  recurringRule?: boolean | Prisma.Transaction$recurringRuleArgs<ExtArgs>
 }, ExtArgs["result"]["transaction"]>
 
 export type TransactionSelectScalar = {
@@ -2105,16 +2458,19 @@ export type TransactionSelectScalar = {
   accountId?: boolean
   counterpartyAccountId?: boolean
   createdByUserId?: boolean
+  recurringRuleId?: boolean
+  scheduledOn?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "type" | "amountCents" | "currency" | "occurredOn" | "description" | "categoryId" | "accountId" | "counterpartyAccountId" | "createdByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
+export type TransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "type" | "amountCents" | "currency" | "occurredOn" | "description" | "categoryId" | "accountId" | "counterpartyAccountId" | "createdByUserId" | "recurringRuleId" | "scheduledOn" | "createdAt" | "updatedAt", ExtArgs["result"]["transaction"]>
 export type TransactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   category?: boolean | Prisma.Transaction$categoryArgs<ExtArgs>
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
   counterpartyAccount?: boolean | Prisma.Transaction$counterpartyAccountArgs<ExtArgs>
+  recurringRule?: boolean | Prisma.Transaction$recurringRuleArgs<ExtArgs>
   expenseSplit?: boolean | Prisma.Transaction$expenseSplitArgs<ExtArgs>
   crossWorkspaceLinkAsSource?: boolean | Prisma.Transaction$crossWorkspaceLinkAsSourceArgs<ExtArgs>
   crossWorkspaceLinkAsTarget?: boolean | Prisma.Transaction$crossWorkspaceLinkAsTargetArgs<ExtArgs>
@@ -2127,12 +2483,14 @@ export type TransactionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.
   category?: boolean | Prisma.Transaction$categoryArgs<ExtArgs>
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
   counterpartyAccount?: boolean | Prisma.Transaction$counterpartyAccountArgs<ExtArgs>
+  recurringRule?: boolean | Prisma.Transaction$recurringRuleArgs<ExtArgs>
 }
 export type TransactionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
   category?: boolean | Prisma.Transaction$categoryArgs<ExtArgs>
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
   counterpartyAccount?: boolean | Prisma.Transaction$counterpartyAccountArgs<ExtArgs>
+  recurringRule?: boolean | Prisma.Transaction$recurringRuleArgs<ExtArgs>
 }
 
 export type $TransactionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2142,6 +2500,7 @@ export type $TransactionPayload<ExtArgs extends runtime.Types.Extensions.Interna
     category: Prisma.$CategoryPayload<ExtArgs> | null
     account: Prisma.$FinanceAccountPayload<ExtArgs>
     counterpartyAccount: Prisma.$FinanceAccountPayload<ExtArgs> | null
+    recurringRule: Prisma.$RecurringRulePayload<ExtArgs> | null
     expenseSplit: Prisma.$ExpenseSplitPayload<ExtArgs> | null
     crossWorkspaceLinkAsSource: Prisma.$CrossWorkspaceLinkPayload<ExtArgs> | null
     crossWorkspaceLinkAsTarget: Prisma.$CrossWorkspaceLinkPayload<ExtArgs> | null
@@ -2161,6 +2520,8 @@ export type $TransactionPayload<ExtArgs extends runtime.Types.Extensions.Interna
     accountId: string
     counterpartyAccountId: string | null
     createdByUserId: string
+    recurringRuleId: string | null
+    scheduledOn: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["transaction"]>
@@ -2561,6 +2922,7 @@ export interface Prisma__TransactionClient<T, Null = never, ExtArgs extends runt
   category<T extends Prisma.Transaction$categoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Transaction$categoryArgs<ExtArgs>>): Prisma.Prisma__CategoryClient<runtime.Types.Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   account<T extends Prisma.FinanceAccountDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccountDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   counterpartyAccount<T extends Prisma.Transaction$counterpartyAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Transaction$counterpartyAccountArgs<ExtArgs>>): Prisma.Prisma__FinanceAccountClient<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  recurringRule<T extends Prisma.Transaction$recurringRuleArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Transaction$recurringRuleArgs<ExtArgs>>): Prisma.Prisma__RecurringRuleClient<runtime.Types.Result.GetResult<Prisma.$RecurringRulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   expenseSplit<T extends Prisma.Transaction$expenseSplitArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Transaction$expenseSplitArgs<ExtArgs>>): Prisma.Prisma__ExpenseSplitClient<runtime.Types.Result.GetResult<Prisma.$ExpenseSplitPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   crossWorkspaceLinkAsSource<T extends Prisma.Transaction$crossWorkspaceLinkAsSourceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Transaction$crossWorkspaceLinkAsSourceArgs<ExtArgs>>): Prisma.Prisma__CrossWorkspaceLinkClient<runtime.Types.Result.GetResult<Prisma.$CrossWorkspaceLinkPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   crossWorkspaceLinkAsTarget<T extends Prisma.Transaction$crossWorkspaceLinkAsTargetArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Transaction$crossWorkspaceLinkAsTargetArgs<ExtArgs>>): Prisma.Prisma__CrossWorkspaceLinkClient<runtime.Types.Result.GetResult<Prisma.$CrossWorkspaceLinkPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
@@ -2607,6 +2969,8 @@ export interface TransactionFieldRefs {
   readonly accountId: Prisma.FieldRef<"Transaction", 'String'>
   readonly counterpartyAccountId: Prisma.FieldRef<"Transaction", 'String'>
   readonly createdByUserId: Prisma.FieldRef<"Transaction", 'String'>
+  readonly recurringRuleId: Prisma.FieldRef<"Transaction", 'String'>
+  readonly scheduledOn: Prisma.FieldRef<"Transaction", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"Transaction", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Transaction", 'DateTime'>
 }
@@ -3045,6 +3409,25 @@ export type Transaction$counterpartyAccountArgs<ExtArgs extends runtime.Types.Ex
    */
   include?: Prisma.FinanceAccountInclude<ExtArgs> | null
   where?: Prisma.FinanceAccountWhereInput
+}
+
+/**
+ * Transaction.recurringRule
+ */
+export type Transaction$recurringRuleArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RecurringRule
+   */
+  select?: Prisma.RecurringRuleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RecurringRule
+   */
+  omit?: Prisma.RecurringRuleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RecurringRuleInclude<ExtArgs> | null
+  where?: Prisma.RecurringRuleWhereInput
 }
 
 /**

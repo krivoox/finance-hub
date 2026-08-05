@@ -1,7 +1,7 @@
 import { create } from "zustand";
 
 /**
- * UI-only store for the global “Nuevo movimiento” FormSheet (H1).
+ * UI-only store for the global “Nueva transacción” FormSheet (H1).
  * Opens instantly from any authenticated route; form options load async.
  */
 type NewTransactionSheetState = {

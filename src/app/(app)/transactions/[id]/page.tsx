@@ -266,7 +266,7 @@ export default async function TransactionDetailPage({ params }: PageProps) {
             <h2 className="text-sm font-semibold text-foreground">
               {detail.crossWorkspaceLink.kind === "contribution"
                 ? "Aporte vinculado"
-                : "Movimiento vinculado"}
+                : "Transacción vinculada"}
             </h2>
             <p className="text-sm text-muted-foreground">
               {detail.crossWorkspaceLink.role === "source"

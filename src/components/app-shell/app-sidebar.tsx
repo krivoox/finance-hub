@@ -28,6 +28,9 @@ import {
   SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarSeparator,
   useSidebar,
 } from "@/components/ui/sidebar";
@@ -148,22 +151,25 @@ function NavMenuItems({ items }: { items: NavItem[] }) {
   const { isMobile, setOpenMobile } = useSidebar();
   const [isPending, startTransition] = useTransition();
 
+  const handleNavigate = () => {
+    if (isMobile) setOpenMobile(false);
+    startTransition(() => {});
+  };
+
   return (
     <SidebarMenu className={isPending ? "opacity-70 transition-opacity" : undefined}>
       {items.map((item) => {
         const Icon = item.icon;
-        const active = isNavItemActive(pathname, item.href);
+        const children = item.children ?? [];
+        const childActive = children.some((child) =>
+          isNavItemActive(pathname, child.href),
+        );
+        const active = isNavItemActive(pathname, item.href) && !childActive;
 
         return (
           <SidebarMenuItem key={item.href}>
             <SidebarMenuButton asChild isActive={active} tooltip={item.title}>
-              <Link
-                href={item.href}
-                onClick={() => {
-                  if (isMobile) setOpenMobile(false);
-                  startTransition(() => {});
-                }}
-              >
+              <Link href={item.href} onClick={handleNavigate}>
                 <Icon strokeWidth={1.75} />
                 <span>{item.title}</span>
               </Link>
@@ -182,6 +188,26 @@ function NavMenuItems({ items }: { items: NavItem[] }) {
                 ) : null}
                 <span>{item.badge}</span>
               </SidebarMenuBadge>
+            ) : null}
+            {children.length > 0 ? (
+              <SidebarMenuSub>
+                {children.map((child) => {
+                  const ChildIcon = child.icon;
+                  return (
+                    <SidebarMenuSubItem key={child.href}>
+                      <SidebarMenuSubButton
+                        asChild
+                        isActive={isNavItemActive(pathname, child.href)}
+                      >
+                        <Link href={child.href} onClick={handleNavigate}>
+                          <ChildIcon strokeWidth={1.75} />
+                          <span>{child.title}</span>
+                        </Link>
+                      </SidebarMenuSubButton>
+                    </SidebarMenuSubItem>
+                  );
+                })}
+              </SidebarMenuSub>
             ) : null}
           </SidebarMenuItem>
         );

@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { upsertConsolidationRateAction } from "@/features/currency-exchange/actions";
@@ -12,6 +12,7 @@ import {
   FormField,
   FormStack,
 } from "@/components/form-sheet";
+import { DateField } from "@/components/date-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { refreshAfterMutation } from "@/lib/navigation";
@@ -64,6 +65,7 @@ export function ConsolidationRateForm({
   const {
     register,
     handleSubmit,
+    control,
     formState: { isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
@@ -130,11 +132,20 @@ export function ConsolidationRateForm({
         </FormField>
 
         <FormField label="Vigente desde" htmlFor="fx-asof">
-          <Input
-            id="fx-asof"
-            type="date"
-            disabled={!canMutate || isBusy}
-            {...register("asOf", { required: true })}
+          <Controller
+            control={control}
+            name="asOf"
+            rules={{ required: true }}
+            render={({ field }) => (
+              <DateField
+                id="fx-asof"
+                name={field.name}
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                disabled={!canMutate || isBusy}
+              />
+            )}
           />
         </FormField>
       </FormStack>

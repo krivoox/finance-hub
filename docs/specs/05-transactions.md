@@ -11,7 +11,7 @@
 
 Ingresos y gastos son el núcleo del ledger. Las transferencias se especifican en SPEC-06. El canje de moneda (`fx_debit` / `fx_credit`) en SPEC-16 forma parte del mismo ledger y aparece en el listado según las reglas de filtro de tipo.
 
-La página `/transactions` (Movimientos) es el listado principal del ledger del workspace activo: **no** es un cashflow (incluye transfers y, con `type=all`, también `fx_*`).
+La página `/transactions` (**Transacciones**; copy histórico “Movimientos”) es el listado principal del ledger del workspace activo: **no** es un cashflow (incluye transfers y, con `type=all`, también `fx_*`). Plantillas recurrentes y su bandeja viven en [SPEC-18](./18-recurring-transactions.md) (`/transactions/recurring`).
 
 ## 2. Historias de usuario
 
@@ -276,7 +276,7 @@ Helpers de periodo (puro; paridad dashboard):
 ## 8. Fuera de alcance
 
 - Adjuntos / OCR de tickets
-- Recurrencia automática (fase P2)
+- Recurrencia (plantillas, bandeja, materialización) → [SPEC-18](./18-recurring-transactions.md)
 - Canje de moneda (comandos) → [SPEC-16](./16-currency-exchange.md); en listado solo visibilidad vía `type=all`
 - Búsqueda por texto libre
 - Multi-select de cuentas/categorías/tipos
@@ -290,7 +290,8 @@ Helpers de periodo (puro; paridad dashboard):
 Preferir un modelo único `Transaction` con `type` discriminado; tests cubren cada variante.
 
 - `amount.currency` = `account.currency` (invariante; multi-ledger OK).
-- Tipos `fx_debit` / `fx_credit` (SPEC-16) **no** cuentan en budget spent ni cashflow; **sí** pueden aparecer en Movimientos con `type=all`.
+- Tipos `fx_debit` / `fx_credit` (SPEC-16) **no** cuentan en budget spent ni cashflow; **sí** pueden aparecer en Transacciones con `type=all`.
+- DTO de listado puede incluir `recurring` (join SPEC-18) para indicador 🔄 / `Repeat` + tooltip “Generada por: {ruleName}”.
 
 Detalle de UI: [SPEC-13](./13-transaction-detail.md). Dinero entre workspaces: [SPEC-14](./14-cross-workspace-money.md).
 

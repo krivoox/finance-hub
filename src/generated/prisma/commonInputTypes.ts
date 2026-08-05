@@ -304,6 +304,57 @@ export type EnumTransactionTypeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumTransactionTypeFilter<$PrismaModel>
 }
 
+export type EnumRecurringFrequencyFilter<$PrismaModel = never> = {
+  equals?: $Enums.RecurringFrequency | Prisma.EnumRecurringFrequencyFieldRefInput<$PrismaModel>
+  in?: $Enums.RecurringFrequency[] | Prisma.ListEnumRecurringFrequencyFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RecurringFrequency[] | Prisma.ListEnumRecurringFrequencyFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRecurringFrequencyFilter<$PrismaModel> | $Enums.RecurringFrequency
+}
+
+export type EnumRecurringRuleStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RecurringRuleStatus | Prisma.EnumRecurringRuleStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RecurringRuleStatus[] | Prisma.ListEnumRecurringRuleStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RecurringRuleStatus[] | Prisma.ListEnumRecurringRuleStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRecurringRuleStatusFilter<$PrismaModel> | $Enums.RecurringRuleStatus
+}
+
+export type EnumRecurringPausedReasonNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.RecurringPausedReason | Prisma.EnumRecurringPausedReasonFieldRefInput<$PrismaModel> | null
+  in?: $Enums.RecurringPausedReason[] | Prisma.ListEnumRecurringPausedReasonFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.RecurringPausedReason[] | Prisma.ListEnumRecurringPausedReasonFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumRecurringPausedReasonNullableFilter<$PrismaModel> | $Enums.RecurringPausedReason | null
+}
+
+export type EnumRecurringFrequencyWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RecurringFrequency | Prisma.EnumRecurringFrequencyFieldRefInput<$PrismaModel>
+  in?: $Enums.RecurringFrequency[] | Prisma.ListEnumRecurringFrequencyFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RecurringFrequency[] | Prisma.ListEnumRecurringFrequencyFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRecurringFrequencyWithAggregatesFilter<$PrismaModel> | $Enums.RecurringFrequency
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRecurringFrequencyFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRecurringFrequencyFilter<$PrismaModel>
+}
+
+export type EnumRecurringRuleStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RecurringRuleStatus | Prisma.EnumRecurringRuleStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RecurringRuleStatus[] | Prisma.ListEnumRecurringRuleStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RecurringRuleStatus[] | Prisma.ListEnumRecurringRuleStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRecurringRuleStatusWithAggregatesFilter<$PrismaModel> | $Enums.RecurringRuleStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRecurringRuleStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRecurringRuleStatusFilter<$PrismaModel>
+}
+
+export type EnumRecurringPausedReasonNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RecurringPausedReason | Prisma.EnumRecurringPausedReasonFieldRefInput<$PrismaModel> | null
+  in?: $Enums.RecurringPausedReason[] | Prisma.ListEnumRecurringPausedReasonFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.RecurringPausedReason[] | Prisma.ListEnumRecurringPausedReasonFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumRecurringPausedReasonNullableWithAggregatesFilter<$PrismaModel> | $Enums.RecurringPausedReason | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRecurringPausedReasonNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRecurringPausedReasonNullableFilter<$PrismaModel>
+}
+
 export type EnumCrossWorkspaceLinkKindFilter<$PrismaModel = never> = {
   equals?: $Enums.CrossWorkspaceLinkKind | Prisma.EnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
   in?: $Enums.CrossWorkspaceLinkKind[] | Prisma.ListEnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
@@ -690,6 +741,57 @@ export type NestedEnumTransactionTypeWithAggregatesFilter<$PrismaModel = never> 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumTransactionTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumTransactionTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumRecurringFrequencyFilter<$PrismaModel = never> = {
+  equals?: $Enums.RecurringFrequency | Prisma.EnumRecurringFrequencyFieldRefInput<$PrismaModel>
+  in?: $Enums.RecurringFrequency[] | Prisma.ListEnumRecurringFrequencyFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RecurringFrequency[] | Prisma.ListEnumRecurringFrequencyFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRecurringFrequencyFilter<$PrismaModel> | $Enums.RecurringFrequency
+}
+
+export type NestedEnumRecurringRuleStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.RecurringRuleStatus | Prisma.EnumRecurringRuleStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RecurringRuleStatus[] | Prisma.ListEnumRecurringRuleStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RecurringRuleStatus[] | Prisma.ListEnumRecurringRuleStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRecurringRuleStatusFilter<$PrismaModel> | $Enums.RecurringRuleStatus
+}
+
+export type NestedEnumRecurringPausedReasonNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.RecurringPausedReason | Prisma.EnumRecurringPausedReasonFieldRefInput<$PrismaModel> | null
+  in?: $Enums.RecurringPausedReason[] | Prisma.ListEnumRecurringPausedReasonFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.RecurringPausedReason[] | Prisma.ListEnumRecurringPausedReasonFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumRecurringPausedReasonNullableFilter<$PrismaModel> | $Enums.RecurringPausedReason | null
+}
+
+export type NestedEnumRecurringFrequencyWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RecurringFrequency | Prisma.EnumRecurringFrequencyFieldRefInput<$PrismaModel>
+  in?: $Enums.RecurringFrequency[] | Prisma.ListEnumRecurringFrequencyFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RecurringFrequency[] | Prisma.ListEnumRecurringFrequencyFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRecurringFrequencyWithAggregatesFilter<$PrismaModel> | $Enums.RecurringFrequency
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRecurringFrequencyFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRecurringFrequencyFilter<$PrismaModel>
+}
+
+export type NestedEnumRecurringRuleStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RecurringRuleStatus | Prisma.EnumRecurringRuleStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.RecurringRuleStatus[] | Prisma.ListEnumRecurringRuleStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.RecurringRuleStatus[] | Prisma.ListEnumRecurringRuleStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumRecurringRuleStatusWithAggregatesFilter<$PrismaModel> | $Enums.RecurringRuleStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRecurringRuleStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRecurringRuleStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumRecurringPausedReasonNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.RecurringPausedReason | Prisma.EnumRecurringPausedReasonFieldRefInput<$PrismaModel> | null
+  in?: $Enums.RecurringPausedReason[] | Prisma.ListEnumRecurringPausedReasonFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.RecurringPausedReason[] | Prisma.ListEnumRecurringPausedReasonFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumRecurringPausedReasonNullableWithAggregatesFilter<$PrismaModel> | $Enums.RecurringPausedReason | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumRecurringPausedReasonNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumRecurringPausedReasonNullableFilter<$PrismaModel>
 }
 
 export type NestedEnumCrossWorkspaceLinkKindFilter<$PrismaModel = never> = {

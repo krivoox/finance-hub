@@ -49,6 +49,12 @@ export type {
   SpendingByCategoryRow,
 } from "./analytics-types";
 
+export { buildNetTrend } from "./net-trend";
+export type { NetTrend, NetTrendPoint } from "./net-trend";
+
+export { buildCategoryShares, OTHER_CATEGORY_ID } from "./category-share";
+export type { CategoryShare, CategoryShares } from "./category-share";
+
 export { buildCashflowSankey } from "./cashflow-sankey";
 export type {
   BuildCashflowSankeyInput,

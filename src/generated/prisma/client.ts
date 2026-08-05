@@ -92,6 +92,11 @@ export type FinanceAccount = Prisma.FinanceAccountModel
  */
 export type Transaction = Prisma.TransactionModel
 /**
+ * Model RecurringRule
+ * 
+ */
+export type RecurringRule = Prisma.RecurringRuleModel
+/**
  * Model CurrencyExchange
  * 
  */

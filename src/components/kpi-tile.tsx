@@ -7,6 +7,12 @@ type KpiTileProps = {
   /** Emphasized tile (reference “Balance” card) — uses primary ink */
   emphasis?: boolean;
   tone?: "default" | "income" | "expense" | "info";
+  /**
+   * `surface` = standalone tile with its own chrome.
+   * `plain` = stat inside an existing surface (no border/fill, no card-in-card).
+   */
+  variant?: "surface" | "plain";
+  size?: "md" | "sm";
   className?: string;
   children?: React.ReactNode;
 };
@@ -21,6 +27,8 @@ export function KpiTile({
   hint,
   emphasis = false,
   tone = "default",
+  variant = "surface",
+  size = "md",
   className,
   children,
 }: KpiTileProps) {
@@ -35,13 +43,20 @@ export function KpiTile({
             ? "text-primary-foreground"
             : "text-foreground";
 
+  const isPlain = variant === "plain";
+
   return (
     <div
       className={cn(
-        "flex flex-col rounded-2xl border p-4 sm:p-5",
-        emphasis
-          ? "border-primary bg-primary text-primary-foreground dark:border-transparent dark:shadow-sm"
-          : "border-border bg-muted/35 dark:border-transparent dark:bg-secondary dark:shadow-sm",
+        "flex flex-col",
+        isPlain
+          ? "gap-0.5"
+          : cn(
+              "rounded-2xl border p-4 sm:p-5",
+              emphasis
+                ? "border-primary bg-primary text-primary-foreground dark:border-transparent dark:shadow-sm"
+                : "border-border bg-muted/35 dark:border-transparent dark:bg-secondary dark:shadow-sm",
+            ),
         className,
       )}
     >
@@ -55,7 +70,9 @@ export function KpiTile({
       </p>
       <p
         className={cn(
-          "mt-2 text-xl font-semibold tracking-tight tabular-nums sm:text-2xl",
+          "font-semibold tracking-tight tabular-nums",
+          size === "sm" ? "text-base sm:text-lg" : "text-xl sm:text-2xl",
+          isPlain ? "mt-0.5" : "mt-2",
           toneValue,
         )}
       >
@@ -65,9 +82,7 @@ export function KpiTile({
         <div
           className={cn(
             "mt-1.5 text-xs",
-            emphasis
-              ? "text-primary-foreground/65"
-              : "text-muted-foreground",
+            emphasis ? "text-primary-foreground/65" : "text-muted-foreground",
           )}
         >
           {hint}

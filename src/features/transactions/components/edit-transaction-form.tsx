@@ -22,6 +22,7 @@ import {
   navigateAndRefresh,
   refreshAfterMutation,
 } from "@/lib/navigation";
+import { DateField } from "@/components/date-field";
 import { Input } from "@/components/ui/input";
 import { nativeSelectClassName } from "@/components/ui/native-select";
 
@@ -129,7 +130,7 @@ export function EditTransactionForm({
         toast.error(result.error);
         return;
       }
-      toast.success("Movimiento actualizado");
+      toast.success("Transacción actualizada");
       onSuccess?.();
       refreshAfterMutation(router);
     });
@@ -142,7 +143,7 @@ export function EditTransactionForm({
         toast.error(result.error);
         return;
       }
-      toast.success("Movimiento eliminado");
+      toast.success("Transacción eliminada");
       navigateAndRefresh(router, "/transactions");
     });
   };
@@ -183,11 +184,19 @@ export function EditTransactionForm({
             </FormField>
 
             <FormField label="Fecha" htmlFor="edit-tx-date">
-              <Input
-                id="edit-tx-date"
-                type="date"
-                disabled={isBusy}
-                {...register("occurredOn")}
+              <Controller
+                control={control}
+                name="occurredOn"
+                render={({ field }) => (
+                  <DateField
+                    id="edit-tx-date"
+                    name={field.name}
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    disabled={isBusy}
+                  />
+                )}
               />
             </FormField>
 
@@ -295,14 +304,14 @@ export function EditTransactionForm({
             disabled={isBusy}
             onClick={() => setConfirmDelete(true)}
           >
-            Eliminar movimiento
+            Eliminar transacción
           </Button>
         ) : (
           <div className="space-y-3 rounded-lg border border-destructive/20 bg-destructive/5 p-3">
             <p className="text-sm text-muted-foreground text-pretty">
               {linkedToGoal
                 ? "¿Eliminar este aporte? Se deshace el progreso del objetivo y no se puede deshacer."
-                : "¿Eliminar este movimiento? No se puede deshacer."}
+                : "¿Eliminar esta transacción? No se puede deshacer."}
             </p>
             <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <Button

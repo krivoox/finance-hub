@@ -111,3 +111,7 @@ Una transferencia mueve valor entre dos cuentas del mismo workspace sin ser ingr
 - La señal “aporte a objetivo” es metadata vía `GoalContribution.transactionId` (badge en DTO), no un tipo distinto.
 - `debt_payoff` con destino `credit_card` = pago de deuda vía transfer (mismo efecto T-05).
 - Delete/update de transfers ligadas a goal: reglas en SPEC-08 §4.3 (`TransferLinkedToGoal` / cascada undo).
+
+## 11. Relación con recurrentes (SPEC-18)
+
+Las transferencias pueden materializarse desde una plantilla recurrente ([SPEC-18](./18-recurring-transactions.md)). Al confirmar una ocurrencia de tipo `transfer` se aplica el mismo comando conceptual que `CreateTransfer` (mismas invariantes: misma moneda, cuentas activas, sin categoría). La señal “recurrente” es metadata vía `Transaction.recurringRuleId` (indicador en DTO), no un tipo distinto.

@@ -2,7 +2,7 @@
 
 import { useMemo, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, useWatch } from "react-hook-form";
+import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { createCrossWorkspaceContributionAction } from "@/features/transactions/actions";
@@ -11,6 +11,7 @@ import {
   FormField,
   FormStack,
 } from "@/components/form-sheet";
+import { DateField } from "@/components/date-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { nativeSelectClassName } from "@/components/ui/native-select";
@@ -190,11 +191,19 @@ export function ContributeCrossWorkspaceForm({
         </FormField>
 
         <FormField label="Fecha" htmlFor="contribute-date">
-          <Input
-            id="contribute-date"
-            type="date"
-            {...register("occurredOn")}
-            disabled={isBusy}
+          <Controller
+            control={control}
+            name="occurredOn"
+            render={({ field }) => (
+              <DateField
+                id="contribute-date"
+                name={field.name}
+                value={field.value}
+                onChange={field.onChange}
+                onBlur={field.onBlur}
+                disabled={isBusy}
+              />
+            )}
           />
         </FormField>
 

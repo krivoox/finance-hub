@@ -61,6 +61,7 @@ export const ModelName = {
   Category: 'Category',
   FinanceAccount: 'FinanceAccount',
   Transaction: 'Transaction',
+  RecurringRule: 'RecurringRule',
   CurrencyExchange: 'CurrencyExchange',
   WorkspaceConsolidationRate: 'WorkspaceConsolidationRate',
   CrossWorkspaceLink: 'CrossWorkspaceLink',
@@ -231,11 +232,38 @@ export const TransactionScalarFieldEnum = {
   accountId: 'accountId',
   counterpartyAccountId: 'counterpartyAccountId',
   createdByUserId: 'createdByUserId',
+  recurringRuleId: 'recurringRuleId',
+  scheduledOn: 'scheduledOn',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type TransactionScalarFieldEnum = (typeof TransactionScalarFieldEnum)[keyof typeof TransactionScalarFieldEnum]
+
+
+export const RecurringRuleScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  name: 'name',
+  type: 'type',
+  amountCents: 'amountCents',
+  currency: 'currency',
+  accountId: 'accountId',
+  counterpartyAccountId: 'counterpartyAccountId',
+  categoryId: 'categoryId',
+  description: 'description',
+  frequency: 'frequency',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  status: 'status',
+  pausedReason: 'pausedReason',
+  createdByUserId: 'createdByUserId',
+  endedAt: 'endedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RecurringRuleScalarFieldEnum = (typeof RecurringRuleScalarFieldEnum)[keyof typeof RecurringRuleScalarFieldEnum]
 
 
 export const CurrencyExchangeScalarFieldEnum = {

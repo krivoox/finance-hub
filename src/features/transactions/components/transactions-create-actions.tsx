@@ -50,8 +50,8 @@ function clearCreateQuery(
 }
 
 /**
- * Page-local create CTAs for FX / cross-workspace. “Registrar” opens the
- * global new-transaction sheet (mounted in AppShell).
+ * Page-local create CTAs for FX / cross-workspace. “Nueva transacción” opens
+ * the global new-transaction sheet (mounted in AppShell).
  */
 export function TransactionsCreateActions({
   workspaceId,
@@ -99,7 +99,7 @@ export function TransactionsCreateActions({
           onClick={() => openNewTransaction()}
         >
           <Plus className="size-4" strokeWidth={1.75} />
-          Registrar
+          Nueva transacción
         </Button>
 
         {canFx ? (

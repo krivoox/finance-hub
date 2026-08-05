@@ -1,68 +1,163 @@
 import Link from "next/link";
 
-import {
-  ProgressBar,
-  spendingRankTone,
-} from "@/components/progress-bar";
 import { Button } from "@/components/ui/button";
 import {
   SurfaceHeader,
   SurfaceSection,
 } from "@/components/surface-section";
 import { formatMoney } from "@/lib/format-money";
-import type { SpendingByCategoryRow } from "@/features/dashboard/domain";
+import {
+  buildCategoryShares,
+  OTHER_CATEGORY_ID,
+  type SpendingByCategoryRow,
+} from "@/features/dashboard/domain";
+import { cn } from "@/lib/utils";
 
 type DashboardSpendingProps = {
   currency: string;
   rows: readonly SpendingByCategoryRow[];
 };
 
+/** Paleta de charts (DESIGN.md §4). La cola agrupada usa gris neutro. */
+const SLICE_STROKE = [
+  "stroke-chart-1",
+  "stroke-chart-2",
+  "stroke-chart-3",
+  "stroke-chart-4",
+  "stroke-chart-5",
+] as const;
+const SLICE_DOT = [
+  "bg-chart-1",
+  "bg-chart-2",
+  "bg-chart-3",
+  "bg-chart-4",
+  "bg-chart-5",
+] as const;
+
+/** Radio con circunferencia ≈ 100 → dasharray se expresa en porcentaje. */
+const RADIUS = 15.915;
+const STROKE_WIDTH = 5;
+
+function sliceTone(categoryId: string, index: number) {
+  if (categoryId === OTHER_CATEGORY_ID) {
+    return { stroke: "stroke-muted-foreground/50", dot: "bg-muted-foreground/50" };
+  }
+  return {
+    stroke: SLICE_STROKE[index % SLICE_STROKE.length]!,
+    dot: SLICE_DOT[index % SLICE_DOT.length]!,
+  };
+}
+
+type DonutArc = { length: number; offset: number };
+
+/**
+ * Arcos acumulados del donut: longitud y desplazamiento en % de la
+ * circunferencia (r elegido para que la circunferencia sea ≈ 100).
+ */
+function toDonutArcs(
+  slices: readonly { amountCents: number }[],
+  totalCents: number,
+): DonutArc[] {
+  const arcs: DonutArc[] = [];
+  let cursor = 0;
+
+  for (const slice of slices) {
+    const length = totalCents > 0 ? (slice.amountCents / totalCents) * 100 : 0;
+    arcs.push({ length, offset: -cursor });
+    cursor += length;
+  }
+
+  return arcs;
+}
+
+/**
+ * Distribución de gastos del mes (SPEC-11 / SPEC-12): donut + leyenda.
+ * Los porcentajes vienen de `buildCategoryShares` (dominio testeado).
+ */
 export function DashboardSpending({ currency, rows }: DashboardSpendingProps) {
-  const top = rows.slice(0, 5);
-  const max = top[0]?.amountCents ?? 0;
+  const { slices, totalCents } = buildCategoryShares(rows);
+  const arcs = toDonutArcs(slices, totalCents);
 
   return (
-    <SurfaceSection className="h-full">
+    <SurfaceSection className="flex h-full flex-col">
       <SurfaceHeader
-        title="Gastos del mes"
-        description="Top categorías"
+        title="Distribución de gastos"
+        description="Por categoría, este mes"
         action={
           <Button variant="ghost" size="sm" className="h-8 rounded-full" asChild>
-            <Link href="/transactions">Ver movimientos</Link>
+            <Link href="/transactions?type=expense">Ver gastos</Link>
           </Button>
         }
       />
 
-      {top.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
+      {slices.length === 0 ? (
+        <p className="text-sm text-muted-foreground text-pretty">
           Sin gastos categorizados este mes.
         </p>
       ) : (
-        <ul className="space-y-3">
-          {top.map((row, index) => {
-            const width =
-              max > 0 ? Math.max(4, (row.amountCents / max) * 100) : 0;
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-6">
+          <div className="relative mx-auto size-36 shrink-0 sm:mx-0 sm:size-40">
+            <svg viewBox="0 0 42 42" className="size-full -rotate-90" aria-hidden>
+              <circle
+                cx="21"
+                cy="21"
+                r={RADIUS}
+                fill="none"
+                strokeWidth={STROKE_WIDTH}
+                className="stroke-border"
+              />
+              {slices.map((slice, index) => {
+                const arc = arcs[index]!;
 
-            return (
-              <li key={row.categoryId} className="space-y-1.5">
-                <div className="flex items-baseline justify-between gap-3 text-sm">
-                  <span className="truncate text-foreground">
-                    {row.categoryName}
-                  </span>
-                  <span className="shrink-0 tabular-nums text-muted-foreground">
-                    {formatMoney(row.amountCents, currency)}
-                  </span>
-                </div>
-                <ProgressBar
-                  value={width}
-                  tone={spendingRankTone(index)}
-                  size="sm"
-                  aria-label={`${row.categoryName}: ${formatMoney(row.amountCents, currency)}`}
+                return (
+                  <circle
+                    key={slice.categoryId}
+                    cx="21"
+                    cy="21"
+                    r={RADIUS}
+                    fill="none"
+                    strokeWidth={STROKE_WIDTH}
+                    strokeDasharray={`${arc.length} ${100 - arc.length}`}
+                    strokeDashoffset={arc.offset}
+                    className={sliceTone(slice.categoryId, index).stroke}
+                  />
+                );
+              })}
+            </svg>
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+              <p className="text-base font-semibold tracking-tight tabular-nums text-foreground">
+                {formatMoney(totalCents, currency)}
+              </p>
+              <p className="text-xs text-muted-foreground">Total gastos</p>
+            </div>
+          </div>
+
+          <ul className="min-w-0 flex-1 space-y-2.5">
+            {slices.map((slice, index) => (
+              <li
+                key={slice.categoryId}
+                className="flex items-center gap-2.5 text-sm"
+              >
+                <span
+                  className={cn(
+                    "size-2.5 shrink-0 rounded-full",
+                    sliceTone(slice.categoryId, index).dot,
+                  )}
+                  aria-hidden
                 />
+                <span className="min-w-0 flex-1 truncate text-foreground">
+                  {slice.categoryName}
+                </span>
+                <span className="shrink-0 tabular-nums text-muted-foreground">
+                  {formatMoney(slice.amountCents, currency)}
+                </span>
+                <span className="w-11 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
+                  {slice.percent}%
+                </span>
               </li>
-            );
-          })}
-        </ul>
+            ))}
+          </ul>
+        </div>
       )}
     </SurfaceSection>
   );

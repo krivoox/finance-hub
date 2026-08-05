@@ -5,7 +5,7 @@
 | ID | SPEC-12 |
 | Estado | Draft |
 | Prioridad | P1 |
-| Dependencias | SPEC-03, SPEC-05, SPEC-07, SPEC-08, SPEC-09 |
+| Dependencias | SPEC-03, SPEC-05, SPEC-07, SPEC-08, SPEC-09; preview recurrentes SPEC-18 |
 
 ## 1. Contexto
 
@@ -23,12 +23,13 @@ Pantalla principal: visión clara del estado financiero del workspace activo (pe
 | ID | Requisito |
 |----|-----------|
 | FR-01 | Query `GetDashboard` agrega datos del workspace |
-| FR-02 | Bloques: balances por moneda, cashflow del periodo, budgets warning/exceeded, goals activas, txs recientes |
+| FR-02 | Bloques: balances por moneda, cashflow del periodo, budgets warning/exceeded, goals activas, txs recientes, **próximas recurrentes** (SPEC-18) |
 | FR-03 | Si group: incluir member balances summary |
-| FR-04 | Periodo corriente según timezone (mes calendario). Misma definición de “este mes” que el listado de Movimientos ([SPEC-05](./05-transactions.md) §4.3 / `getCurrentMonthPeriod`) |
+| FR-04 | Periodo corriente según timezone (mes calendario). Misma definición de “este mes” que el listado de Transacciones ([SPEC-05](./05-transactions.md) §4.3 / `getCurrentMonthPeriod`) |
 | FR-05 | UI consume solo el DTO del query (sin recalcular negocio) |
 | FR-06 | Si hay ≥2 monedas con saldo y tasa de consolidación: patrimonio `≈` en `baseCurrency` + caption TC |
 | FR-07 | Sin tasa: solo breakdown por moneda (no inventar conversión 1:1) |
+| FR-08 | Preview de próximas ocurrencias recurrentes (horizonte corto; ver SPEC-18): read-only, no materializa |
 
 ## 4. Reglas de negocio
 
@@ -42,7 +43,7 @@ Pantalla principal: visión clara del estado financiero del workspace activo (pe
 
 | Tipo | Nombre | Output (conceptual) |
 |------|--------|---------------------|
-| Query | `GetDashboard` | `{ balancesByCurrency, totalBalance (base), consolidated?, fxRate?, cashflow, budgetsAtRisk, goals, recentTransactions, memberBalances? }` |
+| Query | `GetDashboard` | `{ balancesByCurrency, totalBalance (base), consolidated?, fxRate?, cashflow, budgetsAtRisk, goals, recentTransactions, upcomingRecurring?, memberBalances? }` |
 
 ## 6. Criterios de aceptación
 
@@ -89,6 +90,7 @@ Pantalla principal: visión clara del estado financiero del workspace activo (pe
 - Widgets configurables por usuario
 - Comparativas anuales en el primer viewport
 - Cards decorativas sin acción (seguir DESIGN.md / interface-design)
+- Materializar recurrentes desde el dashboard (solo preview; confirmar en `/transactions/recurring`, SPEC-18)
 
 ## 9. Notas de UI
 

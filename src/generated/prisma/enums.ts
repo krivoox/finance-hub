@@ -109,3 +109,30 @@ export const CrossWorkspaceLinkKind = {
 } as const
 
 export type CrossWorkspaceLinkKind = (typeof CrossWorkspaceLinkKind)[keyof typeof CrossWorkspaceLinkKind]
+
+
+export const RecurringFrequency = {
+  weekly: 'weekly',
+  biweekly: 'biweekly',
+  monthly: 'monthly',
+  yearly: 'yearly'
+} as const
+
+export type RecurringFrequency = (typeof RecurringFrequency)[keyof typeof RecurringFrequency]
+
+
+export const RecurringRuleStatus = {
+  active: 'active',
+  paused: 'paused',
+  ended: 'ended'
+} as const
+
+export type RecurringRuleStatus = (typeof RecurringRuleStatus)[keyof typeof RecurringRuleStatus]
+
+
+export const RecurringPausedReason = {
+  manual: 'manual',
+  account_archived: 'account_archived'
+} as const
+
+export type RecurringPausedReason = (typeof RecurringPausedReason)[keyof typeof RecurringPausedReason]
