@@ -211,6 +211,7 @@ export type CategoryWhereInput = {
   children?: Prisma.CategoryListRelationFilter
   transactions?: Prisma.TransactionListRelationFilter
   budgets?: Prisma.BudgetCategoryListRelationFilter
+  recurringRules?: Prisma.RecurringRuleListRelationFilter
 }
 
 export type CategoryOrderByWithRelationInput = {
@@ -227,6 +228,7 @@ export type CategoryOrderByWithRelationInput = {
   children?: Prisma.CategoryOrderByRelationAggregateInput
   transactions?: Prisma.TransactionOrderByRelationAggregateInput
   budgets?: Prisma.BudgetCategoryOrderByRelationAggregateInput
+  recurringRules?: Prisma.RecurringRuleOrderByRelationAggregateInput
 }
 
 export type CategoryWhereUniqueInput = Prisma.AtLeast<{
@@ -246,6 +248,7 @@ export type CategoryWhereUniqueInput = Prisma.AtLeast<{
   children?: Prisma.CategoryListRelationFilter
   transactions?: Prisma.TransactionListRelationFilter
   budgets?: Prisma.BudgetCategoryListRelationFilter
+  recurringRules?: Prisma.RecurringRuleListRelationFilter
 }, "id">
 
 export type CategoryOrderByWithAggregationInput = {
@@ -288,6 +291,7 @@ export type CategoryCreateInput = {
   children?: Prisma.CategoryCreateNestedManyWithoutParentInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutCategoryInput
   budgets?: Prisma.BudgetCategoryCreateNestedManyWithoutCategoryInput
+  recurringRules?: Prisma.RecurringRuleCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryUncheckedCreateInput = {
@@ -302,6 +306,7 @@ export type CategoryUncheckedCreateInput = {
   children?: Prisma.CategoryUncheckedCreateNestedManyWithoutParentInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutCategoryInput
   budgets?: Prisma.BudgetCategoryUncheckedCreateNestedManyWithoutCategoryInput
+  recurringRules?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryUpdateInput = {
@@ -316,6 +321,7 @@ export type CategoryUpdateInput = {
   children?: Prisma.CategoryUpdateManyWithoutParentNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutCategoryNestedInput
   budgets?: Prisma.BudgetCategoryUpdateManyWithoutCategoryNestedInput
+  recurringRules?: Prisma.RecurringRuleUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryUncheckedUpdateInput = {
@@ -330,6 +336,7 @@ export type CategoryUncheckedUpdateInput = {
   children?: Prisma.CategoryUncheckedUpdateManyWithoutParentNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutCategoryNestedInput
   budgets?: Prisma.BudgetCategoryUncheckedUpdateManyWithoutCategoryNestedInput
+  recurringRules?: Prisma.RecurringRuleUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryCreateManyInput = {
@@ -536,6 +543,22 @@ export type CategoryUpdateOneWithoutTransactionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CategoryUpdateToOneWithWhereWithoutTransactionsInput, Prisma.CategoryUpdateWithoutTransactionsInput>, Prisma.CategoryUncheckedUpdateWithoutTransactionsInput>
 }
 
+export type CategoryCreateNestedOneWithoutRecurringRulesInput = {
+  create?: Prisma.XOR<Prisma.CategoryCreateWithoutRecurringRulesInput, Prisma.CategoryUncheckedCreateWithoutRecurringRulesInput>
+  connectOrCreate?: Prisma.CategoryCreateOrConnectWithoutRecurringRulesInput
+  connect?: Prisma.CategoryWhereUniqueInput
+}
+
+export type CategoryUpdateOneWithoutRecurringRulesNestedInput = {
+  create?: Prisma.XOR<Prisma.CategoryCreateWithoutRecurringRulesInput, Prisma.CategoryUncheckedCreateWithoutRecurringRulesInput>
+  connectOrCreate?: Prisma.CategoryCreateOrConnectWithoutRecurringRulesInput
+  upsert?: Prisma.CategoryUpsertWithoutRecurringRulesInput
+  disconnect?: Prisma.CategoryWhereInput | boolean
+  delete?: Prisma.CategoryWhereInput | boolean
+  connect?: Prisma.CategoryWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CategoryUpdateToOneWithWhereWithoutRecurringRulesInput, Prisma.CategoryUpdateWithoutRecurringRulesInput>, Prisma.CategoryUncheckedUpdateWithoutRecurringRulesInput>
+}
+
 export type CategoryCreateNestedOneWithoutBudgetsInput = {
   create?: Prisma.XOR<Prisma.CategoryCreateWithoutBudgetsInput, Prisma.CategoryUncheckedCreateWithoutBudgetsInput>
   connectOrCreate?: Prisma.CategoryCreateOrConnectWithoutBudgetsInput
@@ -561,6 +584,7 @@ export type CategoryCreateWithoutWorkspaceInput = {
   children?: Prisma.CategoryCreateNestedManyWithoutParentInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutCategoryInput
   budgets?: Prisma.BudgetCategoryCreateNestedManyWithoutCategoryInput
+  recurringRules?: Prisma.RecurringRuleCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryUncheckedCreateWithoutWorkspaceInput = {
@@ -574,6 +598,7 @@ export type CategoryUncheckedCreateWithoutWorkspaceInput = {
   children?: Prisma.CategoryUncheckedCreateNestedManyWithoutParentInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutCategoryInput
   budgets?: Prisma.BudgetCategoryUncheckedCreateNestedManyWithoutCategoryInput
+  recurringRules?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryCreateOrConnectWithoutWorkspaceInput = {
@@ -627,6 +652,7 @@ export type CategoryCreateWithoutChildrenInput = {
   parent?: Prisma.CategoryCreateNestedOneWithoutChildrenInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutCategoryInput
   budgets?: Prisma.BudgetCategoryCreateNestedManyWithoutCategoryInput
+  recurringRules?: Prisma.RecurringRuleCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryUncheckedCreateWithoutChildrenInput = {
@@ -640,6 +666,7 @@ export type CategoryUncheckedCreateWithoutChildrenInput = {
   updatedAt?: Date | string
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutCategoryInput
   budgets?: Prisma.BudgetCategoryUncheckedCreateNestedManyWithoutCategoryInput
+  recurringRules?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryCreateOrConnectWithoutChildrenInput = {
@@ -658,6 +685,7 @@ export type CategoryCreateWithoutParentInput = {
   children?: Prisma.CategoryCreateNestedManyWithoutParentInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutCategoryInput
   budgets?: Prisma.BudgetCategoryCreateNestedManyWithoutCategoryInput
+  recurringRules?: Prisma.RecurringRuleCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryUncheckedCreateWithoutParentInput = {
@@ -671,6 +699,7 @@ export type CategoryUncheckedCreateWithoutParentInput = {
   children?: Prisma.CategoryUncheckedCreateNestedManyWithoutParentInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutCategoryInput
   budgets?: Prisma.BudgetCategoryUncheckedCreateNestedManyWithoutCategoryInput
+  recurringRules?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryCreateOrConnectWithoutParentInput = {
@@ -705,6 +734,7 @@ export type CategoryUpdateWithoutChildrenInput = {
   parent?: Prisma.CategoryUpdateOneWithoutChildrenNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutCategoryNestedInput
   budgets?: Prisma.BudgetCategoryUpdateManyWithoutCategoryNestedInput
+  recurringRules?: Prisma.RecurringRuleUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryUncheckedUpdateWithoutChildrenInput = {
@@ -718,6 +748,7 @@ export type CategoryUncheckedUpdateWithoutChildrenInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutCategoryNestedInput
   budgets?: Prisma.BudgetCategoryUncheckedUpdateManyWithoutCategoryNestedInput
+  recurringRules?: Prisma.RecurringRuleUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryUpsertWithWhereUniqueWithoutParentInput = {
@@ -747,6 +778,7 @@ export type CategoryCreateWithoutTransactionsInput = {
   parent?: Prisma.CategoryCreateNestedOneWithoutChildrenInput
   children?: Prisma.CategoryCreateNestedManyWithoutParentInput
   budgets?: Prisma.BudgetCategoryCreateNestedManyWithoutCategoryInput
+  recurringRules?: Prisma.RecurringRuleCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryUncheckedCreateWithoutTransactionsInput = {
@@ -760,6 +792,7 @@ export type CategoryUncheckedCreateWithoutTransactionsInput = {
   updatedAt?: Date | string
   children?: Prisma.CategoryUncheckedCreateNestedManyWithoutParentInput
   budgets?: Prisma.BudgetCategoryUncheckedCreateNestedManyWithoutCategoryInput
+  recurringRules?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryCreateOrConnectWithoutTransactionsInput = {
@@ -789,6 +822,7 @@ export type CategoryUpdateWithoutTransactionsInput = {
   parent?: Prisma.CategoryUpdateOneWithoutChildrenNestedInput
   children?: Prisma.CategoryUpdateManyWithoutParentNestedInput
   budgets?: Prisma.BudgetCategoryUpdateManyWithoutCategoryNestedInput
+  recurringRules?: Prisma.RecurringRuleUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryUncheckedUpdateWithoutTransactionsInput = {
@@ -801,6 +835,79 @@ export type CategoryUncheckedUpdateWithoutTransactionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   children?: Prisma.CategoryUncheckedUpdateManyWithoutParentNestedInput
+  budgets?: Prisma.BudgetCategoryUncheckedUpdateManyWithoutCategoryNestedInput
+  recurringRules?: Prisma.RecurringRuleUncheckedUpdateManyWithoutCategoryNestedInput
+}
+
+export type CategoryCreateWithoutRecurringRulesInput = {
+  id?: string
+  name: string
+  kind: $Enums.CategoryKind
+  isArchived?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutCategoriesInput
+  parent?: Prisma.CategoryCreateNestedOneWithoutChildrenInput
+  children?: Prisma.CategoryCreateNestedManyWithoutParentInput
+  transactions?: Prisma.TransactionCreateNestedManyWithoutCategoryInput
+  budgets?: Prisma.BudgetCategoryCreateNestedManyWithoutCategoryInput
+}
+
+export type CategoryUncheckedCreateWithoutRecurringRulesInput = {
+  id?: string
+  workspaceId: string
+  name: string
+  kind: $Enums.CategoryKind
+  parentId?: string | null
+  isArchived?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  children?: Prisma.CategoryUncheckedCreateNestedManyWithoutParentInput
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutCategoryInput
+  budgets?: Prisma.BudgetCategoryUncheckedCreateNestedManyWithoutCategoryInput
+}
+
+export type CategoryCreateOrConnectWithoutRecurringRulesInput = {
+  where: Prisma.CategoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.CategoryCreateWithoutRecurringRulesInput, Prisma.CategoryUncheckedCreateWithoutRecurringRulesInput>
+}
+
+export type CategoryUpsertWithoutRecurringRulesInput = {
+  update: Prisma.XOR<Prisma.CategoryUpdateWithoutRecurringRulesInput, Prisma.CategoryUncheckedUpdateWithoutRecurringRulesInput>
+  create: Prisma.XOR<Prisma.CategoryCreateWithoutRecurringRulesInput, Prisma.CategoryUncheckedCreateWithoutRecurringRulesInput>
+  where?: Prisma.CategoryWhereInput
+}
+
+export type CategoryUpdateToOneWithWhereWithoutRecurringRulesInput = {
+  where?: Prisma.CategoryWhereInput
+  data: Prisma.XOR<Prisma.CategoryUpdateWithoutRecurringRulesInput, Prisma.CategoryUncheckedUpdateWithoutRecurringRulesInput>
+}
+
+export type CategoryUpdateWithoutRecurringRulesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumCategoryKindFieldUpdateOperationsInput | $Enums.CategoryKind
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutCategoriesNestedInput
+  parent?: Prisma.CategoryUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.CategoryUpdateManyWithoutParentNestedInput
+  transactions?: Prisma.TransactionUpdateManyWithoutCategoryNestedInput
+  budgets?: Prisma.BudgetCategoryUpdateManyWithoutCategoryNestedInput
+}
+
+export type CategoryUncheckedUpdateWithoutRecurringRulesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  kind?: Prisma.EnumCategoryKindFieldUpdateOperationsInput | $Enums.CategoryKind
+  parentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  children?: Prisma.CategoryUncheckedUpdateManyWithoutParentNestedInput
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutCategoryNestedInput
   budgets?: Prisma.BudgetCategoryUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
@@ -815,6 +922,7 @@ export type CategoryCreateWithoutBudgetsInput = {
   parent?: Prisma.CategoryCreateNestedOneWithoutChildrenInput
   children?: Prisma.CategoryCreateNestedManyWithoutParentInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutCategoryInput
+  recurringRules?: Prisma.RecurringRuleCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryUncheckedCreateWithoutBudgetsInput = {
@@ -828,6 +936,7 @@ export type CategoryUncheckedCreateWithoutBudgetsInput = {
   updatedAt?: Date | string
   children?: Prisma.CategoryUncheckedCreateNestedManyWithoutParentInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutCategoryInput
+  recurringRules?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryCreateOrConnectWithoutBudgetsInput = {
@@ -857,6 +966,7 @@ export type CategoryUpdateWithoutBudgetsInput = {
   parent?: Prisma.CategoryUpdateOneWithoutChildrenNestedInput
   children?: Prisma.CategoryUpdateManyWithoutParentNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutCategoryNestedInput
+  recurringRules?: Prisma.RecurringRuleUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryUncheckedUpdateWithoutBudgetsInput = {
@@ -870,6 +980,7 @@ export type CategoryUncheckedUpdateWithoutBudgetsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   children?: Prisma.CategoryUncheckedUpdateManyWithoutParentNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutCategoryNestedInput
+  recurringRules?: Prisma.RecurringRuleUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryCreateManyWorkspaceInput = {
@@ -893,6 +1004,7 @@ export type CategoryUpdateWithoutWorkspaceInput = {
   children?: Prisma.CategoryUpdateManyWithoutParentNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutCategoryNestedInput
   budgets?: Prisma.BudgetCategoryUpdateManyWithoutCategoryNestedInput
+  recurringRules?: Prisma.RecurringRuleUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryUncheckedUpdateWithoutWorkspaceInput = {
@@ -906,6 +1018,7 @@ export type CategoryUncheckedUpdateWithoutWorkspaceInput = {
   children?: Prisma.CategoryUncheckedUpdateManyWithoutParentNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutCategoryNestedInput
   budgets?: Prisma.BudgetCategoryUncheckedUpdateManyWithoutCategoryNestedInput
+  recurringRules?: Prisma.RecurringRuleUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryUncheckedUpdateManyWithoutWorkspaceInput = {
@@ -939,6 +1052,7 @@ export type CategoryUpdateWithoutParentInput = {
   children?: Prisma.CategoryUpdateManyWithoutParentNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutCategoryNestedInput
   budgets?: Prisma.BudgetCategoryUpdateManyWithoutCategoryNestedInput
+  recurringRules?: Prisma.RecurringRuleUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryUncheckedUpdateWithoutParentInput = {
@@ -952,6 +1066,7 @@ export type CategoryUncheckedUpdateWithoutParentInput = {
   children?: Prisma.CategoryUncheckedUpdateManyWithoutParentNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutCategoryNestedInput
   budgets?: Prisma.BudgetCategoryUncheckedUpdateManyWithoutCategoryNestedInput
+  recurringRules?: Prisma.RecurringRuleUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryUncheckedUpdateManyWithoutParentInput = {
@@ -973,12 +1088,14 @@ export type CategoryCountOutputType = {
   children: number
   transactions: number
   budgets: number
+  recurringRules: number
 }
 
 export type CategoryCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   children?: boolean | CategoryCountOutputTypeCountChildrenArgs
   transactions?: boolean | CategoryCountOutputTypeCountTransactionsArgs
   budgets?: boolean | CategoryCountOutputTypeCountBudgetsArgs
+  recurringRules?: boolean | CategoryCountOutputTypeCountRecurringRulesArgs
 }
 
 /**
@@ -1012,6 +1129,13 @@ export type CategoryCountOutputTypeCountBudgetsArgs<ExtArgs extends runtime.Type
   where?: Prisma.BudgetCategoryWhereInput
 }
 
+/**
+ * CategoryCountOutputType without action
+ */
+export type CategoryCountOutputTypeCountRecurringRulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RecurringRuleWhereInput
+}
+
 
 export type CategorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1027,6 +1151,7 @@ export type CategorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   children?: boolean | Prisma.Category$childrenArgs<ExtArgs>
   transactions?: boolean | Prisma.Category$transactionsArgs<ExtArgs>
   budgets?: boolean | Prisma.Category$budgetsArgs<ExtArgs>
+  recurringRules?: boolean | Prisma.Category$recurringRulesArgs<ExtArgs>
   _count?: boolean | Prisma.CategoryCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["category"]>
 
@@ -1074,6 +1199,7 @@ export type CategoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   children?: boolean | Prisma.Category$childrenArgs<ExtArgs>
   transactions?: boolean | Prisma.Category$transactionsArgs<ExtArgs>
   budgets?: boolean | Prisma.Category$budgetsArgs<ExtArgs>
+  recurringRules?: boolean | Prisma.Category$recurringRulesArgs<ExtArgs>
   _count?: boolean | Prisma.CategoryCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CategoryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1093,6 +1219,7 @@ export type $CategoryPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     children: Prisma.$CategoryPayload<ExtArgs>[]
     transactions: Prisma.$TransactionPayload<ExtArgs>[]
     budgets: Prisma.$BudgetCategoryPayload<ExtArgs>[]
+    recurringRules: Prisma.$RecurringRulePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1502,6 +1629,7 @@ export interface Prisma__CategoryClient<T, Null = never, ExtArgs extends runtime
   children<T extends Prisma.Category$childrenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Category$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   transactions<T extends Prisma.Category$transactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Category$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   budgets<T extends Prisma.Category$budgetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Category$budgetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BudgetCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  recurringRules<T extends Prisma.Category$recurringRulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Category$recurringRulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecurringRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2028,6 +2156,30 @@ export type Category$budgetsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.BudgetCategoryScalarFieldEnum | Prisma.BudgetCategoryScalarFieldEnum[]
+}
+
+/**
+ * Category.recurringRules
+ */
+export type Category$recurringRulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RecurringRule
+   */
+  select?: Prisma.RecurringRuleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RecurringRule
+   */
+  omit?: Prisma.RecurringRuleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RecurringRuleInclude<ExtArgs> | null
+  where?: Prisma.RecurringRuleWhereInput
+  orderBy?: Prisma.RecurringRuleOrderByWithRelationInput | Prisma.RecurringRuleOrderByWithRelationInput[]
+  cursor?: Prisma.RecurringRuleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RecurringRuleScalarFieldEnum | Prisma.RecurringRuleScalarFieldEnum[]
 }
 
 /**

@@ -394,6 +394,7 @@ export const ModelName = {
   Category: 'Category',
   FinanceAccount: 'FinanceAccount',
   Transaction: 'Transaction',
+  RecurringRule: 'RecurringRule',
   CurrencyExchange: 'CurrencyExchange',
   WorkspaceConsolidationRate: 'WorkspaceConsolidationRate',
   CrossWorkspaceLink: 'CrossWorkspaceLink',
@@ -419,7 +420,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "workspace" | "membership" | "invitation" | "category" | "financeAccount" | "transaction" | "currencyExchange" | "workspaceConsolidationRate" | "crossWorkspaceLink" | "budget" | "budgetCategory" | "goal" | "goalContribution" | "expenseSplit" | "expenseSplitShare" | "settlement"
+    modelProps: "user" | "session" | "account" | "verification" | "workspace" | "membership" | "invitation" | "category" | "financeAccount" | "transaction" | "recurringRule" | "currencyExchange" | "workspaceConsolidationRate" | "crossWorkspaceLink" | "budget" | "budgetCategory" | "goal" | "goalContribution" | "expenseSplit" | "expenseSplitShare" | "settlement"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1160,6 +1161,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.TransactionCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.TransactionCountAggregateOutputType> | number
+        }
+      }
+    }
+    RecurringRule: {
+      payload: Prisma.$RecurringRulePayload<ExtArgs>
+      fields: Prisma.RecurringRuleFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RecurringRuleFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringRulePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RecurringRuleFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringRulePayload>
+        }
+        findFirst: {
+          args: Prisma.RecurringRuleFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringRulePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RecurringRuleFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringRulePayload>
+        }
+        findMany: {
+          args: Prisma.RecurringRuleFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringRulePayload>[]
+        }
+        create: {
+          args: Prisma.RecurringRuleCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringRulePayload>
+        }
+        createMany: {
+          args: Prisma.RecurringRuleCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RecurringRuleCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringRulePayload>[]
+        }
+        delete: {
+          args: Prisma.RecurringRuleDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringRulePayload>
+        }
+        update: {
+          args: Prisma.RecurringRuleUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringRulePayload>
+        }
+        deleteMany: {
+          args: Prisma.RecurringRuleDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RecurringRuleUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RecurringRuleUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringRulePayload>[]
+        }
+        upsert: {
+          args: Prisma.RecurringRuleUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecurringRulePayload>
+        }
+        aggregate: {
+          args: Prisma.RecurringRuleAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRecurringRule>
+        }
+        groupBy: {
+          args: Prisma.RecurringRuleGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RecurringRuleGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RecurringRuleCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RecurringRuleCountAggregateOutputType> | number
         }
       }
     }
@@ -2084,11 +2159,38 @@ export const TransactionScalarFieldEnum = {
   accountId: 'accountId',
   counterpartyAccountId: 'counterpartyAccountId',
   createdByUserId: 'createdByUserId',
+  recurringRuleId: 'recurringRuleId',
+  scheduledOn: 'scheduledOn',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type TransactionScalarFieldEnum = (typeof TransactionScalarFieldEnum)[keyof typeof TransactionScalarFieldEnum]
+
+
+export const RecurringRuleScalarFieldEnum = {
+  id: 'id',
+  workspaceId: 'workspaceId',
+  name: 'name',
+  type: 'type',
+  amountCents: 'amountCents',
+  currency: 'currency',
+  accountId: 'accountId',
+  counterpartyAccountId: 'counterpartyAccountId',
+  categoryId: 'categoryId',
+  description: 'description',
+  frequency: 'frequency',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  status: 'status',
+  pausedReason: 'pausedReason',
+  createdByUserId: 'createdByUserId',
+  endedAt: 'endedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RecurringRuleScalarFieldEnum = (typeof RecurringRuleScalarFieldEnum)[keyof typeof RecurringRuleScalarFieldEnum]
 
 
 export const CurrencyExchangeScalarFieldEnum = {
@@ -2394,6 +2496,48 @@ export type ListEnumTransactionTypeFieldRefInput<$PrismaModel> = FieldRefInputTy
 
 
 /**
+ * Reference to a field of type 'RecurringFrequency'
+ */
+export type EnumRecurringFrequencyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecurringFrequency'>
+    
+
+
+/**
+ * Reference to a field of type 'RecurringFrequency[]'
+ */
+export type ListEnumRecurringFrequencyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecurringFrequency[]'>
+    
+
+
+/**
+ * Reference to a field of type 'RecurringRuleStatus'
+ */
+export type EnumRecurringRuleStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecurringRuleStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'RecurringRuleStatus[]'
+ */
+export type ListEnumRecurringRuleStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecurringRuleStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'RecurringPausedReason'
+ */
+export type EnumRecurringPausedReasonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecurringPausedReason'>
+    
+
+
+/**
+ * Reference to a field of type 'RecurringPausedReason[]'
+ */
+export type ListEnumRecurringPausedReasonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecurringPausedReason[]'>
+    
+
+
+/**
  * Reference to a field of type 'CrossWorkspaceLinkKind'
  */
 export type EnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CrossWorkspaceLinkKind'>
@@ -2596,6 +2740,7 @@ export type GlobalOmitConfig = {
   category?: Prisma.CategoryOmit
   financeAccount?: Prisma.FinanceAccountOmit
   transaction?: Prisma.TransactionOmit
+  recurringRule?: Prisma.RecurringRuleOmit
   currencyExchange?: Prisma.CurrencyExchangeOmit
   workspaceConsolidationRate?: Prisma.WorkspaceConsolidationRateOmit
   crossWorkspaceLink?: Prisma.CrossWorkspaceLinkOmit

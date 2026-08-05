@@ -7,14 +7,16 @@ import { getActiveWorkspaceForUser } from "@/features/workspaces/services";
 import {
   buildAccountExpenseSankey,
   buildCashflowSankey,
+  buildNetTrend,
 } from "@/features/dashboard/domain";
 import { getDashboard, getAnalytics } from "@/features/dashboard/services";
-import { DashboardSnapshot } from "@/features/dashboard/components/dashboard-snapshot";
+import { DashboardBalance } from "@/features/dashboard/components/dashboard-balance";
 import { DashboardFlowCharts } from "@/features/dashboard/components/dashboard-flow-charts";
 import { DashboardAttention } from "@/features/dashboard/components/dashboard-attention";
 import { DashboardGoals } from "@/features/dashboard/components/dashboard-goals";
 import { DashboardSpending } from "@/features/dashboard/components/dashboard-spending";
 import { DashboardRecent } from "@/features/dashboard/components/dashboard-recent";
+import { DashboardRecurring } from "@/features/dashboard/components/dashboard-recurring";
 import { DashboardAccounts } from "@/features/dashboard/components/dashboard-accounts";
 import { DashboardNewTransactionButton } from "@/features/dashboard/components/dashboard-new-transaction-button";
 import { formatPeriodLabel } from "@/features/dashboard/components/format";
@@ -33,7 +35,7 @@ export default async function DashboardPage() {
   if (!workspace) {
     return (
       <ContentPanel
-        title="Dashboard"
+        title="Panel"
         description="Todavía no tenés un workspace activo."
       >
         <p className="text-sm text-muted-foreground">
@@ -78,6 +80,7 @@ export default async function DashboardPage() {
   });
   const hasFlowCharts =
     cashflowSankey.nodes.length > 0 || accountSankey.nodes.length > 0;
+  const netTrend = buildNetTrend(analytics.monthlySeries);
 
   return (
     <ContentPanel
@@ -86,55 +89,54 @@ export default async function DashboardPage() {
       actions={canMutate ? <DashboardNewTransactionButton /> : undefined}
     >
       {/*
-        Ordered layout (landing chrome + reference dashboard rhythm):
-        1. KPI row — patrimonio / flujo / ingresos / gastos
-        2. Main + rail — Sankey | spending · accounts · atención · objetivos
-        3. Recent transactions
+        Orden de lectura del Panel (DESIGN.md §9):
+        1. Patrimonio + flujo neto mensual | Últimos movimientos
+        2. Objetivos | Atención
+        3. Flujo del mes (Sankey)
+        4. Próximas recurrentes
+        5. Distribución de gastos | Cuentas
       */}
       <div className="flex flex-col gap-5 sm:gap-6">
-        <DashboardSnapshot
-          balance={dashboard.totalBalance}
-          balancesByCurrency={dashboard.balancesByCurrency}
-          consolidated={dashboard.consolidated}
-          fxRate={dashboard.fxRate}
-          cashflow={dashboard.monthlyCashflow}
-          periodLabel={periodLabel}
-        />
-
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(16rem,0.75fr)] lg:items-start lg:gap-6">
-          <div className="flex min-w-0 flex-col gap-5 sm:gap-6">
-            {hasFlowCharts ? (
-              <DashboardFlowCharts
-                currency={currency}
-                cashflowSankey={cashflowSankey}
-                accountSankey={accountSankey}
-              />
-            ) : null}
-
-            <div className="grid gap-5 sm:grid-cols-2 sm:gap-6">
-              <DashboardGoals goals={dashboard.goalsProgress} />
-              <DashboardAttention
-                currency={currency}
-                budgetsAtRisk={dashboard.budgetsAtRisk}
-                insights={analytics.insights}
-                memberBalances={dashboard.memberBalances}
-              />
-            </div>
-          </div>
-
-          <aside className="flex flex-col gap-5 sm:gap-6">
-            <DashboardSpending
-              currency={currency}
-              rows={analytics.spendingByCategory}
-            />
-            <DashboardAccounts accounts={dashboard.accounts} />
-          </aside>
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(18rem,1fr)] lg:items-stretch lg:gap-6">
+          <DashboardBalance
+            balance={dashboard.totalBalance}
+            balancesByCurrency={dashboard.balancesByCurrency}
+            consolidated={dashboard.consolidated}
+            fxRate={dashboard.fxRate}
+            cashflow={dashboard.monthlyCashflow}
+            netTrend={netTrend}
+            periodLabel={periodLabel}
+          />
+          <DashboardRecent transactions={dashboard.recentTransactions} />
         </div>
 
-        <DashboardRecent
-          currency={currency}
-          transactions={dashboard.recentTransactions}
-        />
+        <div className="grid gap-5 sm:gap-6 lg:grid-cols-2 lg:items-stretch">
+          <DashboardGoals currency={currency} goals={dashboard.goalsProgress} />
+          <DashboardAttention
+            currency={currency}
+            budgetsAtRisk={dashboard.budgetsAtRisk}
+            insights={analytics.insights}
+            memberBalances={dashboard.memberBalances}
+          />
+        </div>
+
+        {hasFlowCharts ? (
+          <DashboardFlowCharts
+            currency={currency}
+            cashflowSankey={cashflowSankey}
+            accountSankey={accountSankey}
+          />
+        ) : null}
+
+        <DashboardRecurring items={dashboard.upcomingRecurring} />
+
+        <div className="grid gap-5 sm:gap-6 lg:grid-cols-2 lg:items-stretch">
+          <DashboardSpending
+            currency={currency}
+            rows={analytics.spendingByCategory}
+          />
+          <DashboardAccounts accounts={dashboard.accounts} />
+        </div>
       </div>
     </ContentPanel>
   );

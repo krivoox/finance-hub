@@ -266,6 +266,8 @@ export type FinanceAccountWhereInput = {
   linkedGoals?: Prisma.GoalListRelationFilter
   exchangesFrom?: Prisma.CurrencyExchangeListRelationFilter
   exchangesTo?: Prisma.CurrencyExchangeListRelationFilter
+  recurringAsAccount?: Prisma.RecurringRuleListRelationFilter
+  recurringAsCounterparty?: Prisma.RecurringRuleListRelationFilter
 }
 
 export type FinanceAccountOrderByWithRelationInput = {
@@ -285,6 +287,8 @@ export type FinanceAccountOrderByWithRelationInput = {
   linkedGoals?: Prisma.GoalOrderByRelationAggregateInput
   exchangesFrom?: Prisma.CurrencyExchangeOrderByRelationAggregateInput
   exchangesTo?: Prisma.CurrencyExchangeOrderByRelationAggregateInput
+  recurringAsAccount?: Prisma.RecurringRuleOrderByRelationAggregateInput
+  recurringAsCounterparty?: Prisma.RecurringRuleOrderByRelationAggregateInput
 }
 
 export type FinanceAccountWhereUniqueInput = Prisma.AtLeast<{
@@ -307,6 +311,8 @@ export type FinanceAccountWhereUniqueInput = Prisma.AtLeast<{
   linkedGoals?: Prisma.GoalListRelationFilter
   exchangesFrom?: Prisma.CurrencyExchangeListRelationFilter
   exchangesTo?: Prisma.CurrencyExchangeListRelationFilter
+  recurringAsAccount?: Prisma.RecurringRuleListRelationFilter
+  recurringAsCounterparty?: Prisma.RecurringRuleListRelationFilter
 }, "id">
 
 export type FinanceAccountOrderByWithAggregationInput = {
@@ -359,6 +365,8 @@ export type FinanceAccountCreateInput = {
   linkedGoals?: Prisma.GoalCreateNestedManyWithoutLinkedAccountInput
   exchangesFrom?: Prisma.CurrencyExchangeCreateNestedManyWithoutFromAccountInput
   exchangesTo?: Prisma.CurrencyExchangeCreateNestedManyWithoutToAccountInput
+  recurringAsAccount?: Prisma.RecurringRuleCreateNestedManyWithoutAccountInput
+  recurringAsCounterparty?: Prisma.RecurringRuleCreateNestedManyWithoutCounterpartyAccountInput
 }
 
 export type FinanceAccountUncheckedCreateInput = {
@@ -377,6 +385,8 @@ export type FinanceAccountUncheckedCreateInput = {
   linkedGoals?: Prisma.GoalUncheckedCreateNestedManyWithoutLinkedAccountInput
   exchangesFrom?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutFromAccountInput
   exchangesTo?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutToAccountInput
+  recurringAsAccount?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutAccountInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutCounterpartyAccountInput
 }
 
 export type FinanceAccountUpdateInput = {
@@ -395,6 +405,8 @@ export type FinanceAccountUpdateInput = {
   linkedGoals?: Prisma.GoalUpdateManyWithoutLinkedAccountNestedInput
   exchangesFrom?: Prisma.CurrencyExchangeUpdateManyWithoutFromAccountNestedInput
   exchangesTo?: Prisma.CurrencyExchangeUpdateManyWithoutToAccountNestedInput
+  recurringAsAccount?: Prisma.RecurringRuleUpdateManyWithoutAccountNestedInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUpdateManyWithoutCounterpartyAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateInput = {
@@ -413,6 +425,8 @@ export type FinanceAccountUncheckedUpdateInput = {
   linkedGoals?: Prisma.GoalUncheckedUpdateManyWithoutLinkedAccountNestedInput
   exchangesFrom?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutFromAccountNestedInput
   exchangesTo?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutToAccountNestedInput
+  recurringAsAccount?: Prisma.RecurringRuleUncheckedUpdateManyWithoutAccountNestedInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUncheckedUpdateManyWithoutCounterpartyAccountNestedInput
 }
 
 export type FinanceAccountCreateManyInput = {
@@ -614,6 +628,36 @@ export type FinanceAccountUpdateOneWithoutIncomingTransfersNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutIncomingTransfersInput, Prisma.FinanceAccountUpdateWithoutIncomingTransfersInput>, Prisma.FinanceAccountUncheckedUpdateWithoutIncomingTransfersInput>
 }
 
+export type FinanceAccountCreateNestedOneWithoutRecurringAsAccountInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutRecurringAsAccountInput, Prisma.FinanceAccountUncheckedCreateWithoutRecurringAsAccountInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutRecurringAsAccountInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+}
+
+export type FinanceAccountCreateNestedOneWithoutRecurringAsCounterpartyInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutRecurringAsCounterpartyInput, Prisma.FinanceAccountUncheckedCreateWithoutRecurringAsCounterpartyInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutRecurringAsCounterpartyInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+}
+
+export type FinanceAccountUpdateOneRequiredWithoutRecurringAsAccountNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutRecurringAsAccountInput, Prisma.FinanceAccountUncheckedCreateWithoutRecurringAsAccountInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutRecurringAsAccountInput
+  upsert?: Prisma.FinanceAccountUpsertWithoutRecurringAsAccountInput
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutRecurringAsAccountInput, Prisma.FinanceAccountUpdateWithoutRecurringAsAccountInput>, Prisma.FinanceAccountUncheckedUpdateWithoutRecurringAsAccountInput>
+}
+
+export type FinanceAccountUpdateOneWithoutRecurringAsCounterpartyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutRecurringAsCounterpartyInput, Prisma.FinanceAccountUncheckedCreateWithoutRecurringAsCounterpartyInput>
+  connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutRecurringAsCounterpartyInput
+  upsert?: Prisma.FinanceAccountUpsertWithoutRecurringAsCounterpartyInput
+  disconnect?: Prisma.FinanceAccountWhereInput | boolean
+  delete?: Prisma.FinanceAccountWhereInput | boolean
+  connect?: Prisma.FinanceAccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceAccountUpdateToOneWithWhereWithoutRecurringAsCounterpartyInput, Prisma.FinanceAccountUpdateWithoutRecurringAsCounterpartyInput>, Prisma.FinanceAccountUncheckedUpdateWithoutRecurringAsCounterpartyInput>
+}
+
 export type FinanceAccountCreateNestedOneWithoutExchangesFromInput = {
   create?: Prisma.XOR<Prisma.FinanceAccountCreateWithoutExchangesFromInput, Prisma.FinanceAccountUncheckedCreateWithoutExchangesFromInput>
   connectOrCreate?: Prisma.FinanceAccountCreateOrConnectWithoutExchangesFromInput
@@ -673,6 +717,8 @@ export type FinanceAccountCreateWithoutWorkspaceInput = {
   linkedGoals?: Prisma.GoalCreateNestedManyWithoutLinkedAccountInput
   exchangesFrom?: Prisma.CurrencyExchangeCreateNestedManyWithoutFromAccountInput
   exchangesTo?: Prisma.CurrencyExchangeCreateNestedManyWithoutToAccountInput
+  recurringAsAccount?: Prisma.RecurringRuleCreateNestedManyWithoutAccountInput
+  recurringAsCounterparty?: Prisma.RecurringRuleCreateNestedManyWithoutCounterpartyAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutWorkspaceInput = {
@@ -690,6 +736,8 @@ export type FinanceAccountUncheckedCreateWithoutWorkspaceInput = {
   linkedGoals?: Prisma.GoalUncheckedCreateNestedManyWithoutLinkedAccountInput
   exchangesFrom?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutFromAccountInput
   exchangesTo?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutToAccountInput
+  recurringAsAccount?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutAccountInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutCounterpartyAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutWorkspaceInput = {
@@ -749,6 +797,8 @@ export type FinanceAccountCreateWithoutTransactionsInput = {
   linkedGoals?: Prisma.GoalCreateNestedManyWithoutLinkedAccountInput
   exchangesFrom?: Prisma.CurrencyExchangeCreateNestedManyWithoutFromAccountInput
   exchangesTo?: Prisma.CurrencyExchangeCreateNestedManyWithoutToAccountInput
+  recurringAsAccount?: Prisma.RecurringRuleCreateNestedManyWithoutAccountInput
+  recurringAsCounterparty?: Prisma.RecurringRuleCreateNestedManyWithoutCounterpartyAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutTransactionsInput = {
@@ -766,6 +816,8 @@ export type FinanceAccountUncheckedCreateWithoutTransactionsInput = {
   linkedGoals?: Prisma.GoalUncheckedCreateNestedManyWithoutLinkedAccountInput
   exchangesFrom?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutFromAccountInput
   exchangesTo?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutToAccountInput
+  recurringAsAccount?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutAccountInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutCounterpartyAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutTransactionsInput = {
@@ -788,6 +840,8 @@ export type FinanceAccountCreateWithoutIncomingTransfersInput = {
   linkedGoals?: Prisma.GoalCreateNestedManyWithoutLinkedAccountInput
   exchangesFrom?: Prisma.CurrencyExchangeCreateNestedManyWithoutFromAccountInput
   exchangesTo?: Prisma.CurrencyExchangeCreateNestedManyWithoutToAccountInput
+  recurringAsAccount?: Prisma.RecurringRuleCreateNestedManyWithoutAccountInput
+  recurringAsCounterparty?: Prisma.RecurringRuleCreateNestedManyWithoutCounterpartyAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutIncomingTransfersInput = {
@@ -805,6 +859,8 @@ export type FinanceAccountUncheckedCreateWithoutIncomingTransfersInput = {
   linkedGoals?: Prisma.GoalUncheckedCreateNestedManyWithoutLinkedAccountInput
   exchangesFrom?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutFromAccountInput
   exchangesTo?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutToAccountInput
+  recurringAsAccount?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutAccountInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutCounterpartyAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutIncomingTransfersInput = {
@@ -838,6 +894,8 @@ export type FinanceAccountUpdateWithoutTransactionsInput = {
   linkedGoals?: Prisma.GoalUpdateManyWithoutLinkedAccountNestedInput
   exchangesFrom?: Prisma.CurrencyExchangeUpdateManyWithoutFromAccountNestedInput
   exchangesTo?: Prisma.CurrencyExchangeUpdateManyWithoutToAccountNestedInput
+  recurringAsAccount?: Prisma.RecurringRuleUpdateManyWithoutAccountNestedInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUpdateManyWithoutCounterpartyAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutTransactionsInput = {
@@ -855,6 +913,8 @@ export type FinanceAccountUncheckedUpdateWithoutTransactionsInput = {
   linkedGoals?: Prisma.GoalUncheckedUpdateManyWithoutLinkedAccountNestedInput
   exchangesFrom?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutFromAccountNestedInput
   exchangesTo?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutToAccountNestedInput
+  recurringAsAccount?: Prisma.RecurringRuleUncheckedUpdateManyWithoutAccountNestedInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUncheckedUpdateManyWithoutCounterpartyAccountNestedInput
 }
 
 export type FinanceAccountUpsertWithoutIncomingTransfersInput = {
@@ -883,6 +943,8 @@ export type FinanceAccountUpdateWithoutIncomingTransfersInput = {
   linkedGoals?: Prisma.GoalUpdateManyWithoutLinkedAccountNestedInput
   exchangesFrom?: Prisma.CurrencyExchangeUpdateManyWithoutFromAccountNestedInput
   exchangesTo?: Prisma.CurrencyExchangeUpdateManyWithoutToAccountNestedInput
+  recurringAsAccount?: Prisma.RecurringRuleUpdateManyWithoutAccountNestedInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUpdateManyWithoutCounterpartyAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutIncomingTransfersInput = {
@@ -900,6 +962,192 @@ export type FinanceAccountUncheckedUpdateWithoutIncomingTransfersInput = {
   linkedGoals?: Prisma.GoalUncheckedUpdateManyWithoutLinkedAccountNestedInput
   exchangesFrom?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutFromAccountNestedInput
   exchangesTo?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutToAccountNestedInput
+  recurringAsAccount?: Prisma.RecurringRuleUncheckedUpdateManyWithoutAccountNestedInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUncheckedUpdateManyWithoutCounterpartyAccountNestedInput
+}
+
+export type FinanceAccountCreateWithoutRecurringAsAccountInput = {
+  id?: string
+  name: string
+  type: $Enums.AccountType
+  currency: string
+  initialBalanceCents?: number
+  creditLimitCents?: number | null
+  isArchived?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutFinanceAccountsInput
+  transactions?: Prisma.TransactionCreateNestedManyWithoutAccountInput
+  incomingTransfers?: Prisma.TransactionCreateNestedManyWithoutCounterpartyAccountInput
+  linkedGoals?: Prisma.GoalCreateNestedManyWithoutLinkedAccountInput
+  exchangesFrom?: Prisma.CurrencyExchangeCreateNestedManyWithoutFromAccountInput
+  exchangesTo?: Prisma.CurrencyExchangeCreateNestedManyWithoutToAccountInput
+  recurringAsCounterparty?: Prisma.RecurringRuleCreateNestedManyWithoutCounterpartyAccountInput
+}
+
+export type FinanceAccountUncheckedCreateWithoutRecurringAsAccountInput = {
+  id?: string
+  workspaceId: string
+  name: string
+  type: $Enums.AccountType
+  currency: string
+  initialBalanceCents?: number
+  creditLimitCents?: number | null
+  isArchived?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutAccountInput
+  incomingTransfers?: Prisma.TransactionUncheckedCreateNestedManyWithoutCounterpartyAccountInput
+  linkedGoals?: Prisma.GoalUncheckedCreateNestedManyWithoutLinkedAccountInput
+  exchangesFrom?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutFromAccountInput
+  exchangesTo?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutToAccountInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutCounterpartyAccountInput
+}
+
+export type FinanceAccountCreateOrConnectWithoutRecurringAsAccountInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutRecurringAsAccountInput, Prisma.FinanceAccountUncheckedCreateWithoutRecurringAsAccountInput>
+}
+
+export type FinanceAccountCreateWithoutRecurringAsCounterpartyInput = {
+  id?: string
+  name: string
+  type: $Enums.AccountType
+  currency: string
+  initialBalanceCents?: number
+  creditLimitCents?: number | null
+  isArchived?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  workspace: Prisma.WorkspaceCreateNestedOneWithoutFinanceAccountsInput
+  transactions?: Prisma.TransactionCreateNestedManyWithoutAccountInput
+  incomingTransfers?: Prisma.TransactionCreateNestedManyWithoutCounterpartyAccountInput
+  linkedGoals?: Prisma.GoalCreateNestedManyWithoutLinkedAccountInput
+  exchangesFrom?: Prisma.CurrencyExchangeCreateNestedManyWithoutFromAccountInput
+  exchangesTo?: Prisma.CurrencyExchangeCreateNestedManyWithoutToAccountInput
+  recurringAsAccount?: Prisma.RecurringRuleCreateNestedManyWithoutAccountInput
+}
+
+export type FinanceAccountUncheckedCreateWithoutRecurringAsCounterpartyInput = {
+  id?: string
+  workspaceId: string
+  name: string
+  type: $Enums.AccountType
+  currency: string
+  initialBalanceCents?: number
+  creditLimitCents?: number | null
+  isArchived?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutAccountInput
+  incomingTransfers?: Prisma.TransactionUncheckedCreateNestedManyWithoutCounterpartyAccountInput
+  linkedGoals?: Prisma.GoalUncheckedCreateNestedManyWithoutLinkedAccountInput
+  exchangesFrom?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutFromAccountInput
+  exchangesTo?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutToAccountInput
+  recurringAsAccount?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutAccountInput
+}
+
+export type FinanceAccountCreateOrConnectWithoutRecurringAsCounterpartyInput = {
+  where: Prisma.FinanceAccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutRecurringAsCounterpartyInput, Prisma.FinanceAccountUncheckedCreateWithoutRecurringAsCounterpartyInput>
+}
+
+export type FinanceAccountUpsertWithoutRecurringAsAccountInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutRecurringAsAccountInput, Prisma.FinanceAccountUncheckedUpdateWithoutRecurringAsAccountInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutRecurringAsAccountInput, Prisma.FinanceAccountUncheckedCreateWithoutRecurringAsAccountInput>
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+export type FinanceAccountUpdateToOneWithWhereWithoutRecurringAsAccountInput = {
+  where?: Prisma.FinanceAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutRecurringAsAccountInput, Prisma.FinanceAccountUncheckedUpdateWithoutRecurringAsAccountInput>
+}
+
+export type FinanceAccountUpdateWithoutRecurringAsAccountInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumAccountTypeFieldUpdateOperationsInput | $Enums.AccountType
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  initialBalanceCents?: Prisma.IntFieldUpdateOperationsInput | number
+  creditLimitCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutFinanceAccountsNestedInput
+  transactions?: Prisma.TransactionUpdateManyWithoutAccountNestedInput
+  incomingTransfers?: Prisma.TransactionUpdateManyWithoutCounterpartyAccountNestedInput
+  linkedGoals?: Prisma.GoalUpdateManyWithoutLinkedAccountNestedInput
+  exchangesFrom?: Prisma.CurrencyExchangeUpdateManyWithoutFromAccountNestedInput
+  exchangesTo?: Prisma.CurrencyExchangeUpdateManyWithoutToAccountNestedInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUpdateManyWithoutCounterpartyAccountNestedInput
+}
+
+export type FinanceAccountUncheckedUpdateWithoutRecurringAsAccountInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumAccountTypeFieldUpdateOperationsInput | $Enums.AccountType
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  initialBalanceCents?: Prisma.IntFieldUpdateOperationsInput | number
+  creditLimitCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutAccountNestedInput
+  incomingTransfers?: Prisma.TransactionUncheckedUpdateManyWithoutCounterpartyAccountNestedInput
+  linkedGoals?: Prisma.GoalUncheckedUpdateManyWithoutLinkedAccountNestedInput
+  exchangesFrom?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutFromAccountNestedInput
+  exchangesTo?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutToAccountNestedInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUncheckedUpdateManyWithoutCounterpartyAccountNestedInput
+}
+
+export type FinanceAccountUpsertWithoutRecurringAsCounterpartyInput = {
+  update: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutRecurringAsCounterpartyInput, Prisma.FinanceAccountUncheckedUpdateWithoutRecurringAsCounterpartyInput>
+  create: Prisma.XOR<Prisma.FinanceAccountCreateWithoutRecurringAsCounterpartyInput, Prisma.FinanceAccountUncheckedCreateWithoutRecurringAsCounterpartyInput>
+  where?: Prisma.FinanceAccountWhereInput
+}
+
+export type FinanceAccountUpdateToOneWithWhereWithoutRecurringAsCounterpartyInput = {
+  where?: Prisma.FinanceAccountWhereInput
+  data: Prisma.XOR<Prisma.FinanceAccountUpdateWithoutRecurringAsCounterpartyInput, Prisma.FinanceAccountUncheckedUpdateWithoutRecurringAsCounterpartyInput>
+}
+
+export type FinanceAccountUpdateWithoutRecurringAsCounterpartyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumAccountTypeFieldUpdateOperationsInput | $Enums.AccountType
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  initialBalanceCents?: Prisma.IntFieldUpdateOperationsInput | number
+  creditLimitCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutFinanceAccountsNestedInput
+  transactions?: Prisma.TransactionUpdateManyWithoutAccountNestedInput
+  incomingTransfers?: Prisma.TransactionUpdateManyWithoutCounterpartyAccountNestedInput
+  linkedGoals?: Prisma.GoalUpdateManyWithoutLinkedAccountNestedInput
+  exchangesFrom?: Prisma.CurrencyExchangeUpdateManyWithoutFromAccountNestedInput
+  exchangesTo?: Prisma.CurrencyExchangeUpdateManyWithoutToAccountNestedInput
+  recurringAsAccount?: Prisma.RecurringRuleUpdateManyWithoutAccountNestedInput
+}
+
+export type FinanceAccountUncheckedUpdateWithoutRecurringAsCounterpartyInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumAccountTypeFieldUpdateOperationsInput | $Enums.AccountType
+  currency?: Prisma.StringFieldUpdateOperationsInput | string
+  initialBalanceCents?: Prisma.IntFieldUpdateOperationsInput | number
+  creditLimitCents?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutAccountNestedInput
+  incomingTransfers?: Prisma.TransactionUncheckedUpdateManyWithoutCounterpartyAccountNestedInput
+  linkedGoals?: Prisma.GoalUncheckedUpdateManyWithoutLinkedAccountNestedInput
+  exchangesFrom?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutFromAccountNestedInput
+  exchangesTo?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutToAccountNestedInput
+  recurringAsAccount?: Prisma.RecurringRuleUncheckedUpdateManyWithoutAccountNestedInput
 }
 
 export type FinanceAccountCreateWithoutExchangesFromInput = {
@@ -917,6 +1165,8 @@ export type FinanceAccountCreateWithoutExchangesFromInput = {
   incomingTransfers?: Prisma.TransactionCreateNestedManyWithoutCounterpartyAccountInput
   linkedGoals?: Prisma.GoalCreateNestedManyWithoutLinkedAccountInput
   exchangesTo?: Prisma.CurrencyExchangeCreateNestedManyWithoutToAccountInput
+  recurringAsAccount?: Prisma.RecurringRuleCreateNestedManyWithoutAccountInput
+  recurringAsCounterparty?: Prisma.RecurringRuleCreateNestedManyWithoutCounterpartyAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutExchangesFromInput = {
@@ -934,6 +1184,8 @@ export type FinanceAccountUncheckedCreateWithoutExchangesFromInput = {
   incomingTransfers?: Prisma.TransactionUncheckedCreateNestedManyWithoutCounterpartyAccountInput
   linkedGoals?: Prisma.GoalUncheckedCreateNestedManyWithoutLinkedAccountInput
   exchangesTo?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutToAccountInput
+  recurringAsAccount?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutAccountInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutCounterpartyAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutExchangesFromInput = {
@@ -956,6 +1208,8 @@ export type FinanceAccountCreateWithoutExchangesToInput = {
   incomingTransfers?: Prisma.TransactionCreateNestedManyWithoutCounterpartyAccountInput
   linkedGoals?: Prisma.GoalCreateNestedManyWithoutLinkedAccountInput
   exchangesFrom?: Prisma.CurrencyExchangeCreateNestedManyWithoutFromAccountInput
+  recurringAsAccount?: Prisma.RecurringRuleCreateNestedManyWithoutAccountInput
+  recurringAsCounterparty?: Prisma.RecurringRuleCreateNestedManyWithoutCounterpartyAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutExchangesToInput = {
@@ -973,6 +1227,8 @@ export type FinanceAccountUncheckedCreateWithoutExchangesToInput = {
   incomingTransfers?: Prisma.TransactionUncheckedCreateNestedManyWithoutCounterpartyAccountInput
   linkedGoals?: Prisma.GoalUncheckedCreateNestedManyWithoutLinkedAccountInput
   exchangesFrom?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutFromAccountInput
+  recurringAsAccount?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutAccountInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutCounterpartyAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutExchangesToInput = {
@@ -1006,6 +1262,8 @@ export type FinanceAccountUpdateWithoutExchangesFromInput = {
   incomingTransfers?: Prisma.TransactionUpdateManyWithoutCounterpartyAccountNestedInput
   linkedGoals?: Prisma.GoalUpdateManyWithoutLinkedAccountNestedInput
   exchangesTo?: Prisma.CurrencyExchangeUpdateManyWithoutToAccountNestedInput
+  recurringAsAccount?: Prisma.RecurringRuleUpdateManyWithoutAccountNestedInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUpdateManyWithoutCounterpartyAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutExchangesFromInput = {
@@ -1023,6 +1281,8 @@ export type FinanceAccountUncheckedUpdateWithoutExchangesFromInput = {
   incomingTransfers?: Prisma.TransactionUncheckedUpdateManyWithoutCounterpartyAccountNestedInput
   linkedGoals?: Prisma.GoalUncheckedUpdateManyWithoutLinkedAccountNestedInput
   exchangesTo?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutToAccountNestedInput
+  recurringAsAccount?: Prisma.RecurringRuleUncheckedUpdateManyWithoutAccountNestedInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUncheckedUpdateManyWithoutCounterpartyAccountNestedInput
 }
 
 export type FinanceAccountUpsertWithoutExchangesToInput = {
@@ -1051,6 +1311,8 @@ export type FinanceAccountUpdateWithoutExchangesToInput = {
   incomingTransfers?: Prisma.TransactionUpdateManyWithoutCounterpartyAccountNestedInput
   linkedGoals?: Prisma.GoalUpdateManyWithoutLinkedAccountNestedInput
   exchangesFrom?: Prisma.CurrencyExchangeUpdateManyWithoutFromAccountNestedInput
+  recurringAsAccount?: Prisma.RecurringRuleUpdateManyWithoutAccountNestedInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUpdateManyWithoutCounterpartyAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutExchangesToInput = {
@@ -1068,6 +1330,8 @@ export type FinanceAccountUncheckedUpdateWithoutExchangesToInput = {
   incomingTransfers?: Prisma.TransactionUncheckedUpdateManyWithoutCounterpartyAccountNestedInput
   linkedGoals?: Prisma.GoalUncheckedUpdateManyWithoutLinkedAccountNestedInput
   exchangesFrom?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutFromAccountNestedInput
+  recurringAsAccount?: Prisma.RecurringRuleUncheckedUpdateManyWithoutAccountNestedInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUncheckedUpdateManyWithoutCounterpartyAccountNestedInput
 }
 
 export type FinanceAccountCreateWithoutLinkedGoalsInput = {
@@ -1085,6 +1349,8 @@ export type FinanceAccountCreateWithoutLinkedGoalsInput = {
   incomingTransfers?: Prisma.TransactionCreateNestedManyWithoutCounterpartyAccountInput
   exchangesFrom?: Prisma.CurrencyExchangeCreateNestedManyWithoutFromAccountInput
   exchangesTo?: Prisma.CurrencyExchangeCreateNestedManyWithoutToAccountInput
+  recurringAsAccount?: Prisma.RecurringRuleCreateNestedManyWithoutAccountInput
+  recurringAsCounterparty?: Prisma.RecurringRuleCreateNestedManyWithoutCounterpartyAccountInput
 }
 
 export type FinanceAccountUncheckedCreateWithoutLinkedGoalsInput = {
@@ -1102,6 +1368,8 @@ export type FinanceAccountUncheckedCreateWithoutLinkedGoalsInput = {
   incomingTransfers?: Prisma.TransactionUncheckedCreateNestedManyWithoutCounterpartyAccountInput
   exchangesFrom?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutFromAccountInput
   exchangesTo?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutToAccountInput
+  recurringAsAccount?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutAccountInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutCounterpartyAccountInput
 }
 
 export type FinanceAccountCreateOrConnectWithoutLinkedGoalsInput = {
@@ -1135,6 +1403,8 @@ export type FinanceAccountUpdateWithoutLinkedGoalsInput = {
   incomingTransfers?: Prisma.TransactionUpdateManyWithoutCounterpartyAccountNestedInput
   exchangesFrom?: Prisma.CurrencyExchangeUpdateManyWithoutFromAccountNestedInput
   exchangesTo?: Prisma.CurrencyExchangeUpdateManyWithoutToAccountNestedInput
+  recurringAsAccount?: Prisma.RecurringRuleUpdateManyWithoutAccountNestedInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUpdateManyWithoutCounterpartyAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutLinkedGoalsInput = {
@@ -1152,6 +1422,8 @@ export type FinanceAccountUncheckedUpdateWithoutLinkedGoalsInput = {
   incomingTransfers?: Prisma.TransactionUncheckedUpdateManyWithoutCounterpartyAccountNestedInput
   exchangesFrom?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutFromAccountNestedInput
   exchangesTo?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutToAccountNestedInput
+  recurringAsAccount?: Prisma.RecurringRuleUncheckedUpdateManyWithoutAccountNestedInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUncheckedUpdateManyWithoutCounterpartyAccountNestedInput
 }
 
 export type FinanceAccountCreateManyWorkspaceInput = {
@@ -1181,6 +1453,8 @@ export type FinanceAccountUpdateWithoutWorkspaceInput = {
   linkedGoals?: Prisma.GoalUpdateManyWithoutLinkedAccountNestedInput
   exchangesFrom?: Prisma.CurrencyExchangeUpdateManyWithoutFromAccountNestedInput
   exchangesTo?: Prisma.CurrencyExchangeUpdateManyWithoutToAccountNestedInput
+  recurringAsAccount?: Prisma.RecurringRuleUpdateManyWithoutAccountNestedInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUpdateManyWithoutCounterpartyAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateWithoutWorkspaceInput = {
@@ -1198,6 +1472,8 @@ export type FinanceAccountUncheckedUpdateWithoutWorkspaceInput = {
   linkedGoals?: Prisma.GoalUncheckedUpdateManyWithoutLinkedAccountNestedInput
   exchangesFrom?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutFromAccountNestedInput
   exchangesTo?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutToAccountNestedInput
+  recurringAsAccount?: Prisma.RecurringRuleUncheckedUpdateManyWithoutAccountNestedInput
+  recurringAsCounterparty?: Prisma.RecurringRuleUncheckedUpdateManyWithoutCounterpartyAccountNestedInput
 }
 
 export type FinanceAccountUncheckedUpdateManyWithoutWorkspaceInput = {
@@ -1223,6 +1499,8 @@ export type FinanceAccountCountOutputType = {
   linkedGoals: number
   exchangesFrom: number
   exchangesTo: number
+  recurringAsAccount: number
+  recurringAsCounterparty: number
 }
 
 export type FinanceAccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1231,6 +1509,8 @@ export type FinanceAccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Ex
   linkedGoals?: boolean | FinanceAccountCountOutputTypeCountLinkedGoalsArgs
   exchangesFrom?: boolean | FinanceAccountCountOutputTypeCountExchangesFromArgs
   exchangesTo?: boolean | FinanceAccountCountOutputTypeCountExchangesToArgs
+  recurringAsAccount?: boolean | FinanceAccountCountOutputTypeCountRecurringAsAccountArgs
+  recurringAsCounterparty?: boolean | FinanceAccountCountOutputTypeCountRecurringAsCounterpartyArgs
 }
 
 /**
@@ -1278,6 +1558,20 @@ export type FinanceAccountCountOutputTypeCountExchangesToArgs<ExtArgs extends ru
   where?: Prisma.CurrencyExchangeWhereInput
 }
 
+/**
+ * FinanceAccountCountOutputType without action
+ */
+export type FinanceAccountCountOutputTypeCountRecurringAsAccountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RecurringRuleWhereInput
+}
+
+/**
+ * FinanceAccountCountOutputType without action
+ */
+export type FinanceAccountCountOutputTypeCountRecurringAsCounterpartyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RecurringRuleWhereInput
+}
+
 
 export type FinanceAccountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1296,6 +1590,8 @@ export type FinanceAccountSelect<ExtArgs extends runtime.Types.Extensions.Intern
   linkedGoals?: boolean | Prisma.FinanceAccount$linkedGoalsArgs<ExtArgs>
   exchangesFrom?: boolean | Prisma.FinanceAccount$exchangesFromArgs<ExtArgs>
   exchangesTo?: boolean | Prisma.FinanceAccount$exchangesToArgs<ExtArgs>
+  recurringAsAccount?: boolean | Prisma.FinanceAccount$recurringAsAccountArgs<ExtArgs>
+  recurringAsCounterparty?: boolean | Prisma.FinanceAccount$recurringAsCounterpartyArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceAccountCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeAccount"]>
 
@@ -1348,6 +1644,8 @@ export type FinanceAccountInclude<ExtArgs extends runtime.Types.Extensions.Inter
   linkedGoals?: boolean | Prisma.FinanceAccount$linkedGoalsArgs<ExtArgs>
   exchangesFrom?: boolean | Prisma.FinanceAccount$exchangesFromArgs<ExtArgs>
   exchangesTo?: boolean | Prisma.FinanceAccount$exchangesToArgs<ExtArgs>
+  recurringAsAccount?: boolean | Prisma.FinanceAccount$recurringAsAccountArgs<ExtArgs>
+  recurringAsCounterparty?: boolean | Prisma.FinanceAccount$recurringAsCounterpartyArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceAccountCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinanceAccountIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1366,6 +1664,8 @@ export type $FinanceAccountPayload<ExtArgs extends runtime.Types.Extensions.Inte
     linkedGoals: Prisma.$GoalPayload<ExtArgs>[]
     exchangesFrom: Prisma.$CurrencyExchangePayload<ExtArgs>[]
     exchangesTo: Prisma.$CurrencyExchangePayload<ExtArgs>[]
+    recurringAsAccount: Prisma.$RecurringRulePayload<ExtArgs>[]
+    recurringAsCounterparty: Prisma.$RecurringRulePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1778,6 +2078,8 @@ export interface Prisma__FinanceAccountClient<T, Null = never, ExtArgs extends r
   linkedGoals<T extends Prisma.FinanceAccount$linkedGoalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$linkedGoalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GoalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   exchangesFrom<T extends Prisma.FinanceAccount$exchangesFromArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$exchangesFromArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CurrencyExchangePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   exchangesTo<T extends Prisma.FinanceAccount$exchangesToArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$exchangesToArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CurrencyExchangePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  recurringAsAccount<T extends Prisma.FinanceAccount$recurringAsAccountArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$recurringAsAccountArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecurringRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  recurringAsCounterparty<T extends Prisma.FinanceAccount$recurringAsCounterpartyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAccount$recurringAsCounterpartyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecurringRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2335,6 +2637,54 @@ export type FinanceAccount$exchangesToArgs<ExtArgs extends runtime.Types.Extensi
   take?: number
   skip?: number
   distinct?: Prisma.CurrencyExchangeScalarFieldEnum | Prisma.CurrencyExchangeScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccount.recurringAsAccount
+ */
+export type FinanceAccount$recurringAsAccountArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RecurringRule
+   */
+  select?: Prisma.RecurringRuleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RecurringRule
+   */
+  omit?: Prisma.RecurringRuleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RecurringRuleInclude<ExtArgs> | null
+  where?: Prisma.RecurringRuleWhereInput
+  orderBy?: Prisma.RecurringRuleOrderByWithRelationInput | Prisma.RecurringRuleOrderByWithRelationInput[]
+  cursor?: Prisma.RecurringRuleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RecurringRuleScalarFieldEnum | Prisma.RecurringRuleScalarFieldEnum[]
+}
+
+/**
+ * FinanceAccount.recurringAsCounterparty
+ */
+export type FinanceAccount$recurringAsCounterpartyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the RecurringRule
+   */
+  select?: Prisma.RecurringRuleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the RecurringRule
+   */
+  omit?: Prisma.RecurringRuleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RecurringRuleInclude<ExtArgs> | null
+  where?: Prisma.RecurringRuleWhereInput
+  orderBy?: Prisma.RecurringRuleOrderByWithRelationInput | Prisma.RecurringRuleOrderByWithRelationInput[]
+  cursor?: Prisma.RecurringRuleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RecurringRuleScalarFieldEnum | Prisma.RecurringRuleScalarFieldEnum[]
 }
 
 /**

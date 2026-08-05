@@ -47,6 +47,7 @@
 | 15 | [Onboarding de workspace](./specs/15-workspace-onboarding.md) | P0 |
 | 16 | [Canje de moneda (FX)](./specs/16-currency-exchange.md) | P1 |
 | 17 | [Landing de marketing](./specs/17-marketing-landing.md) | P0 |
+| 18 | [Transacciones recurrentes](./specs/18-recurring-transactions.md) | P1 |
 
 ## Decisiones de arquitectura (ADR)
 

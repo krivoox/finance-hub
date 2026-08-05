@@ -47,7 +47,7 @@ export function EditTransactionSheet({
     <FormSheet
       open={open}
       onOpenChange={setOpen}
-      title="Editar movimiento"
+      title="Editar transacción"
       description={
         linkedToGoal
           ? "Aporte a objetivo: solo fecha y descripción."

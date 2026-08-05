@@ -17,6 +17,7 @@ import {
   FormSection,
   FormStack,
 } from "@/components/form-sheet";
+import { DateField } from "@/components/date-field";
 import { Button } from "@/components/ui/button";
 import { refreshAfterMutation } from "@/lib/navigation";
 import { Input } from "@/components/ui/input";
@@ -211,21 +212,39 @@ export function NewBudgetForm({
 
         <FormSection title="Vigencia">
           <FormField label="Inicio" htmlFor="budget-start">
-            <Input
-              id="budget-start"
-              type="date"
-              aria-invalid={Boolean(errors.startDate)}
-              {...register("startDate", { required: true })}
+            <Controller
+              control={control}
+              name="startDate"
+              rules={{ required: true }}
+              render={({ field }) => (
+                <DateField
+                  id="budget-start"
+                  name={field.name}
+                  value={field.value}
+                  onChange={field.onChange}
+                  onBlur={field.onBlur}
+                  invalid={Boolean(errors.startDate)}
+                />
+              )}
             />
           </FormField>
 
           {showEndDate ? (
             <FormField label="Fin" htmlFor="budget-end">
-              <Input
-                id="budget-end"
-                type="date"
-                aria-invalid={Boolean(errors.endDate)}
-                {...register("endDate", { required: showEndDate })}
+              <Controller
+                control={control}
+                name="endDate"
+                rules={{ required: showEndDate }}
+                render={({ field }) => (
+                  <DateField
+                    id="budget-end"
+                    name={field.name}
+                    value={field.value}
+                    onChange={field.onChange}
+                    onBlur={field.onBlur}
+                    invalid={Boolean(errors.endDate)}
+                  />
+                )}
               />
             </FormField>
           ) : null}

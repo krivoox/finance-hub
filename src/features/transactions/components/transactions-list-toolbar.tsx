@@ -11,9 +11,9 @@ import {
   FormStack,
   SegmentedControl,
 } from "@/components/form-sheet";
+import { DateField } from "@/components/date-field";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { nativeSelectClassName } from "@/components/ui/native-select";
 import { cn } from "@/lib/utils";
 
@@ -285,14 +285,16 @@ export function TransactionsListToolbar({
       >
         <FormStack>
           <FormField label="Desde" htmlFor="tx-filter-from" optional>
-            <Input
+            <DateField
               id="tx-filter-from"
-              type="date"
-              className="h-10 sm:h-9"
+              triggerClassName="h-10 sm:h-9"
+              clearable
+              placeholder="Sin límite"
               value={draftFrom}
-              aria-invalid={Boolean(rangeError)}
-              onChange={(e) => {
-                setDraftFrom(e.target.value);
+              invalid={Boolean(rangeError)}
+              max={draftTo || undefined}
+              onChange={(next) => {
+                setDraftFrom(next);
                 setRangeError(null);
               }}
             />
@@ -303,14 +305,16 @@ export function TransactionsListToolbar({
             optional
             error={rangeError ?? undefined}
           >
-            <Input
+            <DateField
               id="tx-filter-to"
-              type="date"
-              className="h-10 sm:h-9"
+              triggerClassName="h-10 sm:h-9"
+              clearable
+              placeholder="Sin límite"
               value={draftTo}
-              aria-invalid={Boolean(rangeError)}
-              onChange={(e) => {
-                setDraftTo(e.target.value);
+              invalid={Boolean(rangeError)}
+              min={draftFrom || undefined}
+              onChange={(next) => {
+                setDraftTo(next);
                 setRangeError(null);
               }}
             />
