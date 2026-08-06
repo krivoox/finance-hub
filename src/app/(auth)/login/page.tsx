@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { LoginForm } from "@/features/auth/components/login-form";
 import { OAuthErrorToast } from "@/features/auth/components/oauth-error-toast";
-import { isGoogleOAuthEnabled } from "@/lib/env";
+import { env, isGoogleOAuthEnabled } from "@/lib/env";
 import { getSession } from "@/lib/session";
 
 export const metadata = {
@@ -64,6 +64,7 @@ export default async function LoginPage({
         inviteToken={invite}
         prefillEmail={email}
         googleEnabled={isGoogleOAuthEnabled}
+        googleClientId={env.GOOGLE_CLIENT_ID}
       />
 
       <div className="space-y-2 text-center text-xs text-muted-foreground">

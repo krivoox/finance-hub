@@ -4,6 +4,7 @@ import { useEffect, useState, startTransition } from "react";
 import { Download, Share, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { isStandaloneDisplay } from "@/lib/pwa-display";
 import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "fh:pwa-install:v1";
@@ -37,13 +38,6 @@ function writeDismissed() {
   } catch {
     // private mode / quota
   }
-}
-
-function isStandaloneDisplay(): boolean {
-  if (window.matchMedia("(display-mode: standalone)").matches) return true;
-  if (window.matchMedia("(display-mode: fullscreen)").matches) return true;
-  const nav = window.navigator as Navigator & { standalone?: boolean };
-  return nav.standalone === true;
 }
 
 function isIosDevice(): boolean {
@@ -129,7 +123,9 @@ export function InstallPrompt() {
       aria-labelledby="pwa-install-title"
       aria-describedby="pwa-install-desc"
       className={cn(
-        "fixed inset-x-0 bottom-0 z-50 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2",
+        "fixed inset-x-0 z-50 px-3 pt-2",
+        /* Sit above the floating mobile tab bar */
+        "bottom-[calc(4.75rem+env(safe-area-inset-bottom))]",
         "md:hidden",
       )}
     >

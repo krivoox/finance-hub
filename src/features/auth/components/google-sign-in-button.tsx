@@ -3,7 +3,10 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { signIn } from "@/lib/auth-client";
+import { isStandaloneDisplay } from "@/lib/pwa-display";
 import { rememberInviteTokenAction } from "@/features/workspaces/actions";
+import { requestGoogleIdToken } from "@/features/auth/lib/google-id-token";
+import { resolveGoogleCallbackURL } from "@/features/auth/lib/google-callback-url";
 import { Button } from "@/components/ui/button";
 
 function GoogleGlyph({ className }: { className?: string }) {
@@ -22,35 +25,47 @@ function GoogleGlyph({ className }: { className?: string }) {
   );
 }
 
-export function resolveGoogleCallbackURL({
+async function signInWithGoogleRedirect(callbackURL: string) {
+  const { error } = await signIn.social({
+    provider: "google",
+    callbackURL,
+  });
+  return error;
+}
+
+async function signInWithGoogleIdToken({
+  clientId,
   mode,
-  inviteToken,
-  callbackUrl,
+  callbackURL,
 }: {
+  clientId: string;
   mode: "login" | "register";
-  inviteToken?: string;
-  callbackUrl?: string;
-}): string {
-  if (inviteToken) {
-    return `/invitaciones/${inviteToken}`;
-  }
-  if (mode === "register") {
-    return "/onboarding";
-  }
-  if (callbackUrl?.startsWith("/")) {
-    return callbackUrl;
-  }
-  return "/dashboard";
+  callbackURL: string;
+}) {
+  const token = await requestGoogleIdToken({
+    clientId,
+    context: mode === "register" ? "signup" : "signin",
+  });
+
+  const { error } = await signIn.social({
+    provider: "google",
+    idToken: { token },
+    callbackURL,
+  });
+  return error;
 }
 
 export function GoogleSignInButton({
   mode,
   inviteToken,
   callbackUrl,
+  googleClientId,
 }: {
   mode: "login" | "register";
   inviteToken?: string;
   callbackUrl?: string;
+  /** Public OAuth client id for GIS id_token in installed PWAs. */
+  googleClientId?: string;
 }) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -66,18 +81,47 @@ export function GoogleSignInButton({
       }
     }
 
-    const { error } = await signIn.social({
-      provider: "google",
-      callbackURL: resolveGoogleCallbackURL({ mode, inviteToken, callbackUrl }),
+    const callbackURL = resolveGoogleCallbackURL({
+      mode,
+      inviteToken,
+      callbackUrl,
     });
 
-    if (error) {
+    try {
+      // Installed PWA (esp. iOS): full-page OAuth leaves the standalone
+      // cookie jar; prefer in-page GIS id_token so the session stays here.
+      const preferIdToken =
+        Boolean(googleClientId) && isStandaloneDisplay();
+
+      if (preferIdToken && googleClientId) {
+        try {
+          const idTokenError = await signInWithGoogleIdToken({
+            clientId: googleClientId,
+            mode,
+            callbackURL,
+          });
+          if (!idTokenError) {
+            window.location.assign(callbackURL);
+            return;
+          }
+        } catch {
+          // GIS prompt blocked / FedCM unavailable → classic redirect below.
+        }
+      }
+
+      const error = await signInWithGoogleRedirect(callbackURL);
+      if (error) {
+        setIsLoading(false);
+        toast.error(
+          error.message ??
+            "No pudimos continuar con Google. Intentá de nuevo.",
+        );
+      }
+      // On success Better Auth redirects away; keep loading state.
+    } catch {
       setIsLoading(false);
-      toast.error(
-        error.message ?? "No pudimos continuar con Google. Intentá de nuevo.",
-      );
+      toast.error("No pudimos continuar con Google. Intentá de nuevo.");
     }
-    // On success Better Auth redirects away; keep loading state.
   };
 
   return (
@@ -89,7 +133,7 @@ export function GoogleSignInButton({
       onClick={() => void onClick()}
     >
       <GoogleGlyph className="size-4 text-foreground" />
-      {isLoading ? "Redirigiendo…" : "Continuar con Google"}
+      {isLoading ? "Conectando…" : "Continuar con Google"}
     </Button>
   );
 }

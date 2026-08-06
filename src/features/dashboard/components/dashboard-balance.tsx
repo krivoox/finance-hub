@@ -109,7 +109,7 @@ export function DashboardBalance({
       ) : null}
 
       {variation !== null ? (
-        <div className="mt-5 flex justify-end border-t border-border pt-4">
+        <div className="mt-4 flex justify-end border-t border-border pt-3 sm:mt-5 sm:pt-4">
           <Badge
             variant={
               variationPositive
@@ -130,18 +130,21 @@ export function DashboardBalance({
           </Badge>
         </div>
       ) : (
-        <div className="mt-5 border-t border-border" />
+        <div className="mt-4 border-t border-border sm:mt-5" />
       )}
 
-      <MonthlyNetBars
-        points={netTrend.points}
-        maxAbsNetCents={netTrend.maxAbsNetCents}
-        maxIncomeCents={netTrend.maxIncomeCents}
-        maxExpenseCents={netTrend.maxExpenseCents}
-        currency={cashflow.currency}
-      />
+      {/* Serie mensual: densa para desktop; en móvil el glance es la barra de gastos. */}
+      <div className="hidden md:block">
+        <MonthlyNetBars
+          points={netTrend.points}
+          maxAbsNetCents={netTrend.maxAbsNetCents}
+          maxIncomeCents={netTrend.maxIncomeCents}
+          maxExpenseCents={netTrend.maxExpenseCents}
+          currency={cashflow.currency}
+        />
+      </div>
 
-      <div className="mt-5 grid grid-cols-2 gap-4 border-t border-border pt-4 sm:grid-cols-3">
+      <div className="mt-4 grid grid-cols-2 gap-3 border-t border-border pt-3 sm:mt-5 sm:grid-cols-3 sm:gap-4 sm:pt-4">
         <KpiTile
           variant="plain"
           size="sm"

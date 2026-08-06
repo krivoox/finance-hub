@@ -21,11 +21,13 @@ export function LoginForm({
   inviteToken,
   prefillEmail,
   googleEnabled = false,
+  googleClientId,
 }: {
   callbackUrl?: string;
   inviteToken?: string;
   prefillEmail?: string;
   googleEnabled?: boolean;
+  googleClientId?: string;
 }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,7 +50,11 @@ export function LoginForm({
 
     if (error) {
       setIsSubmitting(false);
-      toast.error("No se pudo iniciar sesión. Revisá email y contraseña.");
+      toast.error("No se pudo iniciar sesión", {
+        description: googleEnabled
+          ? "Revisá email y contraseña. Si creaste la cuenta con Google, usá Continuar con Google (no hay contraseña aún)."
+          : "Revisá email y contraseña.",
+      });
       return;
     }
 
@@ -75,6 +81,7 @@ export function LoginForm({
             mode="login"
             inviteToken={inviteToken}
             callbackUrl={callbackUrl}
+            googleClientId={googleClientId}
           />
           <AuthMethodDivider />
         </>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { RegisterForm } from "@/features/auth/components/register-form";
-import { isGoogleOAuthEnabled } from "@/lib/env";
+import { env, isGoogleOAuthEnabled } from "@/lib/env";
 import { getSession } from "@/lib/session";
 
 export const metadata = {
@@ -40,6 +40,7 @@ export default async function RegisterPage({
         inviteToken={invite}
         prefillEmail={email}
         googleEnabled={isGoogleOAuthEnabled}
+        googleClientId={env.GOOGLE_CLIENT_ID}
       />
 
       <p className="text-center text-xs text-muted-foreground">

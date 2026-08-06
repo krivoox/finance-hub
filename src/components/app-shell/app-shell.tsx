@@ -11,11 +11,16 @@ import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { NewTransactionSheet } from "@/features/transactions/components/new-transaction-sheet";
 
 import { AppSidebar, type AppSidebarProps } from "./app-sidebar";
+import { MobileTabBar } from "./mobile-tab-bar";
 import { getPageTitle } from "./nav-config";
 
 type AppShellProps = AppSidebarProps & {
   children: React.ReactNode;
 };
+
+/** Space reserved for the floating mobile tab bar + safe area. */
+const MOBILE_TAB_BAR_CLEARANCE =
+  "pb-[calc(4.75rem+env(safe-area-inset-bottom))] md:pb-3";
 
 export function AppShell({
   children,
@@ -40,18 +45,39 @@ export function AppShell({
         Mobile: document/body scrolls (no nested overflow trap).
         md+: capped viewport + nested scroll inside ContentPanel.
       */}
-      <SidebarInset className="flex min-h-svh flex-col md:h-svh md:max-h-svh md:overflow-hidden">
-        <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center gap-2 border-b border-border bg-background px-3 pt-[env(safe-area-inset-top)] sm:px-4 md:static md:bg-transparent md:border-transparent">
+      {/*
+        Mobile: canvas = bg-card (same as edge-to-edge ContentPanel) so the
+        tab-bar clearance / safe-area isn’t the near-black bg-background.
+        md+: restore bg-background — charcoal canvas around the floating panel.
+      */}
+      <SidebarInset className="flex min-h-svh flex-col bg-card md:h-svh md:max-h-svh md:overflow-hidden md:bg-background">
+        {/*
+          Desktop only: trigger + page title.
+          Mobile: tab bar is primary nav; ContentPanel owns the H1 — a sticky
+          title bar would duplicate it. Safe-area lives on the content wrapper.
+        */}
+        <header className="hidden h-12 shrink-0 items-center gap-2 px-3 sm:px-4 md:flex">
           <SidebarTrigger className="-ml-1 size-9" />
           <p className="min-w-0 truncate text-sm font-medium text-foreground">
             {title}
           </p>
         </header>
-        <div className="flex flex-1 flex-col p-0 pb-[env(safe-area-inset-bottom)] md:min-h-0 md:overflow-hidden md:p-3 md:pb-3">
+        <div
+          className={`flex flex-1 flex-col p-0 pt-[env(safe-area-inset-top)] md:min-h-0 md:overflow-hidden md:p-3 ${MOBILE_TAB_BAR_CLEARANCE}`}
+        >
           {children}
         </div>
         <InstallPrompt />
       </SidebarInset>
+
+      <MobileTabBar
+        user={user}
+        workspaces={workspaces}
+        activeWorkspace={activeWorkspace}
+        navBadges={navBadges}
+        canRegister={Boolean(activeWorkspace) && canMutate}
+      />
+
       <NewTransactionSheet
         enabled={Boolean(activeWorkspace) && canMutate}
         workspaceId={activeWorkspace?.id ?? null}
