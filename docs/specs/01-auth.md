@@ -47,7 +47,7 @@ Además de email/password, el MVP incluye **Continuar con Google** (OAuth) como 
 | FR-12 | OAuth operativo en local, Preview Vercel y Production (redirect URIs y trusted origins documentados en stack) |
 | FR-13 | Usuario solo-Google (sin credential password): “olvidé contraseña” muestra mensaje claro de que no hay contraseña; no inventar ni forzar password |
 | FR-14 | Login email/password fallido con Google habilitado: copy que sugiere Continuar con Google si la cuenta se creó solo con Google (sin enumerar existencia de email) |
-| FR-15 | PWA instalada (`standalone`): Continuar con Google **solo** vía GIS `id_token` in-page (FedCM → One Tap clásico). **No** hacer fallback a redirect OAuth: en iOS/Android standalone la sesión queda en Safari y la app vuelve a `/login` |
+| FR-15 | PWA instalada (`standalone`): Continuar con Google **solo** vía GIS `id_token` in-page + Server Action que escribe cookies (FedCM → One Tap clásico). **No** hacer fallback a redirect OAuth en standalone: en iOS la sesión queda en Safari y la app vuelve a `/login`. En navegador, GIS primero y redirect solo si GIS falla |
 
 ## 5. Reglas de negocio
 
