@@ -20,10 +20,12 @@ export function RegisterForm({
   inviteToken,
   prefillEmail,
   googleEnabled = false,
+  googleClientId,
 }: {
   inviteToken?: string;
   prefillEmail?: string;
   googleEnabled?: boolean;
+  googleClientId?: string;
 }) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -54,6 +56,12 @@ export function RegisterForm({
       setIsSubmitting(false);
       toast.error(
         error.message ?? "No pudimos crear tu cuenta. Intentá de nuevo.",
+        googleEnabled
+          ? {
+              description:
+                "Si ese email ya lo usaste con Continuar con Google, iniciá sesión con Google en lugar de registrarte de nuevo.",
+            }
+          : undefined,
       );
       return;
     }
@@ -82,7 +90,11 @@ export function RegisterForm({
     <div className="space-y-4">
       {googleEnabled ? (
         <>
-          <GoogleSignInButton mode="register" inviteToken={inviteToken} />
+          <GoogleSignInButton
+            mode="register"
+            inviteToken={inviteToken}
+            googleClientId={googleClientId}
+          />
           <AuthMethodDivider />
         </>
       ) : null}

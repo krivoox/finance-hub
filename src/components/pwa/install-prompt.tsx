@@ -4,6 +4,7 @@ import { useEffect, useState, startTransition } from "react";
 import { Download, Share, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { isStandaloneDisplay } from "@/lib/pwa-display";
 import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "fh:pwa-install:v1";
@@ -37,13 +38,6 @@ function writeDismissed() {
   } catch {
     // private mode / quota
   }
-}
-
-function isStandaloneDisplay(): boolean {
-  if (window.matchMedia("(display-mode: standalone)").matches) return true;
-  if (window.matchMedia("(display-mode: fullscreen)").matches) return true;
-  const nav = window.navigator as Navigator & { standalone?: boolean };
-  return nav.standalone === true;
 }
 
 function isIosDevice(): boolean {
