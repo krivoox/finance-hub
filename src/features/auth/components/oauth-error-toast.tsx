@@ -16,7 +16,7 @@ const OAUTH_ERROR_MESSAGES: Record<string, string> = {
 };
 
 /**
- * Surfaces Better Auth OAuth `?error=` codes as a toast (once per mount).
+ * Surfaces Better Auth OAuth `?error=` codes as a toast + inline alert (once per mount).
  */
 export function OAuthErrorToast({ error }: { error?: string }) {
   useEffect(() => {
@@ -27,5 +27,18 @@ export function OAuthErrorToast({ error }: { error?: string }) {
     toast.error(message);
   }, [error]);
 
-  return null;
+  if (!error) return null;
+
+  const message =
+    OAUTH_ERROR_MESSAGES[error] ??
+    "No pudimos completar el acceso con Google. Intentá de nuevo.";
+
+  return (
+    <p
+      role="alert"
+      className="rounded-md border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive"
+    >
+      {message}
+    </p>
+  );
 }

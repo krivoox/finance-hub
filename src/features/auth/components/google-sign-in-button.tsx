@@ -55,6 +55,9 @@ async function signInWithGoogleIdToken({
   return error;
 }
 
+const STANDALONE_GOOGLE_HINT =
+  "En la app instalada el login con Google debe quedarse en pantalla (sin abrir Safari). Si no aparece el selector de Google, abrí finance.krivoox.com en el navegador.";
+
 export function GoogleSignInButton({
   mode,
   inviteToken,
@@ -87,12 +90,13 @@ export function GoogleSignInButton({
       callbackUrl,
     });
 
+    const standalone = isStandaloneDisplay();
+    const preferIdToken = Boolean(googleClientId) && standalone;
+
     try {
       // Installed PWA (esp. iOS): full-page OAuth leaves the standalone
-      // cookie jar; prefer in-page GIS id_token so the session stays here.
-      const preferIdToken =
-        Boolean(googleClientId) && isStandaloneDisplay();
-
+      // cookie jar — session ends up in Safari and the app stays logged out.
+      // Never fall back to redirect while display-mode is standalone.
       if (preferIdToken && googleClientId) {
         try {
           const idTokenError = await signInWithGoogleIdToken({
@@ -100,13 +104,27 @@ export function GoogleSignInButton({
             mode,
             callbackURL,
           });
-          if (!idTokenError) {
-            window.location.assign(callbackURL);
+          if (idTokenError) {
+            setIsLoading(false);
+            toast.error(
+              idTokenError.message ??
+                "No pudimos continuar con Google. Intentá de nuevo.",
+            );
             return;
           }
+          window.location.assign(callbackURL);
+          return;
         } catch {
-          // GIS prompt blocked / FedCM unavailable → classic redirect below.
+          setIsLoading(false);
+          toast.error(STANDALONE_GOOGLE_HINT);
+          return;
         }
+      }
+
+      if (standalone && !googleClientId) {
+        setIsLoading(false);
+        toast.error(STANDALONE_GOOGLE_HINT);
+        return;
       }
 
       const error = await signInWithGoogleRedirect(callbackURL);

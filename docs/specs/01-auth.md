@@ -47,7 +47,7 @@ Además de email/password, el MVP incluye **Continuar con Google** (OAuth) como 
 | FR-12 | OAuth operativo en local, Preview Vercel y Production (redirect URIs y trusted origins documentados en stack) |
 | FR-13 | Usuario solo-Google (sin credential password): “olvidé contraseña” muestra mensaje claro de que no hay contraseña; no inventar ni forzar password |
 | FR-14 | Login email/password fallido con Google habilitado: copy que sugiere Continuar con Google si la cuenta se creó solo con Google (sin enumerar existencia de email) |
-| FR-15 | PWA instalada (`standalone`): Continuar con Google usa GIS `id_token` in-page cuando hay `GOOGLE_CLIENT_ID`; fallback a redirect OAuth si GIS no completa |
+| FR-15 | PWA instalada (`standalone`): Continuar con Google **solo** vía GIS `id_token` in-page (FedCM → One Tap clásico). **No** hacer fallback a redirect OAuth: en iOS/Android standalone la sesión queda en Safari y la app vuelve a `/login` |
 
 ## 5. Reglas de negocio
 
@@ -109,7 +109,7 @@ Además de email/password, el MVP incluye **Continuar con Google** (OAuth) como 
 - [ ] Invite + OAuth: token preservado; email Google debe coincidir con invite.
 - [ ] Usuario solo-Google: forgot-password con mensaje claro (sin inventar password).
 - [ ] Login fallido con Google habilitado sugiere Continuar con Google (FR-14).
-- [ ] PWA standalone: Google vía GIS id_token con fallback a redirect (FR-15).
+- [ ] PWA standalone: Google solo vía GIS id_token (sin fallback a redirect) (FR-15).
 - [ ] OAuth usable en local, Preview y Production con redirect URIs + JS origins correctos.
 - [ ] No hay pantalla de “métodos de acceso” en Ajustes (fuera de MVP).
 
@@ -202,7 +202,7 @@ Además de email/password, el MVP incluye **Continuar con Google** (OAuth) como 
 
 - **Given** app instalada con `display: standalone` y GIS disponible  
 - **When** Continuar con Google  
-- **Then** se intenta `signIn.social` con `idToken` (sin salir del contexto de la PWA); si GIS no completa, fallback a redirect OAuth
+- **Then** se intenta `signIn.social` con `idToken` (sin salir del contexto de la PWA); si GIS no completa, se muestra error y **no** se abre el redirect OAuth (evita sesión en Safari / login vacío en la PWA)
 
 ## 9. Fuera de alcance
 
@@ -222,7 +222,7 @@ Además de email/password, el MVP incluye **Continuar con Google** (OAuth) como 
 - Config esperada (hand-off ingeniería; no inventar APIs distintas del producto):
   - `socialProviders.google` con `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` (vía `src/lib/env.ts`)
   - Account linking habilitado; Google como **trusted provider**; `requireLocalEmailVerified: false` (decisión 1.B — sin esto Better Auth rechaza con `account_not_linked` a users password sin email verificado)
-  - Cliente: `signIn.social({ provider: "google", callbackURL })` desde `/login` y `/registro`; en PWA standalone, preferir `idToken` vía Google Identity Services (Authorized JavaScript origins) y fallback a redirect
+  - Cliente: `signIn.social({ provider: "google", callbackURL })` desde `/login` y `/registro`; en PWA standalone, **solo** `idToken` vía Google Identity Services (Authorized JavaScript origins), sin fallback a redirect
   - Redirect URI en Google Cloud Console: `{origin}/api/auth/callback/google` para local, Production y Previews (`*.vercel.app`, dominios krivoox) — ver [stack.md](../stack.md)
   - `account.skipStateCookieCheck: true` para tolerar pérdida de cookie de state en PWA/Safari cuando el Verification en DB es válido
 - Tras **creación** de User (email signUp **o** primer OAuth): hook `user.create.after` → Workspace `personal` + Membership `owner` + `acceptPendingInvitationsForEmail`. El linking a User existente **no** debe disparar ese create.
