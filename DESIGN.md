@@ -16,7 +16,7 @@
 
 **Dominio (metáforas):** ledger, saldos, flujo de caja, presupuestos, objetivos, splits compartidos.  
 **Mundo de color:** blanco y grises neutros (sin croma azul en superficies), tinta, verde ingreso, rojo egreso, azul solo como acento de acción (`info`). Dark: charcoal neutro en escalera.  
-**Firma:** sidebar único (workspace + CTA + nav agrupada + tema + usuario) + panel de contenido; Sankey de flujo en el dashboard.  
+**Firma:** sidebar (desktop) + tab bar flotante (móvil) + panel de contenido; Sankey de flujo en el dashboard (md+).  
 **Defaults que rechazamos:** cards genéricas en grid 3×N, purple-indigo SaaS, cream+serif terracotta, papel azulado / cool wash, dark-mode-first sin toggle, canvas beige cálido como default, CTA lime/yellow, hex sueltos en componentes.
 
 ---
@@ -57,11 +57,25 @@ Sidebar único estilo dashboard (shadcn inset) — **sin** rail de iconos oscuro
 | Item nav idle | `SidebarMenuButton` | Icono stroke + label |
 | Item nav active | `data-active` → `bg-sidebar-accent` | Highlight neutro (no azul) |
 | Grupos | `SidebarGroupLabel` | Ej. Planificación, Compartido |
-| Header app | `SidebarTrigger` + título | Barra superior del inset |
+| Header app | `SidebarTrigger` + título | Solo `md+` (barra superior del inset) |
 | Tema | `ThemeToggle` en footer | Claro / Oscuro / Sistema |
-| Content panel | `bg-card` · `rounded-2xl` · `border` | Dentro de `SidebarInset`; CTAs de header en pill |
+| Content panel | `bg-card` · `rounded-2xl` · `border` | Dentro de `SidebarInset`; CTAs de header en pill; H1 de página aquí |
 
-**Mobile:** el sidebar shadcn abre como **sheet** a pantalla completa (no icon rail). El content panel es edge-to-edge sin radio; `md+` añade inset, borde y `rounded-xl`.
+**Mobile:** navegación primaria = **tab bar flotante** (pill) anclado abajo con `safe-area-inset-bottom`. Sin header sticky de título (el H1 vive en `ContentPanel`); `safe-area-inset-top` en el wrapper de contenido. El hamburger/`SidebarTrigger` queda para `md+`. El content panel es edge-to-edge sin radio; `md+` añade inset, borde y `rounded-xl`.
+
+#### 3.1.1 Mobile tab bar
+
+| Slot | Destino | Notas |
+|------|---------|--------|
+| Panel | `/dashboard` | Home |
+| Movimientos | `/transactions` | Actividad diaria |
+| **+ Registrar** | acción (no ruta) | Abre `NewTransactionSheet` vía store; CTA ink elevado |
+| Presupuestos | `/budgets` | Planificación; badge at-risk si aplica |
+| Más | sheet bottom | Cuentas, Objetivos, Grupos, Recurrentes, Ajustes, workspace, tema, salir |
+
+**Craft:** contenedor `bg-card` / `border-border` / `rounded-full` / `shadow-md` (no lime, no glass púrpura). Activo = pill `bg-secondary` + icono + label; inactivos = solo icono (`sr-only` label). CTA central ink elevado. Clearance del contenido: `pb-[calc(4.75rem+env(safe-area-inset-bottom))]`. En móvil el canvas del inset (y un underlay fijo detrás del pill) usa `bg-card` — el mismo token que el content panel edge-to-edge — para que clearance/safe-area no muestren el `bg-background` casi negro del dark mode.
+
+**Desktop (`md+`):** sidebar inset intacto; tab bar `md:hidden`.
 
 ### 3.2 Create flows — FormSheet (no forms en la lista)
 
@@ -107,7 +121,7 @@ Componentes: `src/components/form-sheet/*`
 **Reglas:**
 
 1. Escribir clases **sin** breakpoint primero (móvil). Ampliar con `sm:` / `md:` / `lg:`.
-2. **Shell:** en móvil solo header (`SidebarTrigger` + título) + contenido; menú via sheet.
+2. **Shell:** en móvil **tab bar flotante** (sin barra de título duplicada); destinos extra en sheet “Más”. Sidebar + header de título desde `md`.
 3. **Tablas densas:** en base mostrar 2–3 columnas (identidad + monto). Columnas secundarias con `hidden sm:table-cell` / `md:table-cell`. El wrapper `Table` ya permite scroll horizontal como fallback.
 4. **Forms:** create flows en `FormSheet` (1 columna). No grids multi-columna densos en sheets.
 5. **Tipografía hero:** `text-3xl sm:text-4xl` en patrimonio / cifras clave.
@@ -308,6 +322,15 @@ Luego alinear variantes a este documento (nunca dejar colores de demo).
 ### Panel / Dashboard (pantallazo en 3 segundos)
 
 Orden de lectura fijo — no aplanar todo al mismo peso. Chrome = `SurfaceSection` / `KpiTile` (mismo radio y borde que la landing). Base = una columna apilada; el grid de 2 columnas entra en `lg:`.
+
+**Móvil (liviano):**
+
+1. **Patrimonio** — número hero + 3 KPIs (Ingresos / Gastos / Flujo). Sin serie `MonthlyNetBars` (queda en `md+`).
+2. **Barra segmentada de gastos** (`DashboardSpendingBar`) — top categorías del mes + “Ver todo”.
+3. **Actividad reciente** — 4 filas + “Ver todo”.
+4. Objetivos / Atención / Recurrentes / Cuentas below-the-fold. Sankey y donut completo en `md+`.
+
+**Desktop (`md+` / `lg:`):**
 
 1. **Hero + actividad** (`lg:` 1.5fr | 1fr):
    - `DashboardBalance` — patrimonio (`text-3xl sm:text-4xl`, `≈` si es consolidado), badges multi-moneda, **serie mensual** (`MonthlyNetBars` con modos Balance / Ingresos / Gastos: en Balance, barras divergentes income↑ / expense↓ sobre baseline punteada; tooltip al hover/foco), delta `±% flujo vs. mes anterior` cuando hay mes comparable, y pie con 3 stats `KpiTile variant="plain"`: Ingresos · Gastos · Flujo del mes.

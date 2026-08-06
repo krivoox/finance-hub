@@ -158,6 +158,13 @@ export const auth = betterAuth({
       requireLocalEmailVerified: false,
       updateUserInfoOnLink: false,
     },
+    /**
+     * PWA / iOS Safari often drop the short-lived OAuth state cookie when the
+     * flow leaves the app for accounts.google.com. State still lives in the
+     * Verification table (single-use); skipping the cookie check avoids
+     * `state_security_mismatch` when the DB record is valid.
+     */
+    skipStateCookieCheck: true,
   },
   user: {
     additionalFields: {

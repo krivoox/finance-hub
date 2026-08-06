@@ -46,6 +46,8 @@ Además de email/password, el MVP incluye **Continuar con Google** (OAuth) como 
 | FR-11 | Account linking seguro (decisión 1.B): si ya existe User con el mismo email (case-insensitive) y Google confirma el email como verificado → linkear la identidad Google a ese User e iniciar sesión; **no** pedir password; **no** bloquear aunque `emailVerified` en Finance Hub sea `false` |
 | FR-12 | OAuth operativo en local, Preview Vercel y Production (redirect URIs y trusted origins documentados en stack) |
 | FR-13 | Usuario solo-Google (sin credential password): “olvidé contraseña” muestra mensaje claro de que no hay contraseña; no inventar ni forzar password |
+| FR-14 | Login email/password fallido con Google habilitado: copy que sugiere Continuar con Google si la cuenta se creó solo con Google (sin enumerar existencia de email) |
+| FR-15 | PWA instalada (`standalone`): Continuar con Google usa GIS `id_token` in-page cuando hay `GOOGLE_CLIENT_ID`; fallback a redirect OAuth si GIS no completa |
 
 ## 5. Reglas de negocio
 
@@ -106,7 +108,9 @@ Además de email/password, el MVP incluye **Continuar con Google** (OAuth) como 
 - [ ] Linking no pisa `displayName` / preferencias existentes.
 - [ ] Invite + OAuth: token preservado; email Google debe coincidir con invite.
 - [ ] Usuario solo-Google: forgot-password con mensaje claro (sin inventar password).
-- [ ] OAuth usable en local, Preview y Production con redirect URIs correctos.
+- [ ] Login fallido con Google habilitado sugiere Continuar con Google (FR-14).
+- [ ] PWA standalone: Google vía GIS id_token con fallback a redirect (FR-15).
+- [ ] OAuth usable en local, Preview y Production con redirect URIs + JS origins correctos.
 - [ ] No hay pantalla de “métodos de acceso” en Ajustes (fuera de MVP).
 
 ## 8. Escenarios de test (TDD)
@@ -188,6 +192,18 @@ Además de email/password, el MVP incluye **Continuar con Google** (OAuth) como 
 - **When** solicita recuperación de contraseña (o llega al flujo forgot)  
 - **Then** copy de producto indica que no hay contraseña / debe usar Continuar con Google; no se inventa ni setea password automáticamente
 
+### T-14 Login email tras alta solo-Google (UX)
+
+- **Given** User creado solo con Google (sin credential) y Google OAuth habilitado en la UI  
+- **When** intenta login con email + cualquier password  
+- **Then** el login falla (sin credential) y el mensaje sugiere usar Continuar con Google; no revela si el email “existe” más allá del copy genérico ya usado en login fallido
+
+### T-15 Google en PWA standalone
+
+- **Given** app instalada con `display: standalone` y GIS disponible  
+- **When** Continuar con Google  
+- **Then** se intenta `signIn.social` con `idToken` (sin salir del contexto de la PWA); si GIS no completa, fallback a redirect OAuth
+
 ## 9. Fuera de alcance
 
 - Apple Sign In / otros providers sociales
@@ -206,8 +222,9 @@ Además de email/password, el MVP incluye **Continuar con Google** (OAuth) como 
 - Config esperada (hand-off ingeniería; no inventar APIs distintas del producto):
   - `socialProviders.google` con `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` (vía `src/lib/env.ts`)
   - Account linking habilitado; Google como **trusted provider**; `requireLocalEmailVerified: false` (decisión 1.B — sin esto Better Auth rechaza con `account_not_linked` a users password sin email verificado)
-  - Cliente: `signIn.social({ provider: "google", callbackURL })` desde `/login` y `/registro`
+  - Cliente: `signIn.social({ provider: "google", callbackURL })` desde `/login` y `/registro`; en PWA standalone, preferir `idToken` vía Google Identity Services (Authorized JavaScript origins) y fallback a redirect
   - Redirect URI en Google Cloud Console: `{origin}/api/auth/callback/google` para local, Production y Previews (`*.vercel.app`, dominios krivoox) — ver [stack.md](../stack.md)
+  - `account.skipStateCookieCheck: true` para tolerar pérdida de cookie de state en PWA/Safari cuando el Verification en DB es válido
 - Tras **creación** de User (email signUp **o** primer OAuth): hook `user.create.after` → Workspace `personal` + Membership `owner` + `acceptPendingInvitationsForEmail`. El linking a User existente **no** debe disparar ese create.
 - UI MVP: botón en `/login` y `/registro` con RHF + Zod para el path email; sin lógica de negocio en el formulario; sin pantalla de métodos en Ajustes.
 - Invites: preservar `fh-invite-token` / `callbackURL` a través del redirect OAuth (mismo contrato que path email).

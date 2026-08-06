@@ -276,7 +276,7 @@ export function AppSidebar({
         ))}
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className="gap-2.5 pb-3 md:gap-2 md:pb-2">
         <SidebarSeparator />
         <SidebarGroup className="p-0">
           <SidebarGroupContent>
