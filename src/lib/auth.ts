@@ -1,11 +1,10 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
-import { nextCookies } from "better-auth/next-js";
 import { prisma } from "@/lib/prisma";
 import { env } from "@/lib/env";
+import { nextCookies } from "@/lib/next-cookies";
 import { createPersonalWorkspaceForUser } from "@/features/workspaces/services/create-personal-workspace";
 import { acceptPendingInvitationsForEmail } from "@/features/workspaces/services/invitations";
-
 const googleClientId = env.GOOGLE_CLIENT_ID;
 const googleClientSecret = env.GOOGLE_CLIENT_SECRET;
 const googleSocialProviders =
