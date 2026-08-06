@@ -93,24 +93,20 @@ export type RequestGoogleIdTokenOptions = {
   context?: "signin" | "signup";
   /** Max wait for a credential after prompt (ms). */
   timeoutMs?: number;
+  /** Prefer FedCM; when false uses classic One Tap / account chooser. */
+  useFedcm?: boolean;
 };
 
-/**
- * Opens the GIS account chooser / FedCM prompt and resolves with the JWT
- * id_token. Rejects if the prompt is not shown, dismissed, or times out —
- * callers should fall back to OAuth redirect.
- */
-export async function requestGoogleIdToken(
-  options: RequestGoogleIdTokenOptions,
+function promptForIdToken(
+  accountsId: GoogleAccountsId,
+  options: {
+    clientId: string;
+    context: "signin" | "signup";
+    timeoutMs: number;
+    useFedcm: boolean;
+  },
 ): Promise<string> {
-  const { clientId, context = "signin", timeoutMs = 120_000 } = options;
-
-  await loadGisScript();
-
-  const accountsId = window.google?.accounts?.id;
-  if (!accountsId) {
-    throw new Error("Google Identity Services unavailable");
-  }
+  const { clientId, context, timeoutMs, useFedcm } = options;
 
   return new Promise<string>((resolve, reject) => {
     let settled = false;
@@ -136,7 +132,7 @@ export async function requestGoogleIdToken(
       auto_select: false,
       cancel_on_tap_outside: true,
       context,
-      use_fedcm_for_prompt: true,
+      use_fedcm_for_prompt: useFedcm,
       callback: (response) => {
         const token = response.credential;
         if (!token) {
@@ -161,10 +157,60 @@ export async function requestGoogleIdToken(
       }
 
       if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+        const reason =
+          notification.getNotDisplayedReason?.() ??
+          notification.getSkippedReason?.() ??
+          "unknown";
         finish(() =>
-          reject(new Error("Google Identity prompt was not completed")),
+          reject(
+            new Error(`Google Identity prompt was not completed (${reason})`),
+          ),
         );
       }
     });
   });
+}
+
+/**
+ * Opens the GIS account chooser / FedCM prompt and resolves with the JWT
+ * id_token. Tries FedCM first, then classic prompt (FedCM is often blocked in
+ * installed PWAs). Rejects if both fail — callers must not fall back to a
+ * full-page OAuth redirect inside standalone display (cookies stay in Safari).
+ */
+export async function requestGoogleIdToken(
+  options: RequestGoogleIdTokenOptions,
+): Promise<string> {
+  const { clientId, context = "signin", timeoutMs = 120_000 } = options;
+
+  await loadGisScript();
+
+  const accountsId = window.google?.accounts?.id;
+  if (!accountsId) {
+    throw new Error("Google Identity Services unavailable");
+  }
+
+  if (options.useFedcm !== undefined) {
+    return promptForIdToken(accountsId, {
+      clientId,
+      context,
+      timeoutMs,
+      useFedcm: options.useFedcm,
+    });
+  }
+
+  try {
+    return await promptForIdToken(accountsId, {
+      clientId,
+      context,
+      timeoutMs,
+      useFedcm: true,
+    });
+  } catch {
+    return promptForIdToken(accountsId, {
+      clientId,
+      context,
+      timeoutMs,
+      useFedcm: false,
+    });
+  }
 }
