@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Script from "next/script";
 import { ThemeProvider } from "@teispace/next-themes";
 import { getTheme, getThemeScript } from "@teispace/next-themes/server";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import { Providers } from "@/components/providers";
 import { env } from "@/lib/env";
@@ -91,6 +93,8 @@ export default async function RootLayout({
           noScript
         >
           <Providers>{children}</Providers>
+          <Analytics />
+          <SpeedInsights />
         </ThemeProvider>
       </body>
     </html>
