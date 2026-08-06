@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { signIn } from "@/lib/auth-client";
 import { isStandaloneDisplay } from "@/lib/pwa-display";
 import { rememberInviteTokenAction } from "@/features/workspaces/actions";
+import { signInWithGoogleIdTokenAction } from "@/features/auth/actions/sign-in-google-id-token";
 import { requestGoogleIdToken } from "@/features/auth/lib/google-id-token";
 import { resolveGoogleCallbackURL } from "@/features/auth/lib/google-callback-url";
 import { Button } from "@/components/ui/button";
@@ -28,28 +29,6 @@ function GoogleGlyph({ className }: { className?: string }) {
 async function signInWithGoogleRedirect(callbackURL: string) {
   const { error } = await signIn.social({
     provider: "google",
-    callbackURL,
-  });
-  return error;
-}
-
-async function signInWithGoogleIdToken({
-  clientId,
-  mode,
-  callbackURL,
-}: {
-  clientId: string;
-  mode: "login" | "register";
-  callbackURL: string;
-}) {
-  const token = await requestGoogleIdToken({
-    clientId,
-    context: mode === "register" ? "signup" : "signin",
-  });
-
-  const { error } = await signIn.social({
-    provider: "google",
-    idToken: { token },
     callbackURL,
   });
   return error;
@@ -91,37 +70,34 @@ export function GoogleSignInButton({
     });
 
     const standalone = isStandaloneDisplay();
-    const preferIdToken = Boolean(googleClientId) && standalone;
 
     try {
-      // Installed PWA (esp. iOS): full-page OAuth leaves the standalone
-      // cookie jar — session ends up in Safari and the app stays logged out.
-      // Never fall back to redirect while display-mode is standalone.
-      if (preferIdToken && googleClientId) {
+      // Prefer GIS id_token for everyone when configured — avoids leaving the
+      // PWA for Safari (where the session cookie is stranded). Only fall back
+      // to full-page OAuth redirect outside standalone display.
+      if (googleClientId) {
         try {
-          const idTokenError = await signInWithGoogleIdToken({
+          const token = await requestGoogleIdToken({
             clientId: googleClientId,
-            mode,
-            callbackURL,
+            context: mode === "register" ? "signup" : "signin",
           });
-          if (idTokenError) {
+          const result = await signInWithGoogleIdTokenAction(token);
+          if (!result.ok) {
             setIsLoading(false);
-            toast.error(
-              idTokenError.message ??
-                "No pudimos continuar con Google. Intentá de nuevo.",
-            );
+            toast.error(result.error);
             return;
           }
           window.location.assign(callbackURL);
           return;
         } catch {
-          setIsLoading(false);
-          toast.error(STANDALONE_GOOGLE_HINT);
-          return;
+          if (standalone) {
+            setIsLoading(false);
+            toast.error(STANDALONE_GOOGLE_HINT);
+            return;
+          }
+          // Browser tab: classic redirect below.
         }
-      }
-
-      if (standalone && !googleClientId) {
+      } else if (standalone) {
         setIsLoading(false);
         toast.error(STANDALONE_GOOGLE_HINT);
         return;

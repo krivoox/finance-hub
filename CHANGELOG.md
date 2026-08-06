@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- **auth:** Keep Google session inside PWA standalone
+
 [Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.10.0...HEAD
 
 ## [0.10.0] - 2026-08-06
