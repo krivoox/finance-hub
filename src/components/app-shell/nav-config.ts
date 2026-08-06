@@ -1,7 +1,9 @@
 import type { LucideIcon } from "lucide-react";
 import {
   LayoutDashboard,
+  MoreHorizontal,
   PiggyBank,
+  Plus,
   Receipt,
   Repeat,
   Settings,
@@ -100,6 +102,71 @@ export const navGroups: NavGroup[] = [
 ];
 
 export const footerNavItems: NavItem[] = [
+  { title: "Ajustes", href: "/settings", icon: Settings },
+];
+
+/**
+ * Mobile bottom tab destinations (≤5 slots incl. action + Más).
+ * Primary routes only — overflow lives in `mobileMoreNavItems`.
+ */
+export type MobileTabItem =
+  | {
+      kind: "link";
+      id: string;
+      title: string;
+      href: string;
+      icon: LucideIcon;
+    }
+  | {
+      kind: "action";
+      id: "register";
+      title: string;
+      icon: LucideIcon;
+    }
+  | {
+      kind: "more";
+      id: "more";
+      title: string;
+      icon: LucideIcon;
+    };
+
+export const mobileTabItems: MobileTabItem[] = [
+  {
+    kind: "link",
+    id: "panel",
+    title: "Panel",
+    href: "/dashboard",
+    icon: LayoutDashboard,
+  },
+  {
+    kind: "link",
+    id: "transactions",
+    title: "Movimientos",
+    href: "/transactions",
+    icon: Receipt,
+  },
+  { kind: "action", id: "register", title: "Registrar", icon: Plus },
+  {
+    kind: "link",
+    id: "budgets",
+    title: "Presupuestos",
+    href: "/budgets",
+    icon: PiggyBank,
+  },
+  {
+    kind: "more",
+    id: "more",
+    title: "Más",
+    icon: MoreHorizontal,
+  },
+];
+
+/** Routes / destinations only reachable via the mobile “Más” sheet. */
+export const mobileMoreNavItems: NavItem[] = [
+  { title: "Cuentas", href: "/accounts", icon: Wallet },
+  { title: "Objetivos", href: "/goals", icon: Target },
+  { title: "Grupos", href: "/groups", icon: Users },
+  { title: "Recurrentes", href: "/transactions/recurring", icon: Repeat },
   { title: "Ajustes", href: "/settings", icon: Settings },
 ];
 

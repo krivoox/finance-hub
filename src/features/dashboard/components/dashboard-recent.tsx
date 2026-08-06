@@ -13,6 +13,8 @@ import { amountVariant, formatShortDate, formatSignedAmount } from "./format";
 
 type DashboardRecentProps = {
   transactions: readonly ListedTransaction[];
+  /** Max rows in the list (mobile Panel uses a shorter glance). */
+  limit?: number;
 };
 
 const TYPE_CHROME = {
@@ -38,15 +40,18 @@ const TYPE_CHROME = {
  * a la izquierda, monto firmado a la derecha. Sin tabla: en el rail y en
  * móvil las columnas secundarias no aportan.
  */
-export function DashboardRecent({ transactions }: DashboardRecentProps) {
+export function DashboardRecent({
+  transactions,
+  limit = 6,
+}: DashboardRecentProps) {
   return (
     <SurfaceSection className="flex h-full flex-col">
       <SurfaceHeader
-        title="Últimos movimientos"
-        description="Actividad del workspace"
+        title="Actividad reciente"
+        description="Últimos movimientos del workspace"
         action={
           <Button variant="ghost" size="sm" className="h-8 rounded-full" asChild>
-            <Link href="/transactions">Ver todos</Link>
+            <Link href="/transactions">Ver todo</Link>
           </Button>
         }
       />
@@ -62,7 +67,7 @@ export function DashboardRecent({ transactions }: DashboardRecentProps) {
         </div>
       ) : (
         <ul className="-mx-2 divide-y divide-border">
-          {transactions.slice(0, 6).map((tx) => {
+          {transactions.slice(0, limit).map((tx) => {
             const chrome = TYPE_CHROME[amountVariant(tx.type)];
             const Icon = chrome.icon;
 

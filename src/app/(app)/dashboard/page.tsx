@@ -15,6 +15,7 @@ import { DashboardFlowCharts } from "@/features/dashboard/components/dashboard-f
 import { DashboardAttention } from "@/features/dashboard/components/dashboard-attention";
 import { DashboardGoals } from "@/features/dashboard/components/dashboard-goals";
 import { DashboardSpending } from "@/features/dashboard/components/dashboard-spending";
+import { DashboardSpendingBar } from "@/features/dashboard/components/dashboard-spending-bar";
 import { DashboardRecent } from "@/features/dashboard/components/dashboard-recent";
 import { DashboardRecurring } from "@/features/dashboard/components/dashboard-recurring";
 import { DashboardAccounts } from "@/features/dashboard/components/dashboard-accounts";
@@ -86,15 +87,18 @@ export default async function DashboardPage() {
     <ContentPanel
       title="Resumen"
       description={`${workspace.name} · ${periodLabel}`}
-      actions={canMutate ? <DashboardNewTransactionButton /> : undefined}
+      actions={
+        canMutate ? (
+          <div className="hidden md:block">
+            <DashboardNewTransactionButton />
+          </div>
+        ) : undefined
+      }
     >
       {/*
         Orden de lectura del Panel (DESIGN.md §9):
-        1. Patrimonio + flujo neto mensual | Últimos movimientos
-        2. Objetivos | Atención
-        3. Flujo del mes (Sankey)
-        4. Próximas recurrentes
-        5. Distribución de gastos | Cuentas
+        Móvil (liviano): patrimonio → barra de gastos → actividad → resto below-fold.
+        Desktop: hero + rail actividad | objetivos | sankey | …
       */}
       <div className="flex flex-col gap-5 sm:gap-6">
         <div className="grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(18rem,1fr)] lg:items-stretch lg:gap-6">
@@ -107,7 +111,17 @@ export default async function DashboardPage() {
             netTrend={netTrend}
             periodLabel={periodLabel}
           />
-          <DashboardRecent transactions={dashboard.recentTransactions} />
+          <DashboardSpendingBar
+            currency={currency}
+            rows={analytics.spendingByCategory}
+            limit={3}
+          />
+          <div className="lg:contents">
+            <DashboardRecent
+              transactions={dashboard.recentTransactions}
+              limit={4}
+            />
+          </div>
         </div>
 
         <div className="grid gap-5 sm:gap-6 lg:grid-cols-2 lg:items-stretch">
@@ -121,20 +135,25 @@ export default async function DashboardPage() {
         </div>
 
         {hasFlowCharts ? (
-          <DashboardFlowCharts
-            currency={currency}
-            cashflowSankey={cashflowSankey}
-            accountSankey={accountSankey}
-          />
+          <div className="hidden md:block">
+            <DashboardFlowCharts
+              currency={currency}
+              cashflowSankey={cashflowSankey}
+              accountSankey={accountSankey}
+            />
+          </div>
         ) : null}
 
         <DashboardRecurring items={dashboard.upcomingRecurring} />
 
         <div className="grid gap-5 sm:gap-6 lg:grid-cols-2 lg:items-stretch">
-          <DashboardSpending
-            currency={currency}
-            rows={analytics.spendingByCategory}
-          />
+          {/* Donut completo en md+; móvil ya vio la barra segmentada arriba. */}
+          <div className="hidden md:block">
+            <DashboardSpending
+              currency={currency}
+              rows={analytics.spendingByCategory}
+            />
+          </div>
           <DashboardAccounts accounts={dashboard.accounts} />
         </div>
       </div>

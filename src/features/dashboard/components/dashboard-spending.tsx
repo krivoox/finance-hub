@@ -36,7 +36,8 @@ const SLICE_DOT = [
 
 /** Radio con circunferencia ≈ 100 → dasharray se expresa en porcentaje. */
 const RADIUS = 15.915;
-const STROKE_WIDTH = 5;
+/** Anillo fino → hoyo más amplio para el total centrado. */
+const STROKE_WIDTH = 3.75;
 
 function sliceTone(categoryId: string, index: number) {
   if (categoryId === OTHER_CATEGORY_ID) {
@@ -95,8 +96,8 @@ export function DashboardSpending({ currency, rows }: DashboardSpendingProps) {
           Sin gastos categorizados este mes.
         </p>
       ) : (
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-6">
-          <div className="relative mx-auto size-36 shrink-0 sm:mx-0 sm:size-40">
+        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-4">
+          <div className="relative mx-auto size-40 shrink-0 sm:mx-0 sm:size-48 sm:flex-[1.2]">
             <svg viewBox="0 0 42 42" className="size-full -rotate-90" aria-hidden>
               <circle
                 cx="21"
@@ -124,35 +125,39 @@ export function DashboardSpending({ currency, rows }: DashboardSpendingProps) {
                 );
               })}
             </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-              <p className="text-base font-semibold tracking-tight tabular-nums text-foreground">
+            <div className="absolute inset-[22%] flex flex-col items-center justify-center gap-0.5 text-center">
+              <p className="max-w-full text-sm font-semibold leading-tight tracking-tight tabular-nums text-foreground">
                 {formatMoney(totalCents, currency)}
               </p>
-              <p className="text-xs text-muted-foreground">Total gastos</p>
+              <p className="text-xs leading-none text-muted-foreground">
+                Total gastos
+              </p>
             </div>
           </div>
 
-          <ul className="min-w-0 flex-1 space-y-2.5">
+          <ul className="min-w-0 flex-1 space-y-2 sm:max-w-[13.5rem]">
             {slices.map((slice, index) => (
               <li
                 key={slice.categoryId}
-                className="flex items-center gap-2.5 text-sm"
+                className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-baseline gap-x-2 text-sm"
               >
                 <span
                   className={cn(
-                    "size-2.5 shrink-0 rounded-full",
+                    "mt-1.5 size-2 shrink-0 self-start rounded-full",
                     sliceTone(slice.categoryId, index).dot,
                   )}
                   aria-hidden
                 />
-                <span className="min-w-0 flex-1 truncate text-foreground">
+                <span className="min-w-0 truncate text-foreground">
                   {slice.categoryName}
                 </span>
-                <span className="shrink-0 tabular-nums text-muted-foreground">
-                  {formatMoney(slice.amountCents, currency)}
-                </span>
-                <span className="w-11 shrink-0 text-right text-xs tabular-nums text-muted-foreground">
-                  {slice.percent}%
+                <span className="flex shrink-0 items-baseline gap-1.5 tabular-nums text-muted-foreground">
+                  <span className="text-xs sm:text-sm">
+                    {formatMoney(slice.amountCents, currency)}
+                  </span>
+                  <span className="w-8 text-right text-xs tabular-nums">
+                    {slice.percent}%
+                  </span>
                 </span>
               </li>
             ))}

@@ -129,7 +129,9 @@ export function InstallPrompt() {
       aria-labelledby="pwa-install-title"
       aria-describedby="pwa-install-desc"
       className={cn(
-        "fixed inset-x-0 bottom-0 z-50 px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-2",
+        "fixed inset-x-0 z-50 px-3 pt-2",
+        /* Sit above the floating mobile tab bar */
+        "bottom-[calc(4.75rem+env(safe-area-inset-bottom))]",
         "md:hidden",
       )}
     >
