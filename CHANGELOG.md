@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **shell:** Add mobile tab bar and lighter dashboard
+
+### Fixed
+
+- **auth:** Make Google login work in installed PWA
+
 [Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.9.0...HEAD
 
 ## [0.9.0] - 2026-08-05
