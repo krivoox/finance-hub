@@ -10,6 +10,8 @@ import {
   getWorkspaceSetupStatus,
   listMyWorkspaces,
 } from "@/features/workspaces/services";
+import { getUsdQuotes } from "@/features/fx-quotes/services";
+import { env } from "@/lib/env";
 
 /** Routes that live outside this layout but may still set x-pathname while app chrome loads. */
 const SETUP_EXEMPT_PREFIXES = ["/invitaciones"];
@@ -49,13 +51,16 @@ export default async function AppLayout({
       : Promise.resolve({} as NavBadges),
   );
 
-  const [user, workspaces, activeWorkspace, navBadges, headerList] =
+  const [user, workspaces, activeWorkspace, navBadges, headerList, usdQuotes] =
     await Promise.all([
       getCurrentUser(),
       listMyWorkspaces(session.user.id),
       activeWorkspacePromise,
       navBadgesPromise,
       headers(),
+      env.USD_QUOTES_ENABLED
+        ? getUsdQuotes()
+        : Promise.resolve(null),
     ]);
 
   if (!user) {
@@ -101,6 +106,7 @@ export default async function AppLayout({
           : null
       }
       navBadges={navBadges}
+      usdQuotes={usdQuotes}
     >
       {children}
     </AppShell>

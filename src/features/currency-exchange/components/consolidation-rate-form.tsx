@@ -6,6 +6,7 @@ import { Controller, useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { upsertConsolidationRateAction } from "@/features/currency-exchange/actions";
+import { applyMepConsolidationRateAction } from "@/features/fx-quotes/actions";
 import { rateScaledToArsPerUsd } from "@/features/dashboard/domain";
 import {
   FormActions,
@@ -32,6 +33,9 @@ type ConsolidationRateFormProps = {
     label: string;
     asOf: Date;
   } | null;
+  /** When MEP quote is available, show one-tap apply (SPEC-19). */
+  mepAvailable?: boolean;
+  mepSellArsPerUsd?: number | null;
 };
 
 function todayIsoDate(): string {
@@ -53,6 +57,8 @@ export function ConsolidationRateForm({
   workspaceId,
   canMutate,
   initial,
+  mepAvailable = false,
+  mepSellArsPerUsd = null,
 }: ConsolidationRateFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -98,6 +104,18 @@ export function ConsolidationRateForm({
       refreshAfterMutation(router);
     });
   });
+
+  const applyMep = () => {
+    startTransition(async () => {
+      const result = await applyMepConsolidationRateAction({ workspaceId });
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      toast.success("TC de consolidación = MEP de hoy");
+      refreshAfterMutation(router);
+    });
+  };
 
   const isBusy = isPending || isSubmitting;
 
@@ -152,6 +170,21 @@ export function ConsolidationRateForm({
 
       {canMutate ? (
         <FormActions>
+          {mepAvailable ? (
+            <Button
+              type="button"
+              variant="outline"
+              className="h-10 w-full sm:h-8 sm:w-auto"
+              disabled={isBusy}
+              onClick={applyMep}
+            >
+              {isBusy
+                ? "Aplicando…"
+                : mepSellArsPerUsd != null
+                  ? `Usar MEP (${mepSellArsPerUsd.toLocaleString("es-AR")})`
+                  : "Usar MEP de hoy"}
+            </Button>
+          ) : null}
           <Button
             type="submit"
             className="h-10 w-full sm:h-8 sm:w-auto"

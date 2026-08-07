@@ -38,6 +38,8 @@ Orden sugerido para el agente. Cada ítem: **spec → TDD dominio/application �
 | 10b | [13-transaction-detail](./specs/13-transaction-detail.md) | Ficha `/transactions/[id]` + edit/delete UI |
 | 10c | [14-cross-workspace-money](./specs/14-cross-workspace-money.md) | Aporte entre espacios + expense funded externo |
 | 10d | [18-recurring-transactions](./specs/18-recurring-transactions.md) | Plantillas recurrentes + bandeja semi-auto + rename Transacciones |
+| 10e | [16-currency-exchange](./specs/16-currency-exchange.md) | Canje ARS↔USD + tasa de consolidación manual |
+| 10f | [19-usd-quotes-dolarapi](./specs/19-usd-quotes-dolarapi.md) | Snapshot diario Oficial/MEP (DolarApi) + convertidor + “Usar MEP de hoy” |
 
 ## Fase 3 — P2 Insights
 

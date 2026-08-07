@@ -7,12 +7,14 @@ import {
   DEFAULT_CATEGORIES,
   DuplicateCategoryName,
   MaxCategoryDepth,
+  SUBSCRIPTION_DEFAULT_CATEGORY_NAMES,
   assertCanWriteCategories,
   assertKindImmutable,
   assertMaxCategoryDepth,
   assertParentKindMatches,
   assertParentSameWorkspace,
   assertUniqueCategoryName,
+  categoryNameKey,
   normalizeCategoryName,
   validateCreateCategoryInput,
   type CategoryLike,
@@ -54,6 +56,23 @@ describe("Categories domain — DEFAULT_CATEGORIES (SPEC-04 T-01)", () => {
       expect(c.name).toBe(c.name.trim());
       expect(c.name.length).toBeGreaterThan(0);
     }
+  });
+
+  it("includes subscription categories (Streaming, IA, …)", () => {
+    const expenseNames = DEFAULT_CATEGORIES.filter(
+      (c) => c.kind === "expense",
+    ).map((c) => c.name);
+    for (const name of SUBSCRIPTION_DEFAULT_CATEGORY_NAMES) {
+      expect(expenseNames).toContain(name);
+    }
+  });
+});
+
+describe("Categories domain — categoryNameKey", () => {
+  it("strips emoji and normalizes case", () => {
+    expect(categoryNameKey("📺 Streaming")).toBe("streaming");
+    expect(categoryNameKey("Streaming")).toBe("streaming");
+    expect(categoryNameKey("🤖 IA")).toBe("ia");
   });
 });
 

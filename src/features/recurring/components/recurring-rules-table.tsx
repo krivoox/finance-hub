@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useTransition } from "react";
+import { useMemo, useTransition, type ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
@@ -55,6 +55,8 @@ import {
 type RecurringRulesTableProps = {
   rules: readonly RecurringRuleListItem[];
   canMutate: boolean;
+  /** Extra CTA rendered inside the empty state (e.g. template gallery). */
+  emptyAction?: ReactNode;
 };
 
 function amountVariant(
@@ -94,6 +96,7 @@ function executedLabel(count: number): string {
 export function RecurringRulesTable({
   rules,
   canMutate,
+  emptyAction,
 }: RecurringRulesTableProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -167,8 +170,9 @@ export function RecurringRulesTable({
         <p className="text-sm font-medium text-foreground">Sin plantillas</p>
         <p className="mt-1 text-sm text-muted-foreground text-pretty">
           Creá tu primera recurrente para automatizar sueldos, alquiler o
-          suscripciones.
+          suscripciones. También podés partir de Netflix, Spotify y otras.
         </p>
+        {emptyAction}
       </div>
     );
   }

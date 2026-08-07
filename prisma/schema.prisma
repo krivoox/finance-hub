@@ -411,6 +411,39 @@ model WorkspaceConsolidationRate {
   @@map("workspace_consolidation_rate")
 }
 
+// SPEC-19 — Global daily USD quotes (DolarApi). Not workspace-scoped.
+model UsdQuoteSnapshot {
+  id          String   @id @default(cuid())
+  /// Calendar day in America/Argentina/Buenos_Aires (UTC midnight Date).
+  asOfDate    DateTime @unique @db.Date
+  fetchedAt   DateTime
+  provider    String   @default("dolarapi")
+  providerUrl String
+  createdAt   DateTime @default(now())
+
+  lines UsdQuoteLine[]
+
+  @@map("usd_quote_snapshot")
+}
+
+model UsdQuoteLine {
+  id                 String   @id @default(cuid())
+  snapshotId         String
+  /// Provider casa: oficial | bolsa (MEP) | tarjeta | …
+  casa               String
+  nombre             String
+  buyRateScaled      Int
+  sellRateScaled     Int
+  scale              Int      @default(1000000)
+  providerUpdatedAt  DateTime
+
+  snapshot UsdQuoteSnapshot @relation(fields: [snapshotId], references: [id], onDelete: Cascade)
+
+  @@unique([snapshotId, casa])
+  @@index([casa])
+  @@map("usd_quote_line")
+}
+
 // SPEC-14 — Linked pair across workspaces (contribution: expense+income).
 model CrossWorkspaceLink {
   id                  String                 @id @default(cuid())

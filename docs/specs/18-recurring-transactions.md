@@ -620,6 +620,8 @@ export function canResume(rule: RecurringRule, today: DateOnly): true | Recurrin
 - Goals recurrentes (`ContributeToGoal` recurrente).
 - Splits recurrentes (SPEC-10).
 - FX / canje recurrente (SPEC-16).
+- Plantillas de plataformas (Netflix, etc.) con precio USD + % impuestos editable: ver **§10 delta MVP** (catálogo estático + wizard). **No** usar `tarjeta` de DolarApi como impuestos (legacy ×1.30). Logos oficiales trademarked fuera de alcance (monogramas tipográficos).
+- Entidad `Subscription` separada de `RecurringRule` → no en MVP; la recurrente sigue siendo el modelo persistido.
 - Reglas cross-workspace (SPEC-14).
 - Historial detallado de generadas dentro del detalle de la regla (UI de calendario / stream de eventos): fase 2 UI.
 - Vista de detalle `/transactions/recurring/[id]` completa: MVP tiene detalle mínimo (nombre, cadencia, próxima ocurrencia, últimas 3 generadas, acciones).
@@ -644,13 +646,28 @@ export function canResume(rule: RecurringRule, today: DateOnly): true | Recurrin
 
 | Capa | Qué |
 |------|-----|
-| Domain | `src/features/recurring/domain/`: `cadence.ts` (`computeOccurrences`, `clampToEndOfMonth`), `status.ts` (`classifyOccurrence`, `OccurrenceStatus`), `materialize.ts` (`assertNotAlreadyMaterialized`, `resolveOccurredOn`), `duplicates.ts` (`findPossibleDuplicates`), `lifecycle.ts` (`shouldAutoPauseOnAccountArchive`, `canResume`). Errores de dominio: `RecurringRuleEnded`, `AlreadyMaterialized`, `NotAScheduledOccurrence`, `TooEarlyToMaterialize`. Constantes: `PREVIEW_HORIZON_DAYS=30`, `DUPLICATE_AMOUNT_TOLERANCE=0.10`, `DUPLICATE_DATE_WINDOW_DAYS=3`. Ninguna dependencia a Prisma/Next/React. |
+| Domain | `src/features/recurring/domain/`: `cadence.ts`, `status.ts`, `materialize.ts`, `duplicates.ts`, `lifecycle.ts`, **`subscription-amount.ts`** (`computeSubscriptionAmountCents`, markup en bps). Catálogo estático: `catalog/platform-templates.ts`. |
 | Services | `createRecurringRule`, `updateRecurringRule`, `pauseRecurringRule`, `resumeRecurringRule`, `endRecurringRule`, `materializeRecurringOccurrence`; `listRecurringRules`, `listPendingOccurrences`, `previewUpcomingForDashboard`. Autorización por Membership. Transacción DB al materializar (crear tx + garantizar unique `(ruleId, scheduledOn)`). Hook en `archiveAccount` que aplica auto-pausa. Extender `listTransactions` DTO con `recurring` join. |
 | Schemas / actions | Zod para inputs (`frequency` enum de 4, `type` enum de 3, `amountCents > 0`, ISO dates, autz workspace). Server Actions con `getSession` + Zod. |
 | Infra (Prisma) | Modelo `RecurringRule`; agregar `recurringRuleId Id?` y `scheduledOn Date?` a `Transaction` con índice único `(recurringRuleId, scheduledOn) WHERE recurringRuleId IS NOT NULL`. FK a `RecurringRule` `ON DELETE RESTRICT` (soft-delete only). Migración: nullable, no backfill. |
-| UI | `/transactions` renombre; submenú `/transactions/recurring`: bandeja (secciones Vencidas / Hoy / Próximas), CTA “Nueva plantilla”, edición/pause/resume/end, detalle mínimo. Widget dashboard “Próximas recurrentes”. Indicador `Repeat` + tooltip en filas de `/transactions`. Sin lógica de negocio en componentes. |
+| UI | `/transactions/recurring`: bandeja + CTAs “Nueva recurrente” / “Desde plantilla” (`NewFromTemplateSheet` FormSheet: galería → impuestos/TC → create). Empty state con CTA a galería. Widget dashboard. Indicador `Repeat` en `/transactions`. Sin lógica de negocio en componentes. |
 
 **Tensión resuelta:** las plantillas no son transacciones; el ledger solo se mueve al materializar, con las mismas invariantes de SPEC-05 y SPEC-06. La automatización queda opt-in y postergada — v1 pide siempre confirmación humana.
-```
 
----
+## 10. Delta MVP — plantillas de plataformas (suscripciones)
+
+Atajo de UX para crear una `RecurringRule` de tipo `expense` mensual a partir de un catálogo estático (Netflix, Spotify, etc.). **No** introduce entidad `Subscription`.
+
+| Campo | Valor |
+|-------|-------|
+| Catálogo | `src/features/recurring/catalog/platform-templates.ts` — ids, nombre, monograma tipográfico, precio lista USD cents sugerido |
+| Markup | Basis points (`2300` = 23%). Default ON; editable; copy “estimación; verificá tu caso”. **No** usar casa `tarjeta` de DolarApi |
+| Dominio | `computeSubscriptionAmountCents` / `computeSubscriptionListBreakdown` — lista en **ARS o USD** × (1+markup bps) → `amountCents` en moneda de la cuenta. FX solo si monedas difieren (TC editable, default MEP sell SPEC-19). |
+| Catálogo | Precios de lista orientativos (≈ ago 2026): streaming ARS locales (precio publicado ≈ con impuestos → markup default 0); SaaS/IA global en USD (markup sugerido ~23%, editable). Galería: Locales / Globales. |
+| Categorías | Cada plantilla sugiere `defaultCategoryName` (`📺 Streaming`, `🤖 IA`, `💻 Software`, `🎮 Gaming`, `☁️ Almacenamiento`). Seed en `DEFAULT_CATEGORIES` + `ensureSubscriptionCategories` en workspaces viejos. |
+| Persistencia | `createRecurringRuleAction` existente (`type: expense`, `frequency: monthly`) |
+| UI | FormSheet en `/transactions/recurring`: galería → configurar → confirmar. CTA “Desde plantilla” + empty state. Link “Empezar en blanco” → form genérico |
+| Legal | Disclaimer único en galería: monogramas, sin afiliación ni logos oficiales |
+| Disclaimer monto | “Estimado. Verificá el monto en tu resumen.” |
+
+**Fuera de este delta:** recalc live al materializar; logos oficiales; sync de precio lista con APIs de plataformas.

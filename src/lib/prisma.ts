@@ -64,16 +64,18 @@ function createPrismaClient(): PrismaClient {
 
 /**
  * HMR / long-lived `globalThis` can keep a PrismaClient from before a schema
- * change. Recreate when required delegates are missing (ADR-006 models).
+ * change. Recreate when required delegates are missing (ADR-006 / SPEC-19).
  */
 function hasRequiredDelegates(client: PrismaClient): boolean {
   const c = client as PrismaClient & {
     workspaceConsolidationRate?: { findUnique?: unknown };
     currencyExchange?: { findUnique?: unknown };
+    usdQuoteSnapshot?: { findFirst?: unknown };
   };
   return (
     typeof c.workspaceConsolidationRate?.findUnique === "function" &&
-    typeof c.currencyExchange?.findUnique === "function"
+    typeof c.currencyExchange?.findUnique === "function" &&
+    typeof c.usdQuoteSnapshot?.findFirst === "function"
   );
 }
 

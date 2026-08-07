@@ -48,6 +48,7 @@
 | 16 | [Canje de moneda (FX)](./specs/16-currency-exchange.md) | P1 |
 | 17 | [Landing de marketing](./specs/17-marketing-landing.md) | P0 |
 | 18 | [Transacciones recurrentes](./specs/18-recurring-transactions.md) | P1 |
+| 19 | [Cotizaciones USD (DolarApi)](./specs/19-usd-quotes-dolarapi.md) | P1 |
 
 ## Decisiones de arquitectura (ADR)
 

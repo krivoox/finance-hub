@@ -8,3 +8,4 @@ export * from "./duplicates";
 export * from "./lifecycle";
 export * from "./guards";
 export * from "./authz";
+export * from "./subscription-amount";

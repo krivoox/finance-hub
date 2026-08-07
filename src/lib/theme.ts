@@ -1,15 +1,11 @@
 /**
- * Shared theme options — keep in sync between layout script and ThemeProvider.
- * `disableTransitionOnChange` is provider-only (script config expects string | null).
+ * Shared ThemeProvider options (attribute, storage, system default).
+ * Anti-FOUC script is injected by ThemeProvider via useServerInsertedHTML.
  */
-export const themeScriptOptions = {
+export const themeProviderOptions = {
   attribute: "class" as const,
   defaultTheme: "system" as const,
   enableSystem: true,
   storage: "hybrid" as const,
-};
-
-export const themeProviderOptions = {
-  ...themeScriptOptions,
   disableTransitionOnChange: true,
 };
