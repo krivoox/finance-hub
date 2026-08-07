@@ -16,7 +16,7 @@ Se necesita un ledger correcto por moneda, un canje explícito ARS↔USD, y un p
 2. **`baseCurrency`:** moneda de consolidación y default al crear cuenta/budget/goal. Ya no es la única moneda permitida.
 3. **Ledger nativo:** income/expense/transfer siempre en la moneda de la cuenta. Transfer solo same-currency.
 4. **Canje:** agregado `CurrencyExchange` + dos transacciones `fx_debit` / `fx_credit` (mismo patrón que `CrossWorkspaceLink`). No es transfer con FX mágico. Fees fuera de v1 (expense aparte).
-5. **Consolidación:** una tasa manual activa por workspace (`WorkspaceConsolidationRate`). Patrimonio `≈` es lectura derivada; sin históricos ni feeds blue/MEP.
+5. **Consolidación:** una tasa manual activa por workspace (`WorkspaceConsolidationRate`). Patrimonio `≈` es lectura derivada; sin históricos ni time-travel. **SPEC-19** agrega feed de **lectura** (oficial / MEP vía DolarApi, refresh diario) y apply **explícito** (“Usar MEP de hoy”); sin auto-sync del TC al refrescar el feed.
 6. **Budgets / Goals:** moneda propia (ARS|USD); spent/aportes solo misma moneda.
 7. **SPEC-14:** sin FX cross-workspace; sigue exigiendo misma moneda entre puntas.
 8. **Money VO:** sigue prohibiendo aritmética cross-currency (ADR-001).
@@ -26,4 +26,5 @@ Se necesita un ledger correcto por moneda, un canje explícito ARS↔USD, y un p
 - Specs 03/05/06/07/08/12 y SPEC-16 alineadas a multi-ledger + canje.
 - UI siempre muestra código ISO (`ARS` / `USD`); nunca solo `$`.
 - Cambiar `baseCurrency` se bloquea si hay cuentas con moneda distinta al nuevo valor.
-- Fuera de v1: feeds de cotización, inflación, splits cross-currency, EUR/BRL en cuentas, time-travel de patrimonio.
+- Fuera de v1: auto-sync de consolidación, inflación, splits cross-currency, EUR/BRL en cuentas, time-travel de patrimonio, impuestos derivados de cotización “tarjeta”.
+- Lectura de cotizaciones + apply MEP explícito: [SPEC-19](../specs/19-usd-quotes-dolarapi.md).

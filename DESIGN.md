@@ -181,7 +181,7 @@ Definidos en `:root` / `.dark` de `src/app/globals.css` y expuestos a Tailwind v
 ### Tema claro / oscuro
 
 - Provider: `@teispace/next-themes` (fork compatible React 19 / Next 16) en `app/layout.tsx`.
-- Anti-FOUC: `getThemeScript()` en `<head>` + `noScript` en el provider (evita el warning de `<script>` en client components).
+- Anti-FOUC: `ThemeProvider` inyecta el script vía `useServerInsertedHTML` (path por defecto; evita el warning de React 19 con `<script>` en el árbol).
 - Opciones compartidas: `src/lib/theme.ts`. Toggle en sidebar (`ThemeToggle`): Claro / Oscuro / Sistema.
 - Tokens en `:root` y `.dark` de `globals.css` — superficies **acromáticas** (blanco / gris / charcoal); color solo en acentos semánticos.
 - Sin atmósfera radial en `body` (nada de wash azul/verde sobre el canvas).

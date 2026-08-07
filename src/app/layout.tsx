@@ -1,14 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
-import Script from "next/script";
 import { ThemeProvider } from "@teispace/next-themes";
-import { getTheme, getThemeScript } from "@teispace/next-themes/server";
+import { getTheme } from "@teispace/next-themes/server";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import { Providers } from "@/components/providers";
 import { env } from "@/lib/env";
-import { themeProviderOptions, themeScriptOptions } from "@/lib/theme";
+import { themeProviderOptions } from "@/lib/theme";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -62,10 +61,6 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const initialTheme = await getTheme();
-  const themeScript = getThemeScript({
-    ...themeScriptOptions,
-    initialTheme: initialTheme ?? undefined,
-  });
 
   return (
     <html
@@ -81,16 +76,9 @@ export default async function RootLayout({
         className="flex min-h-full flex-col overflow-x-hidden"
         suppressHydrationWarning
       >
-        {/* Anti-FOUC theme: beforeInteractive injects into <head> (Next Script). */}
-        <Script
-          id="theme-init"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{ __html: themeScript }}
-        />
         <ThemeProvider
           {...themeProviderOptions}
           initialTheme={initialTheme ?? undefined}
-          noScript
         >
           <Providers>{children}</Providers>
           <Analytics />

@@ -5,7 +5,7 @@
 | ID | SPEC-12 |
 | Estado | Draft |
 | Prioridad | P1 |
-| Dependencias | SPEC-03, SPEC-05, SPEC-07, SPEC-08, SPEC-09; preview recurrentes SPEC-18 |
+| Dependencias | SPEC-03, SPEC-05, SPEC-07, SPEC-08, SPEC-09; preview recurrentes SPEC-18; cotizaciones SPEC-19 (opcional) |
 
 ## 1. Contexto
 
@@ -30,11 +30,12 @@ Pantalla principal: visión clara del estado financiero del workspace activo (pe
 | FR-06 | Si hay ≥2 monedas con saldo y tasa de consolidación: patrimonio `≈` en `baseCurrency` + caption TC |
 | FR-07 | Sin tasa: solo breakdown por moneda (no inventar conversión 1:1) |
 | FR-08 | Preview de próximas ocurrencias recurrentes (horizonte corto; ver SPEC-18): read-only, no materializa |
+| FR-09 | Si SPEC-19 habilitado: caption/CTA puede ofrecer “Usar MEP de hoy” (apply explícito a consolidación); el feed **no** sobrescribe el TC solo. Attribution si se muestran cotizaciones |
 
 ## 4. Reglas de negocio
 
 - Balances nativos: suma por moneda de accounts no archivadas (convención credit). Nunca sumar ARS+USD crudos.
-- Patrimonio consolidado: lectura con `WorkspaceConsolidationRate` (manual); prefijo `≈` en UI.
+- Patrimonio consolidado: lectura con `WorkspaceConsolidationRate` (manual, o apply explícito desde MEP — SPEC-19); prefijo `≈` en UI. El feed diario **no** muta la tasa sin acción del usuario.
 - Cashflow: incomes − expenses del mes **por moneda** (transfers y `fx_*` excluidos).
 - “Recientes”: últimas N transacciones (default 10); cada una en su moneda.
 - Dashboard es **read model**; lógica de cálculo reutiliza servicios de dominio ya testeados.
@@ -98,6 +99,7 @@ Pantalla principal: visión clara del estado financiero del workspace activo (pe
 - Seguir `DESIGN.md` y skill interface-design
 - Snapshot con acentos `income`/`expense` sutiles; Sankey con tabs *Ingresos → gastos* y *Cuentas → gastos*
 - No meter analytics densos adicionales en el primer viewport; deep-dive en SPEC-11
+- Cotizaciones (SPEC-19): preferir mini-card en sidebar + caption/CTA liviano aquí; no un segundo widget denso de FX en el primer viewport. Distinguir copy “Cotización” vs “TC de consolidación”.
 
 ## 10. Notas de implementación
 

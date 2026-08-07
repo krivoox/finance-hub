@@ -620,6 +620,7 @@ export function canResume(rule: RecurringRule, today: DateOnly): true | Recurrin
 - Goals recurrentes (`ContributeToGoal` recurrente).
 - Splits recurrentes (SPEC-10).
 - FX / canje recurrente (SPEC-16).
+- Plantillas de plataformas (Netflix, etc.) con precio USD + % impuestos editable y logos: depende de cotizaciones [SPEC-19](./19-usd-quotes-dolarapi.md); se documentará como delta de esta spec en una fase posterior. **No** usar `tarjeta` de DolarApi como impuestos (legacy ×1.30).
 - Reglas cross-workspace (SPEC-14).
 - Historial detallado de generadas dentro del detalle de la regla (UI de calendario / stream de eventos): fase 2 UI.
 - Vista de detalle `/transactions/recurring/[id]` completa: MVP tiene detalle mínimo (nombre, cadencia, próxima ocurrencia, últimas 3 generadas, acciones).

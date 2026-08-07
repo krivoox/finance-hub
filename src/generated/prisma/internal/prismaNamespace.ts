@@ -80,12 +80,12 @@ export type PrismaVersion = {
 }
 
 /**
- * Prisma Client JS version: 7.8.0
- * Query Engine version: 3c6e192761c0362d496ed980de936e2f3cebcd3a
+ * Prisma Client JS version: 7.9.1
+ * Query Engine version: e922089b7d7502aff4249d5da3420f6fa55fc6ad
  */
 export const prismaVersion: PrismaVersion = {
-  client: "7.8.0",
-  engine: "3c6e192761c0362d496ed980de936e2f3cebcd3a"
+  client: "7.9.1",
+  engine: "e922089b7d7502aff4249d5da3420f6fa55fc6ad"
 }
 
 /**
@@ -156,6 +156,19 @@ export type Subset<T, U> = {
 };
 
 /**
+ * Resolved type of the argument passed to the `PrismaClient` constructor.
+ *
+ * When called without a narrower options type (the common case), this resolves
+ * to `PrismaClientOptions` directly, which produces a clear TypeScript error
+ * message (`not assignable to parameter of type 'PrismaClientOptions'`) when
+ * the argument is missing or incomplete. When the user supplies a narrower
+ * options type (e.g. via a literal), it falls back to `Subset` to keep
+ * filtering out unknown properties.
+ */
+export type PrismaClientConstructorArgs<Options extends PrismaClientOptions> =
+  [PrismaClientOptions] extends [Options] ? PrismaClientOptions : Subset<Options, PrismaClientOptions>;
+
+/**
  * SelectSubset
  * @desc From `T` pick properties that exist in `U`. Simple version of Intersection.
  * Additionally, it validates, if both select and include are present. If the case, it errors.
@@ -187,7 +200,7 @@ type Without<T, U> = { [P in Exclude<keyof T, keyof U>]?: never };
 export type XOR<T, U> =
   T extends object ?
   U extends object ?
-    (Without<T, U> & U) | (Without<U, T> & T)
+    ((Without<T, U> & U) | (Without<U, T> & T)) & object
   : U : T
 
 
@@ -397,6 +410,8 @@ export const ModelName = {
   RecurringRule: 'RecurringRule',
   CurrencyExchange: 'CurrencyExchange',
   WorkspaceConsolidationRate: 'WorkspaceConsolidationRate',
+  UsdQuoteSnapshot: 'UsdQuoteSnapshot',
+  UsdQuoteLine: 'UsdQuoteLine',
   CrossWorkspaceLink: 'CrossWorkspaceLink',
   Budget: 'Budget',
   BudgetCategory: 'BudgetCategory',
@@ -420,7 +435,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "workspace" | "membership" | "invitation" | "category" | "financeAccount" | "transaction" | "recurringRule" | "currencyExchange" | "workspaceConsolidationRate" | "crossWorkspaceLink" | "budget" | "budgetCategory" | "goal" | "goalContribution" | "expenseSplit" | "expenseSplitShare" | "settlement"
+    modelProps: "user" | "session" | "account" | "verification" | "workspace" | "membership" | "invitation" | "category" | "financeAccount" | "transaction" | "recurringRule" | "currencyExchange" | "workspaceConsolidationRate" | "usdQuoteSnapshot" | "usdQuoteLine" | "crossWorkspaceLink" | "budget" | "budgetCategory" | "goal" | "goalContribution" | "expenseSplit" | "expenseSplitShare" | "settlement"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1386,6 +1401,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    UsdQuoteSnapshot: {
+      payload: Prisma.$UsdQuoteSnapshotPayload<ExtArgs>
+      fields: Prisma.UsdQuoteSnapshotFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UsdQuoteSnapshotFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UsdQuoteSnapshotPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UsdQuoteSnapshotFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UsdQuoteSnapshotPayload>
+        }
+        findFirst: {
+          args: Prisma.UsdQuoteSnapshotFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UsdQuoteSnapshotPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UsdQuoteSnapshotFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UsdQuoteSnapshotPayload>
+        }
+        findMany: {
+          args: Prisma.UsdQuoteSnapshotFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UsdQuoteSnapshotPayload>[]
+        }
+        create: {
+          args: Prisma.UsdQuoteSnapshotCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UsdQuoteSnapshotPayload>
+        }
+        createMany: {
+          args: Prisma.UsdQuoteSnapshotCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UsdQuoteSnapshotCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UsdQuoteSnapshotPayload>[]
+        }
+        delete: {
+          args: Prisma.UsdQuoteSnapshotDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UsdQuoteSnapshotPayload>
+        }
+        update: {
+          args: Prisma.UsdQuoteSnapshotUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UsdQuoteSnapshotPayload>
+        }
+        deleteMany: {
+          args: Prisma.UsdQuoteSnapshotDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UsdQuoteSnapshotUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UsdQuoteSnapshotUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UsdQuoteSnapshotPayload>[]
+        }
+        upsert: {
+          args: Prisma.UsdQuoteSnapshotUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UsdQuoteSnapshotPayload>
+        }
+        aggregate: {
+          args: Prisma.UsdQuoteSnapshotAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUsdQuoteSnapshot>
+        }
+        groupBy: {
+          args: Prisma.UsdQuoteSnapshotGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UsdQuoteSnapshotGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UsdQuoteSnapshotCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UsdQuoteSnapshotCountAggregateOutputType> | number
+        }
+      }
+    }
+    UsdQuoteLine: {
+      payload: Prisma.$UsdQuoteLinePayload<ExtArgs>
+      fields: Prisma.UsdQuoteLineFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UsdQuoteLineFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UsdQuoteLinePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UsdQuoteLineFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UsdQuoteLinePayload>
+        }
+        findFirst: {
+          args: Prisma.UsdQuoteLineFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UsdQuoteLinePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UsdQuoteLineFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UsdQuoteLinePayload>
+        }
+        findMany: {
+          args: Prisma.UsdQuoteLineFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UsdQuoteLinePayload>[]
+        }
+        create: {
+          args: Prisma.UsdQuoteLineCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UsdQuoteLinePayload>
+        }
+        createMany: {
+          args: Prisma.UsdQuoteLineCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UsdQuoteLineCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UsdQuoteLinePayload>[]
+        }
+        delete: {
+          args: Prisma.UsdQuoteLineDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UsdQuoteLinePayload>
+        }
+        update: {
+          args: Prisma.UsdQuoteLineUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UsdQuoteLinePayload>
+        }
+        deleteMany: {
+          args: Prisma.UsdQuoteLineDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UsdQuoteLineUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UsdQuoteLineUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UsdQuoteLinePayload>[]
+        }
+        upsert: {
+          args: Prisma.UsdQuoteLineUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UsdQuoteLinePayload>
+        }
+        aggregate: {
+          args: Prisma.UsdQuoteLineAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUsdQuoteLine>
+        }
+        groupBy: {
+          args: Prisma.UsdQuoteLineGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UsdQuoteLineGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UsdQuoteLineCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UsdQuoteLineCountAggregateOutputType> | number
+        }
+      }
+    }
     CrossWorkspaceLink: {
       payload: Prisma.$CrossWorkspaceLinkPayload<ExtArgs>
       fields: Prisma.CrossWorkspaceLinkFieldRefs
@@ -2226,6 +2389,32 @@ export const WorkspaceConsolidationRateScalarFieldEnum = {
 export type WorkspaceConsolidationRateScalarFieldEnum = (typeof WorkspaceConsolidationRateScalarFieldEnum)[keyof typeof WorkspaceConsolidationRateScalarFieldEnum]
 
 
+export const UsdQuoteSnapshotScalarFieldEnum = {
+  id: 'id',
+  asOfDate: 'asOfDate',
+  fetchedAt: 'fetchedAt',
+  provider: 'provider',
+  providerUrl: 'providerUrl',
+  createdAt: 'createdAt'
+} as const
+
+export type UsdQuoteSnapshotScalarFieldEnum = (typeof UsdQuoteSnapshotScalarFieldEnum)[keyof typeof UsdQuoteSnapshotScalarFieldEnum]
+
+
+export const UsdQuoteLineScalarFieldEnum = {
+  id: 'id',
+  snapshotId: 'snapshotId',
+  casa: 'casa',
+  nombre: 'nombre',
+  buyRateScaled: 'buyRateScaled',
+  sellRateScaled: 'sellRateScaled',
+  scale: 'scale',
+  providerUpdatedAt: 'providerUpdatedAt'
+} as const
+
+export type UsdQuoteLineScalarFieldEnum = (typeof UsdQuoteLineScalarFieldEnum)[keyof typeof UsdQuoteLineScalarFieldEnum]
+
+
 export const CrossWorkspaceLinkScalarFieldEnum = {
   id: 'id',
   kind: 'kind',
@@ -2630,19 +2819,10 @@ export type BatchPayload = {
 export const defineExtension = runtime.Extensions.defineExtension as unknown as runtime.Types.Extensions.ExtendsHook<"define", TypeMapCb, runtime.Types.Extensions.DefaultArgs>
 export type DefaultPrismaClient = PrismaClient
 export type ErrorFormat = 'pretty' | 'colorless' | 'minimal'
-export type PrismaClientOptions = ({
-  /**
-   * Instance of a Driver Adapter, e.g., like one provided by `@prisma/adapter-pg`.
-   */
-  adapter: runtime.SqlDriverAdapterFactory
-  accelerateUrl?: never
-} | {
-  /**
-   * Prisma Accelerate URL allowing the client to connect through Accelerate instead of a direct database.
-   */
-  accelerateUrl: string
-  adapter?: never
-}) & {
+/**
+ * Options common to all variants of `PrismaClientOptions`, regardless of whether you connect to your database through a driver adapter or through Prisma Accelerate.
+ */
+export interface PrismaClientBaseOptions {
   /**
    * @default "colorless"
    */
@@ -2729,6 +2909,56 @@ export type PrismaClientOptions = ({
    */
   queryPlanCacheMaxSize?: number
 }
+
+/**
+ * `PrismaClient` options for connecting to your database through Prisma Accelerate instead of a driver adapter.
+ * 
+ * Learn more: https://pris.ly/d/accelerate
+ */
+export interface PrismaClientOptionsWithAccelerateUrl extends PrismaClientBaseOptions {
+  /**
+   * The Prisma Accelerate connection URL. Use this option to connect to your database through Prisma Accelerate instead of using a driver adapter to connect directly.
+   * 
+   * Learn more: https://pris.ly/d/accelerate
+   */
+  accelerateUrl: string
+  adapter?: never
+}
+
+/**
+ * `PrismaClient` options for connecting to your database through a driver adapter. This is the common case in Prisma 7.
+ * 
+ * Learn more: https://pris.ly/d/driver-adapters
+ */
+export interface PrismaClientOptionsWithAdapter extends PrismaClientBaseOptions {
+  /**
+   * A driver adapter that PrismaClient uses to connect to your database, such as the ones provided by `@prisma/adapter-pg`, `@prisma/adapter-libsql`, `@prisma/adapter-planetscale`, etc.
+   * 
+   * A driver adapter is **required** unless you connect to your database through Prisma Accelerate (in which case use `accelerateUrl` instead).
+   * 
+   * Learn more: https://pris.ly/d/driver-adapters
+   * 
+   * @example
+   * ```ts
+   * import { PrismaPg } from '@prisma/adapter-pg'
+   * import { PrismaClient } from './generated/prisma/client'
+   * 
+   * const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL })
+   * const prisma = new PrismaClient({ adapter })
+   * ```
+   */
+  adapter: runtime.SqlDriverAdapterFactory
+  accelerateUrl?: never
+}
+
+/**
+ * Options passed to the `PrismaClient` constructor.
+ * 
+ * A driver adapter (or, alternatively, a Prisma Accelerate URL) is **required**. See {@link PrismaClientOptionsWithAdapter} and {@link PrismaClientOptionsWithAccelerateUrl} for the two variants. All other properties live in {@link PrismaClientBaseOptions} and are optional.
+ * 
+ * Learn more about driver adapters: https://pris.ly/d/driver-adapters
+ */
+export type PrismaClientOptions = PrismaClientOptionsWithAccelerateUrl | PrismaClientOptionsWithAdapter
 export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   session?: Prisma.SessionOmit
@@ -2743,6 +2973,8 @@ export type GlobalOmitConfig = {
   recurringRule?: Prisma.RecurringRuleOmit
   currencyExchange?: Prisma.CurrencyExchangeOmit
   workspaceConsolidationRate?: Prisma.WorkspaceConsolidationRateOmit
+  usdQuoteSnapshot?: Prisma.UsdQuoteSnapshotOmit
+  usdQuoteLine?: Prisma.UsdQuoteLineOmit
   crossWorkspaceLink?: Prisma.CrossWorkspaceLinkOmit
   budget?: Prisma.BudgetOmit
   budgetCategory?: Prisma.BudgetCategoryOmit

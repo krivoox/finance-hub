@@ -11,6 +11,8 @@ import { listCategories } from "@/features/categories/services";
 import { CategoriesSettingsPanel } from "@/features/categories/components/categories-settings-panel";
 import { ConsolidationRateForm } from "@/features/currency-exchange/components/consolidation-rate-form";
 import { getConsolidationRate } from "@/features/currency-exchange/services";
+import { getUsdQuotes } from "@/features/fx-quotes/services";
+import { env } from "@/lib/env";
 import {
   parseSettingsTab,
   SettingsTabsNav,
@@ -42,7 +44,7 @@ export default async function SettingsPage({ searchParams }: PageProps) {
     ? workspace.role !== "viewer"
     : false;
 
-  const [categories, consolidationRate] = await Promise.all([
+  const [categories, consolidationRate, usdQuotes] = await Promise.all([
     activeTab === "categorias" && workspace
       ? listCategories({
           userId: user.id,
@@ -55,6 +57,9 @@ export default async function SettingsPage({ searchParams }: PageProps) {
           userId: user.id,
           workspaceId: workspace.id,
         })
+      : Promise.resolve(null),
+    activeTab === "workspace" && env.USD_QUOTES_ENABLED
+      ? getUsdQuotes({ seedIfEmpty: false })
       : Promise.resolve(null),
   ]);
 
@@ -100,6 +105,8 @@ export default async function SettingsPage({ searchParams }: PageProps) {
               <ConsolidationRateForm
                 workspaceId={workspace.id}
                 canMutate={workspace.role !== "viewer"}
+                mepAvailable={Boolean(usdQuotes?.available && usdQuotes.mep)}
+                mepSellArsPerUsd={usdQuotes?.mep?.sellArsPerUsd ?? null}
                 initial={
                   consolidationRate
                     ? {

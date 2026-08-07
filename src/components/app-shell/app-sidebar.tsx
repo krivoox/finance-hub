@@ -44,6 +44,8 @@ import {
 } from "@/features/workspaces/components/workspace-switcher";
 
 import { ThemeToggle } from "@/components/theme-toggle";
+import { UsdQuotesCard } from "@/features/fx-quotes/components/usd-quotes-card";
+import type { UsdQuotesDto } from "@/features/fx-quotes/types";
 
 import {
   applyNavBadges,
@@ -66,6 +68,7 @@ export type AppSidebarProps = {
   workspaces: readonly WorkspaceOption[];
   activeWorkspace: WorkspaceOption | null;
   navBadges?: NavBadges;
+  usdQuotes?: UsdQuotesDto | null;
 };
 
 function SidebarUserMenu({ user }: { user: SidebarUser }) {
@@ -221,6 +224,7 @@ export function AppSidebar({
   workspaces,
   activeWorkspace,
   navBadges = {},
+  usdQuotes = null,
 }: AppSidebarProps) {
   const { isMobile, setOpenMobile } = useSidebar();
   const openNewTransaction = useNewTransactionSheetStore((s) => s.openSheet);
@@ -277,6 +281,13 @@ export function AppSidebar({
       </SidebarContent>
 
       <SidebarFooter className="gap-2.5 pb-3 md:gap-2 md:pb-2">
+        {usdQuotes ? (
+          <UsdQuotesCard
+            quotes={usdQuotes}
+            workspaceId={activeWorkspace?.id ?? null}
+            canMutate={canMutate}
+          />
+        ) : null}
         <SidebarSeparator />
         <SidebarGroup className="p-0">
           <SidebarGroupContent>
