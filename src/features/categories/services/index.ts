@@ -4,6 +4,8 @@ export type {
   SeedDefaultCategoriesInput,
 } from "./seed-default-categories";
 
+export { ensureSubscriptionCategories } from "./ensure-subscription-categories";
+
 export { createCategory } from "./create-category";
 export type {
   CreateCategoryServiceInput,

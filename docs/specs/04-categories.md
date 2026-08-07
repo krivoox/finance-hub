@@ -45,8 +45,9 @@ Las categorías clasifican ingresos y gastos para presupuestos y analytics.
 
 ## 6. Criterios de aceptación
 
-- [ ] Workspace nuevo tiene categorías seed (≥ 5 expense, ≥ 2 income).
+- [ ] Workspace nuevo tiene categorías seed (≥ 5 expense, ≥ 2 income), con emojis en nombres de uso diario y categorías de suscripción (`📺 Streaming`, `🤖 IA`, `💻 Software`, `🎮 Gaming`, `☁️ Almacenamiento`).
 - [ ] Validación kind al asociar a transaction (SPEC-05).
+- [ ] Workspaces existentes reciben las categorías de suscripción vía `ensureSubscriptionCategories` (Ajustes / Recurrentes).
 
 ## 7. Escenarios de test (TDD)
 

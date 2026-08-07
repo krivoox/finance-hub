@@ -87,22 +87,29 @@ export const CATEGORY_NAME_MAX_LENGTH = 60;
  * SPEC-04 T-01 — Defaults seeded on workspace creation.
  * Must contain ≥ 5 expense and ≥ 2 income categories.
  * All names are top-level (no parent) and case-insensitively unique per kind.
+ * Names include a leading emoji for recognition in lists (except system
+ * contribution categories — exact match for SPEC-14).
  */
 export const DEFAULT_CATEGORIES: readonly {
   readonly name: string;
   readonly kind: CategoryKind;
 }[] = [
-  { name: "Comida", kind: "expense" },
-  { name: "Transporte", kind: "expense" },
-  { name: "Vivienda", kind: "expense" },
-  { name: "Servicios", kind: "expense" },
-  { name: "Ocio", kind: "expense" },
-  { name: "Salud", kind: "expense" },
-  { name: "Educación", kind: "expense" },
-  { name: "Otros gastos", kind: "expense" },
+  { name: "🍽️ Comida", kind: "expense" },
+  { name: "🚌 Transporte", kind: "expense" },
+  { name: "🏠 Vivienda", kind: "expense" },
+  { name: "💡 Servicios", kind: "expense" },
+  { name: "🎉 Ocio", kind: "expense" },
+  { name: "📺 Streaming", kind: "expense" },
+  { name: "🤖 IA", kind: "expense" },
+  { name: "💻 Software", kind: "expense" },
+  { name: "🎮 Gaming", kind: "expense" },
+  { name: "☁️ Almacenamiento", kind: "expense" },
+  { name: "🏥 Salud", kind: "expense" },
+  { name: "📚 Educación", kind: "expense" },
+  { name: "📦 Otros gastos", kind: "expense" },
   { name: "Aportes a espacios", kind: "expense" },
-  { name: "Salario", kind: "income" },
-  { name: "Otros ingresos", kind: "income" },
+  { name: "💰 Salario", kind: "income" },
+  { name: "📥 Otros ingresos", kind: "income" },
   { name: "Aportes recibidos", kind: "income" },
 ] as const;
 
@@ -111,6 +118,40 @@ export const CONTRIBUTION_CATEGORY_NAMES = {
   expense: "Aportes a espacios",
   income: "Aportes recibidos",
 } as const;
+
+/**
+ * Expense categories used by subscription platform templates (SPEC-18).
+ * Seeded on workspace create; also ensured for older workspaces.
+ */
+export const SUBSCRIPTION_CATEGORY_NAMES = {
+  streaming: "📺 Streaming",
+  ai: "🤖 IA",
+  software: "💻 Software",
+  gaming: "🎮 Gaming",
+  storage: "☁️ Almacenamiento",
+} as const;
+
+export const SUBSCRIPTION_DEFAULT_CATEGORY_NAMES: readonly string[] = [
+  SUBSCRIPTION_CATEGORY_NAMES.streaming,
+  SUBSCRIPTION_CATEGORY_NAMES.ai,
+  SUBSCRIPTION_CATEGORY_NAMES.software,
+  SUBSCRIPTION_CATEGORY_NAMES.gaming,
+  SUBSCRIPTION_CATEGORY_NAMES.storage,
+];
+
+/**
+ * Comparison key for category names: case/diacritic-insensitive and emoji-free
+ * so "📺 Streaming" matches "Streaming".
+ */
+export function categoryNameKey(name: string): string {
+  return normalizeCategoryName(name)
+    .toLocaleLowerCase()
+    .normalize("NFKD")
+    .replace(/\p{M}+/gu, "")
+    .replace(/[^\p{L}\p{N}\s]/gu, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 // ---------------------------------------------------------------------------
 // Helpers

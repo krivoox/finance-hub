@@ -28,6 +28,7 @@ export function AppShell({
   workspaces,
   activeWorkspace,
   navBadges,
+  usdQuotes,
 }: AppShellProps) {
   const pathname = usePathname();
   const title = getPageTitle(pathname);
@@ -40,6 +41,7 @@ export function AppShell({
         workspaces={workspaces}
         activeWorkspace={activeWorkspace}
         navBadges={navBadges}
+        usdQuotes={usdQuotes}
       />
       {/*
         Mobile: document/body scrolls (no nested overflow trap).

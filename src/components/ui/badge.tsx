@@ -21,7 +21,7 @@ const badgeVariants = cva(
         link: "text-primary underline-offset-4 hover:underline",
         info: "bg-info-muted text-info-muted-foreground",
         success: "bg-success-muted text-success",
-        warning: "bg-warning-muted text-warning-foreground",
+        warning: "bg-warning-muted text-warning",
         income: "bg-income-muted text-income",
         expense: "bg-expense-muted text-expense",
         transfer: "bg-transfer-muted text-transfer",

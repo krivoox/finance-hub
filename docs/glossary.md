@@ -15,7 +15,9 @@
 | Occurrence / Ocurrencia proyectada | Fecha + datos calculados de una plantilla para un período; no es `Transaction` hasta confirmar |
 | Materializar | Confirmar una ocurrencia y crear la `Transaction` real en el ledger (SPEC-18) |
 | Currency exchange / Canje | Cambio ARS↔USD: dos montos + link; tipos `fx_debit` / `fx_credit` |
-| Consolidation rate | Tasa manual del workspace para patrimonio estimado en `baseCurrency` |
+| Consolidation rate | Tasa del workspace para patrimonio estimado en `baseCurrency` (manual o apply explícito desde MEP) |
+| Cotización / Usd quote | Precio de mercado USD del día (oficial, bolsa/MEP, …) cacheado vía DolarApi — SPEC-19; no es el TC de consolidación hasta que el usuario aplique |
+| MEP / Dólar bolsa | Cotización bursátil (`casa: "bolsa"` en DolarApi); en producto se muestra como MEP |
 | Cross-workspace contribution | Aporte: expense en un espacio + income en otro, ligados |
 | Externally funded expense | Gasto registrado en un workspace pagado con cuenta de otro |
 | Category | Etiqueta de clasificación de ingresos/gastos |

@@ -201,15 +201,31 @@ Canje entre dos cuentas del mismo workspace con monedas distintas (SPEC-16).
 
 ### WorkspaceConsolidationRate
 
-Tasa manual única activa por workspace para patrimonio estimado.
+Tasa manual única activa por workspace para patrimonio estimado. Puede originarse en carga manual o en apply explícito desde cotización MEP ([SPEC-19](./specs/19-usd-quotes-dolarapi.md)); el feed **no** la actualiza solo.
 
 | Campo | Tipo | Notas |
 |-------|------|-------|
 | workspaceId | Id | unique |
 | quoteCurrency | CurrencyCode | tipicamente USD cuando base=ARS |
-| rateScaled | number | enteros; scale documentado en dominio |
+| rateScaled | number | enteros; scale documentado en dominio (`CONSOLIDATION_RATE_SCALE = 1_000_000`) |
 | label | string | ej. "Blue", "MEP", "Manual" |
 | asOf | Date | |
+
+### UsdQuoteSnapshot / UsdQuoteLine (SPEC-19)
+
+Snapshot **global** (no tenancy) de cotizaciones USD del día vía [DolarApi.com](https://dolarapi.com/docs/). Refresh programado 1×/día; la UI lee DB, no el provider.
+
+| Entidad | Rol |
+|---------|-----|
+| UsdQuoteSnapshot | Un row por `asOfDate` (calendario `America/Argentina/Buenos_Aires`); `fetchedAt`, `provider` (`dolarapi`), `providerUrl` |
+| UsdQuoteLine | Por `casa` (`oficial` \| `bolsa` \| `tarjeta` \| …); `buyRateScaled` / `sellRateScaled` / `scale` / `providerUpdatedAt` |
+
+**Invariantes**
+
+- Rates enteros > 0; scale alineado a consolidación (`1_000_000`).
+- `casa: "bolsa"` ≡ **MEP** en producto; apply a consolidación es comando explícito (label `"MEP"`, side venta).
+- `tarjeta` informativa / opcional; **no** es fuente fiscal (suele ser oficial × 1.30 legacy).
+- Snapshot usable en UI requiere al menos `oficial` + `bolsa`.
 
 ### CrossWorkspaceLink
 

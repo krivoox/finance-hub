@@ -45,6 +45,21 @@ const envSchema = z.object({
     .enum(["0", "1", "true", "false"])
     .optional()
     .default("0"),
+
+  /**
+   * SPEC-19 — Daily USD quotes (DolarApi). Off when unset/"false".
+   * Without this, sidebar/dashboard hide feed + apply-from-quote CTA.
+   */
+  USD_QUOTES_ENABLED: z
+    .enum(["0", "1", "true", "false"])
+    .optional()
+    .default("true"),
+
+  /** Optional override; default https://dolarapi.com */
+  DOLARAPI_BASE_URL: z.string().url().optional(),
+
+  /** Bearer for /api/cron/* routes (Vercel Cron). */
+  CRON_SECRET: z.string().min(1).optional(),
 });
 
 /**
@@ -86,9 +101,16 @@ if (!parsed.success) {
 
 const data = parsed.data;
 
+function flagEnabled(value: string | undefined, defaultOn: boolean): boolean {
+  if (value == null) return defaultOn;
+  return value === "1" || value === "true";
+}
+
 export const env = {
   ...data,
   BETTER_AUTH_URL: resolveBetterAuthUrl(data),
+  USD_QUOTES_ENABLED: flagEnabled(data.USD_QUOTES_ENABLED, true),
+  DOLARAPI_BASE_URL: data.DOLARAPI_BASE_URL ?? "https://dolarapi.com",
 };
 
 /** True when Google social sign-in can be offered (both credentials present). */

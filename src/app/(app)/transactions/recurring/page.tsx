@@ -4,12 +4,19 @@ import { ContentPanel } from "@/components/app-shell/content-panel";
 import { getSession } from "@/lib/session";
 import { getActiveWorkspaceForUser } from "@/features/workspaces/services";
 import { listAccounts } from "@/features/accounts/services";
-import { listCategories } from "@/features/categories/services";
+import {
+  listCategories,
+  ensureSubscriptionCategories,
+} from "@/features/categories/services";
+import { getUsdQuotes } from "@/features/fx-quotes/services";
 import {
   listPendingOccurrences,
   listRecurringRules,
 } from "@/features/recurring/services";
-import { NewRecurringSheet } from "@/features/recurring/components/new-recurring-sheet";
+import {
+  RecurringCreateActions,
+  RecurringTemplatesEmptyCta,
+} from "@/features/recurring/components/recurring-create-actions";
 import { PendingOccurrencesTable } from "@/features/recurring/components/pending-occurrences-table";
 import { RecurringRulesTable } from "@/features/recurring/components/recurring-rules-table";
 
@@ -36,7 +43,9 @@ export default async function RecurringHubPage() {
 
   const canMutate = workspace.role !== "viewer";
 
-  const [rules, pending, accounts, categories] = await Promise.all([
+  await ensureSubscriptionCategories(workspace.id);
+
+  const [rules, pending, accounts, categories, quotes] = await Promise.all([
     listRecurringRules({
       userId: session.user.id,
       workspaceId: workspace.id,
@@ -47,6 +56,7 @@ export default async function RecurringHubPage() {
     }),
     listAccounts({ userId: session.user.id, workspaceId: workspace.id }),
     listCategories({ userId: session.user.id, workspaceId: workspace.id }),
+    getUsdQuotes({ seedIfEmpty: false }),
   ]);
 
   const activeAccounts = accounts.filter((a) => !a.isArchived);
@@ -65,17 +75,20 @@ export default async function RecurringHubPage() {
       kind: c.kind as "income" | "expense",
     }));
 
+  const quotesForUi = quotes.enabled ? quotes : null;
+
   return (
     <ContentPanel
       title="Recurrentes"
       description={`Ingresos, gastos y transferencias recurrentes en ${workspace.name}.`}
       actions={
         canMutate ? (
-          <NewRecurringSheet
+          <RecurringCreateActions
             workspaceId={workspace.id}
             workspaceCurrency={workspace.baseCurrency}
             accounts={accountOptions}
             categories={categoryOptions}
+            quotes={quotesForUi}
           />
         ) : undefined
       }
@@ -102,7 +115,21 @@ export default async function RecurringHubPage() {
               {rules.length}
             </span>
           </header>
-          <RecurringRulesTable rules={rules} canMutate={canMutate} />
+          <RecurringRulesTable
+            rules={rules}
+            canMutate={canMutate}
+            emptyAction={
+              canMutate ? (
+                <RecurringTemplatesEmptyCta
+                  workspaceId={workspace.id}
+                  workspaceCurrency={workspace.baseCurrency}
+                  accounts={accountOptions}
+                  categories={categoryOptions}
+                  quotes={quotesForUi}
+                />
+              ) : undefined
+            }
+          />
         </section>
       </div>
     </ContentPanel>

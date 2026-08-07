@@ -83,6 +83,16 @@ export type CurrencyExchange = Prisma.CurrencyExchangeModel
  */
 export type WorkspaceConsolidationRate = Prisma.WorkspaceConsolidationRateModel
 /**
+ * Model UsdQuoteSnapshot
+ * 
+ */
+export type UsdQuoteSnapshot = Prisma.UsdQuoteSnapshotModel
+/**
+ * Model UsdQuoteLine
+ * 
+ */
+export type UsdQuoteLine = Prisma.UsdQuoteLineModel
+/**
  * Model CrossWorkspaceLink
  * 
  */

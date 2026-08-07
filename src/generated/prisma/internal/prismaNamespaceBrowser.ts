@@ -64,6 +64,8 @@ export const ModelName = {
   RecurringRule: 'RecurringRule',
   CurrencyExchange: 'CurrencyExchange',
   WorkspaceConsolidationRate: 'WorkspaceConsolidationRate',
+  UsdQuoteSnapshot: 'UsdQuoteSnapshot',
+  UsdQuoteLine: 'UsdQuoteLine',
   CrossWorkspaceLink: 'CrossWorkspaceLink',
   Budget: 'Budget',
   BudgetCategory: 'BudgetCategory',
@@ -297,6 +299,32 @@ export const WorkspaceConsolidationRateScalarFieldEnum = {
 } as const
 
 export type WorkspaceConsolidationRateScalarFieldEnum = (typeof WorkspaceConsolidationRateScalarFieldEnum)[keyof typeof WorkspaceConsolidationRateScalarFieldEnum]
+
+
+export const UsdQuoteSnapshotScalarFieldEnum = {
+  id: 'id',
+  asOfDate: 'asOfDate',
+  fetchedAt: 'fetchedAt',
+  provider: 'provider',
+  providerUrl: 'providerUrl',
+  createdAt: 'createdAt'
+} as const
+
+export type UsdQuoteSnapshotScalarFieldEnum = (typeof UsdQuoteSnapshotScalarFieldEnum)[keyof typeof UsdQuoteSnapshotScalarFieldEnum]
+
+
+export const UsdQuoteLineScalarFieldEnum = {
+  id: 'id',
+  snapshotId: 'snapshotId',
+  casa: 'casa',
+  nombre: 'nombre',
+  buyRateScaled: 'buyRateScaled',
+  sellRateScaled: 'sellRateScaled',
+  scale: 'scale',
+  providerUpdatedAt: 'providerUpdatedAt'
+} as const
+
+export type UsdQuoteLineScalarFieldEnum = (typeof UsdQuoteLineScalarFieldEnum)[keyof typeof UsdQuoteLineScalarFieldEnum]
 
 
 export const CrossWorkspaceLinkScalarFieldEnum = {

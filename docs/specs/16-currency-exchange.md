@@ -87,7 +87,7 @@ Un canje mueve valor entre dos cuentas del mismo workspace con **monedas distint
 
 ## 8. Fuera de alcance
 
-- Feeds blue / MEP / oficial
+- Feeds embebidos en el **canje** (CreateCurrencyExchange sigue con montos explícitos de ambas puntas). Cotizaciones de mercado (oficial / MEP) y apply a consolidación: [SPEC-19](./19-usd-quotes-dolarapi.md)
 - Fees embebidos en el canje
 - FX cross-workspace (SPEC-14)
 - Históricos de tasa / time-travel de patrimonio
