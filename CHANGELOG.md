@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add daily USD quotes from DolarApi
+
+- Add subscription platform templates with category defaults
+
+### Fixed
+
+- **ui:** Improve warning badge contrast in dark mode
+
+[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.10.1...HEAD
+
 ## [0.10.1] - 2026-08-06
 
 ### Fixed
