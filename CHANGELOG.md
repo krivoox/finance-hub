@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-08-07
+
 ### Added
 
 - Add daily USD quotes from DolarApi
@@ -17,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **ui:** Improve warning badge contrast in dark mode
 
-[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.10.1...HEAD
+[0.11.0]: https://github.com/krivoox/finance-hub/compare/v0.10.1...v0.11.0
 
 ## [0.10.1] - 2026-08-06
 
@@ -130,6 +132,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Baseline product release prior to Conventional Commits enforcement (accounts, workspaces, transactions, budgets, and related MVP surfaces)
 - Changelog automation (git-cliff), Conventional Commits (commitlint + husky), and SemVer GitHub Actions workflows
 
-[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.10.1...HEAD
-[0.10.1]: https://github.com/krivoox/finance-hub/compare/v0.10.0...v0.10.1
+[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/krivoox/finance-hub/compare/v0.10.1...v0.11.0
 [0.1.0]: https://github.com/krivoox/finance-hub/releases/tag/v0.1.0
