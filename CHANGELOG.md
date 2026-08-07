@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.11.0...HEAD
+
 ## [0.11.0] - 2026-08-07
 
 ### Added
