@@ -7,7 +7,10 @@ import {
   type SupportedCurrency,
 } from "@/features/auth/domain/profile";
 import { getCurrentUser } from "@/features/auth/services/get-current-user";
-import { listCategories } from "@/features/categories/services";
+import {
+  ensureSubscriptionCategories,
+  listCategories,
+} from "@/features/categories/services";
 import { CategoriesSettingsPanel } from "@/features/categories/components/categories-settings-panel";
 import { ConsolidationRateForm } from "@/features/currency-exchange/components/consolidation-rate-form";
 import { getConsolidationRate } from "@/features/currency-exchange/services";
@@ -43,6 +46,10 @@ export default async function SettingsPage({ searchParams }: PageProps) {
   const canMutateCategories = workspace
     ? workspace.role !== "viewer"
     : false;
+
+  if (activeTab === "categorias" && workspace) {
+    await ensureSubscriptionCategories(workspace.id);
+  }
 
   const [categories, consolidationRate, usdQuotes] = await Promise.all([
     activeTab === "categorias" && workspace

@@ -239,7 +239,7 @@ Invariantes: `buyRateScaled > 0`, `sellRateScaled > 0`.
 ## 9. Fuera de alcance
 
 - Auto-sync de `WorkspaceConsolidationRate` al refrescar el feed
-- Markup % / plantillas de plataformas / entidad Subscription → delta [SPEC-18](./18-recurring-transactions.md) (fase posterior)
+- Entidad Subscription separada; recalc live de recurrentes al materializar → fase 2
 - Históricos de cotización para charts / time-travel de patrimonio
 - Blue / CCL como CTA de consolidación
 - Impuestos (PAIS, Ganancias, IVA/IIBB) derivados de `tarjeta`
@@ -261,10 +261,11 @@ Invariantes: `buyRateScaled > 0`, `sellRateScaled > 0`.
 
 **Invariante de producto:** el feed **nunca** muta ledger ni TC sin comando explícito del usuario.
 
-## 11. Handoff a SPEC-18 (posterior)
+## 11. Handoff a SPEC-18 — ~~posterior~~ hecho (MVP plantillas)
 
-Cuando existan plantillas de plataformas (Netflix, etc.):
+Plantillas de plataformas implementadas como delta de [SPEC-18 §10](./18-recurring-transactions.md):
 
-- Precio lista USD + **% markup editable** (sugerido ~23% IVA+IIBB; disclaimer; no verdad legal).
-- TC del wizard: editable; opcional “rellenar desde oficial/MEP del snapshot” — **no** usar `tarjeta` del feed como impuestos.
-- Persistir `RecurringRule` con monto fijo en moneda de la cuenta (como hoy). Recalc live al materializar = fase 2 de recurrentes.
+- [x] Precio lista USD + **% markup editable** (sugerido ~23% IVA+IIBB; disclaimer; no verdad legal). Markup en **basis points** en dominio.
+- [x] TC del wizard: editable; rellenar desde oficial/MEP del snapshot — **no** usar `tarjeta` del feed como impuestos.
+- [x] Persistir `RecurringRule` con monto fijo en moneda de la cuenta (como hoy). Recalc live al materializar = fase 2 de recurrentes.
+- [ ] Entidad `Subscription` — fuera de alcance (no prevista en MVP).
