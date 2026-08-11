@@ -28,6 +28,7 @@ export type PlatformTemplateId =
   | "claude"
   | "gemini"
   | "github-copilot"
+  | "cursor"
   | "perplexity"
   | "icloud"
   | "google-one";
@@ -60,8 +61,9 @@ export type PlatformTemplate = {
 
 /**
  * Sources (indicative, Aug 2026 press / official pages):
- * - Netflix / Spotify / Disney+ / Max / Prime / YouTube: iProfesional 6-ago-2026
- * - ChatGPT Plus / Claude Pro / Gemini / Copilot / Perplexity: vendor US list
+ * - Netflix / Spotify / Disney+ / Max / Prime: iProfesional 6-ago-2026 (ARS)
+ * - YouTube Premium: common AR card charge ~USD 3.05 (MEP manual pay)
+ * - ChatGPT Plus / Claude Pro / Gemini / Copilot / Cursor / Perplexity: vendor US list
  * - Adobe All Apps / Apple One / Google One / iCloud: vendor US list
  * - PlayStation Plus Essential: US list ~$9.99 (AR may bill ARS — editable)
  */
@@ -123,12 +125,13 @@ export const PLATFORM_TEMPLATES: readonly PlatformTemplate[] = [
     name: "YouTube Premium",
     monogram: "YT",
     planLabel: "Individual",
-    listPriceCents: 449_900,
-    listCurrency: "ARS",
+    // Many AR cards bill ~USD 3.05 (user buys MEP and pays manually)
+    listPriceCents: 305,
+    listCurrency: "USD",
     defaultTaxMarkupBps: 0,
     hint: "Video",
     priceAsOf: "2026-08",
-    region: "local",
+    region: "global",
     defaultCategoryName: SUBSCRIPTION_CATEGORY_NAMES.streaming,
   },
   {
@@ -228,6 +231,19 @@ export const PLATFORM_TEMPLATES: readonly PlatformTemplate[] = [
     monogram: "GC",
     planLabel: "Individual",
     listPriceCents: 1_000,
+    listCurrency: "USD",
+    defaultTaxMarkupBps: DEFAULT_TAX_MARKUP_BPS,
+    hint: "IA",
+    priceAsOf: "2026-08",
+    region: "global",
+    defaultCategoryName: SUBSCRIPTION_CATEGORY_NAMES.ai,
+  },
+  {
+    id: "cursor",
+    name: "Cursor",
+    monogram: "Cu",
+    planLabel: "Pro",
+    listPriceCents: 2_000,
     listCurrency: "USD",
     defaultTaxMarkupBps: DEFAULT_TAX_MARKUP_BPS,
     hint: "IA",

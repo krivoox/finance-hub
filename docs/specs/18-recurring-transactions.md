@@ -663,7 +663,7 @@ Atajo de UX para crear una `RecurringRule` de tipo `expense` mensual a partir de
 | Catálogo | `src/features/recurring/catalog/platform-templates.ts` — ids, nombre, monograma tipográfico, precio lista USD cents sugerido |
 | Markup | Basis points (`2300` = 23%). Default ON; editable; copy “estimación; verificá tu caso”. **No** usar casa `tarjeta` de DolarApi |
 | Dominio | `computeSubscriptionAmountCents` / `computeSubscriptionListBreakdown` — lista en **ARS o USD** × (1+markup bps) → `amountCents` en moneda de la cuenta. FX solo si monedas difieren (TC editable, default MEP sell SPEC-19). |
-| Catálogo | Precios de lista orientativos (≈ ago 2026): streaming ARS locales (precio publicado ≈ con impuestos → markup default 0); SaaS/IA global en USD (markup sugerido ~23%, editable). Galería: Locales / Globales. |
+| Catálogo | Precios de lista orientativos (≈ ago 2026): streaming ARS locales (precio publicado ≈ con impuestos → markup default 0); SaaS/IA global en USD (markup sugerido ~23%, editable). YouTube Premium sugerido ~USD 3.05 (cobro TC frecuente en AR). Galería única (sin agrupar). Wizard: moneda del precio **ARS \| USD** editable (convierte con TC si hay cotización); atajo “Usar moneda de la cuenta”. |
 | Categorías | Cada plantilla sugiere `defaultCategoryName` (`📺 Streaming`, `🤖 IA`, `💻 Software`, `🎮 Gaming`, `☁️ Almacenamiento`). Seed en `DEFAULT_CATEGORIES` + `ensureSubscriptionCategories` en workspaces viejos. |
 | Persistencia | `createRecurringRuleAction` existente (`type: expense`, `frequency: monthly`) |
 | UI | FormSheet en `/transactions/recurring`: galería → configurar → confirmar. CTA “Desde plantilla” + empty state. Link “Empezar en blanco” → form genérico |
