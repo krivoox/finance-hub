@@ -8,6 +8,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
+import { CafecitoDonationDialog } from "@/features/cafecito/components/cafecito-donation-dialog";
 import { NewTransactionSheet } from "@/features/transactions/components/new-transaction-sheet";
 
 import { AppSidebar, type AppSidebarProps } from "./app-sidebar";
@@ -16,6 +17,8 @@ import { getPageTitle } from "./nav-config";
 
 type AppShellProps = AppSidebarProps & {
   children: React.ReactNode;
+  /** Cafecito profile URL; null disables the donation soft-ask. */
+  cafecitoUrl?: string | null;
 };
 
 /** Space reserved for the floating mobile tab bar + safe area. */
@@ -29,6 +32,7 @@ export function AppShell({
   activeWorkspace,
   navBadges,
   usdQuotes,
+  cafecitoUrl = null,
 }: AppShellProps) {
   const pathname = usePathname();
   const title = getPageTitle(pathname);
@@ -42,6 +46,7 @@ export function AppShell({
         activeWorkspace={activeWorkspace}
         navBadges={navBadges}
         usdQuotes={usdQuotes}
+        cafecitoUrl={cafecitoUrl}
       />
       {/*
         Mobile: document/body scrolls (no nested overflow trap).
@@ -70,6 +75,7 @@ export function AppShell({
           {children}
         </div>
         <InstallPrompt />
+        <CafecitoDonationDialog donationUrl={cafecitoUrl} />
       </SidebarInset>
 
       <MobileTabBar
@@ -78,6 +84,7 @@ export function AppShell({
         activeWorkspace={activeWorkspace}
         navBadges={navBadges}
         canRegister={Boolean(activeWorkspace) && canMutate}
+        cafecitoUrl={cafecitoUrl}
       />
 
       <NewTransactionSheet
