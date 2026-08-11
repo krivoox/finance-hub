@@ -10,8 +10,11 @@ import {
 import { GroupsSectionNav } from "@/features/splits/components/groups-section-nav";
 import { NewGroupWorkspaceForm } from "@/features/workspaces/components/new-group-workspace-form";
 import { InviteMemberForm } from "@/features/workspaces/components/invite-member-form";
-import { MembersList } from "@/features/workspaces/components/members-list";
+import { MembersManagement } from "@/features/workspaces/components/members-management";
 import { PendingInvitationsList } from "@/features/workspaces/components/pending-invitations-list";
+import { RenameWorkspaceForm } from "@/features/workspaces/components/rename-workspace-form";
+import { LeaveGroupButton } from "@/features/workspaces/components/leave-group-button";
+import { DeleteGroupDialog } from "@/features/workspaces/components/delete-group-dialog";
 
 export default async function GroupsSettingsPage() {
   const session = await getSession();
@@ -40,7 +43,8 @@ export default async function GroupsSettingsPage() {
         <div className="space-y-4">
           <p className="text-sm text-muted-foreground">
             El workspace activo &ldquo;{active.name}&rdquo; es personal. Creá un
-            grupo para administrar miembros e invitaciones.
+            grupo para administrar miembros e invitaciones. El workspace personal
+            no se puede eliminar ni abandonar.
           </p>
           <NewGroupWorkspaceForm />
         </div>
@@ -50,6 +54,8 @@ export default async function GroupsSettingsPage() {
 
   const canManageMembers =
     active.role === "owner" || active.role === "admin";
+  const canRename = canManageMembers;
+  const canDelete = active.role === "owner";
 
   const [members, pending] = await Promise.all([
     listMembers(session.user.id, active.id),
@@ -57,6 +63,10 @@ export default async function GroupsSettingsPage() {
       ? listPendingInvitations(session.user.id, active.id)
       : Promise.resolve([]),
   ]);
+
+  const ownerCount = members.filter((m) => m.role === "owner").length;
+  const isLastOwner = active.role === "owner" && ownerCount <= 1;
+  const canLeave = !isLastOwner;
 
   return (
     <ContentPanel
@@ -74,13 +84,27 @@ export default async function GroupsSettingsPage() {
         </p>
       </div>
 
+      <section className="mb-8 space-y-3">
+        <h3 className="text-sm font-medium text-foreground">Nombre</h3>
+        <RenameWorkspaceForm
+          workspaceId={active.id}
+          initialName={active.name}
+          canRename={canRename}
+        />
+      </section>
+
       <section className="mb-8">
         <h3 className="mb-3 text-sm font-medium text-foreground">Miembros</h3>
-        <MembersList members={members} />
+        <MembersManagement
+          workspaceId={active.id}
+          members={members}
+          currentUserId={session.user.id}
+          currentRole={active.role}
+        />
       </section>
 
       {canManageMembers ? (
-        <section className="space-y-6">
+        <section className="mb-8 space-y-6">
           <InviteMemberForm workspaceId={active.id} />
           <div>
             <h3 className="mb-3 text-sm font-medium text-foreground">
@@ -99,10 +123,34 @@ export default async function GroupsSettingsPage() {
           </div>
         </section>
       ) : (
-        <p className="text-sm text-muted-foreground">
+        <p className="mb-8 text-sm text-muted-foreground">
           Solo owners y admins pueden invitar o gestionar pendientes.
         </p>
       )}
+
+      <section className="space-y-4">
+        <h3 className="text-sm font-medium text-foreground">Zona de peligro</h3>
+        <LeaveGroupButton
+          workspaceId={active.id}
+          workspaceName={active.name}
+          canLeave={canLeave}
+          blockedReason={
+            isLastOwner
+              ? "Sos el único owner. Transferí la propiedad a otro miembro antes de salir."
+              : undefined
+          }
+        />
+        <DeleteGroupDialog
+          workspaceId={active.id}
+          workspaceName={active.name}
+          canDelete={canDelete}
+        />
+        {!canDelete ? (
+          <p className="text-xs text-muted-foreground">
+            Solo el owner puede eliminar el grupo.
+          </p>
+        ) : null}
+      </section>
     </ContentPanel>
   );
 }
