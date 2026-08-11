@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add Cafecito donation soft-ask dialog
+
 [Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.12.0...HEAD
 
 ## [0.12.0] - 2026-08-11
