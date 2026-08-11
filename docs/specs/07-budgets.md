@@ -18,6 +18,7 @@ Los presupuestos limitan el gasto por categoría(s) en un periodo para controlar
 3. Quiero alertarme conceptualmente cuando supero el 80% o el 100% (dato derivado; UI muestra estado).
 4. Quiero abrir un presupuesto y ver los gastos del periodo que suman a ese límite.
 5. Quiero ver en el menú lateral cuántos presupuestos necesitan atención, y si alguno ya está excedido.
+6. En el **listado** de presupuestos, quiero ver de un vistazo las **categorías** asociadas (pills), sin abrir el detalle.
 
 ## 3. Requisitos funcionales
 
@@ -31,6 +32,7 @@ Los presupuestos limitan el gasto por categoría(s) en un periodo para controlar
 | FR-06 | Periodo monthly: ancla en startDate + timezone del workspace owner o user |
 | FR-07 | Detalle: listar expenses del periodo activo que matchean el budget (mismo filtro que FR-02) |
 | FR-08 | Badge de nav en Presupuestos: número = presupuestos no archivados en `warning` o `exceeded` (at-risk); si hay ≥1 `exceeded`, además icono crítico (`text-expense`); si solo `warning`, número con tono caution y sin icono rojo; si 0, sin badge. Accesible vía `aria-label` que diferencie atención vs exceso. Sin badges en otros ítems de nav (v1). |
+| FR-09 | Listado (`/budgets`, activos y archivados): mostrar pills de categorías por presupuesto. `categoryIds` vacío → pill “Todas” (todas las expense). Si hay muchas, mostrar un máximo compacto y colapsar el resto en `+N` (tooltip con nombres). Resolver nombres también para categorías archivadas vinculadas. |
 
 ## 4. Reglas de negocio
 
@@ -62,6 +64,7 @@ Los presupuestos limitan el gasto por categoría(s) en un periodo para controlar
 - [ ] Nav: solo warning → número visible, sin icono crítico.
 - [ ] Nav: ≥1 exceeded (solo o mezclado con warning) → número = total at-risk + icono crítico.
 - [ ] Nav: `aria-label` diferencia “al límite / cerca” vs “hay presupuestos excedidos”.
+- [x] Listado: pills de categorías bajo el nombre (activos y archivados); vacío → “Todas”; overflow `+N`.
 
 ## 7. Escenarios de test (TDD)
 
@@ -133,6 +136,7 @@ Los presupuestos limitan el gasto por categoría(s) en un periodo para controlar
 
 ## 9. Notas de implementación
 
-- Query `ListBudgetsWithProgress` (`listBudgetsWithStatus`): carga un **snapshot** request-scoped (budgets + expenses en la ventana de periodos activos, excluyendo categorías de aporte SPEC-14) y calcula `progress` por llamada con `referenceDate`.
+- Query `ListBudgetsWithProgress` (`listBudgetsWithStatus`): carga un **snapshot** request-scoped (budgets + expenses en la ventana de periodos activos, excluyendo categorías de aporte SPEC-14) y calcula `progress` por llamada con `referenceDate`. Ya incluye `categoryIds` por budget (no hace falta un query aparte para el listado).
+- Listado UI (FR-09): la página resuelve nombres con `listCategories` (`includeArchived: true`) → mapa `id → name`; componente `BudgetCategoryPills` reutiliza `CategoryPill` (tonos `chart-*`). Presentación pura; sin reglas de spent nuevas.
 - Badge de nav: `summarizeBudgetsAtRisk` / `summarizeBudgetNavSignal` reutiliza ese snapshot (una pasada → `{ atRisk, exceeded }`; no un listado aparte del ledger completo). Umbrales 80%/100% no cambian.
 - Detalle: [architecture.md §7.1](../architecture.md).
