@@ -24,6 +24,7 @@ type MobileTabBarProps = {
   activeWorkspace: WorkspaceOption | null;
   navBadges?: NavBadges;
   canRegister: boolean;
+  cafecitoUrl?: string | null;
 };
 
 /**
@@ -39,6 +40,7 @@ export function MobileTabBar({
   activeWorkspace,
   navBadges = {},
   canRegister,
+  cafecitoUrl = null,
 }: MobileTabBarProps) {
   const pathname = usePathname();
   const [moreOpen, setMoreOpen] = useState(false);
@@ -170,6 +172,7 @@ export function MobileTabBar({
         workspaces={workspaces}
         activeWorkspace={activeWorkspace}
         navBadges={navBadges}
+        cafecitoUrl={cafecitoUrl}
       />
     </>
   );

@@ -58,6 +58,13 @@ const envSchema = z.object({
   /** Optional override; default https://dolarapi.com */
   DOLARAPI_BASE_URL: z.string().url().optional(),
 
+  /**
+   * Public Cafecito profile URL for the donation soft-ask dialog.
+   * When unset, the popup and menu entry stay hidden.
+   * Example: https://cafecito.app/tu-usuario
+   */
+  NEXT_PUBLIC_CAFECITO_URL: z.string().url().optional(),
+
   /** Bearer for /api/cron/* routes (Vercel Cron). */
   CRON_SECRET: z.string().min(1).optional(),
 });
@@ -111,6 +118,7 @@ export const env = {
   BETTER_AUTH_URL: resolveBetterAuthUrl(data),
   USD_QUOTES_ENABLED: flagEnabled(data.USD_QUOTES_ENABLED, true),
   DOLARAPI_BASE_URL: data.DOLARAPI_BASE_URL ?? "https://dolarapi.com",
+  NEXT_PUBLIC_CAFECITO_URL: data.NEXT_PUBLIC_CAFECITO_URL ?? null,
 };
 
 /** True when Google social sign-in can be offered (both credentials present). */

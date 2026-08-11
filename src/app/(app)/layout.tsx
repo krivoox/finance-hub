@@ -107,6 +107,7 @@ export default async function AppLayout({
       }
       navBadges={navBadges}
       usdQuotes={usdQuotes}
+      cafecitoUrl={env.NEXT_PUBLIC_CAFECITO_URL}
     >
       {children}
     </AppShell>
