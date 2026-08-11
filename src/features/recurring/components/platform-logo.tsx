@@ -6,6 +6,7 @@ import {
   TbBrandAmazon,
   TbBrandApple,
   TbBrandDisney,
+  TbBrandGithubCopilot,
   TbBrandGoogleOne,
   TbBrandNetflix,
   TbBrandOpenai,
@@ -14,8 +15,8 @@ import {
 } from "react-icons/tb";
 import {
   SiClaude,
+  SiCursor,
   SiGooglegemini,
-  SiGithubcopilot,
   SiIcloud,
   SiMax,
   SiPerplexity,
@@ -43,14 +44,20 @@ const PLATFORM_ICONS: Record<
   openai: TbBrandOpenai,
   claude: SiClaude,
   gemini: SiGooglegemini,
-  "github-copilot": SiGithubcopilot,
+  "github-copilot": TbBrandGithubCopilot,
+  cursor: SiCursor,
   perplexity: SiPerplexity,
   icloud: SiIcloud,
   "google-one": TbBrandGoogleOne,
 };
 
-/** Brand fills for recognition on template tiles (icons only). */
-const PLATFORM_BRAND_COLOR: Record<PlatformTemplateId, string> = {
+/**
+ * Brand fills for recognition on template tiles.
+ * Omit for monochrome marks so they use `text-foreground` (visible in light/dark).
+ */
+const PLATFORM_BRAND_COLOR: Partial<
+  Record<PlatformTemplateId, string>
+> = {
   netflix: "#E50914",
   spotify: "#1DB954",
   "disney-plus": "#113CCF",
@@ -63,7 +70,6 @@ const PLATFORM_BRAND_COLOR: Record<PlatformTemplateId, string> = {
   openai: "#10A37F",
   claude: "#D97757",
   gemini: "#8E75B2",
-  "github-copilot": "#000000",
   perplexity: "#20808D",
   icloud: "#3693F3",
   "google-one": "#4285F4",
@@ -101,8 +107,12 @@ export function PlatformLogo({
       aria-label={label}
     >
       <Icon
-        className={cn("size-5", iconClassName)}
-        style={{ color: brandColor }}
+        className={cn(
+          "size-5",
+          brandColor ? undefined : "text-foreground",
+          iconClassName,
+        )}
+        style={brandColor ? { color: brandColor } : undefined}
         aria-hidden
       />
     </span>

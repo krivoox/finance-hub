@@ -15,6 +15,7 @@ import { DateField } from "@/components/date-field";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { nativeSelectClassName } from "@/components/ui/native-select";
+import { CategoryPicker } from "@/features/categories/components/category-picker";
 import { cn } from "@/lib/utils";
 
 import {
@@ -347,19 +348,14 @@ export function TransactionsListToolbar({
           </FormField>
 
           <FormField label="Categoría" htmlFor="tx-filter-category" optional>
-            <select
+            <CategoryPicker
+              mode="single"
               id="tx-filter-category"
-              className={nativeSelectClassName}
-              value={draftCategoryId}
-              onChange={(e) => setDraftCategoryId(e.target.value)}
-            >
-              <option value="">Todas</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+              categories={categories}
+              value={draftCategoryId || null}
+              onChange={(id) => setDraftCategoryId(id ?? "")}
+              placeholder="Todas"
+            />
           </FormField>
 
           <FormActions>

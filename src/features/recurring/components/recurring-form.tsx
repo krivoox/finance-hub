@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { nativeSelectClassName } from "@/components/ui/native-select";
+import { CategoryPicker } from "@/features/categories/components/category-picker";
 import { refreshAfterMutation } from "@/lib/navigation";
 import {
   createRecurringRuleAction,
@@ -382,19 +383,25 @@ export function RecurringForm({
             htmlFor="rec-category"
             error={errors.categoryId?.message}
           >
-            <select
-              id="rec-category"
-              className={SELECT_CLASSES}
-              aria-invalid={Boolean(errors.categoryId)}
-              {...register("categoryId")}
-            >
-              <option value="">Elegí una categoría</option>
-              {categoryOptions.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
+            <Controller
+              control={control}
+              name="categoryId"
+              render={({ field }) => (
+                <CategoryPicker
+                  mode="single"
+                  id="rec-category"
+                  categories={categoryOptions.map((c) => ({
+                    id: c.id,
+                    name: c.name,
+                  }))}
+                  value={field.value || null}
+                  onChange={(id) => field.onChange(id ?? "")}
+                  disabled={isPending}
+                  aria-invalid={Boolean(errors.categoryId)}
+                  placeholder="Elegir categoría"
+                />
+              )}
+            />
           </FormField>
         )}
 
