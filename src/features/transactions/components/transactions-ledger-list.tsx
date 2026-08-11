@@ -5,8 +5,15 @@ import { useEffect, useState, useTransition } from "react";
 import { Button } from "@/components/ui/button";
 import { listTransactionsPageAction } from "@/features/transactions/actions";
 import type { ListedTransactionPageItem } from "@/features/transactions/actions";
-import type { ListTypeFilter } from "@/features/transactions/domain";
+import type {
+  CurrencyListTotals,
+  ListTypeFilter,
+} from "@/features/transactions/domain";
 
+import {
+  hasListTotalsToShow,
+  TransactionsListTotals,
+} from "./transactions-list-totals";
 import { TransactionsTable } from "./transactions-table";
 
 export type LedgerListQuery = {
@@ -23,6 +30,8 @@ type TransactionsLedgerListProps = {
   initialItems: readonly ListedTransactionPageItem[];
   initialNextCursor: string | null;
   query: LedgerListQuery;
+  /** Full filtered-set totals (SPEC-05 §4.6) — independent of pagination. */
+  totals: readonly CurrencyListTotals[];
 };
 
 /**
@@ -37,6 +46,7 @@ export function TransactionsLedgerList({
   initialItems,
   initialNextCursor,
   query,
+  totals,
 }: TransactionsLedgerListProps) {
   const [extraItems, setExtraItems] = useState<ListedTransactionPageItem[]>(
     [],
@@ -52,10 +62,26 @@ export function TransactionsLedgerList({
   }, [initialItems, initialNextCursor]);
 
   const items = [...initialItems, ...extraItems];
+  const showTotals = hasListTotalsToShow(totals, query.type);
 
   return (
     <>
-      <TransactionsTable items={items} workspaceId={workspaceId} />
+      {showTotals ? (
+        <div className="sticky top-0 z-10 -mx-4 mb-3 border-b border-border/70 bg-card/95 px-4 backdrop-blur-sm supports-backdrop-filter:bg-card/85 sm:-mx-6 sm:px-6 md:static md:mx-0 md:mb-2 md:border-border/50 md:bg-transparent md:px-0 md:backdrop-blur-none">
+          <TransactionsListTotals
+            buckets={totals}
+            typeFilter={query.type}
+            variant="strip"
+          />
+        </div>
+      ) : null}
+
+      <TransactionsTable
+        items={items}
+        workspaceId={workspaceId}
+        totals={totals}
+        typeFilter={query.type}
+      />
       {error ? (
         <p className="mt-4 text-center text-sm text-destructive" role="alert">
           {error}

@@ -25,6 +25,9 @@ export type {
   ListTransactionsResult,
 } from "./list-transactions";
 
+export { sumFilteredTransactions } from "./sum-filtered-transactions";
+export type { SumFilteredTransactionsInput } from "./sum-filtered-transactions";
+
 export { getTransaction } from "./get-transaction";
 
 export { getTransactionDetail } from "./get-transaction-detail";

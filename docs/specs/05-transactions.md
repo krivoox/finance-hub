@@ -21,6 +21,7 @@ La página `/transactions` (**Transacciones**; copy histórico “Movimientos”
 4. Quiero filtrar movimientos por periodo (este mes / esta semana / todo / rango), tipo, cuenta y categoría.
 5. Quiero paginar el listado hacia adelante sin perder el contexto de filtros (estado en URL).
 6. Quiero limpiar filtros y volver al default “Este mes”.
+7. Quiero ver un **total del conjunto filtrado** (p. ej. cuánto gasté en comida este mes) sin sumar a mano la lista.
 
 ## 3. Requisitos funcionales
 
@@ -31,6 +32,7 @@ La página `/transactions` (**Transacciones**; copy histórico “Movimientos”
 | FR-03 | Delete (hard en MVP si no hay split; si hay split, ver SPEC-10) |
 | FR-04 | List con filtros AND, periodo resuelto por timezone, y paginación cursor (ver §4.2–4.5) |
 | FR-05 | amount > 0; currency = account.currency |
+| FR-06 | Totales del resultado filtrado por moneda (ver §4.6) — independientes de la página actual |
 
 ## 4. Reglas de negocio
 
@@ -114,6 +116,34 @@ Timezone: `User.timezone` ([SPEC-01](./01-auth.md)). Preferencias no reescriben 
 - Al **cambiar cualquier filtro** (`period`, `from`/`to`, `type`, `accountId`, `categoryId`) → **reset** de `cursor` (omitir de la URL / no enviar).
 - **Cursor inválido** (id inexistente, de otro workspace, o inconsistente con el orden): tratar como **primera página** (ignorar cursor; no error hard al usuario). Evita callejones sin salida si se borró la tx ancla.
 
+### 4.6 Totales del listado filtrado (FR-06)
+
+Al aplicar los mismos filtros AND que el listado (§4.3–4.4 + alcance SPEC-14), la UI muestra un resumen de montos del **conjunto completo** (no solo la página de 25).
+
+**Multi-moneda:** nunca sumar ARS con USD (ni otras). Totales **por `currency`**.
+
+**Buckets (dominio puro `summarizeListAmounts`):**
+
+| Bucket | Tipos |
+|--------|--------|
+| `incomeCents` | `income` |
+| `expenseCents` | `expense` |
+| `transferCents` | `transfer` |
+| `fxDebitCents` / `fxCreditCents` | `fx_debit` / `fx_credit` (visibles con `type=all`; **no** son cashflow ni budget spent) |
+
+**Presentación según filtro `type` (`presentListTotals`):**
+
+| `type` | UI |
+|--------|-----|
+| `expense` | **Suma gastos** por moneda (caso “cuánto gasté en X”) |
+| `income` | **Suma ingresos** por moneda |
+| `transfer` | **Suma transferencias** por moneda |
+| `all` | Breakdown **gastos + ingresos** por moneda; si el set filtrado solo tiene transfers, fallback a suma de transfers. `fx_*` no entran en el breakdown primario |
+
+**Paginación:** los totales **no** dependen de `cursor` ni de “Cargar más”. Query de agregación con el mismo `where` que `ListTransactions`.
+
+**UI:** strip sticky en móvil (siempre visible al scrollear) + fila de pie bajo la columna Monto en `sm+` (estilo ledger / Notion “SUMA”).
+
 ## 5. Comandos y consultas
 
 | Tipo | Nombre | Input destacado |
@@ -123,6 +153,7 @@ Timezone: `User.timezone` ([SPEC-01](./01-auth.md)). Preferencias no reescriben 
 | Command | `UpdateTransaction` | campos mutables |
 | Command | `DeleteTransaction` | transactionId |
 | Query | `ListTransactions` | ver contrato abajo |
+| Query | `SumFilteredTransactions` | mismos filtros que list (sin cursor); agrega por currency+type |
 | Query | `GetTransaction` | id |
 
 ### 5.1 Contrato `ListTransactions` (query / URL)
@@ -145,6 +176,7 @@ Resolución de dominio (puro) antes del service:
 1. `resolveListPeriod({ period, from, to, now, timezone })` → `{ kind: 'unbounded' }` \| `{ kind: 'bounded', from, to }` (ISO inclusive) o lanza `InvalidDateRange`.
 2. `resolveListTypeFilter(type)` → `undefined` (sin predicado = todos los tipos) \| lista/enum de tipos Prisma a filtrar.
 3. Service aplica AND + cursor + `limit = 25`, membership/authz, y alcance SPEC-14.
+4. `SumFilteredTransactions` reutiliza el mismo `where` (sin cursor/limit) → `groupBy(currency, type)` → `summarizeListAmounts` / `presentListTotals`.
 
 Helpers de periodo (puro; paridad dashboard):
 
@@ -163,6 +195,7 @@ Helpers de periodo (puro; paridad dashboard):
 - [ ] `accountId` incluye transfers donde la cuenta es origen o destino.
 - [ ] `categoryId` excluye transfers/`fx_*` (sin categoría).
 - [ ] Cambiar filtros limpia `cursor`; limpiar filtros vuelve a este mes (no a `all`).
+- [ ] Totales del filtrado (FR-06): por moneda; `type=expense` → suma gastos; `type=all` → breakdown ingresos/gastos; independientes de la página.
 - [ ] Cursor inválido → primera página (sin error de producto).
 
 ## 7. Escenarios de test (TDD)
@@ -273,6 +306,18 @@ Helpers de periodo (puro; paridad dashboard):
 
 - **When** `period="nope"` → tratar como `this_month`; `type="fx_debit"` u otro no permitido en URL → tratar como `all`
 
+### T-20 Totales por moneda sin mezclar
+
+- **Given** expenses 3000 ARS + 500 USD en el filtro  
+- **When** `summarizeListAmounts` / presentación `type=expense`  
+- **Then** dos líneas de suma (ARS y USD); nunca un único total cruzado
+
+### T-21 Totales independientes de la página
+
+- **Given** 40 expenses que matchean el filtro (`LIST_PAGE_SIZE=25`)  
+- **When** primera página del listado  
+- **Then** la suma de gastos refleja las 40 (no solo las 25 visibles)
+
 ## 8. Fuera de alcance
 
 - Adjuntos / OCR de tickets
@@ -280,7 +325,7 @@ Helpers de periodo (puro; paridad dashboard):
 - Canje de moneda (comandos) → [SPEC-16](./16-currency-exchange.md); en listado solo visibilidad vía `type=all`
 - Búsqueda por texto libre
 - Multi-select de cuentas/categorías/tipos
-- Totales agregados del resultado filtrado (sumas income/expense en cabecera)
+- Net / cashflow unificado en cabecera del listado (el breakdown income/expense basta; dashboard sigue siendo la vista cashflow)
 - Filtro por `createdByUserId`
 - Paginación hacia atrás / page numbers / page size configurable
 - Selector de timezone distinto del perfil (SPEC-01)
@@ -299,9 +344,9 @@ Detalle de UI: [SPEC-13](./13-transaction-detail.md). Dinero entre workspaces: [
 
 | Capa | Qué |
 |------|-----|
-| Domain | `getCurrentWeekPeriod`; `resolveListPeriod`; `resolveListTypeFilter`; errores `InvalidDateRange`; constante `LIST_PAGE_SIZE=25`; reutilizar/extraer `getCurrentMonthPeriod` sin acoplar UI |
-| Services | `listTransactions`: aceptar periodo resuelto o params URL ya normalizados; `limit` default 25 en listado de página; cursor inválido → primera página; conservar OR de cuenta y alcance SPEC-14 |
+| Domain | `getCurrentWeekPeriod`; `resolveListPeriod`; `resolveListTypeFilter`; `summarizeListAmounts` / `presentListTotals`; errores `InvalidDateRange`; constante `LIST_PAGE_SIZE=25`; reutilizar/extraer `getCurrentMonthPeriod` sin acoplar UI |
+| Services | `listTransactions` + `sumFilteredTransactions` con `where` compartido; `limit` default 25 en listado; cursor inválido → primera página; conservar OR de cuenta y alcance SPEC-14 |
 | Schemas/actions | Zod de query params (`period`, `type` de listado ≠ enum completo de Prisma); no confiar solo en middleware |
-| UI | Estado en searchParams; chips/selects; reset cursor al cambiar filtros; “Limpiar” → este mes |
+| UI | Estado en searchParams; chips/selects; reset cursor al cambiar filtros; “Limpiar” → este mes; strip sticky (móvil) + footer SUMA bajo Monto (`sm+`) |
 
 **Tensión resuelta:** semana de Movimientos ≠ semana de Budget. Mes de Movimientos = mes de Dashboard (timezone usuario).
