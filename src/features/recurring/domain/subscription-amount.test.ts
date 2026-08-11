@@ -113,6 +113,23 @@ describe("SPEC-18 subscription templates — amount math", () => {
       expect(amountCents).toBe(1_722_000);
     });
 
+    it("Given YouTube-like USD 3.05 + MEP sell 1520.4, When convert to ARS with taxes off, Then ≈ 463722 cents", () => {
+      // rateScaled: 1520.4 ARS/USD at scale 1e6
+      const rateScaled = Math.round(1520.4 * CONSOLIDATION_RATE_SCALE);
+
+      const amountCents = computeSubscriptionAmountCents({
+        listPriceCents: 305,
+        listCurrency: "USD",
+        taxMarkupBps: 0,
+        accountCurrency: "ARS",
+        rateScaled,
+        scale: CONSOLIDATION_RATE_SCALE,
+      });
+
+      // 3.05 * 1520.4 = 4637.22 → 463722 centavos
+      expect(amountCents).toBe(463_722);
+    });
+
     it("Given ARS list + USD account without rate, When compute, Then throws", () => {
       expect(() =>
         computeSubscriptionAmountCents({

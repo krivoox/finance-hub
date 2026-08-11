@@ -58,7 +58,14 @@ const DEFAULT_MULTI_EMPTY = "Todas las categorías";
 const DEFAULT_SINGLE_PLACEHOLDER = "Elegir categoría";
 
 function normalizeQuery(q: string): string {
-  return q.trim().toLocaleLowerCase("es");
+  return q
+    .trim()
+    .toLocaleLowerCase("es")
+    .normalize("NFKD")
+    .replace(/\p{M}+/gu, "")
+    .replace(/[^\p{L}\p{N}\s]/gu, "")
+    .replace(/\s+/g, " ")
+    .trim();
 }
 
 function filterCategories(
@@ -67,9 +74,7 @@ function filterCategories(
 ): CategoryOption[] {
   const q = normalizeQuery(query);
   if (!q) return [...categories];
-  return categories.filter((c) =>
-    c.name.toLocaleLowerCase("es").includes(q),
-  );
+  return categories.filter((c) => normalizeQuery(c.name).includes(q));
 }
 
 function MultiTriggerSummary({

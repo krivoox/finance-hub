@@ -23,11 +23,12 @@ import { refreshAfterMutation } from "@/lib/navigation";
 import { createRecurringRuleAction } from "@/features/recurring/actions";
 import { createRecurringRuleSchema } from "@/features/recurring/schemas";
 import {
+  PLATFORM_TEMPLATES,
   PLATFORM_TEMPLATES_LEGAL_DISCLAIMER,
-  platformTemplatesByRegion,
   type PlatformTemplate,
 } from "@/features/recurring/catalog/platform-templates";
 import { PlatformLogo } from "@/features/recurring/components/platform-logo";
+import { CategoryPicker } from "@/features/categories/components/category-picker";
 import {
   computeSubscriptionAmountCents,
   computeSubscriptionListBreakdown,
@@ -38,11 +39,15 @@ import {
 } from "@/features/recurring/domain";
 import {
   CONSOLIDATION_RATE_SCALE,
+  convertArsUsdCents,
   rateScaledToArsPerUsd,
 } from "@/features/dashboard/domain/consolidation";
 import { majorArsPerUsdToRateScaled } from "@/features/fx-quotes/domain/scale";
 import type { UsdQuotesDto } from "@/features/fx-quotes/types";
-import { isAccountCurrency } from "@/domain/money/currencies";
+import {
+  isAccountCurrency,
+  type AccountCurrency,
+} from "@/domain/money/currencies";
 
 import type { AccountOption, CategoryOption } from "./recurring-form";
 
@@ -122,6 +127,7 @@ export function NewFromTemplateSheet({
 
   const [name, setName] = useState("");
   const [listPriceUnits, setListPriceUnits] = useState("");
+  const [listCurrency, setListCurrency] = useState<AccountCurrency>("USD");
   const [taxesOn, setTaxesOn] = useState(true);
   const [markupPercent, setMarkupPercent] = useState(
     String(DEFAULT_TAX_MARKUP_BPS / 100),
@@ -152,8 +158,6 @@ export function NewFromTemplateSheet({
     if (!Number.isFinite(pct) || pct < 0) return DEFAULT_TAX_MARKUP_BPS;
     return Math.round(pct * 100);
   }, [taxesOn, markupPercent]);
-
-  const listCurrency = selected?.listCurrency ?? "USD";
 
   const listPriceCents = useMemo(
     () => parsePositiveUnits(listPriceUnits),
@@ -247,6 +251,7 @@ export function NewFromTemplateSheet({
     setSelected(null);
     setName("");
     setListPriceUnits("");
+    setListCurrency("USD");
     setTaxesOn(true);
     setMarkupPercent(String(DEFAULT_TAX_MARKUP_BPS / 100));
     setAccountId("");
@@ -278,6 +283,7 @@ export function NewFromTemplateSheet({
         : template.name,
     );
     setListPriceUnits(centsToUnits(template.listPriceCents));
+    setListCurrency(template.listCurrency);
     const taxesDefault = template.defaultTaxMarkupBps > 0;
     setTaxesOn(taxesDefault);
     setMarkupPercent(
@@ -299,6 +305,33 @@ export function NewFromTemplateSheet({
     setArsPerUsd(fx.arsPerUsd);
     setFxEdited(false);
     setStep("configure");
+  }
+
+  function changeListCurrency(next: AccountCurrency) {
+    if (next === listCurrency) return;
+
+    const cents = parsePositiveUnits(listPriceUnits);
+    if (cents !== null && resolvedRate.rateScaled !== null) {
+      try {
+        const converted = convertArsUsdCents(
+          cents,
+          listCurrency,
+          next,
+          resolvedRate.rateScaled,
+          resolvedRate.scale,
+        );
+        setListPriceUnits(centsToUnits(converted));
+      } catch {
+        // Keep the numeric amount; user can edit after switching.
+      }
+    }
+
+    setListCurrency(next);
+  }
+
+  function matchAccountCurrency() {
+    if (!accountCurrency || !isAccountCurrency(accountCurrency)) return;
+    changeListCurrency(accountCurrency);
   }
 
   function applyQuoteSource(source: QuotePref) {
@@ -422,52 +455,36 @@ export function NewFromTemplateSheet({
             {PLATFORM_TEMPLATES_LEGAL_DISCLAIMER}
           </p>
 
-          {(
-            [
-              { region: "local" as const, title: "Argentina · ARS" },
-              { region: "global" as const, title: "Globales · USD" },
-            ] as const
-          ).map(({ region, title }) => {
-            const templates = platformTemplatesByRegion(region);
-            if (templates.length === 0) return null;
-            return (
-              <div key={region} className="flex flex-col gap-2">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  {title}
-                </p>
-                <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {templates.map((template) => (
-                    <li key={template.id}>
-                      <button
-                        type="button"
-                        onClick={() => pickTemplate(template)}
-                        className={cn(
-                          "flex w-full min-h-10 flex-col items-start gap-3 rounded-xl border border-border bg-card p-3 text-left transition-colors",
-                          "hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          <ul className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+            {PLATFORM_TEMPLATES.map((template) => (
+              <li key={template.id}>
+                <button
+                  type="button"
+                  onClick={() => pickTemplate(template)}
+                  className={cn(
+                    "flex w-full min-h-10 flex-col items-start gap-3 rounded-xl border border-border bg-card p-3 text-left transition-colors",
+                    "hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                  )}
+                >
+                  <PlatformLogo id={template.id} />
+                  <span className="flex min-w-0 flex-col gap-0.5">
+                    <span className="truncate text-sm font-medium text-foreground">
+                      {template.name}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {template.planLabel} ·{" "}
+                      <span className="tabular-nums">
+                        {formatMoney(
+                          template.listPriceCents,
+                          template.listCurrency,
                         )}
-                      >
-                        <PlatformLogo id={template.id} />
-                        <span className="flex min-w-0 flex-col gap-0.5">
-                          <span className="truncate text-sm font-medium text-foreground">
-                            {template.name}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {template.planLabel} ·{" "}
-                            <span className="tabular-nums">
-                              {formatMoney(
-                                template.listPriceCents,
-                                template.listCurrency,
-                              )}
-                            </span>
-                          </span>
-                        </span>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            );
-          })}
+                      </span>
+                    </span>
+                  </span>
+                </button>
+              </li>
+            ))}
+          </ul>
 
           <p className="text-center text-sm text-muted-foreground">
             <button
@@ -519,6 +536,42 @@ export function NewFromTemplateSheet({
                 placeholder="Netflix, Spotify…"
                 disabled={isPending}
               />
+            </FormField>
+
+            <FormField
+              label="Moneda del precio"
+              htmlFor="tpl-list-currency"
+              hint={
+                accountCurrency
+                  ? `La recurrente se guarda en ${accountCurrency}`
+                  : "Elegí cómo cargás el precio lista"
+              }
+            >
+              <div className="flex flex-col gap-2">
+                <SegmentedControl
+                  id="tpl-list-currency"
+                  ariaLabel="Moneda del precio lista"
+                  value={listCurrency}
+                  options={[
+                    { value: "ARS" as const, label: "ARS" },
+                    { value: "USD" as const, label: "USD" },
+                  ]}
+                  disabled={isPending}
+                  onChange={(v) => changeListCurrency(v)}
+                />
+                {accountCurrency &&
+                isAccountCurrency(accountCurrency) &&
+                accountCurrency !== listCurrency ? (
+                  <button
+                    type="button"
+                    className="self-start text-xs text-muted-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+                    disabled={isPending}
+                    onClick={matchAccountCurrency}
+                  >
+                    Usar moneda de la cuenta ({accountCurrency})
+                  </button>
+                ) : null}
+              </div>
             </FormField>
 
             <FormField
@@ -630,7 +683,10 @@ export function NewFromTemplateSheet({
               </div>
             ) : null}
 
-            {needsFx || listCurrency === "USD" ? (
+            {/* FX: needed to convert list↔account, or to preview the other currency */}
+            {needsFx ||
+            listCurrency === "USD" ||
+            accountCurrency === "USD" ? (
               <>
                 {(quotes?.mep || quotes?.oficial) && (
                   <FormField label="Tipo de cambio" htmlFor="tpl-fx-source">
@@ -698,20 +754,18 @@ export function NewFromTemplateSheet({
             </FormField>
 
             <FormField label="Categoría" htmlFor="tpl-category">
-              <select
+              <CategoryPicker
+                mode="single"
                 id="tpl-category"
-                className={SELECT_CLASSES}
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
+                categories={expenseCategories.map((c) => ({
+                  id: c.id,
+                  name: c.name,
+                }))}
+                value={categoryId || null}
+                onChange={(id) => setCategoryId(id ?? "")}
                 disabled={isPending}
-              >
-                <option value="">Elegí una categoría</option>
-                {expenseCategories.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+                placeholder="Elegir categoría"
+              />
             </FormField>
 
             <FormField
