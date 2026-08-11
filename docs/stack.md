@@ -86,6 +86,7 @@ GOOGLE_CLIENT_SECRET=
 - Runtime Prisma (`src/lib/prisma.ts`): `pg.Pool` explícito con `idleTimeoutMillis` corto + `keepAlive`, y `withDbRetry` en `getSession`. Mitiga errores intermitentes `Connection terminated unexpectedly` / Better Auth `FAILED_TO_GET_SESSION` cuando el pooler corta sockets idle y el proceso Next reutiliza el client.
 - `BETTER_AUTH_URL`: dominio canónico (fallback). En Vercel **Production** = `https://finance.krivoox.com`. En **Preview** el runtime prioriza `VERCEL_URL` y Better Auth usa Dynamic Base URL con `*.vercel.app` + `*.krivoox.com` (`demo.krivoox.com` en `develop`; ver `src/lib/env.ts` + `src/lib/auth.ts`). Preferible: no setear `BETTER_AUTH_URL` en Environment Preview. Opcional: `BETTER_AUTH_TRUSTED_ORIGINS`
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`: provider social Google en Better Auth (`socialProviders.google`). Sin ellas, email/password sigue funcionando; el botón Google se oculta (feature degradable). Centralizar en `src/lib/env.ts` (opcionales).
+- `NEXT_PUBLIC_CAFECITO_URL`: URL pública del perfil Cafecito (ej. `https://cafecito.app/tu-usuario`). Sin ella, el popup de donación y la entrada de menú quedan ocultos.
 - **Redirect URIs (Google Cloud Console)** — path fijo Better Auth: `{origin}/api/auth/callback/google`
   - Local: `http://localhost:3000/api/auth/callback/google`
   - Production: `https://finance.krivoox.com/api/auth/callback/google` (u origen canónico vigente)

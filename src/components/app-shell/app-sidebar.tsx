@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTransition } from "react";
-import { AlertTriangle, ChevronsUpDown, LogOut, Plus } from "lucide-react";
+import { AlertTriangle, ChevronsUpDown, Coffee, LogOut, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -37,6 +37,7 @@ import {
 import { signOut } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { navigateAndRefresh } from "@/lib/navigation";
+import { useCafecitoDialogStore } from "@/features/cafecito/stores/cafecito-dialog-store";
 import { useNewTransactionSheetStore } from "@/features/transactions/stores/new-transaction-sheet-store";
 import {
   WorkspaceSwitcher,
@@ -69,12 +70,20 @@ export type AppSidebarProps = {
   activeWorkspace: WorkspaceOption | null;
   navBadges?: NavBadges;
   usdQuotes?: UsdQuotesDto | null;
+  cafecitoUrl?: string | null;
 };
 
-function SidebarUserMenu({ user }: { user: SidebarUser }) {
+function SidebarUserMenu({
+  user,
+  cafecitoUrl,
+}: {
+  user: SidebarUser;
+  cafecitoUrl: string | null;
+}) {
   const router = useRouter();
   const { isMobile, setOpenMobile } = useSidebar();
   const [isPending, startTransition] = useTransition();
+  const openCafecito = useCafecitoDialogStore((s) => s.openDialog);
 
   const handleSignOut = () => {
     if (isMobile) {
@@ -133,6 +142,21 @@ function SidebarUserMenu({ user }: { user: SidebarUser }) {
                 </span>
               </div>
             </DropdownMenuLabel>
+            {cafecitoUrl ? (
+              <>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="gap-2"
+                  onSelect={() => {
+                    if (isMobile) setOpenMobile(false);
+                    openCafecito({ forced: true });
+                  }}
+                >
+                  <Coffee className="size-4" strokeWidth={1.75} />
+                  Invitame un cafecito
+                </DropdownMenuItem>
+              </>
+            ) : null}
             <DropdownMenuSeparator />
             <DropdownMenuItem
               variant="destructive"
@@ -225,6 +249,7 @@ export function AppSidebar({
   activeWorkspace,
   navBadges = {},
   usdQuotes = null,
+  cafecitoUrl = null,
 }: AppSidebarProps) {
   const { isMobile, setOpenMobile } = useSidebar();
   const openNewTransaction = useNewTransactionSheetStore((s) => s.openSheet);
@@ -296,7 +321,7 @@ export function AppSidebar({
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarUserMenu user={user} />
+        <SidebarUserMenu user={user} cafecitoUrl={cafecitoUrl} />
       </SidebarFooter>
     </Sidebar>
   );
