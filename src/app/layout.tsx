@@ -2,10 +2,9 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { ThemeProvider } from "@teispace/next-themes";
 import { getTheme } from "@teispace/next-themes/server";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import { Providers } from "@/components/providers";
+import { DeferredTelemetry } from "@/components/pwa/deferred-telemetry";
 import { RegisterServiceWorker } from "@/components/pwa/register-service-worker";
 import { env } from "@/lib/env";
 import { themeProviderOptions } from "@/lib/theme";
@@ -83,8 +82,7 @@ export default async function RootLayout({
         >
           <Providers>{children}</Providers>
           <RegisterServiceWorker />
-          <Analytics />
-          <SpeedInsights />
+          <DeferredTelemetry />
         </ThemeProvider>
       </body>
     </html>

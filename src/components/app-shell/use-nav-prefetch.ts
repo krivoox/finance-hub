@@ -29,6 +29,31 @@ function scheduleIdle(callback: () => void): () => void {
   return () => globalThis.clearTimeout(id);
 }
 
+type PrefetchRouter = {
+  prefetch: (href: string) => void;
+};
+
+export function prefetchNavHref(router: PrefetchRouter, href: string) {
+  try {
+    router.prefetch(href);
+  } catch {
+    // Prefetch is best-effort.
+  }
+}
+
+/** Intent prefetch (hover / focus / touch) — SPEC-20 FR-02. */
+export function navIntentPrefetchHandlers(
+  router: PrefetchRouter,
+  href: string,
+) {
+  const prefetch = () => prefetchNavHref(router, href);
+  return {
+    onPointerEnter: prefetch,
+    onFocus: prefetch,
+    onTouchStart: prefetch,
+  };
+}
+
 /**
  * Prefetch idle de destinos del menú (SPEC-20 H2).
  * Calienta shells RSC; no relaja staleTimes.dynamic ni cachea saldos.
@@ -52,11 +77,7 @@ export function useNavPrefetch(enabled = true) {
         const href = hrefs[index];
         if (!href) return;
         index += 1;
-        try {
-          router.prefetch(href);
-        } catch {
-          // Prefetch is best-effort.
-        }
+        prefetchNavHref(router, href);
         if (index < hrefs.length) {
           scheduleIdle(tick);
         }

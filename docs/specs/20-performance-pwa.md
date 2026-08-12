@@ -3,7 +3,7 @@
 | Campo | Valor |
 |-------|-------|
 | ID | SPEC-20 |
-| Estado | Draft |
+| Estado | Implemented (MVP) |
 | Prioridad | P0 (sensación Plata) |
 | Dependencias | Shell `(app)`, SPEC-05 (cargar), [architecture §7.1–7.3](../architecture.md) |
 
@@ -64,33 +64,33 @@ Reutilizar el sheet existente cuando aplique:
 
 ### Soft-nav (H1)
 
-- [ ] Given estoy en cualquier ruta `(app)`, When toco un ítem del tab bar / sidebar, Then no hay full document reload y el shell permanece.
-- [ ] Given soft-nav, When el RSC aún no llega, Then veo `loading.tsx` / `PageSkeleton` de inmediato.
+- [x] Given estoy en cualquier ruta `(app)`, When toco un ítem del tab bar / sidebar, Then no hay full document reload y el shell permanece.
+- [x] Given soft-nav, When el RSC aún no llega, Then veo `loading.tsx` / `PageSkeleton` de inmediato.
 - [ ] Meta MVP: tip→skeleton &lt;200 ms; tip→contenido usable &lt;800 ms en 4G bueno (medición manual / Speed Insights).
 
 ### Prefetch (H2)
 
-- [ ] Given idle tras pintar el shell con red, Then se prefetchan los destinos de §3 (coverage ≥90 % de taps del nav principal = hit o in-flight).
-- [ ] Prefetch no relaja `staleTimes.dynamic: 0` ni habilita cache TTL de saldos (§7.1).
+- [x] Given idle tras pintar el shell con red, Then se prefetchan los destinos de §3 (coverage ≥90 % de taps del nav principal = hit o in-flight).
+- [x] Prefetch no relaja `staleTimes.dynamic: 0` ni habilita cache TTL de saldos (§7.1).
 
 ### Shortcuts (H3)
 
-- [ ] `src/app/manifest.ts` incluye los tres shortcuts.
-- [ ] Given shortcut OS, When abro la PWA, Then aterrizo en el flujo de carga / cuentas (auth o login), sin pantalla intermedia inútil.
-- [ ] Shortcuts no bypasean roles (viewer → redirect existente).
+- [x] `src/app/manifest.ts` incluye los tres shortcuts.
+- [x] Given shortcut OS, When abro la PWA, Then aterrizo en el flujo de carga / cuentas (auth o login), sin pantalla intermedia inútil.
+- [x] Shortcuts no bypasean roles (viewer → redirect existente).
 
 ### Service Worker (H4)
 
-- [ ] SW custom (no Workbox offline-first monolítico).
-- [ ] Cache-first solo `/_next/static/*` (hashed / immutable).
-- [ ] Nunca en Cache Storage: HTML de dashboards/listados, `/api/*`, flights RSC como source of truth offline.
-- [ ] Given creo un gasto, When vuelvo al panel, Then saldos reflejan el cambio sin hard reload.
+- [x] SW custom (no Workbox offline-first monolítico).
+- [x] Cache-first solo `/_next/static/*` (hashed / immutable).
+- [x] Nunca en Cache Storage: HTML de dashboards/listados, `/api/*`, flights RSC como source of truth offline.
+- [x] Given creo un gasto, When vuelvo al panel, Then saldos reflejan el cambio sin hard reload.
 
 ### Offline mínimo (H5)
 
-- [ ] Rutas offline: form de cargar (shell dedicado o sheet) + `/offline`.
-- [ ] Given sin red y abro Panel/Cuentas, Then UI honesta — **no** saldos cacheados.
-- [ ] MVP draft: no perder input del form en memoria / `sessionStorage`; cola durable IndexedDB = fuera de MVP (P1).
+- [x] Rutas offline: form de cargar (shell dedicado o sheet) + `/offline`.
+- [x] Given sin red y abro Panel/Cuentas, Then UI honesta — **no** saldos cacheados.
+- [x] MVP draft: no perder input del form en memoria / `sessionStorage`; cola durable IndexedDB = fuera de MVP (P1).
 
 ## 6. Escenarios de test
 

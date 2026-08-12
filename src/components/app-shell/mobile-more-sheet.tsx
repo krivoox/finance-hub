@@ -31,6 +31,7 @@ import {
   type NavBadges,
 } from "./nav-config";
 import type { SidebarUser } from "./app-sidebar";
+import { navIntentPrefetchHandlers } from "./use-nav-prefetch";
 
 type MobileMoreSheetProps = {
   open: boolean;
@@ -108,6 +109,7 @@ export function MobileMoreSheet({
                     <Link
                       href={item.href}
                       onClick={close}
+                      {...navIntentPrefetchHandlers(router, item.href)}
                       className={cn(
                         "flex h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors",
                         "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
