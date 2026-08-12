@@ -197,6 +197,7 @@ Helpers de periodo (puro; paridad dashboard):
 - [ ] Cambiar filtros limpia `cursor`; limpiar filtros vuelve a este mes (no a `all`).
 - [ ] Totales del filtrado (FR-06): por moneda; `type=expense` → suma gastos; `type=all` → breakdown ingresos/gastos; independientes de la página.
 - [ ] Cursor inválido → primera página (sin error de producto).
+- [x] Listado: selección de filas con `BulkActionsBar` — Eliminar (N); con 1 seleccionada también Abrir / Editar. Viewer sin checkboxes.
 
 ## 7. Escenarios de test (TDD)
 
