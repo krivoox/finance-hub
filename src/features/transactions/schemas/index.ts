@@ -29,7 +29,7 @@ const occurredOnSchema = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/u, "Formato de fecha inválido (YYYY-MM-DD)");
 
-/** Optional explicit currency from the create form (SPEC-05 FR-06 / KRI-10). */
+/** Optional explicit currency from the create form (SPEC-05 FR-07 / KRI-10). */
 const currencySchema = z.enum(ACCOUNT_CURRENCIES).optional();
 
 export const createIncomeSchema = z.object({

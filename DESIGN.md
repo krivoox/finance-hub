@@ -68,7 +68,7 @@ Sidebar único estilo dashboard (shadcn inset) — **sin** rail de iconos oscuro
 | Slot | Destino | Notas |
 |------|---------|--------|
 | Panel | `/dashboard` | Home |
-| Movimientos | `/transactions` | Actividad diaria |
+| Transacciones | `/transactions` | Actividad diaria |
 | **+ Registrar** | acción (no ruta) | Abre `NewTransactionSheet` vía store; CTA ink elevado |
 | Presupuestos | `/budgets` | Planificación; badge at-risk si aplica |
 | Más | sheet bottom | Cuentas, Objetivos, Grupos, Recurrentes, Ajustes, workspace, tema, salir |
@@ -357,6 +357,7 @@ Componentes en `src/features/dashboard/components/`. La page solo compone el DTO
 7. Fechas de tabla con `formatDateOnly` (`DD/MM/YYYY`).
 8. **Meta de origen:** txs materializadas desde una recurrente (SPEC-18) muestran un indicador muted `Repeat` / 🔄 junto a la descripción (no badge de color — es meta, no jerarquía). Tooltip: “Generada por: {nombre}”. Mismo patrón que el badge de aporte a objetivo (SPEC-08).
 9. **Recurrentes — confirmar:** el botón Confirmar solo aparece si `scheduledOn ≤ hoy + 1` (`canMaterializeOn`). Ocurrencias futuras muestran “Desde {fecha}” sin CTA.
+10. **Totales del filtrado (SPEC-05 §4.6):** strip sticky bajo filtros en móvil + fila de pie “Suma / Totales” bajo la columna Monto en `sm+`. Montos `tabular-nums` con tokens `income` / `expense` / `transfer`; nunca mezclar monedas. Headers de tabla muted (`text-xs font-normal text-muted-foreground`); pills de tipo/categoría donde aporten.
 
 ### Formulario
 

@@ -6,7 +6,7 @@ import {
   resolveTransactionFormCurrency,
 } from "./currency";
 
-describe("resolveTransactionFormCurrency — SPEC-05 T-20", () => {
+describe("resolveTransactionFormCurrency — SPEC-05 T-22", () => {
   it("defaults to workspace baseCurrency when selected is missing", () => {
     expect(
       resolveTransactionFormCurrency({
@@ -53,7 +53,7 @@ describe("resolveTransactionFormCurrency — SPEC-05 T-20", () => {
   });
 });
 
-describe("filterAccountsByCurrency — SPEC-05 T-21", () => {
+describe("filterAccountsByCurrency — SPEC-05 T-23", () => {
   const accounts = [
     { id: "a1", currency: "ARS", name: "MP" },
     { id: "a2", currency: "USD", name: "Broker" },

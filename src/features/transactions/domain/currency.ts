@@ -1,5 +1,5 @@
 /**
- * Transaction form currency helpers (SPEC-05 FR-05 / FR-06 / KRI-10).
+ * Transaction form currency helpers (SPEC-05 FR-05 / FR-07 / KRI-10).
  *
  * Pure: no Prisma / React. Used by UI to default + filter accounts, and by
  * services when the client sends an explicit `currency` to assert against
@@ -23,7 +23,7 @@ export type PaymentAccountGroupLike<T extends AccountCurrencyOption> = {
 };
 
 /**
- * SPEC-05 T-20 — Default form currency is workspace `baseCurrency` when the
+ * SPEC-05 T-22 — Default form currency is workspace `baseCurrency` when the
  * selection is missing or not in ACCOUNT_CURRENCIES.
  */
 export function resolveTransactionFormCurrency(input: {
@@ -40,7 +40,7 @@ export function resolveTransactionFormCurrency(input: {
 }
 
 /**
- * SPEC-05 T-21 — Accounts shown for create must match the selected currency
+ * SPEC-05 T-23 — Accounts shown for create must match the selected currency
  * (no mixing ARS txs onto USD accounts and vice versa).
  */
 export function filterAccountsByCurrency<T extends AccountCurrencyOption>(

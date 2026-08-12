@@ -35,6 +35,20 @@ export type { RemoveMemberServiceInput } from "./remove-member";
 export { transferOwnership } from "./transfer-ownership";
 export type { TransferOwnershipServiceInput } from "./transfer-ownership";
 
+export { hasCrossWorkspaceInvolvement } from "./has-cross-workspace-involvement";
+
+export { leaveGroupWorkspace } from "./leave-group-workspace";
+export type {
+  LeaveGroupWorkspaceResult,
+  LeaveGroupWorkspaceServiceInput,
+} from "./leave-group-workspace";
+
+export { deleteGroupWorkspace } from "./delete-group-workspace";
+export type {
+  DeleteGroupWorkspaceResult,
+  DeleteGroupWorkspaceServiceInput,
+} from "./delete-group-workspace";
+
 export {
   InvitationEmailMismatchError,
   InvitationExpiredError,

@@ -30,7 +30,7 @@ export type CreateIncomeServiceInput = {
   amountCents: number;
   occurredOn: string;
   description?: string | null;
-  /** When set (create form), must equal account.currency (SPEC-05 T-22). */
+  /** When set (create form), must equal account.currency (SPEC-05 T-24). */
   currency?: string;
 };
 

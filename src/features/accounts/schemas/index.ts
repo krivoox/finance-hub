@@ -30,10 +30,13 @@ export const createAccountSchema = z
     type: accountTypeSchema,
     initialBalanceCents: nonNegativeIntCents,
     currency: z.enum(ACCOUNT_CURRENCIES).optional(),
-    creditLimitCents: positiveIntCents.optional(),
+    creditLimitCents: positiveIntCents.nullish(),
   })
   .refine(
-    (data) => data.type === "credit_card" || data.creditLimitCents === undefined,
+    (data) =>
+      data.type === "credit_card" ||
+      data.creditLimitCents === undefined ||
+      data.creditLimitCents === null,
     {
       path: ["creditLimitCents"],
       message: "creditLimit solo aplica a tarjetas de crédito",
@@ -56,6 +59,12 @@ export type ArchiveAccountInput = z.infer<typeof archiveAccountSchema>;
 
 export const unarchiveAccountSchema = archiveAccountSchema;
 export type UnarchiveAccountInput = z.infer<typeof unarchiveAccountSchema>;
+
+export const deleteAccountSchema = z.object({
+  accountId: z.string().min(1),
+  confirmName: z.string().min(1, "Escribí el nombre de la cuenta"),
+});
+export type DeleteAccountInput = z.infer<typeof deleteAccountSchema>;
 
 export const listAccountsSchema = z.object({
   workspaceId: z.string().min(1),
