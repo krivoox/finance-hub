@@ -9,6 +9,7 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
@@ -21,7 +22,18 @@ import {
 import { CategoryPill } from "@/features/categories/components/category-pill";
 import { formatDateOnly } from "@/lib/format-date";
 import { formatSignedMoney } from "@/lib/format-money";
-import type { TransactionType } from "@/features/transactions/domain";
+import { cn } from "@/lib/utils";
+import type {
+  CurrencyListTotals,
+  ListTypeFilter,
+  TransactionType,
+} from "@/features/transactions/domain";
+
+import {
+  hasListTotalsToShow,
+  TransactionsListTotals,
+} from "./transactions-list-totals";
+import { TRANSACTION_TYPE_LABEL_ES } from "./transaction-type-labels";
 
 type TableTransaction = {
   id: string;
@@ -60,6 +72,12 @@ function amountVariant(
   return "transfer";
 }
 
+function typeBadgeVariant(
+  type: TransactionType,
+): "income" | "expense" | "transfer" {
+  return amountVariant(type);
+}
+
 function signedAmountCents(
   type: TransactionType,
   amountCents: number,
@@ -69,32 +87,51 @@ function signedAmountCents(
   return -amountCents;
 }
 
+const headClass =
+  "h-9 px-3 text-xs font-normal tracking-normal text-muted-foreground";
+
 type TransactionsTableProps = {
   items: readonly TableTransaction[];
   workspaceId: string;
+  totals: readonly CurrencyListTotals[];
+  typeFilter: ListTypeFilter;
 };
 
 export function TransactionsTable({
   items,
   workspaceId,
+  totals,
+  typeFilter,
 }: TransactionsTableProps) {
   const selectableIds = useMemo(() => items.map((tx) => tx.id), [items]);
   const selection = useRowSelection(selectableIds);
+  const showTotalsFooter = hasListTotalsToShow(totals, typeFilter);
 
   return (
     <Table>
       <TableHeader>
-        <TableRow>
+        <TableRow className="border-border/70 hover:bg-transparent">
           <SelectAllHead
             selection={selection}
             label="Seleccionar todas las transacciones"
           />
-          <TableHead>Descripción</TableHead>
-          <TableHead className="hidden sm:table-cell">Cuenta</TableHead>
-          <TableHead className="hidden md:table-cell">Categoría</TableHead>
-          <TableHead className="hidden lg:table-cell">Registró</TableHead>
-          <TableHead className="hidden sm:table-cell">Fecha</TableHead>
-          <TableHead className="text-right">Monto</TableHead>
+          <TableHead className={headClass}>Descripción</TableHead>
+          <TableHead className={cn(headClass, "hidden sm:table-cell")}>
+            Cuenta
+          </TableHead>
+          <TableHead className={cn(headClass, "hidden md:table-cell")}>
+            Categoría
+          </TableHead>
+          <TableHead className={cn(headClass, "hidden lg:table-cell")}>
+            Tipo
+          </TableHead>
+          <TableHead className={cn(headClass, "hidden lg:table-cell")}>
+            Registró
+          </TableHead>
+          <TableHead className={cn(headClass, "hidden sm:table-cell")}>
+            Fecha
+          </TableHead>
+          <TableHead className={cn(headClass, "text-right")}>Monto</TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -125,7 +162,7 @@ export function TransactionsTable({
           return (
             <TableRow
               key={tx.id}
-              className="relative"
+              className="relative border-border/60"
               data-state={
                 selection.isSelected(tx.id) ? "selected" : undefined
               }
@@ -135,7 +172,7 @@ export function TransactionsTable({
                 id={tx.id}
                 label={`Seleccionar ${descriptionWithChip}`}
               />
-              <TableCell>
+              <TableCell className="px-3 py-2.5">
                 <div className="flex min-w-0 flex-col gap-0.5">
                   <div className="flex min-w-0 flex-wrap items-center gap-1.5">
                     <Link
@@ -178,36 +215,62 @@ export function TransactionsTable({
                   ) : null}
                 </div>
               </TableCell>
-              <TableCell className="hidden text-muted-foreground sm:table-cell">
+              <TableCell className="hidden px-3 py-2.5 text-muted-foreground sm:table-cell">
                 {accountLabel}
               </TableCell>
-              <TableCell className="hidden md:table-cell">
+              <TableCell className="hidden px-3 py-2.5 md:table-cell">
                 <CategoryPill
                   label={categoryLabel}
                   toneSeed={tx.categoryId}
                 />
               </TableCell>
-              <TableCell className="hidden text-muted-foreground lg:table-cell">
+              <TableCell className="hidden px-3 py-2.5 lg:table-cell">
+                <Badge
+                  variant={typeBadgeVariant(tx.type)}
+                  className="font-normal"
+                >
+                  {TRANSACTION_TYPE_LABEL_ES[tx.type]}
+                </Badge>
+              </TableCell>
+              <TableCell className="hidden px-3 py-2.5 text-muted-foreground lg:table-cell">
                 {tx.createdByDisplayName}
               </TableCell>
-              <TableCell className="hidden tabular-nums text-muted-foreground sm:table-cell">
+              <TableCell className="hidden px-3 py-2.5 tabular-nums text-muted-foreground sm:table-cell">
                 {formatDateOnly(tx.occurredOn)}
               </TableCell>
-              <TableCell className="text-right">
-                <Badge
-                  variant={amountVariant(tx.type)}
-                  className="tabular-nums"
+              <TableCell className="px-3 py-2.5 text-right">
+                <span
+                  className={cn(
+                    "tabular-nums text-sm font-medium",
+                    amountVariant(tx.type) === "income" && "text-income",
+                    amountVariant(tx.type) === "expense" && "text-expense",
+                    amountVariant(tx.type) === "transfer" && "text-transfer",
+                  )}
                 >
                   {formatSignedMoney(
                     signedAmountCents(tx.type, tx.amountCents),
                     tx.currency,
                   )}
-                </Badge>
+                </span>
               </TableCell>
             </TableRow>
           );
         })}
       </TableBody>
+      {showTotalsFooter ? (
+        <TableFooter className="hidden border-t border-border bg-muted/30 sm:table-footer-group">
+          <TableRow className="hover:bg-transparent">
+            <TableCell colSpan={7} className="px-3 py-3" />
+            <TableCell className="px-3 py-3">
+              <TransactionsListTotals
+                buckets={totals}
+                typeFilter={typeFilter}
+                variant="footer"
+              />
+            </TableCell>
+          </TableRow>
+        </TableFooter>
+      ) : null}
     </Table>
   );
 }
