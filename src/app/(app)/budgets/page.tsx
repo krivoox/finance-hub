@@ -16,6 +16,7 @@ import {
 } from "@/features/budgets/services";
 import { listCategories } from "@/features/categories/services";
 import { ArchivedBudgetRow } from "@/features/budgets/components/archived-budget-row";
+import { BudgetCategoryPills } from "@/features/budgets/components/budget-category-pills";
 import { NewBudgetSheet } from "@/features/budgets/components/new-budget-sheet";
 import { BUDGET_PERIOD_LABEL_ES } from "@/features/budgets/components/period-labels";
 
@@ -28,7 +29,13 @@ function formatDateEs(date: Date): string {
   });
 }
 
-function ActiveBudgetRow({ budget }: { budget: BudgetWithProgress }) {
+function ActiveBudgetRow({
+  budget,
+  categoryNameById,
+}: {
+  budget: BudgetWithProgress;
+  categoryNameById: Readonly<Record<string, string>>;
+}) {
   const { progress } = budget;
   const pct =
     budget.limitCents > 0
@@ -55,6 +62,11 @@ function ActiveBudgetRow({ budget }: { budget: BudgetWithProgress }) {
             <Badge variant="expense">Excedido</Badge>
           ) : null}
         </div>
+        <BudgetCategoryPills
+          className="mt-1.5"
+          categoryIds={budget.categoryIds}
+          categoryNameById={categoryNameById}
+        />
         <p className="mt-1 text-xs tabular-nums text-muted-foreground">
           {formatMoney(progress.spentCents, budget.currency)} de{" "}
           {formatMoney(budget.limitCents, budget.currency)} ·{" "}
@@ -79,11 +91,13 @@ function ArchivedSection({
   budgets,
   canMutate,
   emphasize,
+  categoryNameById,
 }: {
   budgets: BudgetWithProgress[];
   canMutate: boolean;
   /** When there are no actives, archived is the primary surface — denser intro. */
   emphasize: boolean;
+  categoryNameById: Readonly<Record<string, string>>;
 }) {
   return (
     <section
@@ -120,6 +134,7 @@ function ArchivedSection({
             key={budget.id}
             budget={budget}
             canMutate={canMutate}
+            categoryNameById={categoryNameById}
           />
         ))}
       </ul>
@@ -172,12 +187,19 @@ export default async function BudgetsPage() {
     listCategories({
       userId: session.user.id,
       workspaceId: workspace.id,
+      // Resolve names for linked categories even if later archived.
+      includeArchived: true,
     }),
   ]);
 
   const active = budgets.filter((b) => !b.isArchived);
   const archived = budgets.filter((b) => b.isArchived);
-  const expenseCategories = categories.filter((c) => c.kind === "expense");
+  const expenseCategories = categories.filter(
+    (c) => c.kind === "expense" && !c.isArchived,
+  );
+  const categoryNameById = Object.fromEntries(
+    categories.map((c) => [c.id, c.name]),
+  );
   const canMutate = workspace.role !== "viewer";
   const onlyArchived = active.length === 0 && archived.length > 0;
   const trulyEmpty = active.length === 0 && archived.length === 0;
@@ -233,7 +255,11 @@ export default async function BudgetsPage() {
             </div>
             <ul className="divide-y divide-border">
               {active.map((budget) => (
-                <ActiveBudgetRow key={budget.id} budget={budget} />
+                <ActiveBudgetRow
+                  key={budget.id}
+                  budget={budget}
+                  categoryNameById={categoryNameById}
+                />
               ))}
             </ul>
           </section>
@@ -244,6 +270,7 @@ export default async function BudgetsPage() {
             budgets={archived}
             canMutate={canMutate}
             emphasize={onlyArchived}
+            categoryNameById={categoryNameById}
           />
         ) : null}
       </div>
