@@ -1,17 +1,11 @@
-import { TrendingDown, TrendingUp } from "lucide-react";
+import type { ReactNode } from "react";
 
-import { Badge } from "@/components/ui/badge";
 import { KpiTile } from "@/components/kpi-tile";
+import { Badge } from "@/components/ui/badge";
 import { SurfaceSection } from "@/components/surface-section";
 import { formatMoney, formatSignedMoney } from "@/lib/format-money";
-import type {
-  MonthlyCashflow,
-  NetTrend,
-  TotalBalance,
-} from "@/features/dashboard/domain";
+import type { MonthlyCashflow, TotalBalance } from "@/features/dashboard/domain";
 import { rateScaledToArsPerUsd } from "@/features/dashboard/domain";
-
-import { MonthlyNetBars } from "./monthly-net-bars";
 
 type FxRateCaption = {
   label: string;
@@ -26,20 +20,18 @@ type DashboardBalanceProps = {
   consolidated?: TotalBalance;
   fxRate?: FxRateCaption;
   cashflow: MonthlyCashflow;
-  netTrend: NetTrend;
   periodLabel: string;
+  /**
+   * Variation badge + monthly bars. Streamed from analytics behind a nested
+   * Suspense so the patrimonio number paints as soon as getDashboard resolves.
+   */
+  trend: ReactNode;
 };
-
-const percentFormatter = new Intl.NumberFormat("es-AR", {
-  minimumFractionDigits: 1,
-  maximumFractionDigits: 1,
-  signDisplay: "always",
-});
 
 /**
  * Hero del Panel (SPEC-12): patrimonio + flujo neto mensual.
- * El número grande es el patrimonio; la tendencia y el delta describen el
- * flujo del mes — nunca se mezclan en una sola lectura.
+ * El número grande es el patrimonio; la tendencia (slot) describe el flujo
+ * del mes — nunca se mezclan en una sola lectura.
  */
 export function DashboardBalance({
   balance,
@@ -47,8 +39,8 @@ export function DashboardBalance({
   consolidated,
   fxRate,
   cashflow,
-  netTrend,
   periodLabel,
+  trend,
 }: DashboardBalanceProps) {
   const heroBalance = consolidated ?? balance;
   const showApprox = Boolean(consolidated);
@@ -61,10 +53,6 @@ export function DashboardBalance({
           fxRate.scale,
         ).toLocaleString("es-AR", { maximumFractionDigits: 2 })} ${heroBalance.currency}`
       : null;
-
-  const variation = netTrend.variationPercent;
-  const variationPositive = variation !== null && variation > 0;
-  const variationNegative = variation !== null && variation < 0;
 
   const netTone =
     cashflow.netCents > 0
@@ -108,41 +96,7 @@ export function DashboardBalance({
         </ul>
       ) : null}
 
-      {variation !== null ? (
-        <div className="mt-4 flex justify-end border-t border-border pt-3 sm:mt-5 sm:pt-4">
-          <Badge
-            variant={
-              variationPositive
-                ? "income"
-                : variationNegative
-                  ? "expense"
-                  : "outline"
-            }
-            className="gap-1 tabular-nums"
-          >
-            {variationPositive ? (
-              <TrendingUp className="size-3.5" aria-hidden />
-            ) : variationNegative ? (
-              <TrendingDown className="size-3.5" aria-hidden />
-            ) : null}
-            {percentFormatter.format(variation)}%
-            <span className="font-normal opacity-80">flujo vs. mes anterior</span>
-          </Badge>
-        </div>
-      ) : (
-        <div className="mt-4 border-t border-border sm:mt-5" />
-      )}
-
-      {/* Serie mensual: densa para desktop; en móvil el glance es la barra de gastos. */}
-      <div className="hidden md:block">
-        <MonthlyNetBars
-          points={netTrend.points}
-          maxAbsNetCents={netTrend.maxAbsNetCents}
-          maxIncomeCents={netTrend.maxIncomeCents}
-          maxExpenseCents={netTrend.maxExpenseCents}
-          currency={cashflow.currency}
-        />
-      </div>
+      {trend}
 
       <div className="mt-4 grid grid-cols-2 gap-3 border-t border-border pt-3 sm:mt-5 sm:grid-cols-3 sm:gap-4 sm:pt-4">
         <KpiTile

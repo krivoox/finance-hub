@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { ContentPanel } from "@/components/app-shell/content-panel";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatMoney } from "@/lib/format-money";
 import { getSession } from "@/lib/session";
 import { getActiveWorkspaceForUser } from "@/features/workspaces/services";
@@ -9,6 +11,8 @@ import { getGroupOverview } from "@/features/splits/services";
 import { NotAGroupWorkspaceError } from "@/features/splits/domain";
 import { GroupsSectionNav } from "@/features/splits/components/groups-section-nav";
 import { NewGroupWorkspaceForm } from "@/features/workspaces/components/new-group-workspace-form";
+
+type GroupOverview = Awaited<ReturnType<typeof getGroupOverview>> | null;
 
 export default async function GroupsActivityPage() {
   const session = await getSession();
@@ -42,25 +46,16 @@ export default async function GroupsActivityPage() {
     );
   }
 
-  const overviewResult = await getGroupOverview({
+  // Kick off the group read model now, but DON'T await here: the chrome + the
+  // section nav paint instantly while balances and activity stream behind a
+  // <Suspense>. No money is cached — this only reorders when the body paints.
+  const overviewPromise = getGroupOverview({
     userId: session.user.id,
     workspaceId: active.id,
   }).catch((err: unknown) => {
     if (err instanceof NotAGroupWorkspaceError) return null;
     throw err;
   });
-
-  if (!overviewResult) {
-    return (
-      <ContentPanel title="Grupos" description="Gastos compartidos.">
-        <p className="text-sm text-muted-foreground">
-          Este workspace no es grupal.
-        </p>
-      </ContentPanel>
-    );
-  }
-
-  const overview = overviewResult;
 
   return (
     <ContentPanel
@@ -69,6 +64,30 @@ export default async function GroupsActivityPage() {
     >
       <GroupsSectionNav active="activity" />
 
+      <Suspense fallback={<GroupOverviewSkeleton />}>
+        <GroupOverviewSection overview={overviewPromise} />
+      </Suspense>
+    </ContentPanel>
+  );
+}
+
+async function GroupOverviewSection({
+  overview: overviewPromise,
+}: {
+  overview: Promise<GroupOverview>;
+}) {
+  const overview = await overviewPromise;
+
+  if (!overview) {
+    return (
+      <p className="text-sm text-muted-foreground">
+        Este workspace no es grupal.
+      </p>
+    );
+  }
+
+  return (
+    <>
       <div className="mb-8 space-y-1">
         <h2 className="text-lg font-semibold tracking-tight text-foreground">
           {overview.name}
@@ -143,6 +162,54 @@ export default async function GroupsActivityPage() {
           </ul>
         )}
       </section>
-    </ContentPanel>
+    </>
+  );
+}
+
+/**
+ * Group overview fallback (SPEC-20): net worth + balances + activity rows while
+ * the read model streams. Never renders real amounts — money stays fresh.
+ */
+function GroupOverviewSkeleton() {
+  return (
+    <div aria-busy aria-label="Cargando grupo">
+      <div className="mb-8 space-y-2">
+        <Skeleton className="h-6 w-48 max-w-full" />
+        <Skeleton className="h-4 w-56 max-w-full" />
+      </div>
+
+      <section className="mb-8 space-y-3">
+        <Skeleton className="h-4 w-40" />
+        <ul className="divide-y divide-border">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <li
+              key={i}
+              className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+            >
+              <Skeleton className="h-4 w-32 max-w-full" />
+              <Skeleton className="h-6 w-28 shrink-0 rounded-full" />
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="space-y-3">
+        <Skeleton className="h-4 w-36" />
+        <ul className="divide-y divide-border">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <li
+              key={i}
+              className="flex items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
+            >
+              <div className="min-w-0 flex-1 space-y-1.5">
+                <Skeleton className="h-4 w-2/3" />
+                <Skeleton className="h-3 w-2/5" />
+              </div>
+              <Skeleton className="h-4 w-16 shrink-0" />
+            </li>
+          ))}
+        </ul>
+      </section>
+    </div>
   );
 }

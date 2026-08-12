@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 
 import { ContentPanel } from "@/components/app-shell/content-panel";
@@ -8,6 +9,7 @@ import {
 } from "@/components/progress-bar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatMoney } from "@/lib/format-money";
 import { getSession } from "@/lib/session";
 import { BudgetNotFoundError } from "@/features/budgets/domain";
@@ -21,6 +23,10 @@ import { requireMembership } from "@/features/workspaces/services";
 type PageProps = {
   params: Promise<{ id: string }>;
 };
+
+type BudgetDetail = Awaited<ReturnType<typeof getBudgetDetail>>;
+type CategoriesResult = Awaited<ReturnType<typeof listCategories>>;
+type MembershipResult = Awaited<ReturnType<typeof requireMembership>>;
 
 function formatDateEs(date: Date): string {
   return date.toLocaleDateString("es-AR", {
@@ -65,32 +71,16 @@ export default async function BudgetDetailPage({ params }: PageProps) {
     throw err;
   }
 
-  const [categories, membership] = await Promise.all([
-    listCategories({
-      userId,
-      workspaceId: detail.workspaceId,
-      includeArchived: true,
-    }),
-    requireMembership(userId, detail.workspaceId),
-  ]);
-
-  const canMutate = membership.role !== "viewer";
-
-  const expenseCategories = categories
-    .filter((c) => c.kind === "expense" && !c.isArchived)
-    .map((c) => ({ id: c.id, name: c.name }));
-
-  // Keep currently linked categories visible even if archived.
-  const selectedArchived = categories
-    .filter(
-      (c) =>
-        c.kind === "expense" &&
-        c.isArchived &&
-        detail.categoryIds.includes(c.id),
-    )
-    .map((c) => ({ id: c.id, name: `${c.name} (archivada)` }));
-
-  const pickerCategories = [...expenseCategories, ...selectedArchived];
+  // `detail` was already awaited for the title + body. The edit actions need a
+  // second round-trip (categories + membership); kick those off now WITHOUT
+  // awaiting so the detail body paints as soon as `detail` resolves while the
+  // actions stream behind <Suspense>. No money is cached.
+  const categoriesPromise = listCategories({
+    userId,
+    workspaceId: detail.workspaceId,
+    includeArchived: true,
+  });
+  const membershipPromise = requireMembership(userId, detail.workspaceId);
 
   const pct =
     detail.limitCents > 0
@@ -107,17 +97,13 @@ export default async function BudgetDetailPage({ params }: PageProps) {
       title={detail.name}
       description={`${BUDGET_PERIOD_LABEL_ES[detail.period]} · ${formatDateEs(detail.progress.periodStart)} – ${formatDateEs(detail.progress.periodEnd)}`}
       actions={
-        canMutate ? (
-          <BudgetDetailActions
-            budgetId={detail.id}
-            name={detail.name}
-            limitCents={detail.limitCents}
-            currency={detail.currency}
-            categoryIds={detail.categoryIds}
-            categories={pickerCategories}
-            isArchived={detail.isArchived}
+        <Suspense fallback={<BudgetActionsSkeleton />}>
+          <BudgetActionsSection
+            detail={detail}
+            categories={categoriesPromise}
+            membership={membershipPromise}
           />
-        ) : undefined
+        </Suspense>
       }
     >
       <div className="mb-6">
@@ -237,4 +223,55 @@ export default async function BudgetDetailPage({ params }: PageProps) {
       </div>
     </ContentPanel>
   );
+}
+
+async function BudgetActionsSection({
+  detail,
+  categories,
+  membership,
+}: {
+  detail: BudgetDetail;
+  categories: Promise<CategoriesResult>;
+  membership: Promise<MembershipResult>;
+}) {
+  const [categoryList, membershipResult] = await Promise.all([
+    categories,
+    membership,
+  ]);
+
+  if (membershipResult.role === "viewer") {
+    return null;
+  }
+
+  const expenseCategories = categoryList
+    .filter((c) => c.kind === "expense" && !c.isArchived)
+    .map((c) => ({ id: c.id, name: c.name }));
+
+  // Keep currently linked categories visible even if archived.
+  const selectedArchived = categoryList
+    .filter(
+      (c) =>
+        c.kind === "expense" &&
+        c.isArchived &&
+        detail.categoryIds.includes(c.id),
+    )
+    .map((c) => ({ id: c.id, name: `${c.name} (archivada)` }));
+
+  const pickerCategories = [...expenseCategories, ...selectedArchived];
+
+  return (
+    <BudgetDetailActions
+      budgetId={detail.id}
+      name={detail.name}
+      limitCents={detail.limitCents}
+      currency={detail.currency}
+      categoryIds={detail.categoryIds}
+      categories={pickerCategories}
+      isArchived={detail.isArchived}
+    />
+  );
+}
+
+function BudgetActionsSkeleton() {
+  return <Skeleton className="h-10 w-full rounded-full sm:h-8 sm:w-28" />;
 }
