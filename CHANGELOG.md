@@ -25,6 +25,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - ABM de cuentas con archivar y hard-delete
 
+- Implement SPEC-20 performance, soft-nav prefetch, PWA SW
+
+- Finish SPEC-20 after docs merge — intent prefetch and telemetry
+
+### Fixed
+
+- Add missing soft-nav loading.tsx for nested app routes
+
 [Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.13.0...HEAD
 
 ## [0.13.0] - 2026-08-11
