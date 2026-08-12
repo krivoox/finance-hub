@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **accounts:** Paridad UI y tests tarjeta ARS/USD (KRI-11)
+
+- **accounts:** Editar cuenta y paridad credit_card en onboarding (KRI-11)
+
 - ABM de workspaces con hard-delete de grupos
 
 - Pills de categorías en listado de presupuestos
