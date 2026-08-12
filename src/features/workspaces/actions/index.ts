@@ -5,6 +5,8 @@ export { acceptInvitationAction } from "./accept-invitation";
 export { changeMemberRoleAction } from "./change-member-role";
 export { removeMemberAction } from "./remove-member";
 export { transferOwnershipAction } from "./transfer-ownership";
+export { leaveGroupWorkspaceAction } from "./leave-group-workspace";
+export { deleteGroupWorkspaceAction } from "./delete-group-workspace";
 export { setActiveWorkspaceAction } from "./set-active-workspace";
 export { rememberInviteTokenAction } from "./remember-invite-token";
 export { completeWorkspaceSetupAction } from "./complete-workspace-setup";

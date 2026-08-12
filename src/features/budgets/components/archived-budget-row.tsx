@@ -8,11 +8,13 @@ import { formatMoney } from "@/lib/format-money";
 import type { BudgetWithProgress } from "@/features/budgets/services";
 
 import { UnarchiveBudgetButton } from "./archive-budget-dialog";
+import { BudgetCategoryPills } from "./budget-category-pills";
 import { BUDGET_PERIOD_LABEL_ES } from "./period-labels";
 
 type ArchivedBudgetRowProps = {
   budget: BudgetWithProgress;
   canMutate: boolean;
+  categoryNameById: Readonly<Record<string, string>>;
 };
 
 /**
@@ -22,6 +24,7 @@ type ArchivedBudgetRowProps = {
 export function ArchivedBudgetRow({
   budget,
   canMutate,
+  categoryNameById,
 }: ArchivedBudgetRowProps) {
   return (
     <li className="relative flex flex-col gap-3 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
@@ -37,6 +40,11 @@ export function ArchivedBudgetRow({
             {BUDGET_PERIOD_LABEL_ES[budget.period]}
           </Badge>
         </div>
+        <BudgetCategoryPills
+          className="mt-1.5"
+          categoryIds={budget.categoryIds}
+          categoryNameById={categoryNameById}
+        />
         <p className="mt-1 text-xs tabular-nums text-muted-foreground">
           Límite {formatMoney(budget.limitCents, budget.currency)}
         </p>

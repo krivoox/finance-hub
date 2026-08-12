@@ -45,6 +45,15 @@ export {
 } from "./list-filters";
 export type { ListTypeFilter } from "./list-filters";
 
+export { presentListTotals, summarizeListAmounts } from "./list-totals";
+export type {
+  CurrencyListTotals,
+  ListAmountRow,
+  PresentedBreakdownLine,
+  PresentedListTotals,
+  PresentedSumLine,
+} from "./list-totals";
+
 export {
   assertAccountActive,
   assertAccountBelongsToWorkspace,
