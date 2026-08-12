@@ -220,6 +220,28 @@ El `refresh` se difiere con `setTimeout(0)` para que corra **después** del `pus
 
 **Listados con paginación client-side:** no copiar `initialItems` de props a `useState` en el mount — derivar la primera página de props y usar state solo para páginas extra (`loadMore`).
 
+### Prefetch (contrato)
+
+- Destinos de `mainNavItems` / `mobileTabItems` / `mobileMoreNavItems` (`src/components/app-shell/nav-config.ts`) deben poder prefetcharse (idle tras pintar el shell; opcional intent en hover/focus/touchstart).
+- Prefetch calienta el shell RSC; **no** relaja `staleTimes.dynamic: 0` ni habilita TTL cross-request de saldos (§7.1).
+- Coverage objetivo (SPEC-20): ≥90 % de taps del nav principal llegan a prefetch hit o in-flight.
+- Al agregar un link de menú, incluirlo en la estrategia de prefetch.
+
+### 7.3 PWA y Service Worker
+
+Producto: [SPEC-20](./specs/20-performance-pwa.md). Manifest: `src/app/manifest.ts`.
+
+| Permitido | Prohibido |
+|-----------|-----------|
+| Cache-first `/_next/static/*` (hashed / immutable) | Cache HTML dashboard / listados `(app)` |
+| Manifest + install + shortcuts a cargar | Cache `/api/*` o sesiones |
+| Offline form de carga + `/offline` | Mostrar saldos / patrimonio stale offline |
+| Install prompt existente | Workbox “offline app” genérico / offline ledger |
+
+**Filosofía:** saldos viejos sin avisar son **peores** que offline. El SW (si existe) es **custom** y de alcance deliberadamente chico — no un precache de la app entera.
+
+Headers / CDN (Vercel): estáticos `/_next/static` con cache largo; HTML de `(app)` dinámico (`private, no-store` / equivalente) — no “arreglar” TTFB cacheando paneles.
+
 ## 8. Flujo de una mutación
 
 ```txt
@@ -252,6 +274,7 @@ UI (RHF + Zod)
 | `splits` + overview grupo | [09](./specs/09-financial-groups.md) + [10](./specs/10-expense-splitting.md) |
 | analytics | [11-analytics](./specs/11-analytics.md) |
 | `dashboard` | [12-dashboard](./specs/12-dashboard.md) |
+| shell / PWA / nav | [20-performance-pwa](./specs/20-performance-pwa.md) |
 
 ## 11. Qué no hacer
 
@@ -262,4 +285,7 @@ UI (RHF + Zod)
 - Floats para dinero
 - Queries Prisma en páginas gordas sin pasar por services
 - Cache cross-request de saldos, membership o dashboards “por TTL” sin invalidación explícita (ver §7.1)
+- Service Worker que cachee HTML de `(app)`, flights de dinero o `/api/*` (ver §7.3)
+- Relajar `staleTimes.dynamic` para listados de dinero “por velocidad”
 - Confiar en `prisma:query` en consola como métrica de producción: el log es opt-in en desarrollo
+- Sustituir Better Auth / Vercel por PocketBase / Caddy u otro stack “porque Plata lo usa”

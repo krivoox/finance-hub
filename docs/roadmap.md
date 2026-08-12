@@ -22,6 +22,16 @@ Orden sugerido para el agente. Cada ítem: **spec → TDD dominio/application �
 | 6 | [06-transfers](./specs/06-transfers.md) | Transferencias |
 | 6b | [15-workspace-onboarding](./specs/15-workspace-onboarding.md) | First-run: cuentas + preview ledger (tras 03–05) |
 
+## Fase 1.5 — Sensación Plata (P0 UX / perf)
+
+Contrato: soft-nav, prefetch, SW static-only, shortcuts PWA, offline honesto. **No** cambia dominio ledger ni auth/hosting.
+
+| Orden | Spec | Entregable |
+|-------|------|------------|
+| 6c | [20-performance-pwa](./specs/20-performance-pwa.md) | Prefetch nav, SW cache solo `/_next/static`, shortcuts gasto/ingreso/cuentas, `/offline` + form offline MVP, steering docs |
+
+Orden de ingeniería sugerido: SW policy + manifest shortcuts → prefetch nav → `/offline` + form offline MVP → empty states consistentes (P1 en la spec).
+
 ## Fase 2 — P1 Control y hogar
 
 | Orden | Spec | Entregable |
