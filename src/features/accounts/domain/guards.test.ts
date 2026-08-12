@@ -82,27 +82,41 @@ describe("assertValidAccountName — SPEC-03 §5 (max 80, not empty)", () => {
   });
 });
 
-describe("assertValidCreditLimit — SPEC-03 T-06 / T-08", () => {
+describe("assertValidCreditLimit — SPEC-03 T-06 / T-08 / T-24 (KRI-11)", () => {
   it("allows credit_card with omitted/null creditLimit (T-06)", () => {
     expect(() => assertValidCreditLimit("credit_card", undefined)).not.toThrow();
     expect(() => assertValidCreditLimit("credit_card", null)).not.toThrow();
   });
 
-  it("allows positive creditLimit on credit_card", () => {
-    expect(() => assertValidCreditLimit("credit_card", 100_000)).not.toThrow();
+  it("allows null or undefined creditLimit on any type", () => {
+    expect(() => assertValidCreditLimit("checking", null)).not.toThrow();
+    expect(() => assertValidCreditLimit("checking", undefined)).not.toThrow();
   });
 
-  it("rejects creditLimit on non-credit_card (T-08)", () => {
+  it("allows positive creditLimit on credit_card", () => {
+    expect(() => assertValidCreditLimit("credit_card", 100_000)).not.toThrow();
+    expect(() =>
+      assertValidCreditLimit("credit_card", 500_000),
+    ).not.toThrow();
+  });
+
+  it("rejects creditLimit on non-credit_card (T-08 / T-24)", () => {
     expect(() => assertValidCreditLimit("checking", 100_000)).toThrow(
+      InvalidCreditLimitError,
+    );
+    expect(() => assertValidCreditLimit("savings", 1_000)).toThrow(
       InvalidCreditLimitError,
     );
   });
 
-  it("rejects non-positive creditLimit on credit_card", () => {
+  it("rejects non-positive or non-integer creditLimit on credit_card", () => {
     expect(() => assertValidCreditLimit("credit_card", 0)).toThrow(
       InvalidCreditLimitError,
     );
     expect(() => assertValidCreditLimit("credit_card", -1)).toThrow(
+      InvalidCreditLimitError,
+    );
+    expect(() => assertValidCreditLimit("credit_card", 1.5)).toThrow(
       InvalidCreditLimitError,
     );
   });

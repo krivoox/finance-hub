@@ -12,6 +12,16 @@
 
 Las cuentas representan dónde está el dinero (o deuda, en tarjetas de crédito). El saldo es derivado. Un workspace puede tener cuentas en **ARS y USD** (multi-ledger); la moneda de la cuenta es fija.
 
+### 1.1 Tarjetas de crédito bimonetarias (KRI-11)
+
+En Argentina es habitual que **una misma tarjeta física** acumule consumos en **ARS y USD** (resumen local + consumos en dólares / exterior). El usuario necesita:
+
+1. Configurar y crear la tarjeta **con la misma paridad de flujo** que un banco/billetera (nombre, moneda, saldo/deuda inicial, límite opcional).
+2. Registrar cada gasto en la **moneda que corresponde**.
+3. Ver deuda ARS y deuda USD por separado para pagar y controlar con precisión.
+
+**Decisión de producto (alineada a ADR-006):** una tarjeta física con dos monedas = **dos `Account` de tipo `credit_card`**, una por moneda. No hay cuenta multi-moneda. Ver §5.1.1.
+
 Esta spec cubre el **ABM completo**: crear, listar, editar, archivar, desarchivar y **eliminar (hard-delete)**.
 
 ### Dos bajas (producto v1)
@@ -44,6 +54,11 @@ Alineado a authz existente (`assertCanMutateAccounts`: viewer → `Forbidden`).
 6. Quiero **desarchivar** una cuenta archivada para volver a usarla.
 7. Quiero **eliminar permanentemente** una cuenta sabiendo que **pierdo el historial** (confirmación fuerte).
 8. No quiero poder archivar/eliminar una cuenta vinculada a un **objetivo activo**.
+9. **(P0 / KRI-11)** Como member, quiero crear una tarjeta de crédito en ARS o en USD **igual que un banco** (nombre, moneda, deuda inicial, límite opcional), para llevar la deuda en esa moneda.
+10. **(P0 / KRI-11)** Como member, quiero registrar un gasto en la tarjeta de la moneda correcta, para que la deuda ARS y la USD no se mezclen.
+11. **(P0 / KRI-11)** Como member, quiero pagar la deuda de cada tarjeta-moneda con una transferencia same-currency hacia esa cuenta, para bajar solo la deuda de esa moneda.
+12. **(P1 / KRI-11)** Como member, al crear una tarjeta quiero un atajo “también crear en la otra moneda”, para no olvidar el ledger USD/ARS compañero.
+13. **(P2)** Como member, quiero ver agrupadas en listado las dos patas de la misma tarjeta física, para reconocerlas como un solo instrumento.
 
 ## 4. Requisitos funcionales
 
@@ -60,6 +75,10 @@ Alineado a authz existente (`assertCanMutateAccounts`: viewer → `Forbidden`).
 | FR-09 | Bloquear `ArchiveAccount` y `DeleteAccount` si hay Goal `status=active` con `linkedAccountId = accountId` |
 | FR-10 | Permitir archivar la **última** cuenta activa → reabre onboarding (`needsSetup`, SPEC-15) |
 | FR-11 | Bloquear hard-delete si la cuenta es la **última activa** del workspace |
+| FR-12 | **(KRI-11)** Paridad tarjeta ↔ banco: `CreateAccount` / `UpdateAccount` / archive / expense / income / transfer-pago aplican a `credit_card` sin restricciones extra de moneda (solo ADR-006) |
+| FR-13 | **(KRI-11)** Al crear/editar `credit_card`, la UI expone `creditLimitCents` opcional (misma currency) y copy de **deuda** (no “saldo a favor”) |
+| FR-14 | **(KRI-11)** Hint al elegir `credit_card`: si gasta en ARS y USD, crear **una cuenta por moneda** |
+| FR-15 | **(P1 / KRI-11)** Atajo opcional al crear `credit_card`: cuenta compañera en la otra moneda — dos `CreateAccount` independientes; sin vínculo persistido en MVP |
 
 ## 5. Reglas de negocio
 
@@ -68,10 +87,28 @@ Alineado a authz existente (`assertCanMutateAccounts`: viewer → `Forbidden`).
 - `currency ∈ { ARS, USD }` (`ACCOUNT_CURRENCIES`). Puede diferir de `workspace.baseCurrency`.
 - `currency` es **inmutable** tras CreateAccount.
 - Default de currency al crear = `workspace.baseCurrency` si no se envía.
-- `initialBalance` puede ser 0 (en la moneda de la cuenta); entero ≥ 0 (centavos).
-- **creditLimit al crear (UI y API):** opcional. Si se omite / null en `credit_card` → OK (`creditLimitCents = null`). Si se envía → entero > 0. Si se envía en tipo ≠ `credit_card` → `InvalidCreditLimit`.
+- `initialBalance` puede ser 0 (en la moneda de la cuenta); entero ≥ 0 (centavos). En `credit_card`, el initialBalance es **deuda inicial** (mismo signo: positivo = adeudado).
+- **creditLimit al crear (UI y API):** opcional. Si se omite / null en `credit_card` → OK (`creditLimitCents = null`). Si se envía → entero > 0. Si se envía en tipo ≠ `credit_card` → `InvalidCreditLimit`. Misma currency que la cuenta (no hay límite “global” multi-moneda en una sola Account).
 - Nombre no vacío (trim), max 80 chars.
 - Credit card: saldo positivo = deuda (convención abajo).
+
+### 5.1.1 Modelado de tarjeta ARS + USD (decisión KRI-11)
+
+| Enfoque | Descripción | Decisión |
+|---------|-------------|----------|
+| **A — Dos Accounts** (recomendado) | Una `credit_card` ARS + una `credit_card` USD por la misma plástico | **Elegido** |
+| B — Una Account multi-moneda | Un id con balances ARS y USD | Rechazado: contradice ADR-006 (ledger nativo, currency fija) |
+| C — Entidad Card + ledgers hijos | Agregado `CardProduct` que agrupa Accounts | Later (P2): mejora UX de listado; no bloquea control preciso |
+
+**Consecuencias de A:**
+
+- Gasto en pesos → `CreateExpense` en la cuenta `credit_card` ARS.
+- Gasto en dólares → `CreateExpense` en la cuenta `credit_card` USD.
+- Pago del resumen ARS → `CreateTransfer` same-currency hacia la pata ARS ([SPEC-06](./06-transfers.md) T-05).
+- Pago del tramo USD → transfer same-currency hacia la pata USD (desde una cuenta asset USD), **o** canje + pago en dos pasos si solo hay liquidez ARS ([SPEC-16](./16-currency-exchange.md)) — el canje **no** es automático al pagar la tarjeta.
+- Límites: uno por Account/moneda (FR-04 / FR-13). Si el emisor publica un solo límite, el usuario lo carga en la moneda principal o lo reparte; no inventamos conversión automática del límite.
+- Naming sugerido (producto, no invariante): `"Visa Quiero ARS"` / `"Visa Quiero USD"`.
+- **No** hay vínculo persistido entre las dos patas en MVP (FR-15 crea dos Accounts sueltas). Agrupación visual = P2.
 
 ### 5.2 Convención de saldo en credit_card
 
@@ -84,6 +121,8 @@ Alineado a authz existente (`assertCanMutateAccounts`: viewer → `Forbidden`).
 Documentar en código con tests explícitos (`calculateAccountBalance`).
 
 **UI:** en `/accounts`, filas `credit_card` con deuda > 0 ofrecen CTA **Pagar** (FormSheet → `CreateTransfer` origen asset → tarjeta). Tip contextual dismissible (`tip.credit_card_pay`, localStorage `fh:tips:v1`). Alternativa manual: Transacciones → Transferencia.
+
+**Paridad UI con banco (KRI-11 P0):** el formulario de alta debe permitir `type=credit_card` + `currency` ARS|USD + deuda inicial + límite opcional, sin forzar `baseCurrency` ni ocultar USD. Copy: “Deuda inicial” / “Límite de crédito” cuando `type=credit_card`; “Saldo inicial” en el resto.
 
 ### 5.3 Archivar / desarchivar
 
@@ -188,6 +227,11 @@ Si cualquier paso falla → rollback total. Confirmación UI (`confirmName`) se 
 - [ ] Delete con CrossWorkspaceLink → bloqueado.
 - [ ] Member puede mutar; viewer no.
 - [ ] UI: Archivar y Eliminar con copy distinto; Eliminar pide confirmación fuerte.
+- [x] **KRI-11:** Crear `credit_card` ARS y `credit_card` USD en el mismo workspace → ambas OK; deudas independientes.
+- [x] **KRI-11:** Expense en tarjeta USD no altera deuda de tarjeta ARS (y viceversa).
+- [x] **KRI-11:** Pagar tarjeta ARS con transfer desde checking ARS baja solo esa deuda (SPEC-06 T-05).
+- [x] **KRI-11:** UI de alta de tarjeta permite moneda ARS|USD, deuda inicial y límite opcional (paridad con banco).
+- [x] **KRI-11:** Hint visible al elegir tipo tarjeta sobre el patrón “una cuenta por moneda”.
 
 ## 9. Escenarios de test (TDD)
 
@@ -200,6 +244,7 @@ Si cualquier paso falla → rollback total. Confirmación UI (`confirmName`) se 
 | P1 | T-16/T-17 cascade historial + rules/goals; T-18 cross-ws block | service (tx) |
 | P1 | T-07/T-08 update; T-11/T-12 archive goals/recurring; T-19 authz | service / authz |
 | P2 | T-01…T-05 balances (ya existentes) | regresiones |
+| P0 | T-21…T-24 KRI-11 deudas ARS/USD independientes | domain unit |
 
 ### Create / balance (existentes)
 
@@ -244,6 +289,32 @@ Si cualquier paso falla → rollback total. Confirmación UI (`confirmName`) se 
 - **Given** workspace ARS  
 - **When** CreateAccount type=credit_card, creditLimitCents omitted/null  
 - **Then** account creada con `creditLimitCents = null`
+
+### KRI-11 — tarjeta bimonetaria (dos Accounts)
+
+#### T-21 Credit card USD en workspace ARS (KRI-11)
+
+- **Given** workspace baseCurrency=ARS  
+- **When** create `credit_card` currency=USD, initialBalanceCents=0, creditLimitCents=500_000  
+- **Then** account creada; type=credit_card; currency=USD; creditLimitCents=500_000; currentBalance=0
+
+#### T-22 Deudas ARS y USD independientes (KRI-11)
+
+- **Given** credit_card “Visa ARS” (ARS, deuda 0) y credit_card “Visa USD” (USD, deuda 0)  
+- **When** expense 10_000 ARS en Visa ARS; expense 2_500 USD en Visa USD  
+- **Then** Visa ARS deuda=10000; Visa USD deuda=2500; ninguna afecta a la otra
+
+#### T-23 Pago solo de la pata ARS (KRI-11)
+
+- **Given** Visa ARS deuda 8000; Visa USD deuda 3000; checking ARS 20000  
+- **When** transfer 5000 checking ARS → Visa ARS  
+- **Then** Visa ARS=3000; Visa USD=3000 (sin cambio); checking=15000
+
+#### T-24 creditLimit rechazado en no-tarjeta (KRI-11 / overlap T-08)
+
+- **Given** type=checking  
+- **When** CreateAccount con creditLimitCents=1000  
+- **Then** error de dominio / validación (`InvalidCreditLimit`)
 
 ### Update
 
@@ -418,6 +489,13 @@ Orquestación de cascada, Prisma `onDelete: Restrict`, y revalidación de paths:
 - Soft-delete de txs individuales (sigue SPEC-05)
 - Unlink de Goal sin cancelar (SPEC-08)
 - Cascade automático a txs del **otro** workspace (SPEC-14): se **bloquea** delete
+- **Cuenta `credit_card` multi-moneda** (un solo Account con dos ledgers) — rechazado (ADR-006 / KRI-11)
+- Entidad `CardProduct` / vínculo persistido entre patas ARS+USD (P2)
+- Fecha de cierre / vencimiento del resumen, pago mínimo, intereses, cuotas
+- Impuestos automáticos sobre consumos USD (PAIS, Ganancias, IVA/IIBB)
+- Sync open banking / extracto del emisor
+- Conversión automática del límite de crédito entre monedas
+- Pago de tramo USD con liquidez solo ARS en un solo comando (canje explícito + transfer)
 
 ## 13. Notas
 
@@ -442,9 +520,12 @@ Orquestación de cascada, Prisma `onDelete: Restrict`, y revalidación de paths:
 ### ui-ux-developer
 
 1. Edit account sheet/page (name + creditLimit opcional).
-2. creditLimit opcional en create.
+2. creditLimit opcional en create; copy “Deuda inicial” + hint bimonetario (KRI-11).
 3. Acciones Archivar / Desarchivar / Eliminar con copy y confirmación fuerte.
 4. Empty / redirect coherente con SPEC-15 tras archivar última.
 5. Mensajes de error tipados → strings ES.
+6. Onboarding primera cuenta alineado (moneda/deuda/límite/hint) para `credit_card`.
 
 **Listo para hand-off a `software-engineer` y `ui-ux-developer`.**
+
+Issue origen tarjeta bimonetaria: **Linear KRI-11**.

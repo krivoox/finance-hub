@@ -124,6 +124,7 @@ type AccountType =
 - El saldo actual se deriva: `initialBalance + Σ efectos de transacciones` (no se edita a mano salvo ajuste explícito).
 - Cuentas archivadas no aceptan nuevas transacciones ni aparecen en selectores de flujos activos (SPEC-03).
 - En `credit_card`, el balance derivado es **deuda** (positivo = adeudado). Expense / transfer-out suben deuda; income / transfer-in (pago desde otra cuenta) la bajan. Detalle: SPEC-03 / SPEC-06.
+- Tarjeta física con consumos ARS+USD = **dos** Accounts `credit_card` (una por moneda). No hay Account multi-moneda (ADR-006 / SPEC-03 §5.1).
 - **Archivar** (soft): conserva historial; permitido aunque sea la última cuenta activa → el workspace deja de estar “listo” (`needsSetup`, SPEC-15).
 - **Eliminar** (hard-delete, SPEC-03): excepción de producto; pierde historial vía cascada de servicio. Bloqueado si es la última cuenta activa, si hay Goal `active` con `linkedAccountId`, o si hay `CrossWorkspaceLink` en txs de la cuenta.
 - No archivar ni hard-delete si un Goal `status=active` apunta a la cuenta como `linkedAccountId`.

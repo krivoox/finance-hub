@@ -60,9 +60,15 @@ export function EditAccountForm({
   });
 
   const onSubmit = handleSubmit((values) => {
+    const trimmedName = values.name.trim();
+    if (!trimmedName) {
+      toast.error("Nombre requerido");
+      return;
+    }
+
     const input: UpdateAccountInput = {
       accountId: account.id,
-      name: values.name,
+      name: trimmedName,
     };
 
     if (isCreditCard) {
@@ -118,6 +124,7 @@ export function EditAccountForm({
           <FormField
             label="Límite de crédito"
             htmlFor="edit-account-credit-limit"
+            optional
             hint="Opcional. Dejá vacío para quitar el límite."
           >
             <Input
@@ -126,7 +133,7 @@ export function EditAccountForm({
               inputMode="decimal"
               min={0}
               step="0.01"
-              placeholder="Opcional"
+              placeholder="Sin límite"
               className="tabular-nums"
               {...register("creditLimitUnits")}
             />
