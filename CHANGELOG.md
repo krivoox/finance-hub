@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.15.0] - 2026-08-12
+
+### Added
+
+- Stream Panel and transactions with per-section Suspense
+
+- Stream remaining (app) list and detail pages with Suspense
+
+[0.15.0]: https://github.com/krivoox/finance-hub/compare/v0.14.0...v0.15.0
+
 ## [0.14.0] - 2026-08-12
 
 ### Added
@@ -178,6 +188,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Baseline product release prior to Conventional Commits enforcement (accounts, workspaces, transactions, budgets, and related MVP surfaces)
 - Changelog automation (git-cliff), Conventional Commits (commitlint + husky), and SemVer GitHub Actions workflows
 
-[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.14.0...HEAD
-[0.14.0]: https://github.com/krivoox/finance-hub/compare/v0.13.0...v0.14.0
+[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.15.0...HEAD
+[0.15.0]: https://github.com/krivoox/finance-hub/compare/v0.14.0...v0.15.0
 [0.1.0]: https://github.com/krivoox/finance-hub/releases/tag/v0.1.0
