@@ -16,7 +16,7 @@ Orden sugerido para el agente. Cada ítem: **spec → TDD dominio/application �
 |-------|------|------------|
 | 1 | [01-auth](./specs/01-auth.md) | Registro/login + workspace personal; **Continuar con Google** (OAuth + account linking 1.B) en `/login` y `/registro` |
 | 2 | [02-workspaces](./specs/02-workspaces.md) | Listado y contexto activo |
-| 3 | [03-accounts](./specs/03-accounts.md) | Cuentas + saldo derivado |
+| 3 | [03-accounts](./specs/03-accounts.md) | Cuentas + saldo derivado; **KRI-11** paridad tarjeta↔banco y patrón bimonetario (2 Accounts ARS/USD) — delta UI/copy + tests T-06…T-09 |
 | 4 | [04-categories](./specs/04-categories.md) | Seed + CRUD |
 | 5 | [05-transactions](./specs/05-transactions.md) | Income/expense |
 | 6 | [06-transfers](./specs/06-transfers.md) | Transferencias |

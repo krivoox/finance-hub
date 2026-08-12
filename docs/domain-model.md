@@ -122,6 +122,7 @@ type AccountType =
 - El saldo actual se deriva: `initialBalance + Σ efectos de transacciones` (no se edita a mano salvo ajuste explícito).
 - Cuentas archivadas no aceptan nuevas transacciones.
 - En `credit_card`, el balance derivado es **deuda** (positivo = adeudado). Expense / transfer-out suben deuda; income / transfer-in (pago desde otra cuenta) la bajan. Detalle: SPEC-03 / SPEC-06.
+- Tarjeta física con consumos ARS+USD = **dos** Accounts `credit_card` (una por moneda). No hay Account multi-moneda (ADR-006 / SPEC-03 §5.1).
 
 ### Category
 

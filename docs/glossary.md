@@ -6,6 +6,7 @@
 | Onboarding de workspace | First-run en `/onboarding` (modal sin shell): ≥1 cuenta; gasto inicial opcional; ready = estado derivado |
 | Account | Cuenta: banco, efectivo, billetera, tarjeta de crédito, etc. |
 | Credit card (tipo de cuenta) | Pasivo: saldo positivo = deuda. Pago del resumen = transferencia hacia la tarjeta (SPEC-03 / SPEC-06) |
+| Tarjeta bimonetaria (ARS+USD) | Misma plástico con consumos en dos monedas: **dos** Accounts `credit_card` (una ARS, una USD). No es una cuenta multi-moneda (ADR-006 / SPEC-03 §5.1, KRI-11) |
 | Transaction | Movimiento / **transacción**: ingreso, gasto o transferencia |
 | Periodo de listado (Transacciones) | Ventana sobre `occurredOn`: `this_month` / `this_week` (lun–dom) / `all` / `custom`; default este mes en `User.timezone` (SPEC-05). Distinto del periodo weekly anclado de Budget |
 | Income | Ingreso que aumenta el saldo de una cuenta (en tarjeta: baja deuda) |
