@@ -52,6 +52,7 @@ export async function createExpenseWithSplitAction(
       amountCents: data.amountCents,
       occurredOn: data.occurredOn,
       description: data.description ?? null,
+      currency: data.currency,
       paidByUserId: data.paidByUserId,
     };
     const result =

@@ -184,7 +184,8 @@ Reglas:
   - conserva `id` y `name`;
   - las `Transaction` ya materializadas mantienen su FK a la regla `ended`;
   - el tooltip “Generada por: {rule.name}” sigue funcionando.
-- **No hay hard-delete de RecurringRule en v1** (ADR-004 “archive over delete”).
+- **No hay hard-delete de RecurringRule vía UI de recurrentes en v1** (preferir soft-delete / `ended`).
+- **Excepción:** al ejecutar `DeleteAccount` (SPEC-03 §5.5), las reglas que usan esa cuenta (`accountId` o `counterpartyAccountId`) se **hard-deletean** tras nullificar `recurringRuleId` en txs materializadas (las txs de esa cuenta se borran en la misma cascada).
 
 ### 4.5 Editar plantilla (FR-02)
 
@@ -247,10 +248,11 @@ Convierte una ocurrencia proyectada en una `Transaction` real.
 
 ### 4.7 Auto-pausa por cuenta archivada (FR-09)
 
-- Al ejecutar `ArchiveAccount(accountId)` (SPEC-03), *antes* de completar el archivado, buscar todas las `RecurringRule` con `status = 'active'` donde `accountId = X` o `counterpartyAccountId = X`.
+- Al ejecutar `ArchiveAccount(accountId)` (SPEC-03), *después* de pasar el guard de Goal activo y *antes* de completar el archivado, buscar todas las `RecurringRule` con `status = 'active'` donde `accountId = X` o `counterpartyAccountId = X`.
 - Para cada una: `status → 'paused'`, `pausedReason → 'account_archived'`.
 - Al **desarchivar** la cuenta: **no** se reactivan automáticamente. El usuario debe volver a `active` desde la UI (permite auditar antes de retomar débitos automáticos).
 - Dominio expone `shouldAutoPauseOnAccountArchive(rule, accountId) → boolean` y `applyAutoPause(rule, reason) → RecurringRule` — puras.
+- `DeleteAccount` **no** usa auto-pause: hard-deletea las reglas (ver §4.4 excepción / SPEC-03 §5.5).
 
 ### 4.8 Heurística de detección de duplicados (FR-08)
 

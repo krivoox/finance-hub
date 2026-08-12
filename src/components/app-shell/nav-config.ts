@@ -141,7 +141,7 @@ export const mobileTabItems: MobileTabItem[] = [
   {
     kind: "link",
     id: "transactions",
-    title: "Movimientos",
+    title: "Transacciones",
     href: "/transactions",
     icon: Receipt,
   },
@@ -197,6 +197,34 @@ export function applyNavBadges(
       badgeAriaLabel: presentation.ariaLabel,
     };
   });
+}
+
+/**
+ * Destinos del nav principal a prefetchear en idle (SPEC-20 H2).
+ * Incluye main / groups / footer / tabs / “Más” móvil (sin duplicados).
+ */
+export function getPrefetchNavHrefs(): readonly string[] {
+  const hrefs = new Set<string>();
+
+  const collect = (items: readonly NavItem[]) => {
+    for (const item of items) {
+      hrefs.add(item.href.split("?")[0] ?? item.href);
+      if (item.children?.length) collect(item.children);
+    }
+  };
+
+  collect(mainNavItems);
+  for (const group of navGroups) collect(group.items);
+  collect(footerNavItems);
+  collect(mobileMoreNavItems);
+
+  for (const tab of mobileTabItems) {
+    if (tab.kind === "link") {
+      hrefs.add(tab.href.split("?")[0] ?? tab.href);
+    }
+  }
+
+  return [...hrefs].sort();
 }
 
 export function isNavItemActive(pathname: string, href: string): boolean {

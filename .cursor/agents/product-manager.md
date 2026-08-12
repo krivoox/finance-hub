@@ -42,9 +42,9 @@ Si el usuario pide “implementá la feature”, aclará el alcance de producto 
 
 Antes de proponer alcance o historias, leé en este orden según haga falta:
 
-1. `docs/vision.md` — problema, personas, principios de producto
-2. Spec relevante en `docs/specs/` — **no contradecir** sin proponer cambio explícito
-3. `docs/roadmap.md` — orden y fases
+1. `docs/vision.md` — problema, personas, principios de producto (incl. rapidez percibida sin mentir)
+2. Spec relevante en `docs/specs/` — **no contradecir** sin proponer cambio explícito; UX-speed: SPEC-20
+3. `docs/roadmap.md` — orden y fases (Fase 1.5 sensación Plata)
 4. `docs/domain-model.md` + `docs/glossary.md` — lenguaje ubicuo (no redefinir entidades a la ligera)
 5. Guías de producto (`docs/guides/…`) cuando aplique
 6. `docs/README.md` — índice y formato de spec

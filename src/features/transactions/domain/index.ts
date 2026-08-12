@@ -45,6 +45,15 @@ export {
 } from "./list-filters";
 export type { ListTypeFilter } from "./list-filters";
 
+export { presentListTotals, summarizeListAmounts } from "./list-totals";
+export type {
+  CurrencyListTotals,
+  ListAmountRow,
+  PresentedBreakdownLine,
+  PresentedListTotals,
+  PresentedSumLine,
+} from "./list-totals";
+
 export {
   assertAccountActive,
   assertAccountBelongsToWorkspace,
@@ -58,6 +67,24 @@ export {
   assertValidAmount,
   normalizeDescription,
 } from "./guards";
+
+export {
+  currenciesPresentInAccounts,
+  filterAccountsByCurrency,
+  filterPaymentGroupsByCurrency,
+  resolveTransactionFormCurrency,
+} from "./currency";
+export type {
+  AccountCurrencyOption,
+  PaymentAccountGroupLike,
+} from "./currency";
+
+export {
+  initialTypeFromCreateParam,
+  isTransactionCreateParam,
+  TRANSACTION_CREATE_PARAMS,
+} from "./create-param";
+export type { TransactionCreateParam } from "./create-param";
 
 export {
   CREATEABLE_TRANSACTION_TYPES,

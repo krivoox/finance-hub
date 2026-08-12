@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ACCOUNT_CURRENCIES } from "@/domain/money/currencies";
 import { TRANSACTION_DESCRIPTION_MAX_LENGTH } from "@/features/transactions/domain";
 
 const workspaceIdSchema = z.string().min(1, "workspaceId requerido");
@@ -28,6 +29,9 @@ const occurredOnSchema = z
   .string()
   .regex(/^\d{4}-\d{2}-\d{2}$/u, "Formato de fecha inválido (YYYY-MM-DD)");
 
+/** Optional explicit currency from the create form (SPEC-05 FR-07 / KRI-10). */
+const currencySchema = z.enum(ACCOUNT_CURRENCIES).optional();
+
 export const createIncomeSchema = z.object({
   workspaceId: workspaceIdSchema,
   accountId: accountIdSchema,
@@ -35,6 +39,7 @@ export const createIncomeSchema = z.object({
   amountCents: amountCentsSchema,
   occurredOn: occurredOnSchema,
   description: descriptionSchema,
+  currency: currencySchema,
 });
 export type CreateIncomeInput = z.infer<typeof createIncomeSchema>;
 
@@ -45,6 +50,7 @@ export const createExpenseSchema = z.object({
   amountCents: amountCentsSchema,
   occurredOn: occurredOnSchema,
   description: descriptionSchema,
+  currency: currencySchema,
 });
 export type CreateExpenseInput = z.infer<typeof createExpenseSchema>;
 
@@ -56,6 +62,7 @@ export const createTransferSchema = z
     amountCents: amountCentsSchema,
     occurredOn: occurredOnSchema,
     description: descriptionSchema,
+    currency: currencySchema,
   })
   .refine((data) => data.accountId !== data.counterpartyAccountId, {
     path: ["counterpartyAccountId"],

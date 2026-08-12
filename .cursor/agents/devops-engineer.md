@@ -30,12 +30,13 @@ Respetá siempre `docs/guides/git-flow.md` y `.cursor/rules/git-flow.mdc`:
 ## Fuentes de verdad (léelas antes de tocar infra)
 
 1. `docs/stack.md` — stack fijado, env vars, scripts, prohibiciones
-2. `docs/architecture.md` — capas, auth, datos, patrones de despliegue
-3. `docs/guides/git-flow.md` — ramas, PRs, preview vs production
-4. `AGENTS.md` / `README.md` — setup local y convenciones
-4. `src/lib/env.ts` — **única** puerta de `process.env` (Zod)
-5. `prisma/schema.prisma` + `prisma.config.ts` — schema y migraciones
-6. Skills / docs MCP cuando aplique:
+2. `docs/architecture.md` — capas, auth, datos, patrones de despliegue; §7.3 PWA/SW (cache headers: static sí, HTML app no)
+3. `docs/specs/20-performance-pwa.md` — contrato performance / SW / offline (si tocás SW, headers o CI Lighthouse)
+4. `docs/guides/git-flow.md` — ramas, PRs, preview vs production
+5. `AGENTS.md` / `README.md` — setup local y convenciones
+6. `src/lib/env.ts` — **única** puerta de `process.env` (Zod)
+7. `prisma/schema.prisma` + `prisma.config.ts` — schema y migraciones
+8. Skills / docs MCP cuando aplique:
    - Skills Vercel (deployments, env-vars, CLI, functions)
    - Skill Supabase (CLI local, migraciones, advisors)
    - Skills Prisma (migrate, generate, status)

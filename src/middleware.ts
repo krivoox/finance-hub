@@ -19,6 +19,8 @@ const PUBLIC_EXACT = new Set([
   "/sitemap.xml",
   "/llms.txt",
   "/manifest.webmanifest",
+  "/offline",
+  "/sw.js",
 ]);
 
 function matchesPrefix(pathname: string, prefixes: string[]): boolean {
@@ -61,6 +63,6 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api/auth|_next/static|_next/image|favicon.ico|manifest.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
+    "/((?!api/auth|_next/static|_next/image|favicon.ico|manifest.webmanifest|sw\\.js|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)",
   ],
 };

@@ -134,7 +134,8 @@ export default async function SettingsPage({ searchParams }: PageProps) {
                 Nuevo workspace grupal
               </h2>
               <p className="text-xs text-muted-foreground">
-                Creá un workspace compartido con miembros y saldos comunes.
+                Creá un workspace compartido con miembros y saldos comunes. El
+                workspace personal no se puede eliminar.
               </p>
             </header>
             <NewGroupWorkspaceForm />

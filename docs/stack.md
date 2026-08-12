@@ -111,6 +111,20 @@ experimental: {
 
 Velocidad percibida en soft-nav: `loading.tsx` + `PageSkeleton` + cerrar sidebar móvil al click. Detalle: [architecture.md §7.2](./architecture.md#72-navegación-inmediata-y-client-router-cache).
 
+## Performance / PWA (contrato)
+
+Fuente de producto: [SPEC-20](./specs/20-performance-pwa.md). Arquitectura: [§7.2–7.3](./architecture.md).
+
+- Soft-nav App Router + RSC; velocidad percibida = shell persistente + `loading.tsx` + prefetch del menú.
+- Prefetch: destinos de `nav-config.ts` en idle (y hover/focus cuando aplique). **No** justifica cachear saldos.
+- PWA: `src/app/manifest.ts` + install prompt + shortcuts a acciones frecuentes (gasto / ingreso / cuentas).
+- Service Worker **custom** (cuando exista): cache-first **solo** `/_next/static/*`.
+  **Prohibido** cachear HTML de `(app)`, flights de dinero como offline source of truth, o `/api/*`.
+- Offline permitido: formulario de carga + página `/offline`. Offline de saldos = **no**.
+- Hosting: **Vercel** (no copiar Caddy/HTTP3 de otros productos; el principio es edge + HTTP moderno del proveedor).
+- Auth: **Better Auth** (no PocketBase). Analytics: livianos, fuera del critical path (`@vercel/analytics` / Speed Insights OK).
+- Filosofía: **confianza en números > offline completo**.
+
 ## Scripts esperados (`package.json`)
 
 | Script | Uso |

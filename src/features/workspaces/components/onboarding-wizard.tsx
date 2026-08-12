@@ -17,6 +17,7 @@ import {
 } from "@/features/workspaces/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { nativeSelectClassName } from "@/components/ui/native-select";
 import { navigateAndRefresh } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { LedgerPreview, type LedgerPreviewAccount } from "./ledger-preview";
@@ -34,7 +35,9 @@ type OnboardingWizardProps = {
 type AccountValues = {
   name: string;
   type: AccountType;
+  currency: "ARS" | "USD";
   initialBalanceUnits: string;
+  creditLimitUnits: string;
 };
 
 const QUICK_ACCOUNT_TYPES: AccountType[] = [
@@ -47,6 +50,14 @@ const QUICK_ACCOUNT_TYPES: AccountType[] = [
 function progressFraction(step: Step): number {
   // 2-step wizard: intro shows 50%, createAccount shows 100%
   return step === "intro" ? 0.5 : 1;
+}
+
+function currencyLabel(currency: "ARS" | "USD"): string {
+  return currency === "USD" ? "dólares (USD)" : "pesos (ARS)";
+}
+
+function resolveInitialCurrency(value: string): "ARS" | "USD" {
+  return value === "USD" ? "USD" : "ARS";
 }
 
 function todayIsoDate(): string {
@@ -194,7 +205,9 @@ export function OnboardingWizard({
     defaultValues: {
       name: "",
       type: "checking",
+      currency: resolveInitialCurrency(initialCurrency),
       initialBalanceUnits: "0",
+      creditLimitUnits: "",
     },
   });
 
@@ -235,18 +248,39 @@ export function OnboardingWizard({
   const goToCreateAccount = () => setStep("createAccount");
 
   const submitFirstAccount = accountForm.handleSubmit((values) => {
+    const submittingCreditCard = values.type === "credit_card";
     const parsedUnits = Number(values.initialBalanceUnits.replace(",", "."));
     if (!Number.isFinite(parsedUnits) || parsedUnits < 0) {
-      toast.error("Saldo inicial inválido");
+      toast.error(
+        submittingCreditCard
+          ? "Deuda inicial inválida"
+          : "Saldo inicial inválido",
+      );
       return;
     }
     const initialBalanceCents = Math.round(parsedUnits * 100);
+
+    let creditLimitCents: number | undefined;
+    if (submittingCreditCard && values.creditLimitUnits.trim() !== "") {
+      const parsedLimit = Number(values.creditLimitUnits.replace(",", "."));
+      if (!Number.isFinite(parsedLimit) || parsedLimit <= 0) {
+        toast.error("Límite de crédito inválido");
+        return;
+      }
+      creditLimitCents = Math.round(parsedLimit * 100);
+      if (creditLimitCents <= 0) {
+        toast.error("Límite de crédito inválido");
+        return;
+      }
+    }
 
     const input = {
       workspaceId,
       name: values.name,
       type: values.type,
       initialBalanceCents,
+      currency: values.currency,
+      ...(creditLimitCents !== undefined ? { creditLimitCents } : {}),
     };
 
     const clientCheck = createAccountSchema.safeParse(input);
@@ -275,6 +309,12 @@ export function OnboardingWizard({
   });
 
   const selectedType = useWatch({ control: accountForm.control, name: "type" });
+  const selectedCurrency = useWatch({
+    control: accountForm.control,
+    name: "currency",
+  });
+  const isCreditCard = selectedType === "credit_card";
+  const previewCurrency = selectedCurrency ?? resolveInitialCurrency(initialCurrency);
 
   return (
     <div className="flex min-h-dvh flex-col items-center px-4 py-8 pt-[max(2rem,env(safe-area-inset-top))] pb-[max(2rem,env(safe-area-inset-bottom))] sm:justify-center sm:py-12">
@@ -391,6 +431,17 @@ export function OnboardingWizard({
                     ))}
                   </div>
 
+                  {isCreditCard ? (
+                    <p
+                      className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground text-pretty"
+                      role="note"
+                    >
+                      Una tarjeta que gasta en pesos y dólares son dos cuentas:
+                      una en ARS y otra en USD. Así la deuda y los pagos no se
+                      mezclan.
+                    </p>
+                  ) : null}
+
                   <div className="space-y-2">
                     <label htmlFor="account-name" className="text-sm font-medium text-muted-foreground">
                       Nombre
@@ -398,9 +449,36 @@ export function OnboardingWizard({
                     <Input
                       id="account-name"
                       className="h-11"
-                      placeholder="Efectivo, Banco Nación…"
+                      placeholder={
+                        isCreditCard
+                          ? "Visa Quiero ARS, Mastercard USD…"
+                          : "Efectivo, Banco Nación…"
+                      }
                       {...accountForm.register("name")}
                     />
+                    {isCreditCard ? (
+                      <p className="text-xs text-muted-foreground text-pretty">
+                        Si gasta en ARS y USD, creá una cuenta por moneda (ej.
+                        Visa ARS / Visa USD).
+                      </p>
+                    ) : null}
+                  </div>
+
+                  <div className="space-y-2">
+                    <label
+                      htmlFor="account-currency"
+                      className="text-sm font-medium text-muted-foreground"
+                    >
+                      Moneda
+                    </label>
+                    <select
+                      id="account-currency"
+                      className={cn(nativeSelectClassName, "h-11 sm:h-11")}
+                      {...accountForm.register("currency")}
+                    >
+                      <option value="ARS">Pesos (ARS)</option>
+                      <option value="USD">Dólares (USD)</option>
+                    </select>
                   </div>
 
                   <div className="space-y-2">
@@ -408,16 +486,50 @@ export function OnboardingWizard({
                       htmlFor="account-balance"
                       className="text-sm font-medium text-muted-foreground"
                     >
-                      Saldo inicial ({initialCurrency})
+                      {isCreditCard ? "Deuda inicial" : "Saldo inicial"}{" "}
+                      ({previewCurrency})
                     </label>
                     <Input
                       id="account-balance"
                       className="h-11 tabular-nums"
+                      type="number"
                       inputMode="decimal"
-                      defaultValue="0"
+                      min={0}
+                      step="0.01"
                       {...accountForm.register("initialBalanceUnits")}
                     />
+                    <p className="text-xs text-muted-foreground">
+                      {isCreditCard
+                        ? `Monto adeudado en ${currencyLabel(previewCurrency)}`
+                        : `En ${currencyLabel(previewCurrency)}`}
+                    </p>
                   </div>
+
+                  {isCreditCard ? (
+                    <div className="space-y-2">
+                      <label
+                        htmlFor="account-credit-limit"
+                        className="text-sm font-medium text-muted-foreground"
+                      >
+                        Límite de crédito{" "}
+                        <span className="font-normal">(opcional)</span>
+                      </label>
+                      <Input
+                        id="account-credit-limit"
+                        className="h-11 tabular-nums"
+                        type="number"
+                        inputMode="decimal"
+                        min={0}
+                        step="0.01"
+                        placeholder="Sin límite"
+                        {...accountForm.register("creditLimitUnits")}
+                      />
+                      <p className="text-xs text-muted-foreground">
+                        En {currencyLabel(previewCurrency)}, misma moneda que la
+                        cuenta.
+                      </p>
+                    </div>
+                  ) : null}
 
                   <Button type="submit" className="h-11 w-full sm:w-auto" disabled={isPending}>
                     Crear cuenta y empezar
@@ -436,7 +548,7 @@ export function OnboardingWizard({
           {step === "createAccount" ? (
             <div className="hidden border-t border-border bg-muted/30 lg:block lg:border-l lg:border-t-0">
               <LedgerPreview
-                currency={initialCurrency}
+                currency={previewCurrency}
                 workspaceName={initialName}
                 accounts={accounts}
                 expense={null}

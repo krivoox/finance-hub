@@ -55,6 +55,7 @@ Mismo que Siturn — detalle en `docs/stack.md`:
 - **Prisma** + Postgres (Supabase)
 - Zod + RHF, TanStack Query, Zustand (solo UI)
 - Vitest para TDD de negocio
+- Performance / PWA: [SPEC-20](./docs/specs/20-performance-pwa.md) + [architecture §7.2–7.3](./docs/architecture.md) (soft-nav, prefetch, SW static-only)
 
 ## TDD obligatorio (lógica de negocio)
 
@@ -115,5 +116,9 @@ Reglas:
 - [ ] Sin tests de UI
 - [ ] `getSession` + Zod + authz workspace en cada Server Action
 - [ ] Sin `process.env` fuera de `src/lib/env.ts`
+- [ ] Soft-nav + loading skeleton en rutas `(app)` tocadas
+- [ ] Prefetch de destinos de nav si se agregan links de menú (`nav-config.ts`)
+- [ ] Sin cache cross-request / SW de saldos o HTML de panel (`staleTimes.dynamic: 0`)
+- [ ] PWA: si toca manifest/SW, respetar SPEC-20 / architecture §7.3
 - [ ] Git Flow: rama `feat|fix|chore` desde `develop`; PR → `develop`
 - [ ] Tras merge: rama remota borrada + prune local

@@ -49,6 +49,7 @@ Esta spec define el **first-run** que deja el workspace listo para usar y enseñ
 - Ready sii `count(cuentas no archivadas) ≥ 1` (derivado; **no** hay campo Prisma de onboarding).
 - Categorías seed ya existen; el onboarding no las reseedea.
 - Sin cuenta: no se puede `CompleteWorkspaceSetup`.
+- **Reapertura (SPEC-03):** archivar la **última** cuenta activa deja `accountCount = 0` → el workspace deja de estar ready. Si el rol es owner/admin y no hay dismiss vigente, `needsSetup` vuelve a `true` y el gate puede redirigir a `/onboarding`. Hard-delete de la última activa está **bloqueado** en SPEC-03 (`CannotDeleteLastActiveAccount`); el camino es archivar (o crear otra) primero.
 
 ### Disparo y omisión
 
@@ -56,6 +57,7 @@ Esta spec define el **first-run** que deja el workspace listo para usar y enseñ
 - Dismiss: cookie httpOnly `fh-setup-dismissed` (ids de workspace separados por coma).
 - Member/viewer nunca son forzados al onboarding.
 - Gate: layout `(app)` redirige a `/onboarding` si `needsSetup`. Middleware envía sesión autenticada desde forms de auth hacia `/onboarding`.
+- Nota: si el usuario archivó la última cuenta con dismiss aún presente, no se fuerza el gate; el empty de `/accounts` (FR-09) sigue ofreciendo CTA de setup.
 
 ### Datos reales
 
@@ -182,6 +184,6 @@ Esta spec define el **first-run** que deja el workspace listo para usar y enseñ
 |------|-----|
 | SPEC-01 | Registro + redirect post-auth |
 | SPEC-02 | Workspace, roles, active cookie |
-| SPEC-03 | `CreateAccount` |
+| SPEC-03 | `CreateAccount`; archivar última activa reabre `needsSetup` |
 | SPEC-04 | Categorías seed |
 | SPEC-12 | Dashboard post-setup |

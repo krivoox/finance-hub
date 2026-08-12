@@ -16,11 +16,21 @@ Orden sugerido para el agente. Cada ítem: **spec → TDD dominio/application �
 |-------|------|------------|
 | 1 | [01-auth](./specs/01-auth.md) | Registro/login + workspace personal; **Continuar con Google** (OAuth + account linking 1.B) en `/login` y `/registro` |
 | 2 | [02-workspaces](./specs/02-workspaces.md) | Listado y contexto activo |
-| 3 | [03-accounts](./specs/03-accounts.md) | Cuentas + saldo derivado |
+| 3 | [03-accounts](./specs/03-accounts.md) | Cuentas + saldo derivado; **KRI-11** paridad tarjeta↔banco y patrón bimonetario (2 Accounts ARS/USD) — delta UI/copy + tests T-06…T-09 |
 | 4 | [04-categories](./specs/04-categories.md) | Seed + CRUD |
 | 5 | [05-transactions](./specs/05-transactions.md) | Income/expense |
 | 6 | [06-transfers](./specs/06-transfers.md) | Transferencias |
 | 6b | [15-workspace-onboarding](./specs/15-workspace-onboarding.md) | First-run: cuentas + preview ledger (tras 03–05) |
+
+## Fase 1.5 — Sensación Plata (P0 UX / perf)
+
+Contrato: soft-nav, prefetch, SW static-only, shortcuts PWA, offline honesto. **No** cambia dominio ledger ni auth/hosting.
+
+| Orden | Spec | Entregable |
+|-------|------|------------|
+| 6c | [20-performance-pwa](./specs/20-performance-pwa.md) | Prefetch nav, SW cache solo `/_next/static`, shortcuts gasto/ingreso/cuentas, `/offline` + form offline MVP, steering docs |
+
+Orden de ingeniería sugerido: SW policy + manifest shortcuts → prefetch nav → `/offline` + form offline MVP → empty states consistentes (P1 en la spec).
 
 ## Fase 2 — P1 Control y hogar
 
@@ -40,6 +50,7 @@ Orden sugerido para el agente. Cada ítem: **spec → TDD dominio/application �
 | 10d | [18-recurring-transactions](./specs/18-recurring-transactions.md) | Plantillas recurrentes + bandeja semi-auto + rename Transacciones |
 | 10e | [16-currency-exchange](./specs/16-currency-exchange.md) | Canje ARS↔USD + tasa de consolidación manual |
 | 10f | [19-usd-quotes-dolarapi](./specs/19-usd-quotes-dolarapi.md) | Snapshot diario Oficial/MEP (DolarApi) + convertidor + “Usar MEP de hoy” |
+| 10g | [02-workspaces](./specs/02-workspaces.md) (ABM) | Rename/leave/delete group (hard-delete) + UI miembros; personal inborrable; bloqueo si hay vínculos SPEC-14 |
 
 ## Fase 3 — P2 Insights
 

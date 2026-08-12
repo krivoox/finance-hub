@@ -19,7 +19,8 @@ Finance Hub es una app de finanzas personales/familiares: cuentas, movimientos, 
 2. `.interface-design/system.md` — dirección craft del producto (si existe).
 3. Specs en `docs/specs/` + `docs/domain-model.md` — reglas de negocio (no inventar).
 4. `docs/architecture.md` + `AGENTS.md` — capas, TDD, stack.
-5. Skills del repo cuando aplique:
+5. `docs/specs/20-performance-pwa.md` — soft-nav, skeletons, `/offline`, empty/error parity, shortcuts PWA.
+6. Skills del repo cuando aplique:
    - `.agents/skills/interface-design/SKILL.md` (UI de producto / craft)
    - `.agents/skills/frontend-design/SKILL.md` (identidad visual cuando haya libertad)
    - `.agents/skills/shadcn/SKILL.md` (componentes)

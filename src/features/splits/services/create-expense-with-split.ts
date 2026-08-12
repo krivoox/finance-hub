@@ -25,6 +25,7 @@ export type CreateExpenseWithSplitInput = {
   amountCents: number;
   occurredOn: string;
   description?: string | null;
+  currency?: string;
   paidByUserId: string;
 } & (SplitEqual | SplitPercentage | SplitExact);
 
@@ -43,6 +44,7 @@ export async function createExpenseWithSplit(
     amountCents: input.amountCents,
     occurredOn: input.occurredOn,
     description: input.description,
+    currency: input.currency,
   });
 
   const base = {

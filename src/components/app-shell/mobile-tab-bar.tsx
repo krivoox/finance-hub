@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { AlertTriangle } from "lucide-react";
 
@@ -17,6 +17,7 @@ import {
   mobileTabItems,
   type NavBadges,
 } from "./nav-config";
+import { navIntentPrefetchHandlers } from "./use-nav-prefetch";
 
 type MobileTabBarProps = {
   user: SidebarUser;
@@ -188,6 +189,7 @@ type TabSlotProps = {
 };
 
 function TabSlot({ active, label, icon, href, onClick, badge }: TabSlotProps) {
+  const router = useRouter();
   const className = cn(
     "relative flex h-11 w-full min-w-0 items-center justify-center gap-1 overflow-hidden rounded-full px-1",
     "text-[10px] font-medium leading-none transition-[background-color,color] duration-200 ease-out",
@@ -218,6 +220,7 @@ function TabSlot({ active, label, icon, href, onClick, badge }: TabSlotProps) {
         href={href}
         aria-current={active ? "page" : undefined}
         className={className}
+        {...navIntentPrefetchHandlers(router, href)}
       >
         {body}
       </Link>

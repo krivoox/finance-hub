@@ -19,10 +19,11 @@ Finance Hub: finanzas personales/familiares (cuentas, movimientos, presupuestos,
 1. `AGENTS.md` — guía del agente y checklist de feature
 2. Spec relevante en `docs/specs/` + `docs/domain-model.md` — **no inventar** reglas de negocio
 3. `docs/architecture.md` + `docs/stack.md` — capas, auth, datos, prohibiciones
-4. `docs/adr/` — decisiones ya aceptadas (ADR-001…004 y siguientes)
-5. `docs/tdd-workflow.md` — red → green → refactor
-6. `DESIGN.md` — solo cuando toques UI (mobile-first, tokens)
-7. Skills del repo cuando aplique:
+4. `docs/specs/20-performance-pwa.md` + `.cursor/rules/performance-pwa.mdc` — soft-nav, prefetch, SW/PWA (si tocás shell, nav, manifest o SW)
+5. `docs/adr/` — decisiones ya aceptadas (ADR-001…004 y siguientes)
+6. `docs/tdd-workflow.md` — red → green → refactor
+7. `DESIGN.md` — solo cuando toques UI (mobile-first, tokens)
+8. Skills del repo cuando aplique:
    - `.agents/skills/vercel-react-best-practices/`
    - `.agents/skills/react-hook-form/`
    - `.agents/skills/better-auth-best-practices/` (+ security)

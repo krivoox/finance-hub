@@ -1,4 +1,7 @@
 import { z } from "zod";
+import { ACCOUNT_CURRENCIES } from "@/domain/money/currencies";
+
+const optionalCurrencySchema = z.enum(ACCOUNT_CURRENCIES).optional();
 
 export const attachSplitSchema = z.discriminatedUnion("method", [
   z.object({
@@ -46,6 +49,7 @@ export const createExpenseWithSplitSchema = z.discriminatedUnion("method", [
     amountCents: z.number().int().positive(),
     occurredOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     description: z.string().max(500).optional().nullable(),
+    currency: optionalCurrencySchema,
     paidByUserId: z.string().min(1),
     method: z.literal("equal"),
     participantUserIds: z.array(z.string().min(1)).min(1),
@@ -57,6 +61,7 @@ export const createExpenseWithSplitSchema = z.discriminatedUnion("method", [
     amountCents: z.number().int().positive(),
     occurredOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     description: z.string().max(500).optional().nullable(),
+    currency: optionalCurrencySchema,
     paidByUserId: z.string().min(1),
     method: z.literal("percentage"),
     percentages: z
@@ -75,6 +80,7 @@ export const createExpenseWithSplitSchema = z.discriminatedUnion("method", [
     amountCents: z.number().int().positive(),
     occurredOn: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     description: z.string().max(500).optional().nullable(),
+    currency: optionalCurrencySchema,
     paidByUserId: z.string().min(1),
     method: z.literal("exact"),
     exactShares: z

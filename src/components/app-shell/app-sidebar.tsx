@@ -57,6 +57,7 @@ import {
   type NavBadges,
   type NavItem,
 } from "./nav-config";
+import { navIntentPrefetchHandlers } from "./use-nav-prefetch";
 
 export type SidebarUser = {
   displayName: string;
@@ -175,6 +176,7 @@ function SidebarUserMenu({
 
 function NavMenuItems({ items }: { items: NavItem[] }) {
   const pathname = usePathname();
+  const router = useRouter();
   const { isMobile, setOpenMobile } = useSidebar();
   const [isPending, startTransition] = useTransition();
 
@@ -196,7 +198,11 @@ function NavMenuItems({ items }: { items: NavItem[] }) {
         return (
           <SidebarMenuItem key={item.href}>
             <SidebarMenuButton asChild isActive={active} tooltip={item.title}>
-              <Link href={item.href} onClick={handleNavigate}>
+              <Link
+                href={item.href}
+                onClick={handleNavigate}
+                {...navIntentPrefetchHandlers(router, item.href)}
+              >
                 <Icon strokeWidth={1.75} />
                 <span>{item.title}</span>
               </Link>
@@ -226,7 +232,11 @@ function NavMenuItems({ items }: { items: NavItem[] }) {
                         asChild
                         isActive={isNavItemActive(pathname, child.href)}
                       >
-                        <Link href={child.href} onClick={handleNavigate}>
+                        <Link
+                          href={child.href}
+                          onClick={handleNavigate}
+                          {...navIntentPrefetchHandlers(router, child.href)}
+                        >
                           <ChildIcon strokeWidth={1.75} />
                           <span>{child.title}</span>
                         </Link>

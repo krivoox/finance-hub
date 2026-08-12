@@ -30,3 +30,9 @@ Finanzas personales/familiares: cuentas, movimientos, presupuestos, objetivos y 
 
 - Fuente: `DESIGN.md` — **mobile-first**
 - Tokens semánticos; shadcn + CVA; sin hex/`zinc-*` en producto
+
+## Performance / PWA
+
+- Contrato: rule `performance-pwa` + `docs/specs/20-performance-pwa.md` + architecture §7.2–7.3
+- Soft-nav + prefetch nav; SW solo `/_next/static/*`; nunca saldos offline stale
+- Stack auth/hosting no se sustituye (Better Auth, Vercel)

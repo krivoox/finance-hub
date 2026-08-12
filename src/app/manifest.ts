@@ -32,5 +32,46 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: "maskable",
       },
     ],
+    shortcuts: [
+      {
+        name: "Nuevo gasto",
+        short_name: "Gasto",
+        description: "Registrar un gasto",
+        url: "/transactions?new=expense",
+        icons: [
+          {
+            src: "/icons/icon-192.png",
+            sizes: "192x192",
+            type: "image/png",
+          },
+        ],
+      },
+      {
+        name: "Nuevo ingreso",
+        short_name: "Ingreso",
+        description: "Registrar un ingreso",
+        url: "/transactions?new=income",
+        icons: [
+          {
+            src: "/icons/icon-192.png",
+            sizes: "192x192",
+            type: "image/png",
+          },
+        ],
+      },
+      {
+        name: "Cuentas",
+        short_name: "Cuentas",
+        description: "Ver y gestionar cuentas",
+        url: "/accounts",
+        icons: [
+          {
+            src: "/icons/icon-192.png",
+            sizes: "192x192",
+            type: "image/png",
+          },
+        ],
+      },
+    ],
   };
 }
