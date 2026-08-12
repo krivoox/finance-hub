@@ -23,6 +23,13 @@ type TransactionsLedgerListProps = {
   initialItems: readonly ListedTransactionPageItem[];
   initialNextCursor: string | null;
   query: LedgerListQuery;
+  canMutate: boolean;
+  accounts: readonly { id: string; name: string; currency: string }[];
+  categories: readonly {
+    id: string;
+    name: string;
+    kind: "income" | "expense";
+  }[];
 };
 
 /**
@@ -37,6 +44,9 @@ export function TransactionsLedgerList({
   initialItems,
   initialNextCursor,
   query,
+  canMutate,
+  accounts,
+  categories,
 }: TransactionsLedgerListProps) {
   const [extraItems, setExtraItems] = useState<ListedTransactionPageItem[]>(
     [],
@@ -55,7 +65,13 @@ export function TransactionsLedgerList({
 
   return (
     <>
-      <TransactionsTable items={items} workspaceId={workspaceId} />
+      <TransactionsTable
+        items={items}
+        workspaceId={workspaceId}
+        canMutate={canMutate}
+        accounts={accounts}
+        categories={categories}
+      />
       {error ? (
         <p className="mt-4 text-center text-sm text-destructive" role="alert">
           {error}

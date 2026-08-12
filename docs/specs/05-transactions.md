@@ -121,7 +121,7 @@ Timezone: `User.timezone` ([SPEC-01](./01-auth.md)). Preferencias no reescriben 
 | Command | `CreateIncome` | accountId, categoryId, amountCents, occurredOn, description? |
 | Command | `CreateExpense` | igual |
 | Command | `UpdateTransaction` | campos mutables |
-| Command | `DeleteTransaction` | transactionId |
+| Command | `DeleteTransaction` | transactionId (UI: también en lote vía `BulkActionsBar`, una action por id) |
 | Query | `ListTransactions` | ver contrato abajo |
 | Query | `GetTransaction` | id |
 
@@ -164,6 +164,7 @@ Helpers de periodo (puro; paridad dashboard):
 - [ ] `categoryId` excluye transfers/`fx_*` (sin categoría).
 - [ ] Cambiar filtros limpia `cursor`; limpiar filtros vuelve a este mes (no a `all`).
 - [ ] Cursor inválido → primera página (sin error de producto).
+- [x] Listado: selección de filas con `BulkActionsBar` — Eliminar (N); con 1 seleccionada también Abrir / Editar. Viewer sin checkboxes.
 
 ## 7. Escenarios de test (TDD)
 
