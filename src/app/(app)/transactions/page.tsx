@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 
 import { ContentPanel } from "@/components/app-shell/content-panel";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { getCurrentUser } from "@/features/auth/services/get-current-user";
 import { getSession } from "@/lib/session";
 import {
@@ -32,6 +33,7 @@ import {
   hasNonPeriodFilters,
   parseTransactionListSearchParams,
   resolveTransactionsEmptyKind,
+  type TransactionListParams,
 } from "@/features/transactions/lib/list-search-params";
 import { listPeriodDescription } from "@/features/transactions/lib/resolve-list-period";
 
@@ -39,8 +41,14 @@ type PageProps = {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
 
+type AccountsResult = Awaited<ReturnType<typeof listAccounts>>;
+type CategoriesResult = Awaited<ReturnType<typeof listCategories>>;
+type TxPageResult = Awaited<ReturnType<typeof listTransactions>>;
+type TotalsResult = Awaited<ReturnType<typeof sumFilteredTransactions>>;
+type PaymentGroupsResult = Awaited<ReturnType<typeof listPaymentAccountsForUser>>;
+
 function toPageItems(
-  items: Awaited<ReturnType<typeof listTransactions>>["items"],
+  items: TxPageResult["items"],
 ): ListedTransactionPageItem[] {
   return items.map((tx) => ({
     id: tx.id,
@@ -144,25 +152,86 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
     categoryId: listParams.categoryId,
   };
 
-  const [accounts, categories, txPage, filteredTotals, paymentGroups] =
-    await Promise.all([
-      listAccounts({ userId: session.user.id, workspaceId: workspace.id }),
-      listCategories({ userId: session.user.id, workspaceId: workspace.id }),
-      listTransactions({
-        ...listFilter,
-        limit: LIST_PAGE_SIZE,
-        cursor: listParams.cursor,
-      }),
-      sumFilteredTransactions(listFilter),
-      canMutate
-        ? listPaymentAccountsForUser(session.user.id)
-        : Promise.resolve([]),
-    ]);
+  // Kick off the heavy reads now, but DON'T await here: the chrome (title +
+  // description + actions shell) paints immediately while the ledger streams
+  // behind a real <Suspense>. Shared promises keep each query to one run even
+  // though actions + ledger both need accounts. No money is cached.
+  const accountsPromise = listAccounts({
+    userId: session.user.id,
+    workspaceId: workspace.id,
+  });
+  const categoriesPromise = listCategories({
+    userId: session.user.id,
+    workspaceId: workspace.id,
+  });
+  const txPagePromise = listTransactions({
+    ...listFilter,
+    limit: LIST_PAGE_SIZE,
+    cursor: listParams.cursor,
+  });
+  const totalsPromise = sumFilteredTransactions(listFilter);
+  const paymentGroupsPromise: Promise<PaymentGroupsResult> = canMutate
+    ? listPaymentAccountsForUser(session.user.id)
+    : Promise.resolve([]);
 
-  const activeAccounts = accounts.filter((a) => !a.isArchived);
-  const activeCategories = categories.filter((c) => !c.isArchived);
+  const createActions = canMutate ? (
+    <Suspense
+      fallback={
+        <Button className="h-10 w-full sm:h-8 sm:w-auto" disabled>
+          Registrar
+        </Button>
+      }
+    >
+      <TransactionsActionsSection
+        workspace={workspace}
+        accounts={accountsPromise}
+        paymentGroups={paymentGroupsPromise}
+      />
+    </Suspense>
+  ) : undefined;
 
-  const contributionAccounts = paymentGroups.flatMap((g) =>
+  return (
+    <ContentPanel
+      title="Transacciones"
+      description={panelDescription}
+      actions={createActions}
+    >
+      <Suspense fallback={<TransactionsLedgerSkeleton />}>
+        <TransactionsLedgerSection
+          workspace={workspace}
+          canMutate={canMutate}
+          listParams={listParams}
+          from={from}
+          to={to}
+          accounts={accountsPromise}
+          categories={categoriesPromise}
+          txPage={txPagePromise}
+          totals={totalsPromise}
+        />
+      </Suspense>
+    </ContentPanel>
+  );
+}
+
+type ActiveWorkspace = NonNullable<
+  Awaited<ReturnType<typeof getActiveWorkspaceForUser>>
+>;
+
+async function TransactionsActionsSection({
+  workspace,
+  accounts,
+  paymentGroups,
+}: {
+  workspace: ActiveWorkspace;
+  accounts: Promise<AccountsResult>;
+  paymentGroups: Promise<PaymentGroupsResult>;
+}) {
+  const [accountList, paymentGroupList] = await Promise.all([
+    accounts,
+    paymentGroups,
+  ]);
+  const activeAccounts = accountList.filter((a) => !a.isArchived);
+  const contributionAccounts = paymentGroupList.flatMap((g) =>
     g.accounts.map((a) => ({
       id: a.id,
       name: a.name,
@@ -173,29 +242,49 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
     })),
   );
 
-  const createActions = canMutate ? (
-    <Suspense
-      fallback={
-        <Button className="h-10 w-full sm:h-8 sm:w-auto" disabled>
-          Registrar
-        </Button>
-      }
-    >
-      <TransactionsCreateActions
-        workspaceId={workspace.id}
-        workspaceCurrency={workspace.baseCurrency}
-        accounts={activeAccounts.map((a) => ({
-          id: a.id,
-          name: a.name,
-          currency: a.currency,
-          workspaceId: workspace.id,
-          workspaceName: workspace.name,
-          workspaceType: workspace.type,
-        }))}
-        contributionAccounts={contributionAccounts}
-      />
-    </Suspense>
-  ) : undefined;
+  return (
+    <TransactionsCreateActions
+      workspaceId={workspace.id}
+      workspaceCurrency={workspace.baseCurrency}
+      accounts={activeAccounts.map((a) => ({
+        id: a.id,
+        name: a.name,
+        currency: a.currency,
+        workspaceId: workspace.id,
+        workspaceName: workspace.name,
+        workspaceType: workspace.type,
+      }))}
+      contributionAccounts={contributionAccounts}
+    />
+  );
+}
+
+async function TransactionsLedgerSection({
+  workspace,
+  canMutate,
+  listParams,
+  from,
+  to,
+  accounts,
+  categories,
+  txPage,
+  totals,
+}: {
+  workspace: ActiveWorkspace;
+  canMutate: boolean;
+  listParams: TransactionListParams;
+  from?: string;
+  to?: string;
+  accounts: Promise<AccountsResult>;
+  categories: Promise<CategoriesResult>;
+  txPage: Promise<TxPageResult>;
+  totals: Promise<TotalsResult>;
+}) {
+  const [accountList, categoryList, txPageResult, filteredTotals] =
+    await Promise.all([accounts, categories, txPage, totals]);
+
+  const activeAccounts = accountList.filter((a) => !a.isArchived);
+  const activeCategories = categoryList.filter((c) => !c.isArchived);
 
   const denseFilters = hasNonPeriodFilters(listParams);
   const emptyKind = resolveTransactionsEmptyKind(listParams, denseFilters);
@@ -211,11 +300,7 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
   ].join("|");
 
   return (
-    <ContentPanel
-      title="Transacciones"
-      description={panelDescription}
-      actions={createActions}
-    >
+    <>
       {canMutate && activeAccounts.length === 0 ? (
         <p className="mb-6 rounded-lg border border-dashed border-border px-4 py-3 text-sm text-muted-foreground">
           Necesitás al menos una cuenta activa para registrar transacciones.{" "}
@@ -225,22 +310,16 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
         </p>
       ) : null}
 
-      <Suspense
-        fallback={
-          <div className="mb-5 h-9 animate-pulse rounded-full bg-muted/60" />
-        }
-      >
-        <TransactionsListToolbar
-          params={listParams}
-          accounts={activeAccounts.map((a) => ({ id: a.id, name: a.name }))}
-          categories={activeCategories.map((c) => ({
-            id: c.id,
-            name: c.name,
-          }))}
-        />
-      </Suspense>
+      <TransactionsListToolbar
+        params={listParams}
+        accounts={activeAccounts.map((a) => ({ id: a.id, name: a.name }))}
+        categories={activeCategories.map((c) => ({
+          id: c.id,
+          name: c.name,
+        }))}
+      />
 
-      {txPage.items.length === 0 ? (
+      {txPageResult.items.length === 0 ? (
         <TransactionsEmptyState
           kind={emptyKind}
           params={listParams}
@@ -250,8 +329,8 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
         <TransactionsLedgerList
           key={listKey}
           workspaceId={workspace.id}
-          initialItems={toPageItems(txPage.items)}
-          initialNextCursor={txPage.nextCursor}
+          initialItems={toPageItems(txPageResult.items)}
+          initialNextCursor={txPageResult.nextCursor}
           totals={filteredTotals}
           canMutate={canMutate}
           accounts={activeAccounts.map((a) => ({
@@ -274,6 +353,27 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
           }}
         />
       )}
-    </ContentPanel>
+    </>
+  );
+}
+
+/**
+ * Ledger fallback (SPEC-20 H1): toolbar chip row + row placeholders while the
+ * transactions read model streams in. Never renders real amounts.
+ */
+function TransactionsLedgerSkeleton() {
+  return (
+    <div aria-busy aria-label="Cargando movimientos">
+      <div className="mb-5 flex flex-wrap gap-2">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <Skeleton key={i} className="h-9 w-24 rounded-full" />
+        ))}
+      </div>
+      <div className="space-y-2">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <Skeleton key={i} className="h-14 w-full rounded-lg" />
+        ))}
+      </div>
+    </div>
   );
 }
