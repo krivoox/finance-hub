@@ -6,6 +6,10 @@ import { isAccountCurrency } from "@/domain/money/currencies";
 import {
   AccountArchivedError,
   AccountCurrencyMismatchError,
+  AccountDeleteConfirmationMismatchError,
+  AccountHasCrossWorkspaceLinksError,
+  AccountLinkedToActiveGoalError,
+  CannotDeleteLastActiveAccountError,
   InvalidAccountNameError,
   InvalidCreditLimitError,
   InvalidInitialBalanceError,
@@ -16,6 +20,10 @@ import type { AccountType } from "./types";
 export {
   AccountArchivedError,
   AccountCurrencyMismatchError,
+  AccountDeleteConfirmationMismatchError,
+  AccountHasCrossWorkspaceLinksError,
+  AccountLinkedToActiveGoalError,
+  CannotDeleteLastActiveAccountError,
   InvalidAccountNameError,
   InvalidCreditLimitError,
   InvalidInitialBalanceError,
@@ -95,7 +103,7 @@ export function assertValidInitialBalance(amountCents: number): void {
 
 /**
  * Credit limits only make sense on credit cards; they must be positive integers
- * when provided.
+ * when provided. Omitted / null is allowed (including on credit_card — SPEC-03 T-06).
  */
 export function assertValidCreditLimit(
   type: AccountType,
@@ -112,5 +120,52 @@ export function assertValidCreditLimit(
     throw new InvalidCreditLimitError(
       "creditLimitCents must be a positive integer",
     );
+  }
+}
+
+/**
+ * SPEC-03 §5.3 / T-10 / T-20 — Archive blocked only by active linked goals.
+ * Last active account may be archived (reopens needsSetup).
+ */
+export function assertCanArchiveAccount(input: {
+  readonly accountId: string;
+  readonly activeGoalsLinkedToAccount: ReadonlyArray<{ readonly id: string }>;
+}): void {
+  if (input.activeGoalsLinkedToAccount.length > 0) {
+    throw new AccountLinkedToActiveGoalError();
+  }
+}
+
+/**
+ * SPEC-03 §5.4 / T-13 / T-14 / T-18 / T-20 — Hard-delete guards (pure).
+ * Last-active guard applies only when the account is still active (`!isArchived`).
+ */
+export function assertCanDeleteAccount(input: {
+  readonly accountId: string;
+  readonly isArchived: boolean;
+  readonly activeAccountCountInWorkspace: number;
+  readonly activeGoalsLinkedToAccount: ReadonlyArray<{ readonly id: string }>;
+  readonly hasCrossWorkspaceLinks: boolean;
+}): void {
+  if (input.activeGoalsLinkedToAccount.length > 0) {
+    throw new AccountLinkedToActiveGoalError();
+  }
+  if (!input.isArchived && input.activeAccountCountInWorkspace === 1) {
+    throw new CannotDeleteLastActiveAccountError();
+  }
+  if (input.hasCrossWorkspaceLinks) {
+    throw new AccountHasCrossWorkspaceLinksError();
+  }
+}
+
+/**
+ * SPEC-03 §6 — Strong confirmation: confirmName must match account name (trim).
+ */
+export function assertDeleteAccountConfirmation(input: {
+  readonly accountName: string;
+  readonly confirmName: string;
+}): void {
+  if (input.confirmName.trim() !== input.accountName.trim()) {
+    throw new AccountDeleteConfirmationMismatchError();
   }
 }

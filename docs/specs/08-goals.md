@@ -39,6 +39,7 @@ Objetivos: fondo de emergencia, ahorro para compra, cancelación de deudas. Segu
 
 - `goal.currency ∈ { ARS, USD }`; default al crear = `workspace.baseCurrency`.
 - `linkedAccountId` si está presente: misma moneda que el goal; misma workspace; cuenta no archivada al vincular.
+- Goal `status=active` + `linkedAccountId` set → bloquea `ArchiveAccount` / `DeleteAccount` de esa cuenta (SPEC-03: `AccountLinkedToActiveGoal`). Cancelar o completar el goal libera el bloqueo.
 - `targetAmount > 0`; `currentAmount >= 0`.
 - Decisión MVP: aporte que excede el restante se acepta y `status=completed`; `current` puede ser `>= target`.
 - Cancel / completed: no aceptan nuevos aportes (`GoalNotActive`).

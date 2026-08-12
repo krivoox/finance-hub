@@ -27,6 +27,7 @@ type FormValues = {
   type: AccountType;
   currency: "ARS" | "USD";
   initialBalanceUnits: string;
+  creditLimitUnits: string;
 };
 
 type NewAccountFormProps = {
@@ -59,10 +60,13 @@ export function NewAccountForm({
           ? workspaceCurrency
           : "ARS",
       initialBalanceUnits: "0",
+      creditLimitUnits: "",
     },
   });
 
   const selectedCurrency = watch("currency");
+  const selectedType = watch("type");
+  const isCreditCard = selectedType === "credit_card";
 
   const onSubmit = handleSubmit((values) => {
     const parsedUnits = Number(values.initialBalanceUnits.replace(",", "."));
@@ -80,6 +84,19 @@ export function NewAccountForm({
       initialBalanceCents,
       currency: values.currency,
     };
+
+    if (isCreditCard) {
+      const raw = values.creditLimitUnits.trim();
+      if (raw !== "") {
+        const limitUnits = Number(raw.replace(",", "."));
+        if (!Number.isFinite(limitUnits) || limitUnits <= 0) {
+          toast.error("Límite de crédito inválido");
+          return;
+        }
+        input.creditLimitCents = Math.round(limitUnits * 100);
+      }
+    }
+
     const clientCheck = createAccountSchema.safeParse(input);
     if (!clientCheck.success) {
       toast.error(clientCheck.error.issues[0]?.message ?? "Datos inválidos");
@@ -101,6 +118,7 @@ export function NewAccountForm({
             ? workspaceCurrency
             : "ARS",
         initialBalanceUnits: "0",
+        creditLimitUnits: "",
       });
       onSuccess?.();
       refreshAfterMutation(router);
@@ -165,6 +183,25 @@ export function NewAccountForm({
             {...register("initialBalanceUnits", { required: true })}
           />
         </FormField>
+
+        {isCreditCard ? (
+          <FormField
+            label="Límite de crédito"
+            htmlFor="account-credit-limit"
+            hint="Opcional"
+          >
+            <Input
+              id="account-credit-limit"
+              type="number"
+              inputMode="decimal"
+              min={0}
+              step="0.01"
+              placeholder="Opcional"
+              className="tabular-nums"
+              {...register("creditLimitUnits")}
+            />
+          </FormField>
+        ) : null}
       </FormStack>
 
       <FormActions>

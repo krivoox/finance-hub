@@ -34,6 +34,7 @@ export async function archiveAccountAction(
       accountId: parsed.data.accountId,
     });
     revalidatePath("/accounts");
+    revalidatePath("/", "layout");
     return { ok: true };
   } catch (err) {
     return { ok: false, error: domainErrorToMessage(err) };
@@ -60,6 +61,7 @@ export async function unarchiveAccountAction(
       accountId: parsed.data.accountId,
     });
     revalidatePath("/accounts");
+    revalidatePath("/", "layout");
     return { ok: true };
   } catch (err) {
     return { ok: false, error: domainErrorToMessage(err) };
