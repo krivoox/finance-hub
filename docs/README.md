@@ -16,7 +16,7 @@
 | [vision.md](./vision.md) | Visión, objetivos, usuarios y principios |
 | [stack.md](./stack.md) | Stack tecnológico fijado (Siturn / template) |
 | [domain-model.md](./domain-model.md) | Entidades, value objects, invariantes |
-| [architecture.md](./architecture.md) | Capas, carpetas, auth, datos, memoización por request |
+| [architecture.md](./architecture.md) | Capas, carpetas, auth, datos, memoización, soft-nav, PWA/SW |
 | [tdd-workflow.md](./tdd-workflow.md) | Cómo aplicar TDD en este repo |
 | [roadmap.md](./roadmap.md) | Orden de implementación sugerido |
 | [glossary.md](./glossary.md) | Glosario de términos de negocio |
@@ -49,6 +49,7 @@
 | 17 | [Landing de marketing](./specs/17-marketing-landing.md) | P0 |
 | 18 | [Transacciones recurrentes](./specs/18-recurring-transactions.md) | P1 |
 | 19 | [Cotizaciones USD (DolarApi)](./specs/19-usd-quotes-dolarapi.md) | P1 |
+| 20 | [Performance, navegación y PWA](./specs/20-performance-pwa.md) | P0 |
 
 ## Decisiones de arquitectura (ADR)
 

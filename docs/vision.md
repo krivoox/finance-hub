@@ -43,6 +43,7 @@ Convertirse en el **centro de administración financiera del hogar**: informaci�
 3. **Tiempo real percibido** — el estado refleja los movimientos registrados sin demora conceptual
 4. **Hogar primero** — el modelo de workspace/grupo es de primera clase, no un add-on
 5. **Acción** — insights deben sugerir o facilitar una decisión (ahorrar, ajustar presupuesto, saldar deuda)
+6. **Rapidez percibida sin mentir** — soft-nav, prefetch y PWA; nunca saldos offline stale (SPEC-20)
 
 ## Alcance MVP (P0–P1)
 
