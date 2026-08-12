@@ -1,6 +1,8 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
 import { ContentPanel } from "@/components/app-shell/content-panel";
+import { Skeleton } from "@/components/ui/skeleton";
 import { UpdateProfileForm } from "@/features/auth/components/update-profile-form";
 import {
   SUPPORTED_CURRENCIES,
@@ -21,7 +23,14 @@ import {
   SettingsTabsNav,
 } from "@/features/settings/components/settings-tabs-nav";
 import { NewGroupWorkspaceForm } from "@/features/workspaces/components/new-group-workspace-form";
-import { getActiveWorkspaceForUser } from "@/features/workspaces/services";
+import {
+  getActiveWorkspaceForUser,
+  type ActiveWorkspaceContext,
+} from "@/features/workspaces/services";
+
+type ConsolidationRate = Awaited<ReturnType<typeof getConsolidationRate>> | null;
+type UsdQuotes = Awaited<ReturnType<typeof getUsdQuotes>> | null;
+type CategoriesResult = Awaited<ReturnType<typeof listCategories>>;
 
 function coerceCurrency(code: string): SupportedCurrency {
   return (SUPPORTED_CURRENCIES as readonly string[]).includes(code)
@@ -43,32 +52,30 @@ export default async function SettingsPage({ searchParams }: PageProps) {
   const activeTab = parseSettingsTab(params.tab);
 
   const workspace = await getActiveWorkspaceForUser(user.id);
-  const canMutateCategories = workspace
-    ? workspace.role !== "viewer"
-    : false;
+  const canMutateCategories = workspace ? workspace.role !== "viewer" : false;
 
-  if (activeTab === "categorias" && workspace) {
-    await ensureSubscriptionCategories(workspace.id);
-  }
-
-  const [categories, consolidationRate, usdQuotes] = await Promise.all([
-    activeTab === "categorias" && workspace
-      ? listCategories({
-          userId: user.id,
-          workspaceId: workspace.id,
-          includeArchived: true,
-        })
-      : Promise.resolve([]),
+  // Kick off the tab-specific reads now, but DON'T await here: the chrome + the
+  // tabs nav paint instantly while each tab's data-dependent content streams
+  // behind its own <Suspense>. The profile tab has no heavy read model, so it
+  // renders directly. No money is cached.
+  const consolidationRatePromise: Promise<ConsolidationRate> =
     activeTab === "workspace" && workspace
-      ? getConsolidationRate({
-          userId: user.id,
-          workspaceId: workspace.id,
-        })
-      : Promise.resolve(null),
+      ? getConsolidationRate({ userId: user.id, workspaceId: workspace.id })
+      : Promise.resolve(null);
+  const usdQuotesPromise: Promise<UsdQuotes> =
     activeTab === "workspace" && env.USD_QUOTES_ENABLED
       ? getUsdQuotes({ seedIfEmpty: false })
-      : Promise.resolve(null),
-  ]);
+      : Promise.resolve(null);
+  const categoriesPromise: Promise<CategoriesResult> =
+    activeTab === "categorias" && workspace
+      ? ensureSubscriptionCategories(workspace.id).then(() =>
+          listCategories({
+            userId: user.id,
+            workspaceId: workspace.id,
+            includeArchived: true,
+          }),
+        )
+      : Promise.resolve([]);
 
   return (
     <ContentPanel
@@ -109,22 +116,13 @@ export default async function SettingsPage({ searchParams }: PageProps) {
                   {workspace.baseCurrency} cuando hay saldos ARS y USD.
                 </p>
               </header>
-              <ConsolidationRateForm
-                workspaceId={workspace.id}
-                canMutate={workspace.role !== "viewer"}
-                mepAvailable={Boolean(usdQuotes?.available && usdQuotes.mep)}
-                mepSellArsPerUsd={usdQuotes?.mep?.sellArsPerUsd ?? null}
-                initial={
-                  consolidationRate
-                    ? {
-                        rateScaled: consolidationRate.rateScaled,
-                        scale: consolidationRate.scale,
-                        label: consolidationRate.label,
-                        asOf: consolidationRate.asOf,
-                      }
-                    : null
-                }
-              />
+              <Suspense fallback={<ConsolidationRateSkeleton />}>
+                <ConsolidationRateSection
+                  workspace={workspace}
+                  consolidationRate={consolidationRatePromise}
+                  usdQuotes={usdQuotesPromise}
+                />
+              </Suspense>
             </section>
           ) : null}
 
@@ -145,17 +143,13 @@ export default async function SettingsPage({ searchParams }: PageProps) {
 
       {activeTab === "categorias" ? (
         workspace ? (
-          <CategoriesSettingsPanel
-            workspaceId={workspace.id}
-            workspaceName={workspace.name}
-            canMutate={canMutateCategories}
-            categories={categories.map((c) => ({
-              id: c.id,
-              name: c.name,
-              kind: c.kind,
-              isArchived: c.isArchived,
-            }))}
-          />
+          <Suspense fallback={<CategoriesSettingsSkeleton />}>
+            <CategoriesSettingsSection
+              workspace={workspace}
+              canMutate={canMutateCategories}
+              categories={categoriesPromise}
+            />
+          </Suspense>
         ) : (
           <p className="text-sm text-muted-foreground">
             Necesitás un workspace activo para gestionar categorías.
@@ -163,5 +157,87 @@ export default async function SettingsPage({ searchParams }: PageProps) {
         )
       ) : null}
     </ContentPanel>
+  );
+}
+
+async function ConsolidationRateSection({
+  workspace,
+  consolidationRate,
+  usdQuotes,
+}: {
+  workspace: ActiveWorkspaceContext;
+  consolidationRate: Promise<ConsolidationRate>;
+  usdQuotes: Promise<UsdQuotes>;
+}) {
+  const [rate, quotes] = await Promise.all([consolidationRate, usdQuotes]);
+
+  return (
+    <ConsolidationRateForm
+      workspaceId={workspace.id}
+      canMutate={workspace.role !== "viewer"}
+      mepAvailable={Boolean(quotes?.available && quotes.mep)}
+      mepSellArsPerUsd={quotes?.mep?.sellArsPerUsd ?? null}
+      initial={
+        rate
+          ? {
+              rateScaled: rate.rateScaled,
+              scale: rate.scale,
+              label: rate.label,
+              asOf: rate.asOf,
+            }
+          : null
+      }
+    />
+  );
+}
+
+async function CategoriesSettingsSection({
+  workspace,
+  canMutate,
+  categories,
+}: {
+  workspace: ActiveWorkspaceContext;
+  canMutate: boolean;
+  categories: Promise<CategoriesResult>;
+}) {
+  const categoryList = await categories;
+
+  return (
+    <CategoriesSettingsPanel
+      workspaceId={workspace.id}
+      workspaceName={workspace.name}
+      canMutate={canMutate}
+      categories={categoryList.map((c) => ({
+        id: c.id,
+        name: c.name,
+        kind: c.kind,
+        isArchived: c.isArchived,
+      }))}
+    />
+  );
+}
+
+function ConsolidationRateSkeleton() {
+  return (
+    <div className="space-y-3" aria-busy aria-label="Cargando tasa">
+      <Skeleton className="h-10 w-full max-w-sm rounded-lg" />
+      <Skeleton className="h-9 w-32 rounded-full" />
+    </div>
+  );
+}
+
+function CategoriesSettingsSkeleton() {
+  return (
+    <div className="space-y-3" aria-busy aria-label="Cargando categorías">
+      <Skeleton className="h-9 w-48 rounded-lg" />
+      <ul className="divide-y divide-border rounded-lg border border-border">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <li key={i} className="flex items-center justify-between gap-3 px-3 py-3">
+            <Skeleton className="h-4 w-40 max-w-full" />
+            <Skeleton className="h-8 w-8 shrink-0 rounded-full" />
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }
