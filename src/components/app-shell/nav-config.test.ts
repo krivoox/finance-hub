@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   applyNavBadges,
   budgetNavBadgePresentation,
+  getPrefetchNavHrefs,
   navGroups,
   type NavBadges,
 } from "./nav-config";
@@ -40,6 +41,23 @@ describe("budgetNavBadgePresentation (SPEC-07 nav badge)", () => {
       severity: "caution",
       ariaLabel: "Presupuestos: 1 al límite o cerca del límite",
     });
+  });
+});
+
+describe("getPrefetchNavHrefs (SPEC-20 H2)", () => {
+  it("covers principal nav destinations without duplicates", () => {
+    const hrefs = getPrefetchNavHrefs();
+    expect(hrefs).toEqual([
+      "/accounts",
+      "/budgets",
+      "/dashboard",
+      "/goals",
+      "/groups",
+      "/settings",
+      "/transactions",
+      "/transactions/recurring",
+    ]);
+    expect(new Set(hrefs).size).toBe(hrefs.length);
   });
 });
 

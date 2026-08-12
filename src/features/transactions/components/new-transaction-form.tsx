@@ -31,6 +31,10 @@ import { DateField } from "@/components/date-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { nativeSelectClassName } from "@/components/ui/native-select";
+import {
+  clearOfflineDraftFromStorage,
+  readOfflineDraftFromStorage,
+} from "@/lib/offline-draft";
 import { refreshAfterMutation } from "@/lib/navigation";
 import { TRANSACTION_TYPE_LABEL_ES } from "./transaction-type-labels";
 
@@ -72,6 +76,8 @@ type NewTransactionFormProps = {
   categories: readonly CategoryOption[];
   groupMembers?: readonly MemberOption[];
   currentUserId?: string;
+  /** Prefill from PWA shortcuts / `?new=expense|income`. */
+  initialType?: CreateableTransactionType;
   onSuccess?: () => void;
   onCancel?: () => void;
 };
@@ -124,6 +130,7 @@ export function NewTransactionForm({
   categories,
   groupMembers = [],
   currentUserId,
+  initialType = "expense",
   onSuccess,
   onCancel,
 }: NewTransactionFormProps) {
@@ -170,6 +177,16 @@ export function NewTransactionForm({
   const defaultCounterpartyId =
     accountsForDefaultCurrency.find((a) => a.id !== defaultAccountId)?.id ??
     "";
+
+  const offlineDraft =
+    typeof window !== "undefined"
+      ? readOfflineDraftFromStorage(window.sessionStorage)
+      : null;
+  const draftType =
+    offlineDraft?.type === "income" || offlineDraft?.type === "expense"
+      ? offlineDraft.type
+      : initialType;
+
   const {
     register,
     handleSubmit,
@@ -179,14 +196,14 @@ export function NewTransactionForm({
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
-      type: "expense",
+      type: draftType,
       currency: defaultCurrency,
-      amountUnits: "",
-      occurredOn: todayIsoDate(),
+      amountUnits: offlineDraft?.amountUnits ?? "",
+      occurredOn: offlineDraft?.occurredOn || todayIsoDate(),
       accountId: defaultAccountId,
       counterpartyAccountId: defaultCounterpartyId,
       categoryId: "",
-      description: "",
+      description: offlineDraft?.description ?? "",
     },
   });
 
@@ -436,6 +453,9 @@ export function NewTransactionForm({
               ? "Gasto registrado"
               : "Transferencia registrada";
       toast.success(successMessage);
+      clearOfflineDraftFromStorage(
+        typeof window !== "undefined" ? window.sessionStorage : null,
+      );
       reset({
         type: values.type,
         currency,
