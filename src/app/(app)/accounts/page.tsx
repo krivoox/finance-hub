@@ -45,6 +45,7 @@ export default async function AccountsPage() {
     type: account.type,
     currency: account.currency,
     balanceCents: account.currentBalance.amountCents,
+    creditLimitCents: account.creditLimitCents,
   }));
 
   return (

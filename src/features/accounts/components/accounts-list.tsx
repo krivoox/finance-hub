@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { ACCOUNT_TYPE_LABEL_ES } from "@/features/accounts/components/account-type-labels";
+import { EditAccountSheet } from "@/features/accounts/components/edit-account-sheet";
 import {
   PayCreditCardForm,
   type PayCreditCardAccountOption,
@@ -29,6 +30,7 @@ export type AccountsListItem = {
   type: AccountType;
   currency: string;
   balanceCents: number;
+  creditLimitCents: number | null;
 };
 
 type AccountsListProps = {
@@ -187,17 +189,26 @@ export function AccountsList({
                     </TableCell>
                     {canMutate ? (
                       <TableCell className="text-right">
-                        {showPay ? (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            className="h-10 sm:h-8"
-                            onClick={() => openPay(account.id)}
-                          >
-                            Pagar
-                          </Button>
-                        ) : null}
+                        <div className="flex flex-wrap items-center justify-end gap-1.5">
+                          <EditAccountSheet
+                            accountId={account.id}
+                            name={account.name}
+                            type={account.type}
+                            currency={account.currency}
+                            creditLimitCents={account.creditLimitCents}
+                          />
+                          {showPay ? (
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-10 sm:h-8"
+                              onClick={() => openPay(account.id)}
+                            >
+                              Pagar
+                            </Button>
+                          ) : null}
+                        </div>
                       </TableCell>
                     ) : null}
                   </TableRow>

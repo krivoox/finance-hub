@@ -95,7 +95,7 @@ Documentar en código con tests explícitos (`calculateAccountBalance`).
 
 **UI:** en `/accounts`, filas `credit_card` con deuda > 0 ofrecen CTA **Pagar** (FormSheet → `CreateTransfer` origen asset → tarjeta). Tip contextual dismissible (`tip.credit_card_pay`, localStorage `fh:tips:v1`). Alternativa manual: Transacciones → Transferencia.
 
-**Paridad UI con banco (KRI-11 P0):** el formulario de alta debe permitir `type=credit_card` + `currency` ARS|USD + deuda inicial + límite opcional, sin forzar `baseCurrency` ni ocultar USD. Copy: “Deuda inicial” / “Límite de crédito” cuando `type=credit_card`; “Saldo inicial” en el resto.
+**Paridad UI con banco (KRI-11 P0):** el formulario de alta debe permitir `type=credit_card` + `currency` ARS|USD + deuda inicial + límite opcional, sin forzar `baseCurrency` ni ocultar USD. Copy: “Deuda inicial” / “Límite de crédito” cuando `type=credit_card`; “Saldo inicial” en el resto. **Edición (FR-04 / FR-08):** FormSheet en listado de cuentas permite cambiar `name` y, en `credit_card`, `creditLimitCents` (currency inmutable, solo lectura).
 
 **ArchiveAccount + recurrentes (SPEC-18):** al archivar una cuenta, toda `RecurringRule` activa del mismo workspace que use esa cuenta como `accountId` o `counterpartyAccountId` pasa a `paused` con `pausedReason = account_archived`. Desarchivar **no** reactiva esas reglas.
 
@@ -213,7 +213,7 @@ Transferencias same-currency: [SPEC-06](./06-transfers.md). Canje: [SPEC-16](./1
 | **Prisma / schema** | Sin migración nueva: `FinanceAccount.type`, `currency`, `creditLimitCents` ya modelan el caso. |
 | **Services / actions** | Paridad `CreateAccount`/`UpdateAccount` para credit_card USD; opcional comando compuesto P1 “crear par” = dos creates (o action que orquesta). |
 | **Schemas (Zod)** | Ya aceptan `creditLimitCents` en create; asegurar UI lo envía. |
-| **UI** | Form alta/edición: límite + copy deuda; hint bimonetaria; P1 checkbox compañera; listado CTA Pagar por pata. Mobile-first. |
+| **UI** | Form alta/edición: límite + copy deuda; hint bimonetaria; onboarding primera cuenta alineado (moneda/deuda/límite/hint); P1 checkbox compañera; listado CTA Pagar + Editar por pata. Mobile-first. |
 | **Docs** | Este delta SPEC-03; glosario “tarjeta bimonetaria”. |
 
 Issue origen: **Linear KRI-11**.
