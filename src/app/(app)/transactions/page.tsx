@@ -253,6 +253,17 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
           initialItems={toPageItems(txPage.items)}
           initialNextCursor={txPage.nextCursor}
           totals={filteredTotals}
+          canMutate={canMutate}
+          accounts={activeAccounts.map((a) => ({
+            id: a.id,
+            name: a.name,
+            currency: a.currency,
+          }))}
+          categories={activeCategories.map((c) => ({
+            id: c.id,
+            name: c.name,
+            kind: c.kind as "income" | "expense",
+          }))}
           query={{
             workspaceId: workspace.id,
             type: listParams.type,

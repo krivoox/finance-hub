@@ -151,7 +151,7 @@ Al aplicar los mismos filtros AND que el listado (§4.3–4.4 + alcance SPEC-14)
 | Command | `CreateIncome` | accountId, categoryId, amountCents, occurredOn, description? |
 | Command | `CreateExpense` | igual |
 | Command | `UpdateTransaction` | campos mutables |
-| Command | `DeleteTransaction` | transactionId |
+| Command | `DeleteTransaction` | transactionId (UI: también en lote vía `BulkActionsBar`, una action por id) |
 | Query | `ListTransactions` | ver contrato abajo |
 | Query | `SumFilteredTransactions` | mismos filtros que list (sin cursor); agrega por currency+type |
 | Query | `GetTransaction` | id |

@@ -32,6 +32,13 @@ type TransactionsLedgerListProps = {
   query: LedgerListQuery;
   /** Full filtered-set totals (SPEC-05 §4.6) — independent of pagination. */
   totals: readonly CurrencyListTotals[];
+  canMutate: boolean;
+  accounts: readonly { id: string; name: string; currency: string }[];
+  categories: readonly {
+    id: string;
+    name: string;
+    kind: "income" | "expense";
+  }[];
 };
 
 /**
@@ -47,6 +54,9 @@ export function TransactionsLedgerList({
   initialNextCursor,
   query,
   totals,
+  canMutate,
+  accounts,
+  categories,
 }: TransactionsLedgerListProps) {
   const [extraItems, setExtraItems] = useState<ListedTransactionPageItem[]>(
     [],
@@ -81,6 +91,9 @@ export function TransactionsLedgerList({
         workspaceId={workspaceId}
         totals={totals}
         typeFilter={query.type}
+        canMutate={canMutate}
+        accounts={accounts}
+        categories={categories}
       />
       {error ? (
         <p className="mt-4 text-center text-sm text-destructive" role="alert">

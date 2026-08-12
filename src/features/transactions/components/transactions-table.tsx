@@ -1,10 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
-import { Repeat } from "lucide-react";
+import { useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { Pencil, Repeat, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 
+import { FormSheet } from "@/components/form-sheet";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -15,25 +19,32 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  BulkActionsBar,
   SelectAllHead,
   SelectRowCell,
   useRowSelection,
 } from "@/components/data-table";
 import { CategoryPill } from "@/features/categories/components/category-pill";
-import { formatDateOnly } from "@/lib/format-date";
-import { formatSignedMoney } from "@/lib/format-money";
-import { cn } from "@/lib/utils";
+import { deleteTransactionAction } from "@/features/transactions/actions";
 import type {
   CurrencyListTotals,
   ListTypeFilter,
   TransactionType,
 } from "@/features/transactions/domain";
+import { formatDateOnly } from "@/lib/format-date";
+import { formatSignedMoney } from "@/lib/format-money";
+import { navigateAndRefresh, refreshAfterMutation } from "@/lib/navigation";
+import { cn } from "@/lib/utils";
 
+import { EditTransactionForm } from "./edit-transaction-form";
 import {
   hasListTotalsToShow,
   TransactionsListTotals,
 } from "./transactions-list-totals";
 import { TRANSACTION_TYPE_LABEL_ES } from "./transaction-type-labels";
+
+type AccountOption = { id: string; name: string; currency: string };
+type CategoryOption = { id: string; name: string; kind: "income" | "expense" };
 
 type TableTransaction = {
   id: string;
@@ -44,8 +55,10 @@ type TableTransaction = {
   description: string | null;
   categoryId: string | null;
   categoryName: string | null;
+  accountId: string;
   accountName: string;
   accountWorkspaceId: string;
+  counterpartyAccountId: string | null;
   counterpartyAccountName: string | null;
   createdByDisplayName: string;
   isExternalToWorkspace: boolean;
@@ -87,6 +100,11 @@ function signedAmountCents(
   return -amountCents;
 }
 
+function occurredOnIso(value: Date | string): string {
+  if (typeof value === "string") return value.slice(0, 10);
+  return value.toISOString().slice(0, 10);
+}
+
 const headClass =
   "h-9 px-3 text-xs font-normal tracking-normal text-muted-foreground";
 
@@ -95,6 +113,9 @@ type TransactionsTableProps = {
   workspaceId: string;
   totals: readonly CurrencyListTotals[];
   typeFilter: ListTypeFilter;
+  canMutate: boolean;
+  accounts: readonly AccountOption[];
+  categories: readonly CategoryOption[];
 };
 
 export function TransactionsTable({
@@ -102,175 +123,340 @@ export function TransactionsTable({
   workspaceId,
   totals,
   typeFilter,
+  canMutate,
+  accounts,
+  categories,
 }: TransactionsTableProps) {
-  const selectableIds = useMemo(() => items.map((tx) => tx.id), [items]);
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+  const [editOpen, setEditOpen] = useState(false);
+
+  const selectableIds = useMemo(
+    () => (canMutate ? items.map((tx) => tx.id) : []),
+    [items, canMutate],
+  );
   const selection = useRowSelection(selectableIds);
   const showTotalsFooter = hasListTotalsToShow(totals, typeFilter);
+  const leadingColSpan = canMutate ? 7 : 6;
+
+  const selectedItems = useMemo(
+    () => items.filter((tx) => selection.selectedIds.includes(tx.id)),
+    [items, selection.selectedIds],
+  );
+  const singleSelected =
+    selectedItems.length === 1 ? selectedItems[0]! : null;
+
+  const editAccounts = useMemo(() => {
+    if (!singleSelected) return accounts;
+    const ids = new Set(accounts.map((a) => a.id));
+    const extras: AccountOption[] = [];
+    if (!ids.has(singleSelected.accountId)) {
+      extras.push({
+        id: singleSelected.accountId,
+        name: singleSelected.accountName,
+        currency: singleSelected.currency,
+      });
+    }
+    if (
+      singleSelected.counterpartyAccountId &&
+      !ids.has(singleSelected.counterpartyAccountId)
+    ) {
+      extras.push({
+        id: singleSelected.counterpartyAccountId,
+        name: singleSelected.counterpartyAccountName ?? "Cuenta",
+        currency: singleSelected.currency,
+      });
+    }
+    return extras.length > 0 ? [...accounts, ...extras] : accounts;
+  }, [accounts, singleSelected]);
+
+  function deleteSelected(ids: readonly string[]) {
+    const ok = window.confirm(
+      ids.length === 1
+        ? "¿Eliminar esta transacción? No se puede deshacer."
+        : `¿Eliminar ${ids.length} transacciones? No se puede deshacer.`,
+    );
+    if (!ok) return;
+
+    startTransition(async () => {
+      let okCount = 0;
+      let failed = 0;
+      for (const transactionId of ids) {
+        const result = await deleteTransactionAction({ transactionId });
+        if (result.ok) okCount += 1;
+        else failed += 1;
+      }
+
+      if (okCount > 0) {
+        toast.success(
+          okCount === 1
+            ? "Transacción eliminada"
+            : `${okCount} transacciones eliminadas`,
+        );
+      }
+      if (failed > 0) {
+        toast.error(
+          failed === 1
+            ? "No se pudo eliminar una transacción"
+            : `No se pudieron eliminar ${failed} transacciones`,
+        );
+      }
+      selection.clear();
+      setEditOpen(false);
+      refreshAfterMutation(router);
+    });
+  }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow className="border-border/70 hover:bg-transparent">
-          <SelectAllHead
-            selection={selection}
-            label="Seleccionar todas las transacciones"
-          />
-          <TableHead className={headClass}>Descripción</TableHead>
-          <TableHead className={cn(headClass, "hidden sm:table-cell")}>
-            Cuenta
-          </TableHead>
-          <TableHead className={cn(headClass, "hidden md:table-cell")}>
-            Categoría
-          </TableHead>
-          <TableHead className={cn(headClass, "hidden lg:table-cell")}>
-            Tipo
-          </TableHead>
-          <TableHead className={cn(headClass, "hidden lg:table-cell")}>
-            Registró
-          </TableHead>
-          <TableHead className={cn(headClass, "hidden sm:table-cell")}>
-            Fecha
-          </TableHead>
-          <TableHead className={cn(headClass, "text-right")}>Monto</TableHead>
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {items.map((tx) => {
-          const accountLabel =
-            tx.type === "transfer" && tx.counterpartyAccountName
-              ? `${tx.accountName} → ${tx.counterpartyAccountName}`
-              : tx.isExternalToWorkspace && tx.registrationWorkspaceName
-                ? `${tx.registrationWorkspaceName} · ${tx.accountName}`
-                : tx.accountName;
-          const categoryLabel =
-            tx.type === "transfer"
-              ? "Transferencia"
-              : tx.type === "fx_debit" || tx.type === "fx_credit"
-                ? "Cambio de moneda"
-                : (tx.categoryName ?? "—");
-          const description =
-            tx.description ??
-            (tx.type === "transfer"
-              ? "Transferencia"
-              : tx.type === "fx_debit" || tx.type === "fx_credit"
-                ? "Cambio de moneda"
-                : (tx.categoryName ?? "Transacción"));
-          const descriptionWithChip = tx.isExternalToWorkspace
-            ? `${tx.registrationWorkspaceName ?? "Otro espacio"} · ${description}`
-            : description;
-
-          return (
-            <TableRow
-              key={tx.id}
-              className="relative border-border/60"
-              data-state={
-                selection.isSelected(tx.id) ? "selected" : undefined
+    <div className="flex flex-col gap-3">
+      <BulkActionsBar
+        selection={selection}
+        singular="transacción seleccionada"
+        plural="transacciones seleccionadas"
+      >
+        {singleSelected ? (
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-8"
+              disabled={isPending}
+              onClick={() =>
+                navigateAndRefresh(router, `/transactions/${singleSelected.id}`)
               }
             >
-              <SelectRowCell
+              Abrir
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="h-8 gap-1.5"
+              disabled={isPending}
+              onClick={() => setEditOpen(true)}
+            >
+              <Pencil className="size-3.5" strokeWidth={1.75} aria-hidden />
+              Editar
+            </Button>
+          </>
+        ) : null}
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="h-8 gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
+          disabled={isPending}
+          onClick={() => deleteSelected(selection.selectedIds)}
+        >
+          <Trash2 className="size-3.5" strokeWidth={1.75} aria-hidden />
+          Eliminar
+        </Button>
+      </BulkActionsBar>
+
+      <Table>
+        <TableHeader>
+          <TableRow className="border-border/70 hover:bg-transparent">
+            {canMutate ? (
+              <SelectAllHead
                 selection={selection}
-                id={tx.id}
-                label={`Seleccionar ${descriptionWithChip}`}
+                label="Seleccionar todas las transacciones"
               />
-              <TableCell className="px-3 py-2.5">
-                <div className="flex min-w-0 flex-col gap-0.5">
-                  <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-                    <Link
-                      href={`/transactions/${tx.id}`}
-                      className="font-medium text-foreground after:absolute after:inset-0 hover:underline"
-                    >
-                      {descriptionWithChip}
-                    </Link>
-                    {tx.recurring ? (
-                      <span
-                        className="relative z-10 inline-flex size-4 shrink-0 items-center justify-center text-muted-foreground"
-                        title={`Generada por: ${tx.recurring.ruleName}`}
-                        aria-label={`Generada por la recurrente ${tx.recurring.ruleName}`}
+            ) : null}
+            <TableHead className={headClass}>Descripción</TableHead>
+            <TableHead className={cn(headClass, "hidden sm:table-cell")}>
+              Cuenta
+            </TableHead>
+            <TableHead className={cn(headClass, "hidden md:table-cell")}>
+              Categoría
+            </TableHead>
+            <TableHead className={cn(headClass, "hidden lg:table-cell")}>
+              Tipo
+            </TableHead>
+            <TableHead className={cn(headClass, "hidden lg:table-cell")}>
+              Registró
+            </TableHead>
+            <TableHead className={cn(headClass, "hidden sm:table-cell")}>
+              Fecha
+            </TableHead>
+            <TableHead className={cn(headClass, "text-right")}>Monto</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {items.map((tx) => {
+            const accountLabel =
+              tx.type === "transfer" && tx.counterpartyAccountName
+                ? `${tx.accountName} → ${tx.counterpartyAccountName}`
+                : tx.isExternalToWorkspace && tx.registrationWorkspaceName
+                  ? `${tx.registrationWorkspaceName} · ${tx.accountName}`
+                  : tx.accountName;
+            const categoryLabel =
+              tx.type === "transfer"
+                ? "Transferencia"
+                : tx.type === "fx_debit" || tx.type === "fx_credit"
+                  ? "Cambio de moneda"
+                  : (tx.categoryName ?? "—");
+            const description =
+              tx.description ??
+              (tx.type === "transfer"
+                ? "Transferencia"
+                : tx.type === "fx_debit" || tx.type === "fx_credit"
+                  ? "Cambio de moneda"
+                  : (tx.categoryName ?? "Transacción"));
+            const descriptionWithChip = tx.isExternalToWorkspace
+              ? `${tx.registrationWorkspaceName ?? "Otro espacio"} · ${description}`
+              : description;
+
+            return (
+              <TableRow
+                key={tx.id}
+                className="relative border-border/60"
+                data-state={
+                  selection.isSelected(tx.id) ? "selected" : undefined
+                }
+              >
+                {canMutate ? (
+                  <SelectRowCell
+                    selection={selection}
+                    id={tx.id}
+                    label={`Seleccionar ${descriptionWithChip}`}
+                  />
+                ) : null}
+                <TableCell className="px-3 py-2.5">
+                  <div className="flex min-w-0 flex-col gap-0.5">
+                    <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                      <Link
+                        href={`/transactions/${tx.id}`}
+                        className="font-medium text-foreground after:absolute after:inset-0 hover:underline"
                       >
-                        <Repeat
-                          className="size-3.5"
-                          strokeWidth={1.75}
-                          aria-hidden
-                        />
+                        {descriptionWithChip}
+                      </Link>
+                      {tx.recurring ? (
+                        <span
+                          className="relative z-10 inline-flex size-4 shrink-0 items-center justify-center text-muted-foreground"
+                          title={`Generada por: ${tx.recurring.ruleName}`}
+                          aria-label={`Generada por la recurrente ${tx.recurring.ruleName}`}
+                        >
+                          <Repeat
+                            className="size-3.5"
+                            strokeWidth={1.75}
+                            aria-hidden
+                          />
+                        </span>
+                      ) : null}
+                      {tx.goalContribution ? (
+                        <Badge variant="info" className="relative z-10">
+                          {tx.goalContribution.goalKind === "debt_payoff"
+                            ? "Pago de deuda"
+                            : "Aporte a objetivo"}
+                        </Badge>
+                      ) : null}
+                    </div>
+                    <span className="text-xs text-muted-foreground sm:hidden">
+                      {accountLabel}
+                      {" · "}
+                      {formatDateOnly(tx.occurredOn)}
+                    </span>
+                    {tx.accountWorkspaceId !== workspaceId &&
+                    !tx.isExternalToWorkspace ? (
+                      <span className="text-xs text-muted-foreground">
+                        Pagado desde otro espacio
                       </span>
                     ) : null}
-                    {tx.goalContribution ? (
-                      <Badge variant="info" className="relative z-10">
-                        {tx.goalContribution.goalKind === "debt_payoff"
-                          ? "Pago de deuda"
-                          : "Aporte a objetivo"}
-                      </Badge>
-                    ) : null}
                   </div>
-                  <span className="text-xs text-muted-foreground sm:hidden">
-                    {accountLabel}
-                    {" · "}
-                    {formatDateOnly(tx.occurredOn)}
+                </TableCell>
+                <TableCell className="hidden px-3 py-2.5 text-muted-foreground sm:table-cell">
+                  {accountLabel}
+                </TableCell>
+                <TableCell className="hidden px-3 py-2.5 md:table-cell">
+                  <CategoryPill
+                    label={categoryLabel}
+                    toneSeed={tx.categoryId}
+                  />
+                </TableCell>
+                <TableCell className="hidden px-3 py-2.5 lg:table-cell">
+                  <Badge
+                    variant={typeBadgeVariant(tx.type)}
+                    className="font-normal"
+                  >
+                    {TRANSACTION_TYPE_LABEL_ES[tx.type]}
+                  </Badge>
+                </TableCell>
+                <TableCell className="hidden px-3 py-2.5 text-muted-foreground lg:table-cell">
+                  {tx.createdByDisplayName}
+                </TableCell>
+                <TableCell className="hidden px-3 py-2.5 tabular-nums text-muted-foreground sm:table-cell">
+                  {formatDateOnly(tx.occurredOn)}
+                </TableCell>
+                <TableCell className="px-3 py-2.5 text-right">
+                  <span
+                    className={cn(
+                      "tabular-nums text-sm font-medium",
+                      amountVariant(tx.type) === "income" && "text-income",
+                      amountVariant(tx.type) === "expense" && "text-expense",
+                      amountVariant(tx.type) === "transfer" && "text-transfer",
+                    )}
+                  >
+                    {formatSignedMoney(
+                      signedAmountCents(tx.type, tx.amountCents),
+                      tx.currency,
+                    )}
                   </span>
-                  {tx.accountWorkspaceId !== workspaceId &&
-                  !tx.isExternalToWorkspace ? (
-                    <span className="text-xs text-muted-foreground">
-                      Pagado desde otro espacio
-                    </span>
-                  ) : null}
-                </div>
-              </TableCell>
-              <TableCell className="hidden px-3 py-2.5 text-muted-foreground sm:table-cell">
-                {accountLabel}
-              </TableCell>
-              <TableCell className="hidden px-3 py-2.5 md:table-cell">
-                <CategoryPill
-                  label={categoryLabel}
-                  toneSeed={tx.categoryId}
+                </TableCell>
+              </TableRow>
+            );
+          })}
+        </TableBody>
+        {showTotalsFooter ? (
+          <TableFooter className="hidden border-t border-border bg-muted/30 sm:table-footer-group">
+            <TableRow className="hover:bg-transparent">
+              <TableCell colSpan={leadingColSpan} className="px-3 py-3" />
+              <TableCell className="px-3 py-3">
+                <TransactionsListTotals
+                  buckets={totals}
+                  typeFilter={typeFilter}
+                  variant="footer"
                 />
               </TableCell>
-              <TableCell className="hidden px-3 py-2.5 lg:table-cell">
-                <Badge
-                  variant={typeBadgeVariant(tx.type)}
-                  className="font-normal"
-                >
-                  {TRANSACTION_TYPE_LABEL_ES[tx.type]}
-                </Badge>
-              </TableCell>
-              <TableCell className="hidden px-3 py-2.5 text-muted-foreground lg:table-cell">
-                {tx.createdByDisplayName}
-              </TableCell>
-              <TableCell className="hidden px-3 py-2.5 tabular-nums text-muted-foreground sm:table-cell">
-                {formatDateOnly(tx.occurredOn)}
-              </TableCell>
-              <TableCell className="px-3 py-2.5 text-right">
-                <span
-                  className={cn(
-                    "tabular-nums text-sm font-medium",
-                    amountVariant(tx.type) === "income" && "text-income",
-                    amountVariant(tx.type) === "expense" && "text-expense",
-                    amountVariant(tx.type) === "transfer" && "text-transfer",
-                  )}
-                >
-                  {formatSignedMoney(
-                    signedAmountCents(tx.type, tx.amountCents),
-                    tx.currency,
-                  )}
-                </span>
-              </TableCell>
             </TableRow>
-          );
-        })}
-      </TableBody>
-      {showTotalsFooter ? (
-        <TableFooter className="hidden border-t border-border bg-muted/30 sm:table-footer-group">
-          <TableRow className="hover:bg-transparent">
-            <TableCell colSpan={7} className="px-3 py-3" />
-            <TableCell className="px-3 py-3">
-              <TransactionsListTotals
-                buckets={totals}
-                typeFilter={typeFilter}
-                variant="footer"
-              />
-            </TableCell>
-          </TableRow>
-        </TableFooter>
+          </TableFooter>
+        ) : null}
+      </Table>
+
+      {singleSelected ? (
+        <FormSheet
+          open={editOpen}
+          onOpenChange={setEditOpen}
+          title="Editar transacción"
+          description={
+            singleSelected.goalContribution
+              ? "Aporte a objetivo: solo fecha y descripción."
+              : "Actualizá monto, fecha, cuenta o categoría."
+          }
+          size="md"
+        >
+          <EditTransactionForm
+            key={singleSelected.id}
+            transactionId={singleSelected.id}
+            type={singleSelected.type}
+            amountCents={singleSelected.amountCents}
+            currency={singleSelected.currency}
+            occurredOn={occurredOnIso(singleSelected.occurredOn)}
+            description={singleSelected.description}
+            categoryId={singleSelected.categoryId}
+            accountId={singleSelected.accountId}
+            counterpartyAccountId={singleSelected.counterpartyAccountId}
+            accounts={editAccounts}
+            categories={categories}
+            linkedToGoal={singleSelected.goalContribution != null}
+            onSuccess={() => {
+              setEditOpen(false);
+              selection.clear();
+            }}
+            onCancel={() => setEditOpen(false)}
+          />
+        </FormSheet>
       ) : null}
-    </Table>
+    </div>
   );
 }
