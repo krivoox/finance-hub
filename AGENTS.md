@@ -28,6 +28,7 @@ Visión: convertirse en el centro de administración financiera del hogar.
 | **[docs/architecture.md](./docs/architecture.md)** | Capas, carpetas, auth, datos, patrones |
 | **[docs/guides/git-flow.md](./docs/guides/git-flow.md)** | Git Flow, ramas, PRs, higiene |
 | **[docs/guides/changelog.md](./docs/guides/changelog.md)** | Changelog, Conventional Commits, SemVer |
+| **[docs/guides/linear-cloud-agents.md](./docs/guides/linear-cloud-agents.md)** | Linear en Cloud Agents (`LINEAR_API_KEY` + GraphQL) |
 | **[DESIGN.md](./DESIGN.md)** | Sistema visual |
 | **README.md** | Setup local |
 
@@ -89,6 +90,10 @@ src/
 - Dinero: centavos enteros (ADR-001).
 - Fechas: ISO 8601; timezone explícita en periodos.
 - Multi-tenancy: `Workspace` (ADR-002).
+
+## Linear (Cloud Agents)
+
+El MCP Linear del marketplace queda en `needsAuth`: el OAuth no persiste en la nube y la UI no deja un MCP HTTP custom. Usar el secret del environment **`LINEAR_API_KEY`** y `node scripts/linear-graphql.mjs '{ viewer { id name } }'`. Detalle: [docs/guides/linear-cloud-agents.md](./docs/guides/linear-cloud-agents.md). Nunca pegar la key en el repo.
 
 ## Git Flow (obligatorio)
 
