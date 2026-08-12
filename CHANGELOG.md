@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **transactions:** Allow USD income/expense with currency selector
+
 - **accounts:** Paridad UI y tests tarjeta ARS/USD (KRI-11)
 
 - **accounts:** Editar cuenta y paridad credit_card en onboarding (KRI-11)
