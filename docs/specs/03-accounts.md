@@ -112,15 +112,15 @@ Documentar en código con tests explícitos (`calculateAccountBalance`).
 
 ## 7. Criterios de aceptación
 
-- [ ] Saldo refleja income/expense/transfer/fx_* correctamente (tests).
-- [ ] Cuenta archivada no acepta CreateTransaction.
-- [ ] Currency no whitelisted → error `UnsupportedAccountCurrency`.
-- [ ] Cuenta USD en workspace ARS → OK.
-- [ ] **KRI-11:** Crear `credit_card` ARS y `credit_card` USD en el mismo workspace → ambas OK; deudas independientes.
-- [ ] **KRI-11:** Expense en tarjeta USD no altera deuda de tarjeta ARS (y viceversa).
-- [ ] **KRI-11:** Pagar tarjeta ARS con transfer desde checking ARS baja solo esa deuda (SPEC-06 T-05).
-- [ ] **KRI-11:** UI de alta de tarjeta permite moneda ARS|USD, deuda inicial y límite opcional (paridad con banco).
-- [ ] **KRI-11:** Hint visible al elegir tipo tarjeta sobre el patrón “una cuenta por moneda”.
+- [x] Saldo refleja income/expense/transfer/fx_* correctamente (tests).
+- [x] Cuenta archivada no acepta CreateTransaction.
+- [x] Currency no whitelisted → error `UnsupportedAccountCurrency`.
+- [x] Cuenta USD en workspace ARS → OK.
+- [x] **KRI-11:** Crear `credit_card` ARS y `credit_card` USD en el mismo workspace → ambas OK; deudas independientes.
+- [x] **KRI-11:** Expense en tarjeta USD no altera deuda de tarjeta ARS (y viceversa).
+- [x] **KRI-11:** Pagar tarjeta ARS con transfer desde checking ARS baja solo esa deuda (SPEC-06 T-05).
+- [x] **KRI-11:** UI de alta de tarjeta permite moneda ARS|USD, deuda inicial y límite opcional (paridad con banco).
+- [x] **KRI-11:** Hint visible al elegir tipo tarjeta sobre el patrón “una cuenta por moneda”.
 - [ ] Viewer no puede crear/editar; member+ sí (roles SPEC-02).
 
 ## 8. Escenarios de test (TDD)
