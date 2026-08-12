@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- ABM de workspaces con hard-delete de grupos
+
+- Pills de categorías en listado de presupuestos
+
+- Totales del listado filtrado de transacciones
+
 [Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.13.0...HEAD
 
 ## [0.13.0] - 2026-08-11
