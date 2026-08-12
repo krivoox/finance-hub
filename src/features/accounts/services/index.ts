@@ -11,6 +11,7 @@ export type { UpdateAccountServiceInput } from "./update-account";
 
 export { archiveAccount } from "./archive-account";
 export { unarchiveAccount } from "./unarchive-account";
+export { deleteAccount } from "./delete-account";
 
 export { listAccounts } from "./list-accounts";
 export type { AccountWithBalance } from "./list-accounts";

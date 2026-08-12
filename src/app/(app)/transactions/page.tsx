@@ -14,6 +14,7 @@ import { listCategories } from "@/features/categories/services";
 import {
   listTransactions,
   listPaymentAccountsForUser,
+  sumFilteredTransactions,
 } from "@/features/transactions/services";
 import {
   InvalidDateRangeError,
@@ -133,24 +134,30 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
 
   const panelDescription = `${listPeriodDescription(listParams.period, rangeLabel)} · ${workspace.name}`;
 
-  const [accounts, categories, txPage, paymentGroups] = await Promise.all([
-    listAccounts({ userId: session.user.id, workspaceId: workspace.id }),
-    listCategories({ userId: session.user.id, workspaceId: workspace.id }),
-    listTransactions({
-      userId: session.user.id,
-      workspaceId: workspace.id,
-      limit: LIST_PAGE_SIZE,
-      from,
-      to,
-      types,
-      accountId: listParams.accountId,
-      categoryId: listParams.categoryId,
-      cursor: listParams.cursor,
-    }),
-    canMutate
-      ? listPaymentAccountsForUser(session.user.id)
-      : Promise.resolve([]),
-  ]);
+  const listFilter = {
+    userId: session.user.id,
+    workspaceId: workspace.id,
+    from,
+    to,
+    types,
+    accountId: listParams.accountId,
+    categoryId: listParams.categoryId,
+  };
+
+  const [accounts, categories, txPage, filteredTotals, paymentGroups] =
+    await Promise.all([
+      listAccounts({ userId: session.user.id, workspaceId: workspace.id }),
+      listCategories({ userId: session.user.id, workspaceId: workspace.id }),
+      listTransactions({
+        ...listFilter,
+        limit: LIST_PAGE_SIZE,
+        cursor: listParams.cursor,
+      }),
+      sumFilteredTransactions(listFilter),
+      canMutate
+        ? listPaymentAccountsForUser(session.user.id)
+        : Promise.resolve([]),
+    ]);
 
   const activeAccounts = accounts.filter((a) => !a.isArchived);
   const activeCategories = categories.filter((c) => !c.isArchived);
@@ -245,6 +252,18 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
           workspaceId={workspace.id}
           initialItems={toPageItems(txPage.items)}
           initialNextCursor={txPage.nextCursor}
+          totals={filteredTotals}
+          canMutate={canMutate}
+          accounts={activeAccounts.map((a) => ({
+            id: a.id,
+            name: a.name,
+            currency: a.currency,
+          }))}
+          categories={activeCategories.map((c) => ({
+            id: c.id,
+            name: c.name,
+            kind: c.kind as "income" | "expense",
+          }))}
           query={{
             workspaceId: workspace.id,
             type: listParams.type,

@@ -141,7 +141,7 @@ export const mobileTabItems: MobileTabItem[] = [
   {
     kind: "link",
     id: "transactions",
-    title: "Movimientos",
+    title: "Transacciones",
     href: "/transactions",
     icon: Receipt,
   },

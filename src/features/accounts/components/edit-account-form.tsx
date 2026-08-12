@@ -19,7 +19,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { refreshAfterMutation } from "@/lib/navigation";
-import { ACCOUNT_TYPE_LABEL_ES } from "./account-type-labels";
 
 type FormValues = {
   name: string;
@@ -27,37 +26,24 @@ type FormValues = {
 };
 
 type EditAccountFormProps = {
-  accountId: string;
-  name: string;
-  type: AccountType;
-  currency: string;
-  creditLimitCents: number | null;
+  account: {
+    id: string;
+    name: string;
+    type: AccountType;
+    creditLimitCents: number | null;
+  };
   onSuccess?: () => void;
   onCancel?: () => void;
 };
 
-function centsToUnits(cents: number): string {
-  return (cents / 100).toFixed(2);
-}
-
-function currencyLabel(currency: string): string {
-  if (currency === "USD") return "dólares (USD)";
-  if (currency === "ARS") return "pesos (ARS)";
-  return currency;
-}
-
 export function EditAccountForm({
-  accountId,
-  name,
-  type,
-  currency,
-  creditLimitCents,
+  account,
   onSuccess,
   onCancel,
 }: EditAccountFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const isCreditCard = type === "credit_card";
+  const isCreditCard = account.type === "credit_card";
 
   const {
     register,
@@ -65,9 +51,11 @@ export function EditAccountForm({
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
-      name,
+      name: account.name,
       creditLimitUnits:
-        creditLimitCents != null ? centsToUnits(creditLimitCents) : "",
+        account.creditLimitCents != null
+          ? (account.creditLimitCents / 100).toFixed(2)
+          : "",
     },
   });
 
@@ -79,7 +67,7 @@ export function EditAccountForm({
     }
 
     const input: UpdateAccountInput = {
-      accountId,
+      accountId: account.id,
       name: trimmedName,
     };
 
@@ -88,17 +76,12 @@ export function EditAccountForm({
       if (raw === "") {
         input.creditLimitCents = null;
       } else {
-        const parsedLimit = Number(raw.replace(",", "."));
-        if (!Number.isFinite(parsedLimit) || parsedLimit <= 0) {
+        const parsedUnits = Number(raw.replace(",", "."));
+        if (!Number.isFinite(parsedUnits) || parsedUnits <= 0) {
           toast.error("Límite de crédito inválido");
           return;
         }
-        const nextLimitCents = Math.round(parsedLimit * 100);
-        if (nextLimitCents <= 0) {
-          toast.error("Límite de crédito inválido");
-          return;
-        }
-        input.creditLimitCents = nextLimitCents;
+        input.creditLimitCents = Math.round(parsedUnits * 100);
       }
     }
 
@@ -137,36 +120,12 @@ export function EditAccountForm({
           />
         </FormField>
 
-        <FormField label="Tipo" htmlFor="edit-account-type">
-          <Input
-            id="edit-account-type"
-            value={ACCOUNT_TYPE_LABEL_ES[type]}
-            readOnly
-            disabled
-            className="bg-muted"
-          />
-        </FormField>
-
-        <FormField
-          label="Moneda"
-          htmlFor="edit-account-currency"
-          hint="La moneda no se puede cambiar después de crear la cuenta."
-        >
-          <Input
-            id="edit-account-currency"
-            value={currency}
-            readOnly
-            disabled
-            className="bg-muted"
-          />
-        </FormField>
-
         {isCreditCard ? (
           <FormField
             label="Límite de crédito"
             htmlFor="edit-account-credit-limit"
             optional
-            hint={`Opcional. En ${currencyLabel(currency)}. Dejá vacío para quitar el límite.`}
+            hint="Opcional. Dejá vacío para quitar el límite."
           >
             <Input
               id="edit-account-credit-limit"

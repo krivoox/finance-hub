@@ -32,4 +32,7 @@
 | Money | Value object: monto en centavos + moneda |
 | Balance | Saldo derivado de una cuenta o entre miembros |
 | Base currency | Moneda de consolidación del workspace |
-| Archive | Baja lógica: deja de usarse pero conserva historial |
+| Archive | Baja lógica de cuenta (u otra entidad): deja de usarse en flujos activos pero **conserva historial** (SPEC-03) |
+| Eliminar cuenta / DeleteAccount | Baja física (hard-delete): borra la cuenta y el historial asociado vía cascada; confirmación fuerte; no es el default frente a Archivar (SPEC-03) |
+| Última cuenta activa | Única `Account` con `isArchived=false` en el workspace; archivarla reabre setup (`needsSetup`); hard-delete de esa cuenta activa está bloqueado (SPEC-03 / SPEC-15) |
+| AccountLinkedToActiveGoal | Error de dominio: no se puede archivar ni eliminar una cuenta destino de un Goal `active` |

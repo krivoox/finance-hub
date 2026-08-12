@@ -1,12 +1,20 @@
 import { describe, expect, it } from "vitest";
+import { isWorkspaceReadyToUse } from "@/features/workspaces/domain";
 import {
   AccountArchivedError,
+  AccountDeleteConfirmationMismatchError,
+  AccountHasCrossWorkspaceLinksError,
+  AccountLinkedToActiveGoalError,
+  CannotDeleteLastActiveAccountError,
   InvalidAccountNameError,
   InvalidCreditLimitError,
   UnsupportedAccountCurrencyError,
   assertAccountAcceptsTransactions,
   assertAccountCurrencyAllowed,
+  assertCanArchiveAccount,
+  assertCanDeleteAccount,
   assertCurrencyMatchesWorkspace,
+  assertDeleteAccountConfirmation,
   assertValidAccountName,
   assertValidCreditLimit,
 } from "./guards";
@@ -74,9 +82,26 @@ describe("assertValidAccountName — SPEC-03 §5 (max 80, not empty)", () => {
   });
 });
 
-describe("assertValidCreditLimit — SPEC-03 T-09 (KRI-11)", () => {
-  it("rejects creditLimit on non-credit_card types", () => {
-    expect(() => assertValidCreditLimit("checking", 1_000)).toThrow(
+describe("assertValidCreditLimit — SPEC-03 T-06 / T-08 / T-24 (KRI-11)", () => {
+  it("allows credit_card with omitted/null creditLimit (T-06)", () => {
+    expect(() => assertValidCreditLimit("credit_card", undefined)).not.toThrow();
+    expect(() => assertValidCreditLimit("credit_card", null)).not.toThrow();
+  });
+
+  it("allows null or undefined creditLimit on any type", () => {
+    expect(() => assertValidCreditLimit("checking", null)).not.toThrow();
+    expect(() => assertValidCreditLimit("checking", undefined)).not.toThrow();
+  });
+
+  it("allows positive creditLimit on credit_card", () => {
+    expect(() => assertValidCreditLimit("credit_card", 100_000)).not.toThrow();
+    expect(() =>
+      assertValidCreditLimit("credit_card", 500_000),
+    ).not.toThrow();
+  });
+
+  it("rejects creditLimit on non-credit_card (T-08 / T-24)", () => {
+    expect(() => assertValidCreditLimit("checking", 100_000)).toThrow(
       InvalidCreditLimitError,
     );
     expect(() => assertValidCreditLimit("savings", 1_000)).toThrow(
@@ -84,22 +109,7 @@ describe("assertValidCreditLimit — SPEC-03 T-09 (KRI-11)", () => {
     );
   });
 
-  it("allows null or undefined creditLimit on any type", () => {
-    expect(() => assertValidCreditLimit("checking", null)).not.toThrow();
-    expect(() => assertValidCreditLimit("checking", undefined)).not.toThrow();
-    expect(() => assertValidCreditLimit("credit_card", null)).not.toThrow();
-    expect(() =>
-      assertValidCreditLimit("credit_card", undefined),
-    ).not.toThrow();
-  });
-
-  it("accepts a positive integer limit on credit_card", () => {
-    expect(() =>
-      assertValidCreditLimit("credit_card", 500_000),
-    ).not.toThrow();
-  });
-
-  it("rejects zero, negative, or non-integer limits on credit_card", () => {
+  it("rejects non-positive or non-integer creditLimit on credit_card", () => {
     expect(() => assertValidCreditLimit("credit_card", 0)).toThrow(
       InvalidCreditLimitError,
     );
@@ -109,5 +119,125 @@ describe("assertValidCreditLimit — SPEC-03 T-09 (KRI-11)", () => {
     expect(() => assertValidCreditLimit("credit_card", 1.5)).toThrow(
       InvalidCreditLimitError,
     );
+  });
+});
+
+describe("assertCanArchiveAccount — SPEC-03 T-10 / T-20", () => {
+  it("passes when no active goals are linked", () => {
+    expect(() =>
+      assertCanArchiveAccount({
+        accountId: "acc-a",
+        activeGoalsLinkedToAccount: [],
+      }),
+    ).not.toThrow();
+  });
+
+  it("throws AccountLinkedToActiveGoal when an active goal is linked (T-10)", () => {
+    expect(() =>
+      assertCanArchiveAccount({
+        accountId: "acc-a",
+        activeGoalsLinkedToAccount: [{ id: "goal-1" }],
+      }),
+    ).toThrow(AccountLinkedToActiveGoalError);
+  });
+
+  it("does not block archiving the last active account (T-09 domain)", () => {
+    expect(() =>
+      assertCanArchiveAccount({
+        accountId: "acc-only",
+        activeGoalsLinkedToAccount: [],
+      }),
+    ).not.toThrow();
+    expect(isWorkspaceReadyToUse({ accountCount: 0 })).toBe(false);
+  });
+});
+
+describe("assertCanDeleteAccount — SPEC-03 T-13 / T-14 / T-18 / T-20", () => {
+  const base = {
+    accountId: "acc-a",
+    isArchived: false,
+    activeAccountCountInWorkspace: 2,
+    activeGoalsLinkedToAccount: [] as { id: string }[],
+    hasCrossWorkspaceLinks: false,
+  };
+
+  it("passes when all guards clear", () => {
+    expect(() => assertCanDeleteAccount(base)).not.toThrow();
+  });
+
+  it("throws CannotDeleteLastActiveAccount for the only active account (T-13)", () => {
+    expect(() =>
+      assertCanDeleteAccount({
+        ...base,
+        activeAccountCountInWorkspace: 1,
+      }),
+    ).toThrow(CannotDeleteLastActiveAccountError);
+  });
+
+  it("allows delete of an archived account even if workspace has 0 active", () => {
+    expect(() =>
+      assertCanDeleteAccount({
+        ...base,
+        isArchived: true,
+        activeAccountCountInWorkspace: 0,
+      }),
+    ).not.toThrow();
+  });
+
+  it("throws AccountLinkedToActiveGoal when an active goal is linked (T-14)", () => {
+    expect(() =>
+      assertCanDeleteAccount({
+        ...base,
+        activeGoalsLinkedToAccount: [{ id: "goal-1" }],
+      }),
+    ).toThrow(AccountLinkedToActiveGoalError);
+  });
+
+  it("throws AccountHasCrossWorkspaceLinks when cross-ws flag is set (T-18)", () => {
+    expect(() =>
+      assertCanDeleteAccount({
+        ...base,
+        hasCrossWorkspaceLinks: true,
+      }),
+    ).toThrow(AccountHasCrossWorkspaceLinksError);
+  });
+
+  it("checks active goal before last-active (goal wins)", () => {
+    expect(() =>
+      assertCanDeleteAccount({
+        ...base,
+        activeAccountCountInWorkspace: 1,
+        activeGoalsLinkedToAccount: [{ id: "goal-1" }],
+      }),
+    ).toThrow(AccountLinkedToActiveGoalError);
+  });
+});
+
+describe("assertDeleteAccountConfirmation — SPEC-03 §6", () => {
+  it("passes when confirmName matches account name", () => {
+    expect(() =>
+      assertDeleteAccountConfirmation({
+        accountName: "Banco Nación",
+        confirmName: "Banco Nación",
+      }),
+    ).not.toThrow();
+  });
+
+  it("trims both sides before comparing", () => {
+    expect(() =>
+      assertDeleteAccountConfirmation({
+        accountName: "  Caja  ",
+        confirmName: "Caja",
+      }),
+    ).not.toThrow();
+  });
+
+  it("throws AccountDeleteConfirmationMismatch on mismatch", () => {
+    expect(() =>
+      assertDeleteAccountConfirmation({
+        accountName: "Banco",
+        confirmName: "banco",
+      }),
+    ).toThrow(AccountDeleteConfirmationMismatchError);
   });
 });

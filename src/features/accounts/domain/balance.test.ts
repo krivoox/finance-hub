@@ -150,7 +150,7 @@ describe("calculateAccountBalance — SPEC-03 §5 balance derivation", () => {
     });
   });
 
-  describe("T-06 credit_card USD in ARS workspace (KRI-11)", () => {
+  describe("T-21 credit_card USD in ARS workspace (KRI-11)", () => {
     it("derives zero debt for a USD credit card with no txs", () => {
       const visaUsd: AccountForBalance = {
         id: "acc-visa-usd",
@@ -165,7 +165,7 @@ describe("calculateAccountBalance — SPEC-03 §5 balance derivation", () => {
     });
   });
 
-  describe("T-07 independent ARS and USD credit card debts (KRI-11)", () => {
+  describe("T-22 independent ARS and USD credit card debts (KRI-11)", () => {
     const visaArs: AccountForBalance = {
       id: "acc-visa-ars",
       type: "credit_card",
@@ -210,7 +210,7 @@ describe("calculateAccountBalance — SPEC-03 §5 balance derivation", () => {
     });
   });
 
-  describe("T-08 paying only the ARS credit card leg (KRI-11)", () => {
+  describe("T-23 paying only the ARS credit card leg (KRI-11)", () => {
     it("transfer into Visa ARS lowers only that debt; USD and checking update correctly", () => {
       const visaArs: AccountForBalance = {
         id: "acc-visa-ars",

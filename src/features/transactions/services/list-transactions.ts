@@ -6,8 +6,8 @@ import {
   LIST_PAGE_SIZE,
   type TransactionType,
 } from "@/features/transactions/domain";
-import { parseOccurredOn } from "./utils";
 import type { TransactionRecord } from "./require-transaction-membership";
+import { buildListTransactionsWhere } from "./list-transactions-where";
 
 export type ListTransactionsServiceInput = {
   userId: string;
@@ -77,53 +77,7 @@ export async function listTransactions(
     })
   ).map((a) => a.id);
 
-  const dateRange =
-    input.from || input.to
-      ? {
-          ...(input.from ? { gte: parseOccurredOn(input.from) } : {}),
-          ...(input.to ? { lte: parseOccurredOn(input.to) } : {}),
-        }
-      : undefined;
-
-  const typeFilter = resolveTypeWhere(input);
-
-  const filters = {
-    AND: [
-      {
-        OR: [
-          { workspaceId: input.workspaceId },
-          ...(localAccountIds.length > 0
-            ? [
-                {
-                  AND: [
-                    { workspaceId: { not: input.workspaceId } },
-                    {
-                      OR: [
-                        { accountId: { in: localAccountIds } },
-                        { counterpartyAccountId: { in: localAccountIds } },
-                      ],
-                    },
-                  ],
-                },
-              ]
-            : []),
-        ],
-      },
-      ...(typeFilter ? [typeFilter] : []),
-      ...(input.categoryId ? [{ categoryId: input.categoryId }] : []),
-      ...(input.accountId
-        ? [
-            {
-              OR: [
-                { accountId: input.accountId },
-                { counterpartyAccountId: input.accountId },
-              ],
-            },
-          ]
-        : []),
-      ...(dateRange ? [{ occurredOn: dateRange }] : []),
-    ],
-  };
+  const filters = buildListTransactionsWhere(input, localAccountIds);
 
   // Soft-reset: missing / foreign cursor → first page (SPEC-05 §4.5).
   let cursorId = input.cursor;
@@ -255,18 +209,4 @@ function toIsoDate(d: Date): string {
   const m = String(d.getUTCMonth() + 1).padStart(2, "0");
   const day = String(d.getUTCDate()).padStart(2, "0");
   return `${y}-${m}-${day}`;
-}
-
-function resolveTypeWhere(
-  input: ListTransactionsServiceInput,
-): { type: TransactionType } | { type: { in: TransactionType[] } } | null {
-  if (input.types && input.types.length > 0) {
-    return input.types.length === 1
-      ? { type: input.types[0] }
-      : { type: { in: input.types } };
-  }
-  if (input.type) {
-    return { type: input.type };
-  }
-  return null;
 }

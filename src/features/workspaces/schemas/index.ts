@@ -56,6 +56,21 @@ export const transferOwnershipSchema = z.object({
 });
 export type TransferOwnershipInput = z.infer<typeof transferOwnershipSchema>;
 
+export const leaveGroupWorkspaceSchema = z.object({
+  workspaceId: z.string().min(1),
+});
+export type LeaveGroupWorkspaceInput = z.infer<
+  typeof leaveGroupWorkspaceSchema
+>;
+
+export const deleteGroupWorkspaceSchema = z.object({
+  workspaceId: z.string().min(1),
+  confirmName: z.string().min(1, "Confirmá el nombre del grupo"),
+});
+export type DeleteGroupWorkspaceInput = z.infer<
+  typeof deleteGroupWorkspaceSchema
+>;
+
 export const setActiveWorkspaceSchema = z.object({
   workspaceId: z.string().min(1),
 });

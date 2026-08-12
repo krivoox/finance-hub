@@ -86,28 +86,28 @@ export function NewAccountForm({
 
     const initialBalanceCents = Math.round(parsedUnits * 100);
 
-    let creditLimitCents: number | undefined;
-    if (values.type === "credit_card" && values.creditLimitUnits.trim() !== "") {
-      const parsedLimit = Number(values.creditLimitUnits.replace(",", "."));
-      if (!Number.isFinite(parsedLimit) || parsedLimit <= 0) {
-        toast.error("Límite de crédito inválido");
-        return;
-      }
-      creditLimitCents = Math.round(parsedLimit * 100);
-      if (creditLimitCents <= 0) {
-        toast.error("Límite de crédito inválido");
-        return;
-      }
-    }
-
     const input: CreateAccountInput = {
       workspaceId,
       name: values.name,
       type: values.type,
       initialBalanceCents,
       currency: values.currency,
-      ...(creditLimitCents !== undefined ? { creditLimitCents } : {}),
     };
+
+    if (values.type === "credit_card" && values.creditLimitUnits.trim() !== "") {
+      const parsedLimit = Number(values.creditLimitUnits.replace(",", "."));
+      if (!Number.isFinite(parsedLimit) || parsedLimit <= 0) {
+        toast.error("Límite de crédito inválido");
+        return;
+      }
+      const creditLimitCents = Math.round(parsedLimit * 100);
+      if (creditLimitCents <= 0) {
+        toast.error("Límite de crédito inválido");
+        return;
+      }
+      input.creditLimitCents = creditLimitCents;
+    }
+
     const clientCheck = createAccountSchema.safeParse(input);
     if (!clientCheck.success) {
       toast.error(clientCheck.error.issues[0]?.message ?? "Datos inválidos");

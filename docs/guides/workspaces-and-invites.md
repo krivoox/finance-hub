@@ -54,6 +54,24 @@ El email de Google debe **coincidir** con el de la invitación (case-insensitive
 - En el **grupo**: las mismas cuentas y movimientos del hogar, más balances de splits/settlements.
 - Un `viewer` del grupo ve todo en lectura; no puede invitar ni registrar liquidaciones.
 
+## Gestionar el espacio (ABM)
+
+En **Ajustes → Workspace** / **Grupos** (SPEC-02):
+
+| Acción | Quién | Notas |
+|--------|-------|--------|
+| Renombrar | owner / admin | Nombre visible en el switcher |
+| Cambiar rol / remover miembro | owner / admin | No se puede dejar el grupo sin owner |
+| Transferir ownership | solo owner | El owner previo pasa a `admin` |
+| Salir del grupo | cualquier miembro (no último owner) | Si era el activo → pasás al **personal** |
+| **Eliminar grupo** | solo **owner** | Hard-delete irreversible; type-to-confirm del nombre |
+
+El workspace **personal** no se elimina nunca.
+
+Antes de eliminar un grupo, no puede haber vínculos con otros espacios (aportes / pagos con cuenta ajena — SPEC-14). Si los hay, la app **bloquea** el delete hasta que los resuelvas; no se cortan solos.
+
+Detalle: [02-workspaces.md](../specs/02-workspaces.md).
+
 ## Dinero entre espacios
 
 Dos flujos (no son transferencias internas):

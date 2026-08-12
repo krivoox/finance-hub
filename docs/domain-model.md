@@ -53,6 +53,8 @@ Contenedor de datos financieros. Puede ser personal (1 miembro) o grupal (N miem
 - Todo Account, Category, Transaction, Budget y Goal pertenece a exactamente un Workspace.
 - Un User puede pertenecer a varios Workspaces vía Membership.
 - Un workspace está **listo para usar** (onboarding, SPEC-15) cuando tiene ≥1 Account no archivada. Es un estado **derivado**; no hay campo de “setup completado” en el modelo.
+- Workspace `personal`: **inborrable** (nunca hard-delete ni soft-archive de workspace en v1 / cercano).
+- Workspace `group`: el owner puede **hard-delete** el tenant completo (SPEC-02 FR-10) si no hay vínculos cross-workspace (SPEC-14 / SPEC-02 §5.4). Es **excepción explícita** a la preferencia transversal de soft-delete (§ Reglas transversales): sin grace period ni restore.
 
 ### Membership
 
@@ -120,9 +122,12 @@ type AccountType =
 **Invariantes**
 
 - El saldo actual se deriva: `initialBalance + Σ efectos de transacciones` (no se edita a mano salvo ajuste explícito).
-- Cuentas archivadas no aceptan nuevas transacciones.
+- Cuentas archivadas no aceptan nuevas transacciones ni aparecen en selectores de flujos activos (SPEC-03).
 - En `credit_card`, el balance derivado es **deuda** (positivo = adeudado). Expense / transfer-out suben deuda; income / transfer-in (pago desde otra cuenta) la bajan. Detalle: SPEC-03 / SPEC-06.
 - Tarjeta física con consumos ARS+USD = **dos** Accounts `credit_card` (una por moneda). No hay Account multi-moneda (ADR-006 / SPEC-03 §5.1).
+- **Archivar** (soft): conserva historial; permitido aunque sea la última cuenta activa → el workspace deja de estar “listo” (`needsSetup`, SPEC-15).
+- **Eliminar** (hard-delete, SPEC-03): excepción de producto; pierde historial vía cascada de servicio. Bloqueado si es la última cuenta activa, si hay Goal `active` con `linkedAccountId`, o si hay `CrossWorkspaceLink` en txs de la cuenta.
+- No archivar ni hard-delete si un Goal `status=active` apunta a la cuenta como `linkedAccountId`.
 
 ### Category
 
@@ -169,7 +174,7 @@ Campos comunes:
 - Transfer: `accountId ≠ counterpartyAccountId`, ambas del mismo workspace, **misma currency**.
 - Canje (`fx_debit` / `fx_credit`): ver `CurrencyExchange`; no cuentan en cashflow ni budget spent.
 - Income/expense: `accountId` puede ser de otro workspace del mismo usuario (funded externo, SPEC-14); el `workspaceId` de la tx es el contexto de registro (categorías, budgets, splits).
-- No se puede borrar una cuenta con transacciones (archivar).
+- Baja de cuenta: **preferir Archivar** (conserva txs). `DeleteAccount` (SPEC-03) es excepción de producto: hard-delete con cascada explícita de txs/reglas/canjes de esa cuenta.
 - Transfer ligada a `GoalContribution` (SPEC-08 H4): delete cascada deshace el aporte; update de monto/cuentas rechazado.
 - `(recurringRuleId, scheduledOn)` es único cuando `recurringRuleId != null` (materialización idempotente, SPEC-18).
 - `recurringRuleId != null ⇔ scheduledOn != null`.
@@ -244,6 +249,7 @@ Vínculo 1↔1 entre dos transacciones de workspaces distintos (aporte / fondeo)
 - Solo `contribution` materializa siempre ambas puntas.
 - Delete/update de monto en cascada sobre el par.
 - Categorías de aporte excluidas del `spent` de presupuestos de consumo.
+- Un workspace **no** puede hard-delete-arse mientras existan links (u otros involucramientos cross-workspace listados en SPEC-02 §5.4) que lo involucren; no se cortan automáticamente (SPEC-02 FR-11).
 
 ### Money (value object)
 
@@ -294,6 +300,7 @@ Objetivo de ahorro o pago de deuda.
 - Un aporte (`ContributeToGoal`) materializa siempre: `Transaction` `type=transfer` (origen = cuenta elegida, destino = `linkedAccountId`) + `GoalContribution` + avance de `currentAmount` / auto-complete — atómico.
 - `debt_payoff` usa el **mismo** patrón transfer; si el destino es `credit_card`, el efecto de deuda es el de SPEC-06 (pago baja deuda).
 - Sin FX en el aporte: monedas de origen, destino y goal alineadas.
+- Goal `status=active` con `linkedAccountId` set: **bloquea** `ArchiveAccount` y `DeleteAccount` de esa cuenta (`AccountLinkedToActiveGoal`, SPEC-03). Goals `completed` / `cancelled` no bloquean; en hard-delete se nullifica `linkedAccountId`.
 
 ### GoalContribution
 
@@ -388,7 +395,8 @@ Plantilla que describe **qué** movimiento se repite y **cada cuánto**. No es u
 - Ocurrencias proyectadas **no** se persisten: se calculan con función pura sobre la regla y una ventana (SPEC-18 §4.2). El único estado persistido de una ocurrencia es la `Transaction` que la materializa.
 - Idempotencia: `(recurringRuleId, scheduledOn)` único en `Transaction`.
 - Editar la plantilla no reescribe txs históricas: cambios de monto/cuenta/categoría afectan solo futuras no materializadas.
-- Eliminar = `ended` (soft-delete); las txs ya generadas mantienen `recurringRuleId` para el tooltip “Generada por: {name}”.
+- Eliminar plantilla = `ended` (soft-delete); las txs ya generadas mantienen `recurringRuleId` para el tooltip “Generada por: {name}”.
+- **Excepción:** `DeleteAccount` (SPEC-03) hard-deletea `RecurringRule` que usan esa cuenta (tras nullificar FKs en txs), porque la cuenta padre desaparece.
 - Al archivar una cuenta usada por la regla → `paused` con `pausedReason = account_archived`; desarchivar **no** reactiva.
 - Roles: `owner` / `admin` / `member` crean, editan, materializan; `viewer` solo lee.
 - Timezone = `User.timezone` para clasificación vencida/hoy/próxima (SPEC-01).
@@ -411,5 +419,7 @@ Los saldos de cuenta y balances entre miembros son **lecturas derivadas**, no es
 
 1. Autorización: toda mutación verifica Membership + role.
 2. Soft-delete / archive preferido a hard-delete cuando hay historial.
+   - **Excepción (SPEC-02):** eliminar un workspace `group` es **hard-delete real** del grafo del tenant (cuentas, txs, budgets, goals, memberships, etc.). Bloqueado si hay involucramiento cross-workspace (SPEC-14). El workspace `personal` no se elimina.
+   - **Excepción (SPEC-03):** `DeleteAccount` — hard-delete de cuenta con confirmación fuerte y cascada de servicio; Archive sigue siendo el camino recomendado.
 3. Idempotencia: comandos de creación pueden aceptar `clientRequestId` (fase P1+).
 4. Multi-moneda (ADR-006): cuentas ARS|USD; ledger nativo por moneda; canje explícito (`CurrencyExchange`); patrimonio consolidado solo con tasa manual del workspace. `baseCurrency` = consolidación y defaults — no única moneda permitida.
