@@ -1,0 +1,210 @@
+import "server-only";
+
+import { Suspense } from "react";
+
+import {
+  buildAccountExpenseSankey,
+  buildCashflowSankey,
+  buildNetTrend,
+} from "@/features/dashboard/domain";
+import type {
+  GetAnalyticsResult,
+  GetDashboardResult,
+} from "@/features/dashboard/services";
+
+import { DashboardBalance } from "./dashboard-balance";
+import {
+  DashboardBalanceTrend,
+  DashboardBalanceTrendSkeleton,
+} from "./dashboard-balance-trend";
+import { DashboardFlowCharts } from "./dashboard-flow-charts";
+import { DashboardAttention } from "./dashboard-attention";
+import { DashboardGoals } from "./dashboard-goals";
+import { DashboardSpending } from "./dashboard-spending";
+import { DashboardSpendingBar } from "./dashboard-spending-bar";
+import { DashboardRecent } from "./dashboard-recent";
+import { DashboardRecurring } from "./dashboard-recurring";
+import { DashboardAccounts } from "./dashboard-accounts";
+
+/**
+ * Streaming sections for the Panel (SPEC-20 H1/H8).
+ *
+ * The route creates two request-scoped promises — `getDashboard` and
+ * `getAnalytics` — once, and shares them across these async Server Components.
+ * Each section awaits only the data it needs, so every `<Suspense>` boundary
+ * streams independently while the shared promises still run each read model a
+ * single time (no per-section re-query). No money is cached: this only reorders
+ * when blocks paint, never how fresh they are.
+ */
+
+type DashboardPromise = Promise<GetDashboardResult>;
+type AnalyticsPromise = Promise<GetAnalyticsResult>;
+
+type BalanceSectionProps = {
+  dashboard: DashboardPromise;
+  analytics: AnalyticsPromise;
+  periodLabel: string;
+};
+
+async function DashboardBalanceTrendSection({
+  analytics,
+  currency,
+}: {
+  analytics: AnalyticsPromise;
+  currency: string;
+}) {
+  const a = await analytics;
+  return (
+    <DashboardBalanceTrend
+      netTrend={buildNetTrend(a.monthlySeries)}
+      currency={currency}
+    />
+  );
+}
+
+export async function DashboardBalanceSection({
+  dashboard,
+  analytics,
+  periodLabel,
+}: BalanceSectionProps) {
+  // Await only the dashboard read model so patrimonio + cashflow KPIs paint
+  // in the first wave. Trend (analytics) streams behind a nested Suspense.
+  const d = await dashboard;
+
+  return (
+    <DashboardBalance
+      balance={d.totalBalance}
+      balancesByCurrency={d.balancesByCurrency}
+      consolidated={d.consolidated}
+      fxRate={d.fxRate}
+      cashflow={d.monthlyCashflow}
+      periodLabel={periodLabel}
+      trend={
+        <Suspense fallback={<DashboardBalanceTrendSkeleton />}>
+          <DashboardBalanceTrendSection
+            analytics={analytics}
+            currency={d.monthlyCashflow.currency}
+          />
+        </Suspense>
+      }
+    />
+  );
+}
+
+export async function DashboardSpendingBarSection({
+  analytics,
+  currency,
+}: {
+  analytics: AnalyticsPromise;
+  currency: string;
+}) {
+  const a = await analytics;
+  return (
+    <DashboardSpendingBar
+      currency={currency}
+      rows={a.spendingByCategory}
+      limit={3}
+    />
+  );
+}
+
+export async function DashboardRecentSection({
+  dashboard,
+}: {
+  dashboard: DashboardPromise;
+}) {
+  const d = await dashboard;
+  return <DashboardRecent transactions={d.recentTransactions} limit={4} />;
+}
+
+export async function DashboardGoalsSection({
+  dashboard,
+  currency,
+}: {
+  dashboard: DashboardPromise;
+  currency: string;
+}) {
+  const d = await dashboard;
+  return <DashboardGoals currency={currency} goals={d.goalsProgress} />;
+}
+
+export async function DashboardAttentionSection({
+  dashboard,
+  analytics,
+  currency,
+}: {
+  dashboard: DashboardPromise;
+  analytics: AnalyticsPromise;
+  currency: string;
+}) {
+  const [d, a] = await Promise.all([dashboard, analytics]);
+  return (
+    <DashboardAttention
+      currency={currency}
+      budgetsAtRisk={d.budgetsAtRisk}
+      insights={a.insights}
+      memberBalances={d.memberBalances}
+    />
+  );
+}
+
+export async function DashboardFlowChartsSection({
+  analytics,
+  currency,
+}: {
+  analytics: AnalyticsPromise;
+  currency: string;
+}) {
+  const a = await analytics;
+  const cashflowSankey = buildCashflowSankey({
+    incomeCents: a.cashflow.incomeCents,
+    expenseCents: a.cashflow.expenseCents,
+    spendingByCategory: a.spendingByCategory,
+  });
+  const accountSankey = buildAccountExpenseSankey({ flows: a.spendingFlows });
+  const hasFlowCharts =
+    cashflowSankey.nodes.length > 0 || accountSankey.nodes.length > 0;
+
+  if (!hasFlowCharts) return null;
+
+  // Desktop-only surface; kept on the element itself so an empty result adds
+  // no phantom flex gap (no wrapper item reserved when there's no flow data).
+  return (
+    <div className="hidden md:block">
+      <DashboardFlowCharts
+        currency={currency}
+        cashflowSankey={cashflowSankey}
+        accountSankey={accountSankey}
+      />
+    </div>
+  );
+}
+
+export async function DashboardRecurringSection({
+  dashboard,
+}: {
+  dashboard: DashboardPromise;
+}) {
+  const d = await dashboard;
+  return <DashboardRecurring items={d.upcomingRecurring} />;
+}
+
+export async function DashboardSpendingSection({
+  analytics,
+  currency,
+}: {
+  analytics: AnalyticsPromise;
+  currency: string;
+}) {
+  const a = await analytics;
+  return <DashboardSpending currency={currency} rows={a.spendingByCategory} />;
+}
+
+export async function DashboardAccountsSection({
+  dashboard,
+}: {
+  dashboard: DashboardPromise;
+}) {
+  const d = await dashboard;
+  return <DashboardAccounts accounts={d.accounts} />;
+}

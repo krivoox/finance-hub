@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, CalendarClock } from "lucide-react";
 
 import { ContentPanel } from "@/components/app-shell/content-panel";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatMoney } from "@/lib/format-money";
 import { getSession } from "@/lib/session";
 import { getActiveWorkspaceForUser } from "@/features/workspaces/services";
@@ -23,6 +25,10 @@ import {
 type PageProps = {
   params: Promise<{ id: string }>;
 };
+
+type RecurringDetail = Awaited<ReturnType<typeof getRecurringRule>>;
+type AccountsResult = Awaited<ReturnType<typeof listAccounts>>;
+type CategoriesResult = Awaited<ReturnType<typeof listCategories>>;
 
 function amountVariant(
   type: "income" | "expense" | "transfer",
@@ -60,26 +66,18 @@ export default async function RecurringDetailPage({ params }: PageProps) {
   const canMutate =
     workspace?.id === detail.rule.workspaceId && workspace.role !== "viewer";
 
-  const [accounts, categories] = await Promise.all([
-    listAccounts({
-      userId: session.user.id,
-      workspaceId: detail.rule.workspaceId,
-    }),
-    listCategories({
-      userId: session.user.id,
-      workspaceId: detail.rule.workspaceId,
-    }),
-  ]);
-  const accountOptions = accounts
-    .filter((a) => !a.isArchived || a.id === detail.rule.accountId)
-    .map((a) => ({ id: a.id, name: a.name, currency: a.currency }));
-  const categoryOptions = categories
-    .filter((c) => c.kind === "income" || c.kind === "expense")
-    .map((c) => ({
-      id: c.id,
-      name: c.name,
-      kind: c.kind as "income" | "expense",
-    }));
+  // `detail` (title + body) and the cheap cached `workspace` (for canMutate) are
+  // awaited above. The edit sheet needs a second round-trip (accounts +
+  // categories); kick those off WITHOUT awaiting so the body paints as soon as
+  // the detail resolves while the actions stream behind <Suspense>.
+  const accountsPromise = listAccounts({
+    userId: session.user.id,
+    workspaceId: detail.rule.workspaceId,
+  });
+  const categoriesPromise = listCategories({
+    userId: session.user.id,
+    workspaceId: detail.rule.workspaceId,
+  });
 
   const rule = detail.rule;
 
@@ -89,26 +87,13 @@ export default async function RecurringDetailPage({ params }: PageProps) {
       description={`${RECURRING_TYPE_LABEL_ES[rule.type]} · ${RECURRING_FREQUENCY_LABEL_ES[rule.frequency]}`}
       actions={
         canMutate ? (
-          <EditRecurringSheet
-            workspaceId={rule.workspaceId}
-            workspaceCurrency={rule.currency}
-            accounts={accountOptions}
-            categories={categoryOptions}
-            initial={{
-              ruleId: rule.id,
-              name: rule.name,
-              type: rule.type,
-              amountCents: rule.amountCents,
-              currency: rule.currency,
-              accountId: rule.accountId,
-              counterpartyAccountId: rule.counterpartyAccountId,
-              categoryId: rule.categoryId,
-              description: rule.description,
-              frequency: rule.frequency,
-              startDate: rule.startDate,
-              endDate: rule.endDate,
-            }}
-          />
+          <Suspense fallback={<RecurringActionsSkeleton />}>
+            <RecurringEditActionsSection
+              detail={detail}
+              accounts={accountsPromise}
+              categories={categoriesPromise}
+            />
+          </Suspense>
         ) : undefined
       }
     >
@@ -228,6 +213,57 @@ export default async function RecurringDetailPage({ params }: PageProps) {
       </div>
     </ContentPanel>
   );
+}
+
+async function RecurringEditActionsSection({
+  detail,
+  accounts,
+  categories,
+}: {
+  detail: RecurringDetail;
+  accounts: Promise<AccountsResult>;
+  categories: Promise<CategoriesResult>;
+}) {
+  const [accountList, categoryList] = await Promise.all([accounts, categories]);
+  const rule = detail.rule;
+
+  const accountOptions = accountList
+    .filter((a) => !a.isArchived || a.id === rule.accountId)
+    .map((a) => ({ id: a.id, name: a.name, currency: a.currency }));
+  const categoryOptions = categoryList
+    .filter((c) => c.kind === "income" || c.kind === "expense")
+    .map((c) => ({
+      id: c.id,
+      name: c.name,
+      kind: c.kind as "income" | "expense",
+    }));
+
+  return (
+    <EditRecurringSheet
+      workspaceId={rule.workspaceId}
+      workspaceCurrency={rule.currency}
+      accounts={accountOptions}
+      categories={categoryOptions}
+      initial={{
+        ruleId: rule.id,
+        name: rule.name,
+        type: rule.type,
+        amountCents: rule.amountCents,
+        currency: rule.currency,
+        accountId: rule.accountId,
+        counterpartyAccountId: rule.counterpartyAccountId,
+        categoryId: rule.categoryId,
+        description: rule.description,
+        frequency: rule.frequency,
+        startDate: rule.startDate,
+        endDate: rule.endDate,
+      }}
+    />
+  );
+}
+
+function RecurringActionsSkeleton() {
+  return <Skeleton className="h-10 w-full rounded-full sm:h-8 sm:w-24" />;
 }
 
 function Field({

@@ -1,11 +1,14 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { ContentPanel } from "@/components/app-shell/content-panel";
+import { Skeleton } from "@/components/ui/skeleton";
 import { env } from "@/lib/env";
 import { getSession } from "@/lib/session";
 import {
   getActiveWorkspaceForUser,
   listMembers,
   listPendingInvitations,
+  type ActiveWorkspaceContext,
 } from "@/features/workspaces/services";
 import { GroupsSectionNav } from "@/features/splits/components/groups-section-nav";
 import { NewGroupWorkspaceForm } from "@/features/workspaces/components/new-group-workspace-form";
@@ -15,6 +18,10 @@ import { PendingInvitationsList } from "@/features/workspaces/components/pending
 import { RenameWorkspaceForm } from "@/features/workspaces/components/rename-workspace-form";
 import { LeaveGroupButton } from "@/features/workspaces/components/leave-group-button";
 import { DeleteGroupDialog } from "@/features/workspaces/components/delete-group-dialog";
+
+type MembersResult = Awaited<ReturnType<typeof listMembers>>;
+type PendingResult = Awaited<ReturnType<typeof listPendingInvitations>>;
+type WorkspaceRole = ActiveWorkspaceContext["role"];
 
 export default async function GroupsSettingsPage() {
   const session = await getSession();
@@ -57,16 +64,15 @@ export default async function GroupsSettingsPage() {
   const canRename = canManageMembers;
   const canDelete = active.role === "owner";
 
-  const [members, pending] = await Promise.all([
-    listMembers(session.user.id, active.id),
-    canManageMembers
-      ? listPendingInvitations(session.user.id, active.id)
-      : Promise.resolve([]),
-  ]);
-
-  const ownerCount = members.filter((m) => m.role === "owner").length;
-  const isLastOwner = active.role === "owner" && ownerCount <= 1;
-  const canLeave = !isLastOwner;
+  // Kick off the member/invitation reads now, but DON'T await here: the chrome,
+  // section nav, group name and the rename form (all workspace-only) paint
+  // instantly while the members list, pending invitations and the leave button
+  // (which needs the owner count) stream behind their own <Suspense>. The shared
+  // members promise runs once for both the list and the danger zone.
+  const membersPromise = listMembers(session.user.id, active.id);
+  const pendingPromise: Promise<PendingResult> = canManageMembers
+    ? listPendingInvitations(session.user.id, active.id)
+    : Promise.resolve([]);
 
   return (
     <ContentPanel
@@ -95,12 +101,14 @@ export default async function GroupsSettingsPage() {
 
       <section className="mb-8">
         <h3 className="mb-3 text-sm font-medium text-foreground">Miembros</h3>
-        <MembersManagement
-          workspaceId={active.id}
-          members={members}
-          currentUserId={session.user.id}
-          currentRole={active.role}
-        />
+        <Suspense fallback={<MembersSkeleton />}>
+          <MembersSection
+            workspaceId={active.id}
+            currentUserId={session.user.id}
+            currentRole={active.role}
+            members={membersPromise}
+          />
+        </Suspense>
       </section>
 
       {canManageMembers ? (
@@ -110,16 +118,9 @@ export default async function GroupsSettingsPage() {
             <h3 className="mb-3 text-sm font-medium text-foreground">
               Invitaciones pendientes
             </h3>
-            <PendingInvitationsList
-              appBaseUrl={env.BETTER_AUTH_URL}
-              invitations={pending.map((p) => ({
-                id: p.id,
-                email: p.email,
-                role: p.role,
-                token: p.token,
-                expiresOn: p.expiresAt.toISOString().slice(0, 10),
-              }))}
-            />
+            <Suspense fallback={<PendingInvitationsSkeleton />}>
+              <PendingInvitationsSection pending={pendingPromise} />
+            </Suspense>
           </div>
         </section>
       ) : (
@@ -130,16 +131,14 @@ export default async function GroupsSettingsPage() {
 
       <section className="space-y-4">
         <h3 className="text-sm font-medium text-foreground">Zona de peligro</h3>
-        <LeaveGroupButton
-          workspaceId={active.id}
-          workspaceName={active.name}
-          canLeave={canLeave}
-          blockedReason={
-            isLastOwner
-              ? "Sos el único owner. Transferí la propiedad a otro miembro antes de salir."
-              : undefined
-          }
-        />
+        <Suspense fallback={<LeaveButtonSkeleton />}>
+          <LeaveGroupSection
+            workspaceId={active.id}
+            workspaceName={active.name}
+            currentRole={active.role}
+            members={membersPromise}
+          />
+        </Suspense>
         <DeleteGroupDialog
           workspaceId={active.id}
           workspaceName={active.name}
@@ -153,4 +152,114 @@ export default async function GroupsSettingsPage() {
       </section>
     </ContentPanel>
   );
+}
+
+async function MembersSection({
+  workspaceId,
+  currentUserId,
+  currentRole,
+  members,
+}: {
+  workspaceId: string;
+  currentUserId: string;
+  currentRole: WorkspaceRole;
+  members: Promise<MembersResult>;
+}) {
+  const memberList = await members;
+
+  return (
+    <MembersManagement
+      workspaceId={workspaceId}
+      members={memberList}
+      currentUserId={currentUserId}
+      currentRole={currentRole}
+    />
+  );
+}
+
+async function PendingInvitationsSection({
+  pending,
+}: {
+  pending: Promise<PendingResult>;
+}) {
+  const pendingList = await pending;
+
+  return (
+    <PendingInvitationsList
+      appBaseUrl={env.BETTER_AUTH_URL}
+      invitations={pendingList.map((p) => ({
+        id: p.id,
+        email: p.email,
+        role: p.role,
+        token: p.token,
+        expiresOn: p.expiresAt.toISOString().slice(0, 10),
+      }))}
+    />
+  );
+}
+
+async function LeaveGroupSection({
+  workspaceId,
+  workspaceName,
+  currentRole,
+  members,
+}: {
+  workspaceId: string;
+  workspaceName: string;
+  currentRole: WorkspaceRole;
+  members: Promise<MembersResult>;
+}) {
+  const memberList = await members;
+  const ownerCount = memberList.filter((m) => m.role === "owner").length;
+  const isLastOwner = currentRole === "owner" && ownerCount <= 1;
+
+  return (
+    <LeaveGroupButton
+      workspaceId={workspaceId}
+      workspaceName={workspaceName}
+      canLeave={!isLastOwner}
+      blockedReason={
+        isLastOwner
+          ? "Sos el único owner. Transferí la propiedad a otro miembro antes de salir."
+          : undefined
+      }
+    />
+  );
+}
+
+function MembersSkeleton() {
+  return (
+    <ul
+      className="divide-y divide-border rounded-lg border border-border"
+      aria-busy
+      aria-label="Cargando miembros"
+    >
+      {Array.from({ length: 3 }).map((_, i) => (
+        <li key={i} className="flex items-center gap-3 px-3 py-3">
+          <Skeleton className="size-9 shrink-0 rounded-full" />
+          <div className="min-w-0 flex-1 space-y-1.5">
+            <Skeleton className="h-4 w-40 max-w-full" />
+            <Skeleton className="h-3 w-24" />
+          </div>
+          <Skeleton className="h-8 w-20 shrink-0 rounded-full" />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function PendingInvitationsSkeleton() {
+  return (
+    <ul className="space-y-2" aria-busy aria-label="Cargando invitaciones">
+      {Array.from({ length: 2 }).map((_, i) => (
+        <li key={i}>
+          <Skeleton className="h-12 w-full rounded-lg" />
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function LeaveButtonSkeleton() {
+  return <Skeleton className="h-10 w-40 max-w-full rounded-md" />;
 }
