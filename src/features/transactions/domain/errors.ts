@@ -62,7 +62,7 @@ export class AccountWorkspaceMismatchError extends TransactionDomainError {
 export class TransactionCurrencyMismatchError extends TransactionDomainError {
   constructor(txCurrency: string, accountCurrency: string) {
     super(
-      `La moneda de la transacción (${txCurrency}) no coincide con la de la cuenta (${accountCurrency})`,
+      `No se puede registrar una transacción en ${txCurrency} en una cuenta en ${accountCurrency}. Elegí una cuenta de la misma moneda.`,
     );
     this.name = "TransactionCurrencyMismatchError";
   }

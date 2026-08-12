@@ -11,8 +11,12 @@ import {
   createTransferAction,
 } from "@/features/transactions/actions";
 import { createExpenseWithSplitAction } from "@/features/splits/actions";
+import { ACCOUNT_CURRENCIES } from "@/domain/money/currencies";
 import {
   CREATEABLE_TRANSACTION_TYPES,
+  filterAccountsByCurrency,
+  filterPaymentGroupsByCurrency,
+  resolveTransactionFormCurrency,
   type CreateableTransactionType,
 } from "@/features/transactions/domain";
 import { CategoryPicker } from "@/features/categories/components/category-picker";
@@ -74,6 +78,7 @@ type NewTransactionFormProps = {
 
 type FormValues = {
   type: CreateableTransactionType;
+  currency: (typeof ACCOUNT_CURRENCIES)[number];
   amountUnits: string;
   occurredOn: string;
   accountId: string;
@@ -101,6 +106,11 @@ function parseAmountCents(raw: string): number | null {
 const TYPE_OPTIONS = CREATEABLE_TRANSACTION_TYPES.map((value) => ({
   value,
   label: TRANSACTION_TYPE_LABEL_ES[value],
+}));
+
+const CURRENCY_OPTIONS = ACCOUNT_CURRENCIES.map((value) => ({
+  value,
+  label: value,
 }));
 
 const SELECT_CLASSES = nativeSelectClassName;
@@ -149,8 +159,17 @@ export function NewTransactionForm({
       ),
   );
 
-  const defaultAccountId = accounts[0]?.id ?? "";
-  const defaultCounterpartyId = accounts[1]?.id ?? "";
+  const defaultCurrency = resolveTransactionFormCurrency({
+    workspaceBaseCurrency: workspaceCurrency,
+  });
+  const accountsForDefaultCurrency = filterAccountsByCurrency(
+    accounts,
+    defaultCurrency,
+  );
+  const defaultAccountId = accountsForDefaultCurrency[0]?.id ?? "";
+  const defaultCounterpartyId =
+    accountsForDefaultCurrency.find((a) => a.id !== defaultAccountId)?.id ??
+    "";
   const {
     register,
     handleSubmit,
@@ -161,6 +180,7 @@ export function NewTransactionForm({
   } = useForm<FormValues>({
     defaultValues: {
       type: "expense",
+      currency: defaultCurrency,
       amountUnits: "",
       occurredOn: todayIsoDate(),
       accountId: defaultAccountId,
@@ -171,8 +191,30 @@ export function NewTransactionForm({
   });
 
   const watchedType = useWatch({ control, name: "type" });
+  const watchedCurrency = useWatch({ control, name: "currency" });
   const watchedAccountId = useWatch({ control, name: "accountId" });
   const watchedAmountUnits = useWatch({ control, name: "amountUnits" });
+
+  const selectedCurrency = resolveTransactionFormCurrency({
+    selected: watchedCurrency,
+    workspaceBaseCurrency: workspaceCurrency,
+  });
+
+  const accountsForCurrency = useMemo(
+    () => filterAccountsByCurrency(accounts, selectedCurrency),
+    [accounts, selectedCurrency],
+  );
+
+  const paymentGroupsForCurrency = useMemo(
+    () =>
+      filterPaymentGroupsByCurrency(paymentAccountGroups, selectedCurrency),
+    [paymentAccountGroups, selectedCurrency],
+  );
+
+  const flatPaymentAccountsForCurrency = useMemo(
+    () => paymentGroupsForCurrency.flatMap((g) => g.accounts),
+    [paymentGroupsForCurrency],
+  );
 
   const filteredCategories = useMemo(
     () =>
@@ -183,13 +225,31 @@ export function NewTransactionForm({
   );
 
   const counterpartyOptions = useMemo(
-    () => accounts.filter((a) => a.id !== watchedAccountId),
-    [accounts, watchedAccountId],
+    () => accountsForCurrency.filter((a) => a.id !== watchedAccountId),
+    [accountsForCurrency, watchedAccountId],
   );
 
   const selectedPaymentAccount =
+    flatPaymentAccountsForCurrency.find((a) => a.id === watchedAccountId) ??
+    accountsForCurrency.find((a) => a.id === watchedAccountId) ??
     flatPaymentAccounts.find((a) => a.id === watchedAccountId) ??
     accounts.find((a) => a.id === watchedAccountId);
+
+  function applyCurrency(nextCurrency: (typeof ACCOUNT_CURRENCIES)[number]) {
+    setValue("currency", nextCurrency);
+    const nextAccounts = filterAccountsByCurrency(accounts, nextCurrency);
+    const nextPaymentAccounts = filterPaymentGroupsByCurrency(
+      paymentAccountGroups,
+      nextCurrency,
+    ).flatMap((g) => g.accounts);
+    const selectable =
+      nextAccounts.length > 0 ? nextAccounts : nextPaymentAccounts;
+    const nextAccountId = selectable[0]?.id ?? "";
+    const nextCounterpartyId =
+      nextAccounts.find((a) => a.id !== nextAccountId)?.id ?? "";
+    setValue("accountId", nextAccountId);
+    setValue("counterpartyAccountId", nextCounterpartyId);
+  }
 
   const isExternalPayment =
     Boolean(selectedPaymentAccount?.workspaceId) &&
@@ -227,6 +287,10 @@ export function NewTransactionForm({
     }
 
     const description = values.description.trim() || null;
+    const currency = resolveTransactionFormCurrency({
+      selected: values.currency,
+      workspaceBaseCurrency: workspaceCurrency,
+    });
 
     startTransition(async () => {
       let result: { ok: boolean; error?: string };
@@ -254,6 +318,7 @@ export function NewTransactionForm({
             amountCents,
             occurredOn: values.occurredOn,
             description,
+            currency,
             paidByUserId: effectivePaidBy,
             method: "equal",
             participantUserIds: participantIds,
@@ -286,6 +351,7 @@ export function NewTransactionForm({
             amountCents,
             occurredOn: values.occurredOn,
             description,
+            currency,
             paidByUserId: effectivePaidBy,
             method: "exact",
             exactShares,
@@ -318,6 +384,7 @@ export function NewTransactionForm({
             amountCents,
             occurredOn: values.occurredOn,
             description,
+            currency,
             paidByUserId: effectivePaidBy,
             method: "percentage",
             percentages,
@@ -331,6 +398,7 @@ export function NewTransactionForm({
           amountCents,
           occurredOn: values.occurredOn,
           description,
+          currency,
         });
       } else if (values.type === "expense") {
         result = await createExpenseAction({
@@ -340,6 +408,7 @@ export function NewTransactionForm({
           amountCents,
           occurredOn: values.occurredOn,
           description,
+          currency,
         });
       } else {
         result = await createTransferAction({
@@ -349,6 +418,7 @@ export function NewTransactionForm({
           amountCents,
           occurredOn: values.occurredOn,
           description,
+          currency,
         });
       }
 
@@ -368,6 +438,7 @@ export function NewTransactionForm({
       toast.success(successMessage);
       reset({
         type: values.type,
+        currency,
         amountUnits: "",
         occurredOn: values.occurredOn,
         accountId: values.accountId,
@@ -385,6 +456,11 @@ export function NewTransactionForm({
   const isBusy = isPending || isSubmitting;
   const showCategory = watchedType !== "transfer";
   const showCounterparty = watchedType === "transfer";
+  const hasAccountsForCurrency =
+    accountsForCurrency.length > 0 ||
+    (watchedType !== "transfer" && flatPaymentAccountsForCurrency.length > 0);
+  const currencyHintLabel =
+    selectedCurrency === "USD" ? "dólares (USD)" : "pesos (ARS)";
 
   return (
     <form className="flex flex-col gap-6" onSubmit={onSubmit} noValidate>
@@ -411,10 +487,33 @@ export function NewTransactionForm({
             )}
           />
 
+          <Controller
+            control={control}
+            name="currency"
+            render={({ field }) => (
+              <FormField
+                label="Moneda"
+                htmlFor="tx-currency"
+                hint="Solo cuentas de esta moneda"
+              >
+                <SegmentedControl
+                  id="tx-currency"
+                  ariaLabel="Moneda de la transacción"
+                  value={field.value}
+                  options={CURRENCY_OPTIONS}
+                  disabled={isBusy}
+                  onChange={(next) => {
+                    applyCurrency(next);
+                  }}
+                />
+              </FormField>
+            )}
+          />
+
           <FormField
             label="Monto"
             htmlFor="tx-amount"
-            hint={`En ${workspaceCurrency}`}
+            hint={`En ${currencyHintLabel}`}
           >
             <Input
               id="tx-amount"
@@ -439,6 +538,13 @@ export function NewTransactionForm({
         </FormSection>
 
         <FormSection title="Cuenta y categoría">
+          {!hasAccountsForCurrency ? (
+            <p className="rounded-lg bg-muted/60 px-3 py-2.5 text-sm text-muted-foreground">
+              No hay cuentas activas en {selectedCurrency}. Creá una cuenta en
+              esa moneda o cambiá el selector.
+            </p>
+          ) : null}
+
           <FormField
             label={
               watchedType === "transfer"
@@ -453,15 +559,17 @@ export function NewTransactionForm({
               id="tx-account"
               className={SELECT_CLASSES}
               aria-invalid={Boolean(errors.accountId)}
+              disabled={!hasAccountsForCurrency || isBusy}
               {...register("accountId", { required: true })}
             >
-              {watchedType === "transfer" || paymentAccountGroups.length === 0
-                ? accounts.map((a) => (
+              {watchedType === "transfer" ||
+              paymentGroupsForCurrency.length === 0
+                ? accountsForCurrency.map((a) => (
                     <option key={a.id} value={a.id}>
-                      {a.name}
+                      {a.name} · {a.currency}
                     </option>
                   ))
-                : paymentAccountGroups.map((group) => (
+                : paymentGroupsForCurrency.map((group) => (
                     <optgroup
                       key={group.workspaceId}
                       label={
@@ -474,7 +582,7 @@ export function NewTransactionForm({
                     >
                       {group.accounts.map((a) => (
                         <option key={a.id} value={a.id}>
-                          {a.name}
+                          {a.name} · {a.currency}
                         </option>
                       ))}
                     </optgroup>
@@ -488,11 +596,12 @@ export function NewTransactionForm({
                 id="tx-counterparty"
                 className={SELECT_CLASSES}
                 aria-invalid={Boolean(errors.counterpartyAccountId)}
+                disabled={counterpartyOptions.length === 0 || isBusy}
                 {...register("counterpartyAccountId", { required: true })}
               >
                 {counterpartyOptions.map((a) => (
                   <option key={a.id} value={a.id}>
-                    {a.name}
+                    {a.name} · {a.currency}
                   </option>
                 ))}
               </select>
@@ -548,6 +657,8 @@ export function NewTransactionForm({
                   ? `${selectedPaymentAccount.workspaceName} · ${selectedPaymentAccount.name}`
                   : selectedPaymentAccount.name}
               </strong>
+              {" · "}
+              <strong>{selectedCurrency}</strong>
               {isExternalPayment ? (
                 <span className="mt-1 block text-xs text-muted-foreground">
                   La transacción queda en este espacio; el saldo cambia en la
@@ -639,7 +750,7 @@ export function NewTransactionForm({
                             {preview && participantIds.includes(m.userId) ? (
                               <span className="text-xs tabular-nums text-muted-foreground">
                                 {(preview.cents / 100).toFixed(2)}{" "}
-                                {workspaceCurrency}
+                                {selectedCurrency}
                               </span>
                             ) : null}
                           </li>
@@ -652,7 +763,7 @@ export function NewTransactionForm({
                 {splitMethod === "exact" ? (
                   <fieldset className="space-y-2">
                     <legend className="text-sm font-medium text-foreground">
-                      Parte de cada uno ({workspaceCurrency})
+                      Parte de cada uno ({selectedCurrency})
                     </legend>
                     <ul className="space-y-3">
                       {groupMembers.map((m) => (
@@ -734,7 +845,7 @@ export function NewTransactionForm({
         <Button
           type="submit"
           className="h-10 w-full sm:h-8 sm:w-auto"
-          disabled={isBusy || accounts.length === 0}
+          disabled={isBusy || !hasAccountsForCurrency}
         >
           {isBusy
             ? "Guardando..."

@@ -32,6 +32,7 @@ export async function createExpenseAction(
       amountCents: parsed.data.amountCents,
       occurredOn: parsed.data.occurredOn,
       description: parsed.data.description ?? null,
+      currency: parsed.data.currency,
     });
     revalidatePath("/transactions");
     revalidatePath("/accounts");

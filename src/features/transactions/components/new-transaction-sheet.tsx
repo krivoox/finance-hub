@@ -142,14 +142,14 @@ function NewTransactionSheetInner({
   const currencyHint =
     load.status === "ready"
       ? load.options.workspaceCurrency
-      : "tu moneda base";
+      : "ARS o USD";
 
   return (
     <FormSheet
       open={open}
       onOpenChange={(next) => handleOpenChange(next)}
       title="Nueva transacción"
-      description={`Gasto, ingreso o transferencia en ${currencyHint}.`}
+      description={`Gasto, ingreso o transferencia. Elegí la moneda (default ${currencyHint}).`}
       size="lg"
     >
       {load.status === "loading" || load.status === "idle" ? (

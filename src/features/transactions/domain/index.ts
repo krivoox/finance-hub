@@ -60,6 +60,17 @@ export {
 } from "./guards";
 
 export {
+  currenciesPresentInAccounts,
+  filterAccountsByCurrency,
+  filterPaymentGroupsByCurrency,
+  resolveTransactionFormCurrency,
+} from "./currency";
+export type {
+  AccountCurrencyOption,
+  PaymentAccountGroupLike,
+} from "./currency";
+
+export {
   CREATEABLE_TRANSACTION_TYPES,
   TRANSACTION_DESCRIPTION_MAX_LENGTH,
   TRANSACTION_TYPES,

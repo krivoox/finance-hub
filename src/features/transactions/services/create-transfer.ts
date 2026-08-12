@@ -28,6 +28,8 @@ export type CreateTransferServiceInput = {
   amountCents: number;
   occurredOn: string;
   description?: string | null;
+  /** When set (create form), must equal both accounts' currency. */
+  currency?: string;
 };
 
 /**
@@ -82,6 +84,9 @@ export async function createTransfer(
   assertAccountActive(origin.isArchived);
   assertAccountActive(destination.isArchived);
   assertTransactionCurrencyMatchesAccount(destination.currency, origin.currency);
+  if (input.currency) {
+    assertTransactionCurrencyMatchesAccount(input.currency, origin.currency);
+  }
 
   const occurredOn = parseOccurredOn(input.occurredOn);
   assertOccurredOnNotTooFuture(occurredOn, new Date(), user?.timezone);
