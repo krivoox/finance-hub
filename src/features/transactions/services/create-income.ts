@@ -30,6 +30,8 @@ export type CreateIncomeServiceInput = {
   amountCents: number;
   occurredOn: string;
   description?: string | null;
+  /** When set (create form), must equal account.currency (SPEC-05 T-24). */
+  currency?: string;
 };
 
 /**
@@ -123,7 +125,12 @@ export async function createIncomeOrExpense(
 
   const description = normalizeDescription(input.description ?? null);
   const currency = account.currency;
-  assertTransactionCurrencyMatchesAccount(currency, account.currency);
+  // Always persist account currency; if the client sent an explicit currency
+  // (form selector), reject mismatches so ARS txs cannot land on USD accounts.
+  assertTransactionCurrencyMatchesAccount(
+    input.currency ?? currency,
+    account.currency,
+  );
 
   // Touch the account.type to satisfy the tsc unused hint and keep the
   // shape aligned with future rules that may differ per account type.

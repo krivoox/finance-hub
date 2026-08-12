@@ -22,6 +22,8 @@ La página `/transactions` (**Transacciones**; copy histórico “Movimientos”
 5. Quiero paginar el listado hacia adelante sin perder el contexto de filtros (estado en URL).
 6. Quiero limpiar filtros y volver al default “Este mes”.
 7. Quiero ver un **total del conjunto filtrado** (p. ej. cuánto gasté en comida este mes) sin sumar a mano la lista.
+8. Quiero elegir la moneda (ARS o USD) al registrar un ingreso o gasto; por defecto la moneda del workspace (`baseCurrency`).
+9. No quiero poder asociar una transacción en USD a una cuenta en ARS (ni viceversa).
 
 ## 3. Requisitos funcionales
 
@@ -31,8 +33,9 @@ La página `/transactions` (**Transacciones**; copy histórico “Movimientos”
 | FR-02 | Update description, category, amount, date, account (con recálculo de saldos) |
 | FR-03 | Delete (hard en MVP si no hay split; si hay split, ver SPEC-10) |
 | FR-04 | List con filtros AND, periodo resuelto por timezone, y paginación cursor (ver §4.2–4.5) |
-| FR-05 | amount > 0; currency = account.currency |
+| FR-05 | amount > 0; currency = account.currency (no mezclar monedas) |
 | FR-06 | Totales del resultado filtrado por moneda (ver §4.6) — independientes de la página actual |
+| FR-07 | Formulario de alta: selector de moneda (`ARS` \| `USD`); default = `workspace.baseCurrency`; listado de cuentas filtrado a esa moneda |
 
 ## 4. Reglas de negocio
 
@@ -44,6 +47,8 @@ La página `/transactions` (**Transacciones**; copy histórico “Movimientos”
 - Transferencias siguen exigiendo cuentas del mismo workspace ([SPEC-06](./06-transfers.md)).
 - Member puede crear; viewer no.
 - Editar amount/account recalcula balances derivados (no hay campo balance mutable).
+- **Moneda (ADR-006 / KRI-10):** el ledger es nativo por cuenta. `tx.currency` **debe** igualar `account.currency`. Si el comando envía `currency` explícita (p. ej. la elegida en el formulario), se valida contra la cuenta; mismatch → `TransactionCurrencyMismatchError`. No se puede registrar un movimiento en USD sobre una cuenta ARS (ni al revés). Transferencias: ambas puntas misma moneda ([SPEC-06](./06-transfers.md)); canje cross-currency → [SPEC-16](./16-currency-exchange.md).
+- **UI create:** selector `ARS` \| `USD` con default `workspace.baseCurrency`. Al cambiar moneda se filtran las cuentas (y grupos de pago SPEC-14) a esa moneda y se resetea la selección si la cuenta actual no matchea.
 
 ### 4.2 Listado — alcance del ledger (FR-04)
 
@@ -148,7 +153,7 @@ Al aplicar los mismos filtros AND que el listado (§4.3–4.4 + alcance SPEC-14)
 
 | Tipo | Nombre | Input destacado |
 |------|--------|-----------------|
-| Command | `CreateIncome` | accountId, categoryId, amountCents, occurredOn, description? |
+| Command | `CreateIncome` | accountId, categoryId, amountCents, occurredOn, description?, currency? (opcional; si viene, debe = account.currency) |
 | Command | `CreateExpense` | igual |
 | Command | `UpdateTransaction` | campos mutables |
 | Command | `DeleteTransaction` | transactionId (UI: también en lote vía `BulkActionsBar`, una action por id) |
@@ -197,6 +202,9 @@ Helpers de periodo (puro; paridad dashboard):
 - [ ] Cambiar filtros limpia `cursor`; limpiar filtros vuelve a este mes (no a `all`).
 - [ ] Totales del filtrado (FR-06): por moneda; `type=expense` → suma gastos; `type=all` → breakdown ingresos/gastos; independientes de la página.
 - [ ] Cursor inválido → primera página (sin error de producto).
+- [ ] Formulario create permite elegir ARS/USD; default = `workspace.baseCurrency`.
+- [ ] Solo se listan cuentas de la moneda seleccionada; no se puede enviar USD a cuenta ARS (error de dominio).
+- [ ] Income/expense en cuenta USD persisten `currency=USD` y afectan el saldo de esa cuenta.
 
 ## 7. Escenarios de test (TDD)
 
@@ -318,6 +326,30 @@ Helpers de periodo (puro; paridad dashboard):
 - **When** primera página del listado  
 - **Then** la suma de gastos refleja las 40 (no solo las 25 visibles)
 
+### T-22 Default de moneda del formulario
+
+- **Given** `workspace.baseCurrency = ARS`  
+- **When** `resolveTransactionFormCurrency({ selected: undefined, workspaceBaseCurrency: "ARS" })`  
+- **Then** `ARS`
+
+### T-23 Selector USD filtra cuentas
+
+- **Given** cuentas `[ARS checking, USD cash]`  
+- **When** `filterAccountsByCurrency(accounts, "USD")`  
+- **Then** solo `USD cash`
+
+### T-24 No mezclar monedas (create)
+
+- **Given** cuenta ARS  
+- **When** CreateExpense con `currency=USD`  
+- **Then** error `TransactionCurrencyMismatchError`
+
+### T-25 Create income en cuenta USD
+
+- **Given** cuenta USD con balance 0  
+- **When** CreateIncome 5000 con `currency=USD`  
+- **Then** tx `currency=USD`; balance 5000 USD
+
 ## 8. Fuera de alcance
 
 - Adjuntos / OCR de tickets
@@ -344,9 +376,9 @@ Detalle de UI: [SPEC-13](./13-transaction-detail.md). Dinero entre workspaces: [
 
 | Capa | Qué |
 |------|-----|
-| Domain | `getCurrentWeekPeriod`; `resolveListPeriod`; `resolveListTypeFilter`; `summarizeListAmounts` / `presentListTotals`; errores `InvalidDateRange`; constante `LIST_PAGE_SIZE=25`; reutilizar/extraer `getCurrentMonthPeriod` sin acoplar UI |
-| Services | `listTransactions` + `sumFilteredTransactions` con `where` compartido; `limit` default 25 en listado; cursor inválido → primera página; conservar OR de cuenta y alcance SPEC-14 |
-| Schemas/actions | Zod de query params (`period`, `type` de listado ≠ enum completo de Prisma); no confiar solo en middleware |
-| UI | Estado en searchParams; chips/selects; reset cursor al cambiar filtros; “Limpiar” → este mes; strip sticky (móvil) + footer SUMA bajo Monto (`sm+`) |
+| Domain | `getCurrentWeekPeriod`; `resolveListPeriod`; `resolveListTypeFilter`; `summarizeListAmounts` / `presentListTotals`; `resolveTransactionFormCurrency`; `filterAccountsByCurrency`; errores `InvalidDateRange` / `TransactionCurrencyMismatchError`; constante `LIST_PAGE_SIZE=25`; reutilizar/extraer `getCurrentMonthPeriod` sin acoplar UI |
+| Services | `listTransactions` + `sumFilteredTransactions` con `where` compartido; `limit` default 25 en listado; cursor inválido → primera página; conservar OR de cuenta y alcance SPEC-14; create income/expense/transfer: si viene `currency`, assert vs cuenta |
+| Schemas/actions | Zod de query params (`period`, `type` de listado ≠ enum completo de Prisma); `currency` opcional `ARS`\|`USD` en create; no confiar solo en middleware |
+| UI | Estado en searchParams; chips/selects; reset cursor al cambiar filtros; “Limpiar” → este mes; strip sticky (móvil) + footer SUMA bajo Monto (`sm+`); create form: selector de moneda + cuentas filtradas |
 
 **Tensión resuelta:** semana de Movimientos ≠ semana de Budget. Mes de Movimientos = mes de Dashboard (timezone usuario).

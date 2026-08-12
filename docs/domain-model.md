@@ -170,7 +170,7 @@ Campos comunes:
 
 **Invariantes**
 
-- `amount.currency` debe coincidir con la cuenta afectada.
+- `amount.currency` debe coincidir con la cuenta afectada. El formulario de alta permite elegir ARS|USD (default = `workspace.baseCurrency`) y solo lista cuentas de esa moneda; mismatch → `TransactionCurrencyMismatchError`.
 - Transfer: `accountId ≠ counterpartyAccountId`, ambas del mismo workspace, **misma currency**.
 - Canje (`fx_debit` / `fx_credit`): ver `CurrencyExchange`; no cuentan en cashflow ni budget spent.
 - Income/expense: `accountId` puede ser de otro workspace del mismo usuario (funded externo, SPEC-14); el `workspaceId` de la tx es el contexto de registro (categorías, budgets, splits).

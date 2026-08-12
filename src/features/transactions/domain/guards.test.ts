@@ -210,8 +210,14 @@ describe("assertTransactionCurrencyMatchesAccount", () => {
     ).not.toThrow();
   });
 
-  it("throws when currencies differ (MVP: no FX)", () => {
+  it("throws when currencies differ (MVP: no FX) — SPEC-05 T-24", () => {
     expect(() => assertTransactionCurrencyMatchesAccount("USD", "ARS")).toThrow(
+      TransactionCurrencyMismatchError,
+    );
+  });
+
+  it("rejects ARS transaction on USD account", () => {
+    expect(() => assertTransactionCurrencyMatchesAccount("ARS", "USD")).toThrow(
       TransactionCurrencyMismatchError,
     );
   });
