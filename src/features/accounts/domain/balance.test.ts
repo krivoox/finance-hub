@@ -150,6 +150,105 @@ describe("calculateAccountBalance — SPEC-03 §5 balance derivation", () => {
     });
   });
 
+  describe("T-06 credit_card USD in ARS workspace (KRI-11)", () => {
+    it("derives zero debt for a USD credit card with no txs", () => {
+      const visaUsd: AccountForBalance = {
+        id: "acc-visa-usd",
+        type: "credit_card",
+        currency: "USD",
+        initialBalanceCents: 0,
+      };
+      expect(calculateAccountBalance(visaUsd, [])).toEqual({
+        amountCents: 0,
+        currency: "USD",
+      });
+    });
+  });
+
+  describe("T-07 independent ARS and USD credit card debts (KRI-11)", () => {
+    const visaArs: AccountForBalance = {
+      id: "acc-visa-ars",
+      type: "credit_card",
+      currency: "ARS",
+      initialBalanceCents: 0,
+    };
+    const visaUsd: AccountForBalance = {
+      id: "acc-visa-usd",
+      type: "credit_card",
+      currency: "USD",
+      initialBalanceCents: 0,
+    };
+
+    it("expenses on each leg only increase that leg's debt", () => {
+      const arsExpense: BalanceEffectTx = {
+        type: "expense",
+        amountCents: 10_000,
+        accountId: visaArs.id,
+      };
+      const usdExpense: BalanceEffectTx = {
+        type: "expense",
+        amountCents: 2_500,
+        accountId: visaUsd.id,
+      };
+      const allTxs = [arsExpense, usdExpense];
+
+      expect(calculateAccountBalance(visaArs, allTxs).amountCents).toBe(10_000);
+      expect(calculateAccountBalance(visaUsd, allTxs).amountCents).toBe(2_500);
+    });
+
+    it("an expense on the USD leg does not change ARS debt (and vice versa)", () => {
+      expect(
+        calculateAccountBalance(visaArs, [
+          { type: "expense", amountCents: 2_500, accountId: visaUsd.id },
+        ]).amountCents,
+      ).toBe(0);
+      expect(
+        calculateAccountBalance(visaUsd, [
+          { type: "expense", amountCents: 10_000, accountId: visaArs.id },
+        ]).amountCents,
+      ).toBe(0);
+    });
+  });
+
+  describe("T-08 paying only the ARS credit card leg (KRI-11)", () => {
+    it("transfer into Visa ARS lowers only that debt; USD and checking update correctly", () => {
+      const visaArs: AccountForBalance = {
+        id: "acc-visa-ars",
+        type: "credit_card",
+        currency: "ARS",
+        initialBalanceCents: 8_000,
+      };
+      const visaUsd: AccountForBalance = {
+        id: "acc-visa-usd",
+        type: "credit_card",
+        currency: "USD",
+        initialBalanceCents: 3_000,
+      };
+      const checking: AccountForBalance = {
+        id: "acc-checking",
+        type: "checking",
+        currency: "ARS",
+        initialBalanceCents: 20_000,
+      };
+      const payment: BalanceEffectTx = {
+        type: "transfer",
+        amountCents: 5_000,
+        accountId: checking.id,
+        counterpartyAccountId: visaArs.id,
+      };
+
+      expect(calculateAccountBalance(visaArs, [payment]).amountCents).toBe(
+        3_000,
+      );
+      expect(calculateAccountBalance(visaUsd, [payment]).amountCents).toBe(
+        3_000,
+      );
+      expect(calculateAccountBalance(checking, [payment]).amountCents).toBe(
+        15_000,
+      );
+    });
+  });
+
   describe("currency exchange — SPEC-16 fx_debit / fx_credit", () => {
     it("fx_debit subtracts like expense on a checking account", () => {
       const account = { ...CHECKING, initialBalanceCents: 1_000_000 };

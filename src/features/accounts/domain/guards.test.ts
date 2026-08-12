@@ -2,11 +2,13 @@ import { describe, expect, it } from "vitest";
 import {
   AccountArchivedError,
   InvalidAccountNameError,
+  InvalidCreditLimitError,
   UnsupportedAccountCurrencyError,
   assertAccountAcceptsTransactions,
   assertAccountCurrencyAllowed,
   assertCurrencyMatchesWorkspace,
   assertValidAccountName,
+  assertValidCreditLimit,
 } from "./guards";
 
 describe("assertAccountCurrencyAllowed — SPEC-03 T-02 / T-02b", () => {
@@ -69,5 +71,43 @@ describe("assertValidAccountName — SPEC-03 §5 (max 80, not empty)", () => {
   it("accepts names exactly at the 80-character limit", () => {
     const boundary = "a".repeat(80);
     expect(() => assertValidAccountName(boundary)).not.toThrow();
+  });
+});
+
+describe("assertValidCreditLimit — SPEC-03 T-09 (KRI-11)", () => {
+  it("rejects creditLimit on non-credit_card types", () => {
+    expect(() => assertValidCreditLimit("checking", 1_000)).toThrow(
+      InvalidCreditLimitError,
+    );
+    expect(() => assertValidCreditLimit("savings", 1_000)).toThrow(
+      InvalidCreditLimitError,
+    );
+  });
+
+  it("allows null or undefined creditLimit on any type", () => {
+    expect(() => assertValidCreditLimit("checking", null)).not.toThrow();
+    expect(() => assertValidCreditLimit("checking", undefined)).not.toThrow();
+    expect(() => assertValidCreditLimit("credit_card", null)).not.toThrow();
+    expect(() =>
+      assertValidCreditLimit("credit_card", undefined),
+    ).not.toThrow();
+  });
+
+  it("accepts a positive integer limit on credit_card", () => {
+    expect(() =>
+      assertValidCreditLimit("credit_card", 500_000),
+    ).not.toThrow();
+  });
+
+  it("rejects zero, negative, or non-integer limits on credit_card", () => {
+    expect(() => assertValidCreditLimit("credit_card", 0)).toThrow(
+      InvalidCreditLimitError,
+    );
+    expect(() => assertValidCreditLimit("credit_card", -1)).toThrow(
+      InvalidCreditLimitError,
+    );
+    expect(() => assertValidCreditLimit("credit_card", 1.5)).toThrow(
+      InvalidCreditLimitError,
+    );
   });
 });

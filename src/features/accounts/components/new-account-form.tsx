@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { createAccountAction } from "@/features/accounts/actions";
@@ -27,6 +27,7 @@ type FormValues = {
   type: AccountType;
   currency: "ARS" | "USD";
   initialBalanceUnits: string;
+  creditLimitUnits: string;
 };
 
 type NewAccountFormProps = {
@@ -35,6 +36,10 @@ type NewAccountFormProps = {
   onSuccess?: () => void;
   onCancel?: () => void;
 };
+
+function currencyLabel(currency: "ARS" | "USD"): string {
+  return currency === "USD" ? "dólares (USD)" : "pesos (ARS)";
+}
 
 export function NewAccountForm({
   workspaceId,
@@ -47,8 +52,8 @@ export function NewAccountForm({
   const {
     register,
     handleSubmit,
+    control,
     reset,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
@@ -59,19 +64,41 @@ export function NewAccountForm({
           ? workspaceCurrency
           : "ARS",
       initialBalanceUnits: "0",
+      creditLimitUnits: "",
     },
   });
 
-  const selectedCurrency = watch("currency");
+  const selectedType = useWatch({ control, name: "type" });
+  const selectedCurrency = useWatch({ control, name: "currency" });
+  const isCreditCard = selectedType === "credit_card";
 
   const onSubmit = handleSubmit((values) => {
+    const submittingCreditCard = values.type === "credit_card";
     const parsedUnits = Number(values.initialBalanceUnits.replace(",", "."));
     if (!Number.isFinite(parsedUnits) || parsedUnits < 0) {
-      toast.error("Saldo inicial inválido");
+      toast.error(
+        submittingCreditCard
+          ? "Deuda inicial inválida"
+          : "Saldo inicial inválido",
+      );
       return;
     }
 
     const initialBalanceCents = Math.round(parsedUnits * 100);
+
+    let creditLimitCents: number | undefined;
+    if (values.type === "credit_card" && values.creditLimitUnits.trim() !== "") {
+      const parsedLimit = Number(values.creditLimitUnits.replace(",", "."));
+      if (!Number.isFinite(parsedLimit) || parsedLimit <= 0) {
+        toast.error("Límite de crédito inválido");
+        return;
+      }
+      creditLimitCents = Math.round(parsedLimit * 100);
+      if (creditLimitCents <= 0) {
+        toast.error("Límite de crédito inválido");
+        return;
+      }
+    }
 
     const input: CreateAccountInput = {
       workspaceId,
@@ -79,6 +106,7 @@ export function NewAccountForm({
       type: values.type,
       initialBalanceCents,
       currency: values.currency,
+      ...(creditLimitCents !== undefined ? { creditLimitCents } : {}),
     };
     const clientCheck = createAccountSchema.safeParse(input);
     if (!clientCheck.success) {
@@ -101,6 +129,7 @@ export function NewAccountForm({
             ? workspaceCurrency
             : "ARS",
         initialBalanceUnits: "0",
+        creditLimitUnits: "",
       });
       onSuccess?.();
       refreshAfterMutation(router);
@@ -116,10 +145,19 @@ export function NewAccountForm({
           label="Nombre"
           htmlFor="account-name"
           error={errors.name?.message}
+          hint={
+            isCreditCard
+              ? "Si gasta en ARS y USD, creá una cuenta por moneda (ej. Visa ARS / Visa USD)."
+              : undefined
+          }
         >
           <Input
             id="account-name"
-            placeholder="Caja de ahorro, Mercado Pago…"
+            placeholder={
+              isCreditCard
+                ? "Visa Quiero ARS, Mastercard USD…"
+                : "Caja de ahorro, Mercado Pago…"
+            }
             aria-invalid={Boolean(errors.name)}
             {...register("name", { required: "Nombre requerido" })}
           />
@@ -139,6 +177,16 @@ export function NewAccountForm({
           </select>
         </FormField>
 
+        {isCreditCard ? (
+          <p
+            className="rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground text-pretty"
+            role="note"
+          >
+            Una tarjeta que gasta en pesos y dólares son dos cuentas: una en ARS
+            y otra en USD. Así la deuda y los pagos no se mezclan.
+          </p>
+        ) : null}
+
         <FormField label="Moneda" htmlFor="account-currency">
           <select
             id="account-currency"
@@ -151,9 +199,13 @@ export function NewAccountForm({
         </FormField>
 
         <FormField
-          label="Saldo inicial"
+          label={isCreditCard ? "Deuda inicial" : "Saldo inicial"}
           htmlFor="account-initial-balance"
-          hint={`En ${selectedCurrency === "USD" ? "dólares (USD)" : "pesos (ARS)"}`}
+          hint={
+            isCreditCard
+              ? `Monto adeudado en ${currencyLabel(selectedCurrency ?? "ARS")}`
+              : `En ${currencyLabel(selectedCurrency ?? "ARS")}`
+          }
         >
           <Input
             id="account-initial-balance"
@@ -165,6 +217,26 @@ export function NewAccountForm({
             {...register("initialBalanceUnits", { required: true })}
           />
         </FormField>
+
+        {isCreditCard ? (
+          <FormField
+            label="Límite de crédito"
+            htmlFor="account-credit-limit"
+            optional
+            hint={`Opcional. En ${currencyLabel(selectedCurrency ?? "ARS")}, misma moneda que la cuenta.`}
+          >
+            <Input
+              id="account-credit-limit"
+              type="number"
+              inputMode="decimal"
+              min={0}
+              step="0.01"
+              placeholder="Sin límite"
+              className="tabular-nums"
+              {...register("creditLimitUnits")}
+            />
+          </FormField>
+        ) : null}
       </FormStack>
 
       <FormActions>
