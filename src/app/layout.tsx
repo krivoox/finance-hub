@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 
 import { Providers } from "@/components/providers";
+import { RegisterServiceWorker } from "@/components/pwa/register-service-worker";
 import { env } from "@/lib/env";
 import { themeProviderOptions } from "@/lib/theme";
 import "./globals.css";
@@ -81,6 +82,7 @@ export default async function RootLayout({
           initialTheme={initialTheme ?? undefined}
         >
           <Providers>{children}</Providers>
+          <RegisterServiceWorker />
           <Analytics />
           <SpeedInsights />
         </ThemeProvider>

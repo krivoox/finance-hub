@@ -8,12 +8,14 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { InstallPrompt } from "@/components/pwa/install-prompt";
+import { OfflineBanner } from "@/components/pwa/offline-banner";
 import { CafecitoDonationDialog } from "@/features/cafecito/components/cafecito-donation-dialog";
 import { NewTransactionSheet } from "@/features/transactions/components/new-transaction-sheet";
 
 import { AppSidebar, type AppSidebarProps } from "./app-sidebar";
 import { MobileTabBar } from "./mobile-tab-bar";
 import { getPageTitle } from "./nav-config";
+import { useNavPrefetch } from "./use-nav-prefetch";
 
 type AppShellProps = AppSidebarProps & {
   children: React.ReactNode;
@@ -38,6 +40,8 @@ export function AppShell({
   const title = getPageTitle(pathname);
   const canMutate = activeWorkspace?.role !== "viewer";
 
+  useNavPrefetch(Boolean(activeWorkspace));
+
   return (
     <SidebarProvider className="min-h-svh md:h-svh md:overflow-hidden">
       <AppSidebar
@@ -58,6 +62,7 @@ export function AppShell({
         md+: restore bg-background — charcoal canvas around the floating panel.
       */}
       <SidebarInset className="flex min-h-svh flex-col bg-card md:h-svh md:max-h-svh md:overflow-hidden md:bg-background">
+        <OfflineBanner />
         {/*
           Desktop only: trigger + page title.
           Mobile: tab bar is primary nav; ContentPanel owns the H1 — a sticky

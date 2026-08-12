@@ -12,6 +12,10 @@ import {
   getNewTransactionFormOptionsAction,
   type NewTransactionFormOptions,
 } from "../actions/get-new-transaction-form-options";
+import {
+  initialTypeFromCreateParam,
+  isTransactionCreateParam,
+} from "../domain/create-param";
 import { useNewTransactionSheetStore } from "../stores/new-transaction-sheet-store";
 import { NewTransactionForm } from "./new-transaction-form";
 
@@ -27,10 +31,6 @@ type LoadState =
   | { status: "loading" }
   | { status: "ready"; options: NewTransactionFormOptions }
   | { status: "error"; message: string };
-
-function isTransactionCreateParam(value: string | null): boolean {
-  return value === "1" || value === "transaction";
-}
 
 function FormOptionsSkeleton() {
   return (
@@ -56,6 +56,7 @@ function NewTransactionSheetInner({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const open = useNewTransactionSheetStore((s) => s.open);
+  const initialType = useNewTransactionSheetStore((s) => s.initialType);
   const setOpen = useNewTransactionSheetStore((s) => s.setOpen);
   const openSheet = useNewTransactionSheetStore((s) => s.openSheet);
 
@@ -64,23 +65,28 @@ function NewTransactionSheetInner({
     workspaceId: string;
     options: NewTransactionFormOptions;
   } | null>(null);
+  const loadWorkspaceId =
+    load.status === "ready" ? load.options.workspaceId : null;
 
-  // Deep-link: /transactions?new=1 | ?new=transaction
+  // If workspace switched while showing ready options, drop stale UI.
+  const visibleLoad: LoadState =
+    load.status === "ready" &&
+    workspaceId &&
+    loadWorkspaceId &&
+    loadWorkspaceId !== workspaceId
+      ? { status: "idle" }
+      : load;
+
+  // Deep-link: /transactions?new=1|transaction|expense|income (SPEC-20 shortcuts)
   useEffect(() => {
     if (!enabled) return;
     const newParam = searchParams.get("new");
     if (isTransactionCreateParam(newParam)) {
-      openSheet();
+      openSheet({ initialType: initialTypeFromCreateParam(newParam) });
     }
   }, [enabled, searchParams, openSheet]);
 
-  // Drop cached options when the active workspace changes.
-  useEffect(() => {
-    cacheRef.current = null;
-    setLoad({ status: "idle" });
-  }, [workspaceId]);
-
-  // Fetch options when the sheet opens.
+  // Fetch options when the sheet opens (cache keyed by workspace).
   useEffect(() => {
     if (!open || !enabled || !workspaceId) return;
 
@@ -140,8 +146,8 @@ function NewTransactionSheetInner({
   if (!enabled) return null;
 
   const currencyHint =
-    load.status === "ready"
-      ? load.options.workspaceCurrency
+    visibleLoad.status === "ready"
+      ? visibleLoad.options.workspaceCurrency
       : "ARS o USD";
 
   return (
@@ -152,17 +158,18 @@ function NewTransactionSheetInner({
       description={`Gasto, ingreso o transferencia. Elegí la moneda (default ${currencyHint}).`}
       size="lg"
     >
-      {load.status === "loading" || load.status === "idle" ? (
+      {visibleLoad.status === "loading" || visibleLoad.status === "idle" ? (
         <FormOptionsSkeleton />
       ) : null}
 
-      {load.status === "error" ? (
+      {visibleLoad.status === "error" ? (
         <p className="text-sm text-muted-foreground text-pretty">
-          {load.message}
+          {visibleLoad.message}
         </p>
       ) : null}
 
-      {load.status === "ready" && load.options.accounts.length === 0 ? (
+      {visibleLoad.status === "ready" &&
+      visibleLoad.options.accounts.length === 0 ? (
         <p className="text-sm text-muted-foreground text-pretty">
           Necesitás al menos una cuenta activa para registrar transacciones.{" "}
           <Link
@@ -175,17 +182,19 @@ function NewTransactionSheetInner({
         </p>
       ) : null}
 
-      {load.status === "ready" && load.options.accounts.length > 0 ? (
+      {visibleLoad.status === "ready" &&
+      visibleLoad.options.accounts.length > 0 ? (
         <NewTransactionForm
-          key={load.options.workspaceId}
-          workspaceId={load.options.workspaceId}
-          workspaceName={load.options.workspaceName}
-          workspaceCurrency={load.options.workspaceCurrency}
-          accounts={load.options.accounts}
-          paymentAccountGroups={load.options.paymentAccountGroups}
-          categories={load.options.categories}
-          groupMembers={load.options.groupMembers}
-          currentUserId={load.options.currentUserId}
+          key={`${visibleLoad.options.workspaceId}:${initialType}`}
+          workspaceId={visibleLoad.options.workspaceId}
+          workspaceName={visibleLoad.options.workspaceName}
+          workspaceCurrency={visibleLoad.options.workspaceCurrency}
+          accounts={visibleLoad.options.accounts}
+          paymentAccountGroups={visibleLoad.options.paymentAccountGroups}
+          categories={visibleLoad.options.categories}
+          groupMembers={visibleLoad.options.groupMembers}
+          currentUserId={visibleLoad.options.currentUserId}
+          initialType={initialType}
           onSuccess={handleSuccess}
           onCancel={() => handleOpenChange(false)}
         />
