@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Totales del listado filtrado de transacciones
 
+- Acciones masivas en listado de transacciones
+
 [Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.13.0...HEAD
 
 ## [0.13.0] - 2026-08-11
