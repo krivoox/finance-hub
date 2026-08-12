@@ -40,6 +40,7 @@ Orden sugerido para el agente. Cada ítem: **spec → TDD dominio/application �
 | 10d | [18-recurring-transactions](./specs/18-recurring-transactions.md) | Plantillas recurrentes + bandeja semi-auto + rename Transacciones |
 | 10e | [16-currency-exchange](./specs/16-currency-exchange.md) | Canje ARS↔USD + tasa de consolidación manual |
 | 10f | [19-usd-quotes-dolarapi](./specs/19-usd-quotes-dolarapi.md) | Snapshot diario Oficial/MEP (DolarApi) + convertidor + “Usar MEP de hoy” |
+| 10g | [02-workspaces](./specs/02-workspaces.md) (ABM) | Rename/leave/delete group (hard-delete) + UI miembros; personal inborrable; bloqueo si hay vínculos SPEC-14 |
 
 ## Fase 3 — P2 Insights
 

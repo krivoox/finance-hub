@@ -53,6 +53,8 @@ Contenedor de datos financieros. Puede ser personal (1 miembro) o grupal (N miem
 - Todo Account, Category, Transaction, Budget y Goal pertenece a exactamente un Workspace.
 - Un User puede pertenecer a varios Workspaces vía Membership.
 - Un workspace está **listo para usar** (onboarding, SPEC-15) cuando tiene ≥1 Account no archivada. Es un estado **derivado**; no hay campo de “setup completado” en el modelo.
+- Workspace `personal`: **inborrable** (nunca hard-delete ni soft-archive de workspace en v1 / cercano).
+- Workspace `group`: el owner puede **hard-delete** el tenant completo (SPEC-02 FR-10) si no hay vínculos cross-workspace (SPEC-14 / SPEC-02 §5.4). Es **excepción explícita** a la preferencia transversal de soft-delete (§ Reglas transversales): sin grace period ni restore.
 
 ### Membership
 
@@ -243,6 +245,7 @@ Vínculo 1↔1 entre dos transacciones de workspaces distintos (aporte / fondeo)
 - Solo `contribution` materializa siempre ambas puntas.
 - Delete/update de monto en cascada sobre el par.
 - Categorías de aporte excluidas del `spent` de presupuestos de consumo.
+- Un workspace **no** puede hard-delete-arse mientras existan links (u otros involucramientos cross-workspace listados en SPEC-02 §5.4) que lo involucren; no se cortan automáticamente (SPEC-02 FR-11).
 
 ### Money (value object)
 
@@ -410,5 +413,6 @@ Los saldos de cuenta y balances entre miembros son **lecturas derivadas**, no es
 
 1. Autorización: toda mutación verifica Membership + role.
 2. Soft-delete / archive preferido a hard-delete cuando hay historial.
+   - **Excepción (SPEC-02):** eliminar un workspace `group` es **hard-delete real** del grafo del tenant (cuentas, txs, budgets, goals, memberships, etc.). Bloqueado si hay involucramiento cross-workspace (SPEC-14). El workspace `personal` no se elimina.
 3. Idempotencia: comandos de creación pueden aceptar `clientRequestId` (fase P1+).
 4. Multi-moneda (ADR-006): cuentas ARS|USD; ledger nativo por moneda; canje explícito (`CurrencyExchange`); patrimonio consolidado solo con tasa manual del workspace. `baseCurrency` = consolidación y defaults — no única moneda permitida.
