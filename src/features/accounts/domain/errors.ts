@@ -65,3 +65,41 @@ export class AccountNotFoundError extends AccountDomainError {
     this.name = "AccountNotFoundError";
   }
 }
+
+/** SPEC-03 §5.3 / §5.4 — Goal `status=active` with `linkedAccountId` blocks archive/delete. */
+export class AccountLinkedToActiveGoalError extends AccountDomainError {
+  constructor() {
+    super(
+      "La cuenta está vinculada a un objetivo activo. Cancelá o completá el objetivo antes de archivar o eliminar.",
+    );
+    this.name = "AccountLinkedToActiveGoalError";
+  }
+}
+
+/** SPEC-03 §5.4 — Hard-delete of the only non-archived account is blocked. */
+export class CannotDeleteLastActiveAccountError extends AccountDomainError {
+  constructor() {
+    super(
+      "No podés eliminar la única cuenta activa. Archivá esta cuenta o creá otra antes de eliminarla.",
+    );
+    this.name = "CannotDeleteLastActiveAccountError";
+  }
+}
+
+/** SPEC-03 §5.4 — Hard-delete blocked when txs participate in CrossWorkspaceLink. */
+export class AccountHasCrossWorkspaceLinksError extends AccountDomainError {
+  constructor() {
+    super(
+      "Esta cuenta tiene movimientos vinculados a otro espacio. No se puede eliminar.",
+    );
+    this.name = "AccountHasCrossWorkspaceLinksError";
+  }
+}
+
+/** SPEC-03 §6 — UI type-to-confirm name does not match account name. */
+export class AccountDeleteConfirmationMismatchError extends AccountDomainError {
+  constructor() {
+    super("El nombre no coincide. Escribí el nombre exacto de la cuenta.");
+    this.name = "AccountDeleteConfirmationMismatchError";
+  }
+}

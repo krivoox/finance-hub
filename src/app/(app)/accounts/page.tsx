@@ -33,11 +33,14 @@ export default async function AccountsPage() {
   const accounts = await listAccounts({
     userId: session.user.id,
     workspaceId: workspace.id,
+    includeArchived: true,
   });
 
   const canMutate = workspace.role !== "viewer";
   const canSetup =
     workspace.role === "owner" || workspace.role === "admin";
+
+  const activeCount = accounts.filter((a) => !a.isArchived).length;
 
   const listItems = accounts.map((account) => ({
     id: account.id,
@@ -45,6 +48,8 @@ export default async function AccountsPage() {
     type: account.type,
     currency: account.currency,
     balanceCents: account.currentBalance.amountCents,
+    creditLimitCents: account.creditLimitCents,
+    isArchived: account.isArchived,
   }));
 
   return (
@@ -60,7 +65,7 @@ export default async function AccountsPage() {
         ) : undefined
       }
     >
-      {accounts.length === 0 ? (
+      {activeCount === 0 && accounts.length === 0 ? (
         <div className="flex flex-col items-start gap-4 py-8 sm:py-12">
           <p className="text-sm text-muted-foreground">
             Todavía no hay cuentas. Creá una en pesos o en dólares para
@@ -71,6 +76,26 @@ export default async function AccountsPage() {
               <Link href="/onboarding">Configurar espacio</Link>
             </Button>
           ) : null}
+        </div>
+      ) : activeCount === 0 ? (
+        <div className="flex flex-col gap-6">
+          <div className="flex flex-col items-start gap-4 rounded-lg border border-border bg-muted/30 p-4 sm:p-5">
+            <p className="text-sm text-muted-foreground">
+              No hay cuentas activas. Las archivadas quedan al final del
+              listado (grisadas): desarchivá una o creá una nueva para seguir
+              registrando movimientos.
+            </p>
+            {canSetup ? (
+              <Button asChild className="h-10">
+                <Link href="/onboarding">Configurar espacio</Link>
+              </Button>
+            ) : null}
+          </div>
+          <AccountsList
+            workspaceId={workspace.id}
+            canMutate={canMutate}
+            accounts={listItems}
+          />
         </div>
       ) : (
         <AccountsList
