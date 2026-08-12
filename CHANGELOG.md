@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Acciones masivas en listado de transacciones
 
+- ABM de cuentas con archivar y hard-delete
+
 [Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.13.0...HEAD
 
 ## [0.13.0] - 2026-08-11
