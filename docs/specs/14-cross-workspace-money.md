@@ -45,6 +45,7 @@ Esto **no** es una transferencia SPEC-06 (que sigue siendo solo intra-workspace)
 - Usuario con rol mutador en **ambos** workspaces
 - par: source = expense (categoría aportes), target = income (categoría aportes recibidos)
 - Mismo `amountCents`, `occurredOn`, descripción opcional espejada
+- Update/delete del par: membership **vigente** + rol mutador en **ambos** workspaces. Si el actor ya no es miembro del twin → `Forbidden`; no se sincroniza ni se cascade-delete el otro ledger. La authz corre **antes** de mutar, en la misma `$transaction` de Prisma que la pata local.
 
 ### Expense funded externo
 
@@ -69,6 +70,7 @@ Esto **no** es una transferencia SPEC-06 (que sigue siendo solo intra-workspace)
 | Cuenta archivada | `AccountArchived` |
 | Aporte mismo workspace | `SameWorkspace` |
 | No membership en workspace de la cuenta | `Forbidden` |
+| Ex-miembro / sin membership en el twin al update o delete | `Forbidden` |
 
 ## 5. Modelo
 
@@ -97,7 +99,8 @@ Para `externally_funded_expense`: se registra el home expense; el link (si se ma
 - [ ] Aporte Personal→Casa: −origen +destino; link en detalle.
 - [ ] Expense Casa con Visa personal: presupuesto Casa +, saldo Visa −; others ven label privado.
 - [ ] Transfer intra-workspace sin regresión.
-- [ ] Delete aporte elimina ambas puntas.
+- [ ] Delete aporte elimina ambas puntas (solo si el actor puede mutar en ambos workspaces).
+- [ ] Update/delete de un aporte sin membership vigente en el twin → `Forbidden`; el otro ledger no cambia (KRI-19).
 
 ## 8. Escenarios de test (TDD)
 
@@ -128,6 +131,18 @@ Para `externally_funded_expense`: se registra el home expense; el link (si se ma
 - **Given** aporte  
 - **When** delete source tx  
 - **Then** target y link eliminados; saldos restaurados
+
+### T-06 Contribution twin update without membership (KRI-19)
+
+- **Given** aporte A↔B; usuario miembro mutador de A y **sin** membership en B  
+- **When** edita el tx de A (monto / fecha / descripción)  
+- **Then** `Forbidden`; no se muta el ledger de B ni el de A (misma `$transaction`)
+
+### T-07 Contribution twin delete without membership (KRI-19)
+
+- **Given** aporte A↔B; usuario miembro mutador de A y **sin** membership en B  
+- **When** borra el tx de A  
+- **Then** `Forbidden`; no cascade-delete; B no cambia
 
 ## 9. Fuera de alcance
 
