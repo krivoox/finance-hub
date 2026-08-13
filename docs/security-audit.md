@@ -27,46 +27,60 @@ Este documento es la fuente de verdad del hallazgo. Las tareas de remediación v
 
 Finance Hub aísla datos de producto **en el servidor** (Better Auth + `getSession` + `requireMembership` + Prisma). Eso es sólido para Server Actions. El riesgo más grave no está en la UI: está en **Supabase como Postgres expuesto**.
 
-La arquitectura exige RLS como defensa en profundidad (`docs/architecture.md` §7, `docs/stack.md`). **No hay ninguna política RLS ni `ENABLE ROW LEVEL SECURITY` en migraciones.** Si la Data API (PostgREST) está activa —default en proyectos Supabase— la `NEXT_PUBLIC_SUPABASE_ANON_KEY` permite leer/escribir tablas de `public` (usuarios, sesiones, movimientos, saldos) **sin pasar por Next.js**.
+La arquitectura exige RLS como defensa en profundidad (`docs/architecture.md` §7, `docs/stack.md`). **KRI-18:** migración `20260813200000_rls_deny_all_lockdown` habilita RLS deny-all en `public`, revoca grants a `anon`/`authenticated` y saca `public` de PostgREST (`postgrest_locked`). Queda un paso de dashboard (Data API off o schemas expuestos) tras `migrate deploy`.
 
 | Severidad | Cantidad | Tema |
 |-----------|----------|------|
-| Crítica | 3 | Data API sin RLS; twins cross-workspace (update/delete) |
+| Crítica | 2 abiertas + 1 remediada en código | Data API: lockdown SQL (KRI-18); twins cross-workspace (update/delete) |
 | Alta | 5 | Headers/CSP/clickjacking; cron; tokens de invite en claro; reset password sin email |
 | Media | 8 | Origins demasiado anchos; OAuth state; rate limit en memoria; redirects |
 | Baja | 6 | Validación de cookies públicas; logging; clientes Supabase muertos; npm audit |
 
-**Fortalezas a conservar:** patrón consistente `getSession` + Zod + membership en ~49/51 actions; tokens de invite criptográficamente aleatorios (256 bit); cookies de producto `httpOnly` + `SameSite=lax`; Service Worker alineado a SPEC-20 (no cachea saldos ni `/api/*`); `SUPABASE_SERVICE_ROLE_KEY` no se usa en código.
+**Fortalezas a conservar:** patrón consistente `getSession` + Zod + membership en ~49/51 actions; tokens de invite criptográficamente aleatorios (256 bit); cookies de producto `httpOnly` + `SameSite=lax`; Service Worker alineado a SPEC-20 (no cachea saldos ni `/api/*`); `SUPABASE_SERVICE_ROLE_KEY` no existe en `env.ts` ni en código.
 
 ---
 
 ## 1. Supabase / Postgres (crítico)
 
-### 1.1 RLS ausente + Data API potencialmente abierta
+### 1.1 RLS + Data API (KRI-18)
 
-**Severidad: crítica**
+**Severidad: crítica** (hallazgo original) · **Estado: remediado en código; dashboard pendiente de confirmar**
 
-- Prisma mapea modelos de negocio y Better Auth a tablas en el schema `public` (`user`, `session`, `account`, `workspace`, `transaction`, etc.).
-- No existe carpeta `supabase/` con políticas. Ninguna migración hace `ENABLE ROW LEVEL SECURITY` ni `CREATE POLICY`.
-- El cliente browser (`src/lib/supabase/client.ts`) expone `NEXT_PUBLIC_SUPABASE_ANON_KEY`. Hoy **no se importa** en el resto de `src/`, pero la clave sigue siendo pública (bundle / env de Vercel).
-- Prisma se conecta con `DATABASE_URL` (rol privilegiado). RLS no sustituye los checks de Server Actions, pero **sí** es la única barrera si alguien usa la anon key contra PostgREST.
+Hallazgo original: Prisma mapea negocio y Better Auth a `public` (`user`, `session`, `account`, `workspace`, `transaction`, …) **sin** RLS. Con Data API (PostgREST) activa, `NEXT_PUBLIC_SUPABASE_ANON_KEY` podía leer/escribir esas tablas sin pasar por Next.js.
 
-**Verificar en el dashboard de Supabase (manual, no automatizable aquí):**
+**Remediación aplicada (migración `20260813200000_rls_deny_all_lockdown`):**
 
-1. Project Settings → API: ¿Data API habilitada sobre `public`?
-2. Authentication: el producto **no** usa Supabase Auth; confirmar que no hay un segundo sistema de login.
-3. Database → Policies: ¿RLS on en todas las tablas?
-4. Roles `anon` / `authenticated`: ¿tienen `GRANT` sobre tablas de dinero?
+1. `ENABLE ROW LEVEL SECURITY` en todas las tablas `public` (función `apply_rls_lockdown_to_public_tables`; re-ejecutarla tras cada `CREATE TABLE` nuevo).
+2. Política restrictiva `deny_anon_authenticated` (`USING (false)` / `WITH CHECK (false)`) para `anon` y `authenticated`.
+3. `REVOKE ALL` (tablas, sequences, functions) y `REVOKE USAGE` de `public` a `anon` / `authenticated` / `PUBLIC`; default privileges alineados.
+4. Schema vacío `postgrest_locked` y `ALTER ROLE authenticator SET pgrst.db_schemas = 'postgrest_locked'` (PostgREST no lista `public`).
+5. `createSupabaseBrowserClient` eliminado. `createSupabaseServerClient` queda `server-only` para un Storage futuro con RLS propio.
+6. `SUPABASE_SERVICE_ROLE_KEY` quitado de `src/lib/env.ts`.
+
+Prisma sigue usando `DATABASE_URL` (rol con `BYPASSRLS`). No se usa `FORCE ROW LEVEL SECURITY`.
+
+**Paso operativo (dashboard, no automatizable sin MCP/CLI autenticado):**
+
+1. Project Settings → Data API: deshabilitar **o** dejar de exponer `public` (solo `postgrest_locked` / vacío).
+2. Database → Policies: RLS on + `deny_anon_authenticated` en cada tabla.
+3. Advisors → Security: verdes, o excepciones abajo.
+
+**Excepciones de advisors (documentadas):**
+
+| Lint / advisor | Tratamiento |
+|----------------|-------------|
+| Auth MFA / leaked-password (Supabase Auth) | N/A — auth de producto es Better Auth |
+| `rls_enabled_no_policy` | No aplica si la política deny-all está creada |
+| Extensions in `extensions` schema | Fuera de alcance KRI-18 |
+| Function search_path de helpers KRI-18 | Fijado a `pg_catalog` en las funciones `SECURITY DEFINER` |
+
+**Verificar en el dashboard de Supabase (manual):**
+
+1. Project Settings → API: Data API off o schemas ≠ `public`.
+2. Authentication: el producto **no** usa Supabase Auth.
+3. Database → Policies: RLS on en todas las tablas `public`.
+4. Roles `anon` / `authenticated`: sin `GRANT` sobre tablas de dinero.
 5. Advisors de seguridad (lints).
-
-**Remediación:**
-
-1. Deshabilitar Data API **o** exponer un schema vacío (no `public`).
-2. `ENABLE ROW LEVEL SECURITY` en **todas** las tablas de `public`.
-3. Políticas deny-all para `anon`/`authenticated` (el acceso real es Prisma server-side).
-4. Revocar `GRANT` innecesarios a `anon`/`authenticated`.
-5. No usar `service_role` en el cliente. Quitar `SUPABASE_SERVICE_ROLE_KEY` del schema de env si no hay uso, o encapsularlo en un módulo `server-only` nunca importado por Client Components.
-6. Borrar o no shippear `createSupabaseBrowserClient` hasta que haya un caso (Storage) con RLS propio.
 
 ### 1.2 Prisma bypasa RLS
 
@@ -232,7 +246,7 @@ Orden de implementación sugerido. Cada ítem es una subtarea Linear.
 
 | P | Issue | Tarea | Tipo |
 |---|-------|--------|------|
-| P0 | [KRI-18](https://linear.app/krivoox-desa/issue/KRI-18) | Lockdown Supabase: RLS deny-all + Data API off/schema privado | Infra |
+| P0 | [KRI-18](https://linear.app/krivoox-desa/issue/KRI-18) | Lockdown Supabase: RLS deny-all + Data API off/schema privado | **Hecho en repo**; confirmar dashboard post-migrate |
 | P0 | [KRI-19](https://linear.app/krivoox-desa/issue/KRI-19) | Authz en update/delete de twins cross-workspace | Bug |
 | P1 | [KRI-20](https://linear.app/krivoox-desa/issue/KRI-20) | Headers: CSP (report-only → enforce), frame-ancestors, nosniff, referrer, HSTS | Hardening |
 | P1 | [KRI-21](https://linear.app/krivoox-desa/issue/KRI-21) | Cron: secret obligatorio, timing-safe, excluir del middleware | Bug |
@@ -249,17 +263,24 @@ Orden de implementación sugerido. Cada ítem es una subtarea Linear.
 Hasta autenticar MCP / CLI contra el proyecto:
 
 ```sql
--- Tablas public sin RLS
+-- Tablas public sin RLS (debe devolver 0 filas)
 select c.relname
 from pg_class c
 join pg_namespace n on n.oid = c.relnamespace
 where n.nspname = 'public' and c.relkind = 'r' and c.relrowsecurity = false;
 
--- Grants a anon/authenticated
+-- Grants a anon/authenticated (debe devolver 0 filas de tablas de producto)
 select grantee, table_name, privilege_type
 from information_schema.role_table_grants
 where grantee in ('anon', 'authenticated')
   and table_schema = 'public';
+
+-- Políticas deny-all
+select c.relname, p.polname, p.polcmd
+from pg_policy p
+join pg_class c on c.oid = p.polrelid
+join pg_namespace n on n.oid = c.relnamespace
+where n.nspname = 'public' and p.polname = 'deny_anon_authenticated';
 ```
 
-En el dashboard: API → desactivar Data API o limitar schemas; Advisors → Security.
+En el dashboard: API → desactivar Data API o limitar schemas a `postgrest_locked`; Advisors → Security.

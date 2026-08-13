@@ -42,8 +42,8 @@ Versiones de referencia: `turno-app` / Siturn (marzo 2026). Mantener alineadas s
 | **Next.js** | Monolito: UI + Server Actions + Route Handlers |
 | **Better Auth** | Única auth de producto (email/password + Google OAuth opcional). **No** Supabase Auth |
 | **Prisma** | Schema, migraciones, queries tipadas en servidor |
-| **Postgres (Supabase)** | Persistencia, constraints, RLS |
-| **Supabase SDK** | Storage / Realtime / clientes cuando haga falta — no reemplaza Prisma ni Better Auth |
+| **Postgres (Supabase)** | Persistencia, constraints, RLS deny-all (KRI-18) |
+| **Supabase SDK** | Server-only; Storage/Realtime futuro — no reemplaza Prisma ni Better Auth |
 | **Zod** | Validación doble: forms (cliente) + Server Actions |
 | **React Query** | Cache/fetch en Client Components (UI islands); listados de dinero siguen en RSC |
 | **Zustand** | Solo UI (modales, sidebar, workspace activo en cliente) |
@@ -64,8 +64,6 @@ Centralizadas en `src/lib/env.ts` (Zod). No dispersar `process.env`.
 ```env
 NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
-
-SUPABASE_SERVICE_ROLE_KEY=
 
 DATABASE_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres
 DIRECT_URL=postgresql://postgres:postgres@127.0.0.1:54322/postgres
@@ -95,6 +93,7 @@ GOOGLE_CLIENT_SECRET=
 - Cookies de sesión en Next: usamos un `nextCookies` propio (`src/lib/next-cookies.ts`) que lee `Headers.getSetCookie()` — el de Better Auth ≤1.6.x usa `.get("set-cookie")` y **pierde cookies** cuando hay más de una (p. ej. `session_token` + `cookieCache`). Ver [better-auth#9705](https://github.com/better-auth/better-auth/issues/9705).
 - Account linking: Google como **trusted provider** + `requireLocalEmailVerified: false` (SPEC-01 decisión 1.B — link por email verificado por Google aunque el User local aún no tenga `emailVerified`; el default de Better Auth es `true` y produce `account_not_linked`). `account.skipStateCookieCheck: true` mitiga `state_security_mismatch` cuando el redirect OAuth pierde la cookie de state (PWA / Safari) pero el Verification en DB sigue válido.
 - `PRISMA_LOG_QUERIES`: `1` / `true` imprime `prisma:query` en desarrollo; por defecto off (Zod en `src/lib/env.ts`). No afecta producción (solo `error`).
+- **Supabase lockdown (KRI-18):** no hay `SUPABASE_SERVICE_ROLE_KEY` en el schema de env. RLS deny-all + `REVOKE` a `anon`/`authenticated` en `public`; PostgREST apunta a schema vacío `postgrest_locked`. Tras `migrate deploy`, en el dashboard: Data API off **o** schemas expuestos ≠ `public`. Ver [security-audit.md](./security-audit.md) §1.
 
 ## Next.js — Client Router Cache
 
@@ -156,7 +155,7 @@ Misma que Siturn — ver detalle en [architecture.md](./architecture.md):
 
 - `src/lib/env.ts`, `prisma.ts`, `auth.ts`, `session.ts`, `auth-client.ts`
 - `src/app/api/auth/[...all]/route.ts`
-- `src/lib/supabase/client.ts`, `server.ts`
+- `src/lib/supabase/server.ts` (`server-only`; no hay browser client hasta Storage + RLS propio, KRI-18)
 - `src/middleware.ts` (cookie `better-auth*`)
 - `src/components/providers.tsx` (QueryClient + Sonner)
 - `prisma/schema.prisma` + `prisma.config.ts`
