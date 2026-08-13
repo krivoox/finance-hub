@@ -7,8 +7,11 @@
 
 import {
   GoalCurrencyMismatchError,
+  GoalDeleteConfirmationMismatchError,
+  GoalLinkedAccountInvalidError,
   GoalLinkedAccountRequiredError,
   GoalNotActiveError,
+  GoalNotEditableError,
   InvalidContributionAmountError,
   InvalidGoalNameError,
   InvalidTargetAmountError,
@@ -275,7 +278,7 @@ export type ReverseContributionResult = {
 };
 
 /**
- * SPEC-08 T-13 / T-14 / §4.3 — Undo a contribution after its transfer is
+ * SPEC-08 T-13 / T-14 / §4.4 — Undo a contribution after its transfer is
  * deleted. Subtracts the amount and reopens `completed` → `active` when the
  * remaining current falls below target. Never reopens `cancelled`.
  */
@@ -298,4 +301,94 @@ export function reverseContribution(
     newCurrentAmountCents >= goal.targetAmountCents ? "completed" : "active";
 
   return { newCurrentAmountCents, newStatus };
+}
+
+// ---------------------------------------------------------------------------
+// ABM — UpdateGoal / DeleteGoal (KRI-27)
+// ---------------------------------------------------------------------------
+
+/**
+ * SPEC-08 T-18 — Cancelled goals are terminal for edits. Completed goals
+ * remain editable (name / target / date / linked account).
+ */
+export function assertCanUpdateGoal(status: GoalStatus): void {
+  if (status === "cancelled") {
+    throw new GoalNotEditableError();
+  }
+}
+
+export type ApplyGoalTargetChangeInput = {
+  readonly currentAmountCents: number;
+  readonly status: GoalStatus;
+};
+
+export type ApplyGoalTargetChangeResult = {
+  readonly newStatus: GoalStatus;
+};
+
+/**
+ * SPEC-08 T-17 — Recalculate status when the target amount changes.
+ * Lowering the target to `<= current` completes; raising it above current
+ * reopens a completed goal. Never touches `cancelled` (caller must
+ * `assertCanUpdateGoal` first).
+ */
+export function applyGoalTargetChange(
+  goal: ApplyGoalTargetChangeInput,
+  newTargetAmountCents: number,
+): ApplyGoalTargetChangeResult {
+  assertValidTargetAmount(newTargetAmountCents);
+  assertCanUpdateGoal(goal.status);
+
+  if (goal.currentAmountCents >= newTargetAmountCents) {
+    return { newStatus: "completed" };
+  }
+  return { newStatus: "active" };
+}
+
+export type GoalLinkedAccountLike = {
+  readonly id: string;
+  readonly workspaceId: string;
+  readonly currency: string;
+  readonly isArchived: boolean;
+};
+
+/**
+ * SPEC-08 T-19 / FR-06 — Validate a candidate linked account for create
+ * or update. Callers that pass `linkedAccountId=null` skip this (unlink).
+ */
+export function assertLinkedAccountForGoal(input: {
+  readonly account: GoalLinkedAccountLike | null;
+  readonly goalWorkspaceId: string;
+  readonly goalCurrency: string;
+}): void {
+  if (!input.account) {
+    throw new GoalLinkedAccountInvalidError("La cuenta vinculada no existe");
+  }
+  if (input.account.workspaceId !== input.goalWorkspaceId) {
+    throw new GoalLinkedAccountInvalidError(
+      "La cuenta vinculada pertenece a otro workspace",
+    );
+  }
+  if (input.account.isArchived) {
+    throw new GoalLinkedAccountInvalidError(
+      "No podés vincular una cuenta archivada",
+    );
+  }
+  if (input.account.currency !== input.goalCurrency) {
+    throw new GoalLinkedAccountInvalidError(
+      "La cuenta vinculada usa otra moneda",
+    );
+  }
+}
+
+/**
+ * SPEC-08 T-20 — Strong confirmation: confirmName must match goal name (trim).
+ */
+export function assertDeleteGoalConfirmation(input: {
+  readonly goalName: string;
+  readonly confirmName: string;
+}): void {
+  if (input.confirmName.trim() !== input.goalName.trim()) {
+    throw new GoalDeleteConfirmationMismatchError();
+  }
 }

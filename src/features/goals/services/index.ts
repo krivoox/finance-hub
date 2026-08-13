@@ -7,6 +7,11 @@ export type { GoalRecord } from "./require-goal-membership";
 export { createGoal } from "./create-goal";
 export type { CreateGoalServiceInput } from "./create-goal";
 
+export { updateGoal } from "./update-goal";
+export type { UpdateGoalServiceInput } from "./update-goal";
+
+export { deleteGoal } from "./delete-goal";
+
 export { contributeToGoal } from "./contribute-to-goal";
 export type {
   ContributeToGoalResult,

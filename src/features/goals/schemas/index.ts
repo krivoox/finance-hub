@@ -30,6 +30,22 @@ export const createGoalSchema = z.object({
 });
 export type CreateGoalInput = z.infer<typeof createGoalSchema>;
 
+export const updateGoalSchema = z.object({
+  goalId: z.string().min(1),
+  name: goalNameSchema.optional(),
+  kind: goalKindSchema.optional(),
+  targetAmountCents: positiveIntCents.optional(),
+  targetDate: isoDateSchema.optional().nullable(),
+  linkedAccountId: z.string().min(1).optional().nullable(),
+});
+export type UpdateGoalInput = z.infer<typeof updateGoalSchema>;
+
+export const deleteGoalSchema = z.object({
+  goalId: z.string().min(1),
+  confirmName: z.string().min(1, "Escribí el nombre del objetivo"),
+});
+export type DeleteGoalInput = z.infer<typeof deleteGoalSchema>;
+
 export const contributeToGoalSchema = z.object({
   goalId: z.string().min(1),
   fromAccountId: z.string().min(1, "Elegí la cuenta de origen"),

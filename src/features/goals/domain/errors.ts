@@ -79,3 +79,25 @@ export class GoalLinkedAccountRequiredError extends GoalDomainError {
     this.name = "GoalLinkedAccountRequiredError";
   }
 }
+
+/**
+ * SPEC-08 T-18 — Cancelled goals cannot be edited (ABM).
+ */
+export class GoalNotEditableError extends GoalDomainError {
+  constructor(message = "No podés editar un objetivo cancelado") {
+    super(message);
+    this.name = "GoalNotEditableError";
+  }
+}
+
+/**
+ * SPEC-08 T-20 — Hard-delete requires typing the goal name exactly.
+ */
+export class GoalDeleteConfirmationMismatchError extends GoalDomainError {
+  constructor(
+    message = "Escribí el nombre del objetivo para confirmar la eliminación",
+  ) {
+    super(message);
+    this.name = "GoalDeleteConfirmationMismatchError";
+  }
+}
