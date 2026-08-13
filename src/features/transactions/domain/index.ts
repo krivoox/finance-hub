@@ -116,6 +116,7 @@ export type { PaymentAccountLabelInput } from "./payment-account-label";
 
 export {
   assertCanContribute,
+  assertCanMutateContributionTwin,
   SameWorkspaceContributionError,
 } from "./contribution";
 export type {

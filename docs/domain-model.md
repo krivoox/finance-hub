@@ -247,7 +247,7 @@ Vínculo 1↔1 entre dos transacciones de workspaces distintos (aporte / fondeo)
 **Invariantes**
 
 - Solo `contribution` materializa siempre ambas puntas.
-- Delete/update de monto en cascada sobre el par.
+- Delete/update de monto en cascada sobre el par, **solo si** el actor tiene membership mutadora vigente en ambos workspaces (KRI-19). Sin membership en el twin → `Forbidden`; no se muta el otro ledger.
 - Categorías de aporte excluidas del `spent` de presupuestos de consumo.
 - Un workspace **no** puede hard-delete-arse mientras existan links (u otros involucramientos cross-workspace listados en SPEC-02 §5.4) que lo involucren; no se cortan automáticamente (SPEC-02 FR-11).
 

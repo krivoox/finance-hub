@@ -1,11 +1,9 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import {
-  reverseContribution,
-  type GoalStatus,
-} from "@/features/goals/domain";
+import { reverseContribution, type GoalStatus } from "@/features/goals/domain";
 import { assertCanMutateTransactions } from "@/features/transactions/domain";
 import { requireTransactionMembership } from "./require-transaction-membership";
+import { requireContributionTwinAuthz } from "./require-contribution-twin-authz";
 
 /**
  * SPEC-05 FR-03 / SPEC-06 FR-04 / SPEC-08 H4 / SPEC-14 FR-07 / SPEC-16 FR-04 —
@@ -99,56 +97,24 @@ export async function deleteTransaction({
     return { id: transaction.id, cascadedIds: [twinId] };
   }
 
-  const link = await prisma.crossWorkspaceLink.findFirst({
-    where: {
-      OR: [
-        { sourceTransactionId: transaction.id },
-        { targetTransactionId: transaction.id },
-      ],
-    },
-    select: {
-      id: true,
-      sourceTransactionId: true,
-      targetTransactionId: true,
-    },
+  const twin = await requireContributionTwinAuthz({
+    userId,
+    transactionId: transaction.id,
+    localWorkspaceId: membership.workspaceId,
+    localRole: membership.role,
   });
 
-  if (!link) {
+  if (!twin) {
     await prisma.transaction.delete({ where: { id: transaction.id } });
     return { id: transaction.id, cascadedIds: [] };
   }
 
-  const twinId =
-    link.sourceTransactionId === transaction.id
-      ? link.targetTransactionId
-      : link.sourceTransactionId;
-
-  // Twin may live in another workspace — verify mutate rights there too.
-  const twin = await prisma.transaction.findUnique({
-    where: { id: twinId },
-    select: { id: true, workspaceId: true },
-  });
-  if (twin) {
-    const twinMembership = await prisma.membership.findUnique({
-      where: {
-        workspaceId_userId: {
-          workspaceId: twin.workspaceId,
-          userId,
-        },
-      },
-      select: { role: true },
-    });
-    if (twinMembership) {
-      assertCanMutateTransactions(twinMembership.role);
-    }
-  }
-
   await prisma.$transaction(async (tx) => {
-    await tx.crossWorkspaceLink.delete({ where: { id: link.id } });
+    await tx.crossWorkspaceLink.delete({ where: { id: twin.linkId } });
     await tx.transaction.deleteMany({
-      where: { id: { in: [transaction.id, twinId] } },
+      where: { id: { in: [transaction.id, twin.twinId] } },
     });
   });
 
-  return { id: transaction.id, cascadedIds: [twinId] };
+  return { id: transaction.id, cascadedIds: [twin.twinId] };
 }
