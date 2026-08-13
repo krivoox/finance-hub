@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **goals:** Add ABM and in-sheet account picker
 
+### Fixed
+
+- **transactions:** Require twin membership on contribution update/delete
+
 [Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.15.0...HEAD
 
 ## [0.13.0] - 2026-08-11
