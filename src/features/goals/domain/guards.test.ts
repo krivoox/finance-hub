@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   GoalCurrencyMismatchError,
+  GoalDeleteConfirmationMismatchError,
+  GoalLinkedAccountInvalidError,
   GoalLinkedAccountRequiredError,
   GoalNotActiveError,
+  GoalNotEditableError,
   InvalidContributionAmountError,
   InvalidGoalNameError,
   InvalidTargetAmountError,
@@ -10,9 +13,13 @@ import {
 import {
   GOAL_NAME_MAX_LENGTH,
   applyContribution,
+  applyGoalTargetChange,
   assertCanContribute,
+  assertCanUpdateGoal,
+  assertDeleteGoalConfirmation,
   assertGoalContributionTransferAccounts,
   assertGoalCurrencyAllowed,
+  assertLinkedAccountForGoal,
   assertValidContribution,
   assertValidGoalName,
   assertValidTargetAmount,
@@ -445,5 +452,168 @@ describe("reverseContribution — SPEC-08 T-13 / T-14", () => {
         0,
       ),
     ).toThrow(InvalidContributionAmountError);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// SPEC-08 T-17 — Update target auto-complete / reopen
+// ---------------------------------------------------------------------------
+describe("applyGoalTargetChange — SPEC-08 T-17", () => {
+  it("completes when the new target is at or below current", () => {
+    const result = applyGoalTargetChange(
+      { currentAmountCents: 200_000, status: "active" },
+      150_000,
+    );
+    expect(result.newStatus).toBe("completed");
+  });
+
+  it("completes when the new target equals current", () => {
+    const result = applyGoalTargetChange(
+      { currentAmountCents: 200_000, status: "active" },
+      200_000,
+    );
+    expect(result.newStatus).toBe("completed");
+  });
+
+  it("reopens a completed goal when the new target is above current", () => {
+    const result = applyGoalTargetChange(
+      { currentAmountCents: 200_000, status: "completed" },
+      500_000,
+    );
+    expect(result.newStatus).toBe("active");
+  });
+
+  it("keeps active when the new target stays above current", () => {
+    const result = applyGoalTargetChange(
+      { currentAmountCents: 100_000, status: "active" },
+      500_000,
+    );
+    expect(result.newStatus).toBe("active");
+  });
+
+  it("rejects cancelled goals", () => {
+    expect(() =>
+      applyGoalTargetChange(
+        { currentAmountCents: 100_000, status: "cancelled" },
+        200_000,
+      ),
+    ).toThrow(GoalNotEditableError);
+  });
+
+  it("rejects non-positive targets", () => {
+    expect(() =>
+      applyGoalTargetChange(
+        { currentAmountCents: 100_000, status: "active" },
+        0,
+      ),
+    ).toThrow(InvalidTargetAmountError);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// SPEC-08 T-18 — Update cancelled is blocked
+// ---------------------------------------------------------------------------
+describe("assertCanUpdateGoal — SPEC-08 T-18", () => {
+  it("allows active and completed", () => {
+    expect(() => assertCanUpdateGoal("active")).not.toThrow();
+    expect(() => assertCanUpdateGoal("completed")).not.toThrow();
+  });
+
+  it("rejects cancelled", () => {
+    expect(() => assertCanUpdateGoal("cancelled")).toThrow(GoalNotEditableError);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// SPEC-08 T-19 — Linked account guards
+// ---------------------------------------------------------------------------
+describe("assertLinkedAccountForGoal — SPEC-08 T-19", () => {
+  const valid = {
+    id: "acc-1",
+    workspaceId: "ws-1",
+    currency: "ARS",
+    isArchived: false,
+  };
+
+  it("accepts a matching active account", () => {
+    expect(() =>
+      assertLinkedAccountForGoal({
+        account: valid,
+        goalWorkspaceId: "ws-1",
+        goalCurrency: "ARS",
+      }),
+    ).not.toThrow();
+  });
+
+  it("rejects a missing account", () => {
+    expect(() =>
+      assertLinkedAccountForGoal({
+        account: null,
+        goalWorkspaceId: "ws-1",
+        goalCurrency: "ARS",
+      }),
+    ).toThrow(GoalLinkedAccountInvalidError);
+  });
+
+  it("rejects another workspace", () => {
+    expect(() =>
+      assertLinkedAccountForGoal({
+        account: { ...valid, workspaceId: "ws-2" },
+        goalWorkspaceId: "ws-1",
+        goalCurrency: "ARS",
+      }),
+    ).toThrow(GoalLinkedAccountInvalidError);
+  });
+
+  it("rejects an archived account", () => {
+    expect(() =>
+      assertLinkedAccountForGoal({
+        account: { ...valid, isArchived: true },
+        goalWorkspaceId: "ws-1",
+        goalCurrency: "ARS",
+      }),
+    ).toThrow(GoalLinkedAccountInvalidError);
+  });
+
+  it("rejects a currency mismatch", () => {
+    expect(() =>
+      assertLinkedAccountForGoal({
+        account: { ...valid, currency: "USD" },
+        goalWorkspaceId: "ws-1",
+        goalCurrency: "ARS",
+      }),
+    ).toThrow(GoalLinkedAccountInvalidError);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// SPEC-08 T-20 — Delete confirmation
+// ---------------------------------------------------------------------------
+describe("assertDeleteGoalConfirmation — SPEC-08 T-20", () => {
+  it("passes when confirmName matches after trim", () => {
+    expect(() =>
+      assertDeleteGoalConfirmation({
+        goalName: "Fondo",
+        confirmName: "  Fondo  ",
+      }),
+    ).not.toThrow();
+  });
+
+  it("rejects a different name", () => {
+    expect(() =>
+      assertDeleteGoalConfirmation({
+        goalName: "Fondo",
+        confirmName: "Viaje",
+      }),
+    ).toThrow(GoalDeleteConfirmationMismatchError);
+  });
+
+  it("rejects a case mismatch", () => {
+    expect(() =>
+      assertDeleteGoalConfirmation({
+        goalName: "Fondo",
+        confirmName: "fondo",
+      }),
+    ).toThrow(GoalDeleteConfirmationMismatchError);
   });
 });

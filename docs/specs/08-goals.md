@@ -32,6 +32,8 @@ Objetivos: fondo de emergencia, ahorro para compra, cancelación de deudas. Segu
 | FR-05 | Cancel goal |
 | FR-06 | `linkedAccountId` opcional al **crear**; **obligatorio** para aportar (destino de la transfer) |
 | FR-07 | Listado / detalle de movimientos: enriquecer transfers con metadata de aporte a goal (badge) |
+| FR-08 | `UpdateGoal`: nombre, kind, target, fecha meta, cuenta vinculada (no currency) |
+| FR-09 | `DeleteGoal` (hard-delete) con confirmación por nombre; aportes ya transferidos **quedan** en el ledger |
 
 ## 4. Reglas de negocio
 
@@ -83,7 +85,37 @@ Un aporte **siempre** materializa:
 
 No hay comando ni tipo de ledger distinto para deuda: **mismo patrón transfer**.
 
-### 4.3 Vínculo Contribution ↔ Transaction
+### 4.3 ABM (KRI-27)
+
+El MVP ya tenía create / contribute / cancel / complete en dominio, pero **sin edición ni baja** y con un form de alta que no dejaba elegir cuenta/moneda (native `<select>` dentro del FormSheet). Esta iteración cierra el ABM.
+
+**UpdateGoal**
+
+| Campo | Regla |
+|-------|--------|
+| `name` | Mismas reglas que create (`normalize` + `assertValidGoalName`) |
+| `kind` | `save` \| `debt_payoff`; se puede cambiar (etiqueta; no reescribe transfers previas) |
+| `targetAmountCents` | `> 0`. Si `current >= nuevo target` → `status=completed`. Si estaba `completed` y el nuevo target deja `current < target` → vuelve a `active` |
+| `targetDate` | ISO date o `null` (limpiar) |
+| `linkedAccountId` | `string` (vincular/cambiar) o `null` (desvincular). Misma moneda/workspace; cuenta no archivada. Desvincular bloquea aportes nuevos (`GoalLinkedAccountRequired`) |
+| `currency` | **Inmutable** tras el alta (no va en el comando) |
+| `status=cancelled` | Rechaza update (`GoalNotActive`) |
+
+**DeleteGoal**
+
+- Hard-delete de la fila `Goal`. `GoalContribution` cascada Prisma; las **transfers del ledger se conservan** (el dinero sí se movió).
+- Confirmación fuerte: `confirmName` debe coincidir con `goal.name` (trim).
+- Permitido en cualquier status (`active` / `completed` / `cancelled`).
+- No revierte `currentAmount` (el goal deja de existir).
+
+**Create / contribute UI**
+
+- No usar native `<select>` dentro del FormSheet para moneda ni cuentas (el picker del OS no es usable en el drawer).
+- Moneda: `SegmentedControl` ARS/USD (igual que movimientos).
+- Cuenta vinculada / origen del aporte: lista táctil in-sheet, filtrada por moneda del goal; orden preferido según `kind` (`save` → savings primero; `debt_payoff` → credit_card primero).
+- Sin cuentas en esa moneda: empty state, no un select vacío.
+
+### 4.4 Vínculo Contribution ↔ Transaction
 
 | Campo | Regla |
 |-------|-------|
@@ -92,7 +124,7 @@ No hay comando ni tipo de ledger distinto para deuda: **mismo patrón transfer**
 | Borrado de la transfer | Cascada de dominio: eliminar contribución y **restar** el monto de `goal.currentAmountCents`; si el goal estaba `completed` y queda `current < target` → vuelve a `active` (no reabrir `cancelled`) |
 | Update de monto/cuentas de la transfer ligada | MVP: **rechazar** mutación de `amount` / `accountId` / `counterpartyAccountId` con error `TransferLinkedToGoal` (editar descripción/fecha: permitido sincronizando `note`/`contributedOn` si se toca fecha — ver riesgos) |
 
-### 4.4 Señal visual en listado (badge)
+### 4.5 Señal visual en listado (badge)
 
 - La transfer **sigue** siendo `type=transfer` (filtros SPEC-05 sin cambio de matriz).
 - El DTO de listado/detalle incluye metadata opcional de aporte (join `GoalContribution` → `Goal`), p. ej.:
@@ -116,6 +148,8 @@ goalContribution: null | {
 | Command | `CreateGoal` | name, kind, targetAmountCents, currency?, targetDate?, linkedAccountId? |
 | Command | `ContributeToGoal` | goalId, **fromAccountId**, amountCents, contributedOn, note? |
 | Command | `CancelGoal` | goalId |
+| Command | `UpdateGoal` | goalId, name?, kind?, targetAmountCents?, targetDate?, linkedAccountId? |
+| Command | `DeleteGoal` | goalId, **confirmName** |
 | Query | `ListGoals` | workspaceId |
 | Query | `GetGoalProgress` | goalId |
 
@@ -157,6 +191,9 @@ Migración: aportes históricos **sin** transfer (si existen en ambientes) queda
 - [ ] Fallo sin `linkedAccountId` / cuentas inválidas / monedas distintas → error de dominio, sin writes parciales.
 - [ ] debt_payoff con destino `credit_card` baja la deuda (mismo efecto SPEC-06).
 - [ ] Delete de la transfer deshace el aporte (currentAmount y status coherentes).
+- [ ] Update de nombre / target / fecha / cuenta vinculada; bajar el target por debajo de current completa; subirlo reabre completed.
+- [ ] Delete con confirmación por nombre; transfers de aportes quedan en el listado.
+- [ ] Create: se puede elegir tipo, moneda y cuenta vinculada dentro del sheet (sin native select).
 
 ## 7. Escenarios de test (TDD)
 
@@ -264,6 +301,34 @@ Migración: aportes históricos **sin** transfer (si existen en ambientes) queda
 - **When** assert…  
 - **Then** `GoalLinkedAccountRequired`
 
+### T-17 Update target auto-complete / reopen (puro)
+
+- **Given** current 200000, target 500000, status active  
+- **When** `applyGoalTargetChange(…, 150000)`  
+- **Then** status=completed
+
+- **Given** current 200000, target 200000, status completed  
+- **When** `applyGoalTargetChange(…, 500000)`  
+- **Then** status=active
+
+### T-18 Update cancelled — bloqueado
+
+- **Given** status cancelled  
+- **When** UpdateGoal  
+- **Then** error `GoalNotActive`
+
+### T-19 Linked account guards (puro)
+
+- **Given** cuenta archivada / otra moneda / otro workspace  
+- **When** `assertLinkedAccountForGoal`  
+- **Then** `GoalLinkedAccountInvalidError`
+
+### T-20 Delete confirmation (puro)
+
+- **Given** name="Fondo"  
+- **When** confirmName="fondo" (case) o distinto  
+- **Then** error `GoalDeleteConfirmationMismatchError` si no coincide exacto tras trim
+
 ## 8. Fuera de alcance
 
 - Intereses / proyecciones de inversión
@@ -281,3 +346,5 @@ Migración: aportes históricos **sin** transfer (si existen en ambientes) queda
 - Listado: left join / include `goalContribution` + `goal` en `listTransactions` / `GetTransactionDetail`.
 - UI form aporte: selector de cuenta origen (+ amount, date, note); mostrar destino read-only = linked account name.
 - Prisma comment en `Goal` / `GoalContribution`: retirar “MVP no crea Transaction”.
+- ABM UI: menú por fila (Editar / Completar / Cancelar / Eliminar) + FormSheet de edición, mismo patrón que cuentas. Listar cancelled al final (como archivadas).
+- Create/edit/contribute: `AccountChoiceList` in-sheet, no native `<select>`.

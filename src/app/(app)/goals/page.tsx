@@ -2,13 +2,7 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
 import { ContentPanel } from "@/components/app-shell/content-panel";
-import {
-  ProgressBar,
-  goalProgressTone,
-} from "@/components/progress-bar";
-import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatMoney } from "@/lib/format-money";
 import { getSession } from "@/lib/session";
 import {
   getActiveWorkspaceForUser,
@@ -17,24 +11,11 @@ import {
 import { listAccounts } from "@/features/accounts/services";
 import { listGoals } from "@/features/goals/services";
 import { NewGoalSheet } from "@/features/goals/components/new-goal-sheet";
-import { ContributeGoalSheet } from "@/features/goals/components/contribute-goal-sheet";
-import {
-  GOAL_KIND_LABEL_ES,
-  GOAL_STATUS_LABEL_ES,
-} from "@/features/goals/components/goal-kind-labels";
-import type { GoalStatus } from "@/features/goals/domain";
+import { GoalsList } from "@/features/goals/components/goals-list";
+import type { GoalAccountOption } from "@/features/goals/components/account-choice-list";
 
 type GoalsResult = Awaited<ReturnType<typeof listGoals>>;
 type AccountsResult = Awaited<ReturnType<typeof listAccounts>>;
-type AccountOption = { id: string; name: string; currency: string };
-
-function statusVariant(
-  status: GoalStatus,
-): "success" | "outline" | "secondary" {
-  if (status === "completed") return "success";
-  if (status === "cancelled") return "outline";
-  return "secondary";
-}
 
 function formatTargetDate(date: Date | null): string | null {
   if (!date) return null;
@@ -42,6 +23,17 @@ function formatTargetDate(date: Date | null): string | null {
   const m = String(date.getUTCMonth() + 1).padStart(2, "0");
   const d = String(date.getUTCDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
+}
+
+function toAccountOptions(accounts: AccountsResult): GoalAccountOption[] {
+  return accounts
+    .filter((a) => !a.isArchived)
+    .map((a) => ({
+      id: a.id,
+      name: a.name,
+      currency: a.currency,
+      type: a.type,
+    }));
 }
 
 export default async function GoalsPage() {
@@ -67,13 +59,10 @@ export default async function GoalsPage() {
 
   const canMutate = workspace.role !== "viewer";
 
-  // Kick off both reads now, but DON'T await here: the chrome (title +
-  // description) paints instantly while the "Nuevo objetivo" action and the
-  // goals list stream behind their own <Suspense>. The accounts promise is
-  // shared so it runs once for both. No money is cached.
   const goalsPromise = listGoals({
     userId: session.user.id,
     workspaceId: workspace.id,
+    includeCancelled: true,
   });
   const accountsPromise = listAccounts({
     userId: session.user.id,
@@ -114,17 +103,12 @@ async function GoalsActionsSection({
   accounts: Promise<AccountsResult>;
 }) {
   const accountList = await accounts;
-  const activeAccounts = accountList.filter((a) => !a.isArchived);
 
   return (
     <NewGoalSheet
       workspaceId={workspace.id}
       workspaceCurrency={workspace.baseCurrency}
-      accounts={activeAccounts.map((a) => ({
-        id: a.id,
-        name: a.name,
-        currency: a.currency,
-      }))}
+      accounts={toAccountOptions(accountList)}
     />
   );
 }
@@ -139,81 +123,25 @@ async function GoalsListSection({
   accounts: Promise<AccountsResult>;
 }) {
   const [goalList, accountList] = await Promise.all([goals, accounts]);
-  const activeAccounts = accountList.filter((a) => !a.isArchived);
-  const accountOptions: AccountOption[] = activeAccounts.map((a) => ({
-    id: a.id,
-    name: a.name,
-    currency: a.currency,
-  }));
-
-  if (goalList.length === 0) {
-    return (
-      <div className="flex flex-col items-start gap-3 py-8 sm:py-12">
-        <p className="text-sm text-muted-foreground">
-          Aún no hay objetivos. Definí una meta de ahorro o de deuda.
-        </p>
-      </div>
-    );
-  }
 
   return (
-    <ul className="divide-y divide-border">
-      {goalList.map((goal) => {
-        const targetDate = formatTargetDate(goal.targetDate);
-        return (
-          <li
-            key={goal.id}
-            className="flex flex-col gap-3 py-5 first:pt-0 last:pb-0"
-          >
-            <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="min-w-0 flex-1">
-                <div className="flex flex-wrap items-center gap-2">
-                  <h3 className="font-medium text-foreground">{goal.name}</h3>
-                  <Badge variant={statusVariant(goal.status)}>
-                    {GOAL_STATUS_LABEL_ES[goal.status]}
-                  </Badge>
-                </div>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  {GOAL_KIND_LABEL_ES[goal.kind]}
-                  {goal.linkedAccountName
-                    ? ` · ${goal.linkedAccountName}`
-                    : ""}
-                  {targetDate ? ` · meta ${targetDate}` : ""}
-                </p>
-                <p className="mt-2 text-sm tabular-nums text-muted-foreground">
-                  {formatMoney(goal.currentAmountCents, goal.currency)} /{" "}
-                  {formatMoney(goal.targetAmountCents, goal.currency)}
-                  <span className="ml-2 text-foreground">
-                    {goal.progressPercent}%
-                  </span>
-                </p>
-                <ProgressBar
-                  className="mt-2"
-                  size="lg"
-                  value={goal.progressPercent}
-                  tone={
-                    goal.status === "completed"
-                      ? "success"
-                      : goalProgressTone(goal.progressPercent)
-                  }
-                  aria-label={`${goal.name}: ${goal.progressPercent}%`}
-                />
-              </div>
-              {canMutate && goal.status === "active" ? (
-                <ContributeGoalSheet
-                  goalId={goal.id}
-                  goalName={goal.name}
-                  goalCurrency={goal.currency}
-                  linkedAccountId={goal.linkedAccountId}
-                  linkedAccountName={goal.linkedAccountName}
-                  accounts={accountOptions}
-                />
-              ) : null}
-            </div>
-          </li>
-        );
-      })}
-    </ul>
+    <GoalsList
+      canMutate={canMutate}
+      accounts={toAccountOptions(accountList)}
+      goals={goalList.map((goal) => ({
+        id: goal.id,
+        name: goal.name,
+        kind: goal.kind,
+        targetAmountCents: goal.targetAmountCents,
+        currentAmountCents: goal.currentAmountCents,
+        currency: goal.currency,
+        targetDate: formatTargetDate(goal.targetDate),
+        linkedAccountId: goal.linkedAccountId,
+        linkedAccountName: goal.linkedAccountName,
+        status: goal.status,
+        progressPercent: goal.progressPercent,
+      }))}
+    />
   );
 }
 

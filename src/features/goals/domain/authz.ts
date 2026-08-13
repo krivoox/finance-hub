@@ -1,7 +1,7 @@
 /**
  * SPEC-08 §2 / shared workspace rules — actor rules for goal mutations.
  *
- * - owner / admin / member: can create, contribute, cancel, complete
+ * - owner / admin / member: can create, contribute, cancel, complete, update, delete
  * - viewer: read-only
  */
 

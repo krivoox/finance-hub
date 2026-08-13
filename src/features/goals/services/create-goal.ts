@@ -2,9 +2,9 @@ import "server-only";
 import { prisma } from "@/lib/prisma";
 import { requireMembership } from "@/features/workspaces/services";
 import {
-  GoalLinkedAccountInvalidError,
   assertCanMutateGoals,
   assertGoalCurrencyAllowed,
+  assertLinkedAccountForGoal,
   assertValidGoalName,
   assertValidTargetAmount,
   normalizeGoalName,
@@ -67,27 +67,12 @@ export async function createGoal(
         isArchived: true,
       },
     });
-    if (!account) {
-      throw new GoalLinkedAccountInvalidError(
-        "La cuenta vinculada no existe",
-      );
-    }
-    if (account.workspaceId !== input.workspaceId) {
-      throw new GoalLinkedAccountInvalidError(
-        "La cuenta vinculada pertenece a otro workspace",
-      );
-    }
-    if (account.isArchived) {
-      throw new GoalLinkedAccountInvalidError(
-        "No podés vincular una cuenta archivada",
-      );
-    }
-    if (account.currency !== currency) {
-      throw new GoalLinkedAccountInvalidError(
-        "La cuenta vinculada usa otra moneda",
-      );
-    }
-    linkedAccountId = account.id;
+    assertLinkedAccountForGoal({
+      account,
+      goalWorkspaceId: input.workspaceId,
+      goalCurrency: currency,
+    });
+    linkedAccountId = input.linkedAccountId;
   }
 
   const created = (await prisma.goal.create({
