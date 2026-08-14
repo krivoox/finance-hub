@@ -17,7 +17,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **security:** Lockdown public schema with RLS deny-all
 
-[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.15.0...HEAD
+## [0.15.0] - 2026-08-12
+
+### Added
+
+- Stream Panel and transactions with per-section Suspense
+
+- Stream remaining (app) list and detail pages with Suspense
+
+[0.15.0]: https://github.com/krivoox/finance-hub/compare/v0.14.0...v0.15.0
+
+## [0.14.0] - 2026-08-12
+
+### Added
+
+- **transactions:** Allow USD income/expense with currency selector
+
+- **accounts:** Paridad UI y tests tarjeta ARS/USD (KRI-11)
+
+- **accounts:** Editar cuenta y paridad credit_card en onboarding (KRI-11)
+
+- ABM de workspaces con hard-delete de grupos
+
+- Pills de categorías en listado de presupuestos
+
+- Totales del listado filtrado de transacciones
+
+- Acciones masivas en listado de transacciones
+
+- ABM de cuentas con archivar y hard-delete
+
+- Implement SPEC-20 performance, soft-nav prefetch, PWA SW
+
+- Finish SPEC-20 after docs merge — intent prefetch and telemetry
+
+### Fixed
+
+- Add missing soft-nav loading.tsx for nested app routes
+
+[0.14.0]: https://github.com/krivoox/finance-hub/compare/v0.13.0...v0.14.0
 
 ## [0.13.0] - 2026-08-11
 
@@ -160,6 +198,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Baseline product release prior to Conventional Commits enforcement (accounts, workspaces, transactions, budgets, and related MVP surfaces)
 - Changelog automation (git-cliff), Conventional Commits (commitlint + husky), and SemVer GitHub Actions workflows
 
-[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.13.0...HEAD
-[0.13.0]: https://github.com/krivoox/finance-hub/compare/v0.12.0...v0.13.0
+[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.15.0...HEAD
+[0.15.0]: https://github.com/krivoox/finance-hub/compare/v0.14.0...v0.15.0
 [0.1.0]: https://github.com/krivoox/finance-hub/releases/tag/v0.1.0
