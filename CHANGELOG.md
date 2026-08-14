@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **transactions:** Require twin membership on contribution update/delete
 
+- **security:** Lockdown public schema with RLS deny-all
+
 [Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.15.0...HEAD
 
 ## [0.13.0] - 2026-08-11
