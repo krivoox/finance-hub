@@ -4,9 +4,11 @@ import { createServerClient } from "@supabase/ssr";
 import { env } from "@/lib/env";
 
 /**
- * Supabase client para uso en Server Components / Route Handlers.
- * Auth de producto es **Better Auth**; este cliente es únicamente para
- * Storage/Realtime u operaciones de servicio sobre Supabase.
+ * Server-only Supabase helper for a future Storage/Realtime case.
+ * Auth de producto es Better Auth; datos relacionales van por Prisma.
+ * Do not import from Client Components. There is no browser client until
+ * Storage exists with its own RLS (KRI-18). Public tables are deny-all for
+ * `anon` / `authenticated`.
  */
 export async function createSupabaseServerClient() {
   const cookieStore = await cookies();

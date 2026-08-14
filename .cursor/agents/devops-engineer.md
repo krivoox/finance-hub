@@ -62,7 +62,6 @@ Centralizadas en `src/lib/env.ts`. Referencia típica:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=
 NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
 
 # Runtime: pooler transaction (:6543) + ?pgbouncer=true
 DATABASE_URL=
@@ -102,6 +101,7 @@ Reglas:
 
 - Prisma: `db:generate`, `db:migrate`, `db:push`, `db:studio`, `migrate status` / `resolve`
 - Distinguir **dev** (`migrate`/`push`) vs **prod** (migrate deploy / proceso acordado)
+- Tras un `CREATE TABLE` en `public`, ejecutar `SELECT public.apply_rls_lockdown_to_public_tables();` (KRI-18; el rol hosted no puede crear event triggers)
 - Pooler vs direct URL; errores típicos de PgBouncer + Prisma
 - Supabase local: start/stop/status; sync con cloud cuando corresponda
 - Nunca `migrate reset` en prod; pedir confirmación explícita para operaciones destructivas
@@ -121,7 +121,7 @@ Reglas:
 
 ### Seguridad operativa
 
-- No exponer `SUPABASE_SERVICE_ROLE_KEY` ni secretos al cliente
+- No introducir `SUPABASE_SERVICE_ROLE_KEY` ni secretos al cliente (KRI-18: la service role no está en `env.ts`)
 - Revisar headers, CORS y URLs públicas solo cuando el cambio lo requiera
 - Alertar de secrets en git, `.env` trackeados o keys en docs
 

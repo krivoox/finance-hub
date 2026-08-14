@@ -30,8 +30,8 @@ const envSchema = z.object({
     .string()
     .url()
     .default("http://127.0.0.1:54321"),
+  /** Public anon key. Unused until Storage ships with its own RLS (KRI-18). */
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().default(""),
-  SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
 
   /**
    * Google OAuth (SPEC-01). Optional — without both vars, email/password still
