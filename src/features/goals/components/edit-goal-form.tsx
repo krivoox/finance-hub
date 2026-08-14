@@ -5,11 +5,10 @@ import { useRouter } from "next/navigation";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
-import { ACCOUNT_CURRENCIES } from "@/domain/money/currencies";
-import { createGoalAction } from "@/features/goals/actions";
+import { updateGoalAction } from "@/features/goals/actions";
 import {
-  createGoalSchema,
-  type CreateGoalInput,
+  updateGoalSchema,
+  type UpdateGoalInput,
 } from "@/features/goals/schemas";
 import { GOAL_KINDS, type GoalKind } from "@/features/goals/domain";
 import {
@@ -28,9 +27,17 @@ import {
 } from "./account-choice-list";
 import { GOAL_KIND_LABEL_ES } from "./goal-kind-labels";
 
-type NewGoalFormProps = {
-  workspaceId: string;
-  workspaceCurrency: string;
+type EditGoalFormProps = {
+  goal: {
+    id: string;
+    name: string;
+    kind: GoalKind;
+    targetAmountCents: number;
+    currentAmountCents: number;
+    currency: string;
+    targetDate: string | null;
+    linkedAccountId: string | null;
+  };
   accounts: readonly GoalAccountOption[];
   onSuccess?: () => void;
   onCancel?: () => void;
@@ -40,7 +47,6 @@ type FormValues = {
   name: string;
   kind: GoalKind;
   targetAmountUnits: string;
-  currency: (typeof ACCOUNT_CURRENCIES)[number];
   targetDate: string;
   linkedAccountId: string;
 };
@@ -50,50 +56,39 @@ const KIND_OPTIONS = GOAL_KINDS.map((value) => ({
   label: GOAL_KIND_LABEL_ES[value],
 }));
 
-const CURRENCY_OPTIONS = ACCOUNT_CURRENCIES.map((value) => ({
-  value,
-  label: value,
-}));
+function centsToUnits(cents: number): string {
+  return (cents / 100).toFixed(2);
+}
 
-export function NewGoalForm({
-  workspaceId,
-  workspaceCurrency,
+export function EditGoalForm({
+  goal,
   accounts,
   onSuccess,
   onCancel,
-}: NewGoalFormProps) {
+}: EditGoalFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const defaultCurrency =
-    workspaceCurrency === "USD" || workspaceCurrency === "ARS"
-      ? workspaceCurrency
-      : "ARS";
 
   const {
     register,
     handleSubmit,
-    reset,
     control,
-    setValue,
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     defaultValues: {
-      name: "",
-      kind: "save",
-      targetAmountUnits: "",
-      currency: defaultCurrency,
-      targetDate: "",
-      linkedAccountId: "",
+      name: goal.name,
+      kind: goal.kind,
+      targetAmountUnits: centsToUnits(goal.targetAmountCents),
+      targetDate: goal.targetDate ?? "",
+      linkedAccountId: goal.linkedAccountId ?? "",
     },
   });
 
-  const selectedCurrency = useWatch({ control, name: "currency" });
   const selectedKind = useWatch({ control, name: "kind" });
-  const linkedAccountId = useWatch({ control, name: "linkedAccountId" });
 
   const linkedAccounts = useMemo(
-    () => accounts.filter((a) => a.currency === selectedCurrency),
-    [accounts, selectedCurrency],
+    () => accounts.filter((a) => a.currency === goal.currency),
+    [accounts, goal.currency],
   );
 
   const onSubmit = handleSubmit((values) => {
@@ -108,37 +103,28 @@ export function NewGoalForm({
       return;
     }
 
-    const input: CreateGoalInput = {
-      workspaceId,
+    const input: UpdateGoalInput = {
+      goalId: goal.id,
       name: values.name,
       kind: values.kind,
       targetAmountCents,
-      currency: values.currency,
       targetDate: values.targetDate.trim() ? values.targetDate : null,
       linkedAccountId: values.linkedAccountId ? values.linkedAccountId : null,
     };
 
-    const clientCheck = createGoalSchema.safeParse(input);
+    const clientCheck = updateGoalSchema.safeParse(input);
     if (!clientCheck.success) {
       toast.error(clientCheck.error.issues[0]?.message ?? "Datos inválidos");
       return;
     }
 
     startTransition(async () => {
-      const result = await createGoalAction(clientCheck.data);
+      const result = await updateGoalAction(clientCheck.data);
       if (!result.ok) {
         toast.error(result.error);
         return;
       }
-      toast.success("Objetivo creado");
-      reset({
-        name: "",
-        kind: values.kind,
-        targetAmountUnits: "",
-        currency: values.currency,
-        targetDate: "",
-        linkedAccountId: "",
-      });
+      toast.success("Objetivo actualizado");
       onSuccess?.();
       refreshAfterMutation(router);
     });
@@ -155,12 +141,11 @@ export function NewGoalForm({
       <FormStack>
         <FormField
           label="Nombre"
-          htmlFor="goal-name"
+          htmlFor="edit-goal-name"
           error={errors.name?.message}
         >
           <Input
-            id="goal-name"
-            placeholder="Fondo de emergencia, Viaje…"
+            id="edit-goal-name"
             aria-invalid={Boolean(errors.name)}
             {...register("name", { required: "Nombre requerido" })}
           />
@@ -170,9 +155,9 @@ export function NewGoalForm({
           control={control}
           name="kind"
           render={({ field }) => (
-            <FormField label="Tipo" htmlFor="goal-kind">
+            <FormField label="Tipo" htmlFor="edit-goal-kind">
               <SegmentedControl
-                id="goal-kind"
+                id="edit-goal-kind"
                 ariaLabel="Tipo de objetivo"
                 value={field.value}
                 options={KIND_OPTIONS}
@@ -185,56 +170,38 @@ export function NewGoalForm({
 
         <FormField
           label="Objetivo"
-          htmlFor="goal-target"
-          hint="Monto meta"
+          htmlFor="edit-goal-target"
+          hint={`En ${goal.currency}. Si el nuevo monto es menor o igual a lo aportado, se marca completado.`}
         >
           <Input
-            id="goal-target"
+            id="edit-goal-target"
             type="number"
             inputMode="decimal"
             min={0}
             step="0.01"
-            placeholder="0,00"
             className="tabular-nums"
             aria-invalid={Boolean(errors.targetAmountUnits)}
             {...register("targetAmountUnits", { required: true })}
           />
         </FormField>
 
-        <Controller
-          control={control}
-          name="currency"
-          render={({ field }) => (
-            <FormField
-              label="Moneda"
-              htmlFor="goal-currency"
-              hint="Tiene que coincidir con la cuenta vinculada."
-            >
-              <SegmentedControl
-                id="goal-currency"
-                ariaLabel="Moneda del objetivo"
-                value={field.value}
-                options={CURRENCY_OPTIONS}
-                disabled={isBusy}
-                onChange={(next) => {
-                  field.onChange(next);
-                  const stillValid = accounts.some(
-                    (a) => a.id === linkedAccountId && a.currency === next,
-                  );
-                  if (!stillValid) setValue("linkedAccountId", "");
-                }}
-              />
-            </FormField>
-          )}
-        />
+        <FormField label="Moneda" htmlFor="edit-goal-currency">
+          <Input
+            id="edit-goal-currency"
+            value={goal.currency}
+            readOnly
+            disabled
+            className="bg-muted"
+          />
+        </FormField>
 
-        <FormField label="Fecha meta" htmlFor="goal-target-date" optional>
+        <FormField label="Fecha meta" htmlFor="edit-goal-target-date" optional>
           <Controller
             control={control}
             name="targetDate"
             render={({ field }) => (
               <DateField
-                id="goal-target-date"
+                id="edit-goal-target-date"
                 name={field.name}
                 clearable
                 placeholder="Sin fecha"
@@ -252,18 +219,18 @@ export function NewGoalForm({
           render={({ field }) => (
             <FormField
               label="Cuenta vinculada"
-              htmlFor="goal-linked-account"
+              htmlFor="edit-goal-linked-account"
               optional
               hint={linkedHint}
             >
               <AccountChoiceList
-                id="goal-linked-account"
+                id="edit-goal-linked-account"
                 accounts={linkedAccounts}
                 value={field.value}
                 onChange={field.onChange}
                 disabled={isBusy}
-                noneLabel="Sin vincular (después no vas a poder aportar)"
-                emptyLabel={`No hay cuentas en ${selectedCurrency}. Creá una en Cuentas.`}
+                noneLabel="Sin vincular (no vas a poder aportar)"
+                emptyLabel={`No hay cuentas en ${goal.currency}. Creá una en Cuentas.`}
                 kind={selectedKind}
               />
             </FormField>
@@ -288,7 +255,7 @@ export function NewGoalForm({
           className="h-10 w-full sm:h-8 sm:w-auto"
           disabled={isBusy}
         >
-          {isBusy ? "Creando..." : "Crear objetivo"}
+          {isBusy ? "Guardando..." : "Guardar"}
         </Button>
       </FormActions>
     </form>

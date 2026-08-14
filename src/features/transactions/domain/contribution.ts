@@ -9,7 +9,10 @@ import {
   TransactionDomainError,
 } from "./errors";
 import { assertCanMutateTransactions } from "./authz";
-import type { MembershipRole } from "@/features/workspaces/domain";
+import {
+  ForbiddenError,
+  type MembershipRole,
+} from "@/features/workspaces/domain";
 
 export class SameWorkspaceContributionError extends TransactionDomainError {
   constructor() {
@@ -64,4 +67,23 @@ export function assertCanContribute(input: {
       input.target.currency,
     );
   }
+}
+
+/**
+ * SPEC-14 T-06 / T-07 / KRI-19 — Update or delete of a contribution twin
+ * requires a current mutating membership on **both** workspaces. A missing
+ * membership (ex-member) is `ForbiddenError`: never sync or cascade-delete
+ * the other ledger.
+ */
+export function assertCanMutateContributionTwin(input: {
+  localMembership: ContributionMembershipLike | null;
+  twinMembership: ContributionMembershipLike | null;
+}): void {
+  if (!input.localMembership || !input.twinMembership) {
+    throw new ForbiddenError(
+      "Debés ser miembro de ambos workspaces para modificar este aporte",
+    );
+  }
+  assertCanMutateTransactions(input.localMembership.role);
+  assertCanMutateTransactions(input.twinMembership.role);
 }

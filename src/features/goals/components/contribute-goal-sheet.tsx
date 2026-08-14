@@ -6,12 +6,7 @@ import { FormSheet } from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 
 import { ContributeGoalForm } from "./contribute-goal-form";
-
-type AccountOption = {
-  id: string;
-  name: string;
-  currency: string;
-};
+import type { GoalAccountOption } from "./account-choice-list";
 
 type ContributeGoalSheetProps = {
   goalId: string;
@@ -19,7 +14,7 @@ type ContributeGoalSheetProps = {
   goalCurrency: string;
   linkedAccountId: string | null;
   linkedAccountName: string | null;
-  accounts: readonly AccountOption[];
+  accounts: readonly GoalAccountOption[];
 };
 
 export function ContributeGoalSheet({

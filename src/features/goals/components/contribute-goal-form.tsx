@@ -18,21 +18,18 @@ import {
 import { DateField } from "@/components/date-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { nativeSelectClassName } from "@/components/ui/native-select";
 import { refreshAfterMutation } from "@/lib/navigation";
-
-type AccountOption = {
-  id: string;
-  name: string;
-  currency: string;
-};
+import {
+  AccountChoiceList,
+  type GoalAccountOption,
+} from "./account-choice-list";
 
 type ContributeGoalFormProps = {
   goalId: string;
   goalCurrency: string;
   linkedAccountId: string | null;
   linkedAccountName: string | null;
-  accounts: readonly AccountOption[];
+  accounts: readonly GoalAccountOption[];
   onSuccess?: () => void;
   onCancel?: () => void;
 };
@@ -65,9 +62,7 @@ export function ContributeGoalForm({
   const [isPending, startTransition] = useTransition();
 
   const originAccounts = accounts.filter(
-    (a) =>
-      a.currency === goalCurrency &&
-      a.id !== linkedAccountId,
+    (a) => a.currency === goalCurrency && a.id !== linkedAccountId,
   );
 
   const {
@@ -148,33 +143,35 @@ export function ContributeGoalForm({
       <FormStack>
         {!linkedAccountId ? (
           <p className="text-sm text-muted-foreground">
-            Vinculá una cuenta al objetivo para poder aportar (el dinero se
-            transferirá hacia esa cuenta).
+            Vinculá una cuenta al objetivo (Editar) para poder aportar. El
+            dinero se transfiere hacia esa cuenta.
           </p>
         ) : null}
 
-        <FormField
-          label="Sale de"
-          htmlFor={`contribute-from-${goalId}`}
-        >
-          <select
-            id={`contribute-from-${goalId}`}
-            className={nativeSelectClassName}
-            disabled={!canContribute}
-            aria-invalid={Boolean(errors.fromAccountId)}
-            {...register("fromAccountId", { required: true })}
-          >
-            {originAccounts.length === 0 ? (
-              <option value="">Sin cuentas disponibles</option>
-            ) : (
-              originAccounts.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.name}
-                </option>
-              ))
-            )}
-          </select>
-        </FormField>
+        <Controller
+          control={control}
+          name="fromAccountId"
+          rules={{ required: true }}
+          render={({ field }) => (
+            <FormField
+              label="Sale de"
+              htmlFor={`contribute-from-${goalId}`}
+            >
+              <AccountChoiceList
+                id={`contribute-from-${goalId}`}
+                accounts={originAccounts}
+                value={field.value}
+                onChange={field.onChange}
+                disabled={!canContribute || isBusy}
+                emptyLabel={
+                  linkedAccountId
+                    ? `No hay otra cuenta en ${goalCurrency} para sacar el dinero.`
+                    : "Primero vinculá una cuenta al objetivo."
+                }
+              />
+            </FormField>
+          )}
+        />
 
         <FormField label="Entra en" htmlFor={`contribute-to-${goalId}`}>
           <Input

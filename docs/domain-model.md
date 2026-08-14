@@ -247,7 +247,7 @@ Vínculo 1↔1 entre dos transacciones de workspaces distintos (aporte / fondeo)
 **Invariantes**
 
 - Solo `contribution` materializa siempre ambas puntas.
-- Delete/update de monto en cascada sobre el par.
+- Delete/update de monto en cascada sobre el par, **solo si** el actor tiene membership mutadora vigente en ambos workspaces (KRI-19). Sin membership en el twin → `Forbidden`; no se muta el otro ledger.
 - Categorías de aporte excluidas del `spent` de presupuestos de consumo.
 - Un workspace **no** puede hard-delete-arse mientras existan links (u otros involucramientos cross-workspace listados en SPEC-02 §5.4) que lo involucren; no se cortan automáticamente (SPEC-02 FR-11).
 
@@ -300,7 +300,9 @@ Objetivo de ahorro o pago de deuda.
 - Un aporte (`ContributeToGoal`) materializa siempre: `Transaction` `type=transfer` (origen = cuenta elegida, destino = `linkedAccountId`) + `GoalContribution` + avance de `currentAmount` / auto-complete — atómico.
 - `debt_payoff` usa el **mismo** patrón transfer; si el destino es `credit_card`, el efecto de deuda es el de SPEC-06 (pago baja deuda).
 - Sin FX en el aporte: monedas de origen, destino y goal alineadas.
-- Goal `status=active` con `linkedAccountId` set: **bloquea** `ArchiveAccount` y `DeleteAccount` de esa cuenta (`AccountLinkedToActiveGoal`, SPEC-03). Goals `completed` / `cancelled` no bloquean; en hard-delete se nullifica `linkedAccountId`.
+- Goal `status=active` con `linkedAccountId` set: **bloquea** `ArchiveAccount` y `DeleteAccount` de esa cuenta (`AccountLinkedToActiveGoal`, SPEC-03). Goals `completed` / `cancelled` no bloquean; en hard-delete de la **cuenta** se nullifica `linkedAccountId`.
+- `UpdateGoal` (SPEC-08 FR-08): no cambia `currency`; `cancelled` no se edita; bajar `target` ≤ `current` completa; subir `target` sobre `current` reabre `completed` → `active`.
+- `DeleteGoal` (SPEC-08 FR-09): hard-delete del Goal + cascade de `GoalContribution`; las transfers del aporte **permanecen** en el ledger. Confirmación por nombre.
 
 ### GoalContribution
 

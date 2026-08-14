@@ -173,7 +173,7 @@ export default async function AccountsPage() {
 - Schema Prisma = fuente de verdad relacional
 - Runtime: `DATABASE_URL`; migraciones CLI: `DIRECT_URL`
 - Multi-tenant: todo modelo de negocio con `workspaceId`; verificar membership en cada action/service
-- RLS en Postgres como defensa en profundidad (alineado a workspace), sin sustituir checks en servidor
+- RLS en Postgres como defensa en profundidad **deny-all** para `anon` / `authenticated` (KRI-18). No sustituye membership en servidor. Prisma (`DATABASE_URL`) bypasea RLS. Data API no debe exponer `public` (schema `postgrest_locked` o Data API off). Tras un `CREATE TABLE` nuevo en `public`, ejecutar `SELECT public.apply_rls_lockdown_to_public_tables();` (el rol `postgres` de Supabase no puede crear event triggers). Detalle: [security-audit.md](./security-audit.md) §1.
 - Logs SQL de Prisma: por defecto **no** se imprimen `query` en desarrollo. Activar solo con `PRISMA_LOG_QUERIES=1` (o `true`) vía `src/lib/env.ts` — ver [stack.md](./stack.md)
 
 ### 7.1 Memoización por request (`React.cache`)

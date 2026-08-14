@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   assertCanContribute,
+  assertCanMutateContributionTwin,
   SameWorkspaceContributionError,
 } from "./contribution";
 import {
@@ -77,5 +78,52 @@ describe("assertCanContribute (SPEC-14)", () => {
         targetMembership: { workspaceId: "ws-casa", role: "member" },
       }),
     ).toThrow(TransactionCurrencyMismatchError);
+  });
+});
+
+describe("assertCanMutateContributionTwin (SPEC-14 T-06 / T-07 / KRI-19)", () => {
+  const localMembership = { workspaceId: "ws-a", role: "owner" as const };
+  const twinMembership = { workspaceId: "ws-b", role: "member" as const };
+
+  it("allows update/delete when the actor can mutate both workspaces", () => {
+    expect(() =>
+      assertCanMutateContributionTwin({ localMembership, twinMembership }),
+    ).not.toThrow();
+  });
+
+  it("Given no membership in B, When mutating the linked tx, Then Forbidden", () => {
+    expect(() =>
+      assertCanMutateContributionTwin({
+        localMembership,
+        twinMembership: null,
+      }),
+    ).toThrow(ForbiddenError);
+  });
+
+  it("rejects a missing local membership", () => {
+    expect(() =>
+      assertCanMutateContributionTwin({
+        localMembership: null,
+        twinMembership,
+      }),
+    ).toThrow(ForbiddenError);
+  });
+
+  it("rejects a viewer on the twin workspace", () => {
+    expect(() =>
+      assertCanMutateContributionTwin({
+        localMembership,
+        twinMembership: { workspaceId: "ws-b", role: "viewer" },
+      }),
+    ).toThrow(ForbiddenError);
+  });
+
+  it("rejects a viewer on the local workspace", () => {
+    expect(() =>
+      assertCanMutateContributionTwin({
+        localMembership: { workspaceId: "ws-a", role: "viewer" },
+        twinMembership,
+      }),
+    ).toThrow(ForbiddenError);
   });
 });

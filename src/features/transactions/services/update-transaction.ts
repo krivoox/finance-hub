@@ -23,6 +23,7 @@ import {
   TRANSACTION_SELECT,
   type TransactionRecord,
 } from "./require-transaction-membership";
+import { requireContributionTwinAuthz } from "./require-contribution-twin-authz";
 
 export type UpdateTransactionServiceInput = {
   userId: string;
@@ -49,6 +50,15 @@ export async function updateTransaction(
     input.transactionId,
   );
   assertCanMutateTransactions(membership.role);
+
+  // SPEC-14 T-06 / KRI-19 — fail closed before any ledger write.
+  const twin = await requireContributionTwinAuthz({
+    userId: input.userId,
+    transactionId: transaction.id,
+    localWorkspaceId: membership.workspaceId,
+    localRole: membership.role,
+    kind: "contribution",
+  });
 
   const type: TransactionType = transaction.type;
 
@@ -106,7 +116,10 @@ export async function updateTransaction(
     throw new TransactionDomainError("La cuenta indicada no existe");
   }
   if (type === "transfer") {
-    assertAccountBelongsToWorkspace(origin.workspaceId, transaction.workspaceId);
+    assertAccountBelongsToWorkspace(
+      origin.workspaceId,
+      transaction.workspaceId,
+    );
   } else if (origin.workspaceId !== transaction.workspaceId) {
     const accountMembership = await prisma.membership.findUnique({
       where: {
@@ -207,37 +220,20 @@ export async function updateTransaction(
       });
     }
 
+    // SPEC-14 FR-08 / KRI-19 — sync twin in the same transaction.
+    if (twin) {
+      await tx.transaction.update({
+        where: { id: twin.twinId },
+        data: {
+          amountCents: nextAmount,
+          description: nextDescription,
+          ...(nextOccurredOn ? { occurredOn: nextOccurredOn } : {}),
+        },
+      });
+    }
+
     return row;
   });
-
-  // SPEC-14 FR-08 — keep contribution twin in sync for amount/date/description.
-  const link = await prisma.crossWorkspaceLink.findFirst({
-    where: {
-      kind: "contribution",
-      OR: [
-        { sourceTransactionId: transaction.id },
-        { targetTransactionId: transaction.id },
-      ],
-    },
-    select: {
-      sourceTransactionId: true,
-      targetTransactionId: true,
-    },
-  });
-  if (link) {
-    const twinId =
-      link.sourceTransactionId === transaction.id
-        ? link.targetTransactionId
-        : link.sourceTransactionId;
-    await prisma.transaction.update({
-      where: { id: twinId },
-      data: {
-        amountCents: nextAmount,
-        description: nextDescription,
-        ...(nextOccurredOn ? { occurredOn: nextOccurredOn } : {}),
-      },
-    });
-  }
 
   return {
     ...updated,
