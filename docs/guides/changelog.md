@@ -59,8 +59,8 @@ Workflow: `.github/workflows/changelog-unreleased.yml`
 
 Workflow: `.github/workflows/release.yml`
 
-1. Calcula el próximo SemVer con git-cliff (`feat`→minor, `fix`→patch, breaking→major).
-2. Actualiza `package.json` + `CHANGELOG.md` (sección fechada).
+1. Calcula el próximo SemVer con git-cliff (`feat`→minor, `fix`→patch, breaking→major). **Nunca baja** de versión: si git-cliff omite un tag “vacío” (solo merge/chore) y propone un tag más viejo, el workflow hace skip. Si `package.json` ya está por delante del último tag, hace *catch-up* (tag + GitHub Release sin reescribir el changelog).
+2. Actualiza `package.json` + `CHANGELOG.md` (sección fechada) solo en bump real.
 3. Commit bot: `chore(release): vX.Y.Z [skip ci]`
 4. Tag anotado `vX.Y.Z` + **GitHub Release**
 5. Sin `npm publish`
