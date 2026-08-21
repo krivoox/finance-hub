@@ -167,13 +167,13 @@ No publicar números inventados en la página.
 3. ¿Privacidad/Términos listos para footer, o “próximamente” + FAQ TBA?
 4. Nombre legal / razón social para `Organization`.
 5. ¿Bloquear CCBot (training-only)?
-6. Assets visuales del hero (mockup real vs atmósfera abstracta tipo Dub).
+6. Assets visuales del hero (mockup real vs atmósfera abstracta; alinear a `DESIGN.md` ledger navy).
 
 ## 13. Dependencias de implementación
 
 | Rol | Trabajo |
 |-----|---------|
-| ui-ux-developer | Composición mobile-first tipo Dub; secciones; FAQ accesible; tokens / tema |
+| ui-ux-developer | Composición mobile-first ledger navy (`DESIGN.md`); secciones; FAQ accesible; tokens / tema |
 | software-engineer | Reemplazar redirect ciego; sesión → dashboard; metadata + JSON-LD; robots/sitemap; `llms.txt`; SSR |
 | business-logic-architect | No requerido (sin reglas de dinero) |
 

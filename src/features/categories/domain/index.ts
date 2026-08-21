@@ -26,6 +26,7 @@ export {
   CATEGORY_PILL_TONES,
   categoryPillTone,
 } from "./category-pill-tone";
+export { splitLeadingEmoji } from "./split-leading-emoji";
 
 export type {
   CategoryKind,

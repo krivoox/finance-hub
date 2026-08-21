@@ -8,7 +8,7 @@ import { OpenNewTransactionButton } from "@/features/transactions/components/ope
 export function DashboardNewTransactionButton() {
   return (
     <OpenNewTransactionButton
-      className="h-10 w-full rounded-full sm:h-9 sm:w-auto"
+      className="h-10 w-full rounded-xl sm:w-auto"
       label="Nueva transacción"
       showIcon={false}
     />

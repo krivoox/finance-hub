@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Filter, X } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 
 import {
   FormActions,
@@ -52,11 +52,11 @@ const TYPE_OPTIONS: { value: ListTypeFilter; label: string }[] = [
 
 function chipClass(active: boolean) {
   return cn(
-    "inline-flex h-9 shrink-0 items-center justify-center rounded-full px-3 text-sm font-medium transition-colors",
+    "inline-flex h-9 shrink-0 items-center justify-center rounded-full px-3.5 text-sm font-medium transition-colors",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
     active
-      ? "bg-info-muted text-info-muted-foreground"
-      : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground",
+      ? "bg-muted text-foreground"
+      : "text-muted-foreground hover:bg-muted/70 hover:text-foreground",
   );
 }
 
@@ -222,18 +222,17 @@ export function TransactionsListToolbar({
         <Button
           type="button"
           variant="outline"
-          size="sm"
-          className="ml-auto h-9 shrink-0 gap-1.5 rounded-full px-3"
+          className="ml-auto h-9 shrink-0 gap-1.5 rounded-xl px-3"
           disabled={pending}
           onClick={openFiltersSheet}
         >
-          <Filter className="size-3.5" aria-hidden />
           Filtros
           {denseFilterCount > 0 ? (
             <Badge variant="info" className="h-5 min-w-5 px-1.5">
               {denseFilterCount}
             </Badge>
           ) : null}
+          <ChevronDown className="size-3.5" aria-hidden />
         </Button>
       </div>
 

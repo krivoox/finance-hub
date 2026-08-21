@@ -59,7 +59,7 @@ export function ThemeToggle({ className }: { className?: string }) {
             >
               <CurrentIcon strokeWidth={1.75} />
               <span>Tema</span>
-              <span className="ml-auto text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
+              <span className="ml-auto text-xs text-sidebar-foreground group-data-[collapsible=icon]:hidden">
                 {mounted ? current.label : "…"}
               </span>
             </SidebarMenuButton>
