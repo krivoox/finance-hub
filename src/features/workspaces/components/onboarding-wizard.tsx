@@ -222,8 +222,8 @@ export function OnboardingWizard({
         <p className="mb-6 text-sm font-semibold tracking-tight text-foreground">
           Finance Hub
         </p>
-        <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-md sm:p-8">
-          <h1 className="text-lg font-semibold tracking-tight text-foreground">
+        <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-card sm:p-8">
+          <h1 className="font-heading text-lg font-extrabold tracking-tight text-foreground">
             Configuración del espacio
           </h1>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -324,7 +324,7 @@ export function OnboardingWizard({
 
       <div
         className={cn(
-          "relative w-full max-w-3xl overflow-hidden rounded-2xl border border-border bg-card shadow-md",
+          "relative w-full max-w-3xl overflow-hidden rounded-2xl border border-border bg-card shadow-card",
           "motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300",
         )}
         role="dialog"
@@ -352,7 +352,7 @@ export function OnboardingWizard({
                 <div>
                   <h1
                     id="onboarding-title"
-                    className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl"
+                    className="font-heading text-xl font-extrabold tracking-tight text-foreground sm:text-2xl"
                   >
                     Tu espacio está casi listo
                   </h1>
@@ -403,7 +403,7 @@ export function OnboardingWizard({
             {step === "createAccount" ? (
               <div className="mt-4 flex-1 space-y-6">
                 <div>
-                  <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+                  <h1 className="font-heading text-xl font-extrabold tracking-tight text-foreground sm:text-2xl">
                     Creá tu primera cuenta
                   </h1>
                   <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">

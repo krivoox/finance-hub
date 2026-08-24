@@ -96,7 +96,7 @@
   }
 }
 
-/* Marketing headings — same family as product UI (Geist via --font-sans) */
+/* Marketing headings — Nunito via --font-heading */
 .fh-display {
-  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-heading), ui-sans-serif, system-ui, sans-serif;
 }

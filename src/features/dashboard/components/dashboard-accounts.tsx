@@ -43,7 +43,7 @@ export function DashboardAccounts({ accounts }: DashboardAccountsProps) {
         title="Cuentas"
         description="Saldos del espacio"
         action={
-          <Button variant="ghost" size="sm" className="h-8 rounded-full" asChild>
+          <Button variant="ghost" size="sm" asChild>
             <Link href="/accounts">Ver todas</Link>
           </Button>
         }
@@ -90,7 +90,7 @@ export function DashboardAccounts({ accounts }: DashboardAccountsProps) {
                   </Badge>
                   <p
                     className={cn(
-                      "text-sm font-medium tabular-nums",
+                      "text-sm tabular",
                       isNegative || isCreditDebt
                         ? "text-expense"
                         : "text-foreground",
@@ -106,12 +106,7 @@ export function DashboardAccounts({ accounts }: DashboardAccountsProps) {
         </ul>
       )}
 
-      <Button
-        variant="outline"
-        size="sm"
-        className="mt-4 h-9 w-full rounded-full"
-        asChild
-      >
+      <Button variant="outline" className="mt-4 w-full" asChild>
         <Link href="/accounts/new">Agregar cuenta</Link>
       </Button>
     </SurfaceSection>

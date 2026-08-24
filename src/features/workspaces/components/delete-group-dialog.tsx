@@ -64,7 +64,7 @@ export function DeleteGroupDialog({
           <Button
             type="button"
             variant="destructive"
-            className="h-10 w-full gap-1.5 sm:h-8 sm:w-auto"
+            className="w-full gap-1.5 sm:w-auto"
           >
             <Trash2 className="size-4" strokeWidth={1.75} />
             Eliminar grupo
@@ -113,7 +113,7 @@ export function DeleteGroupDialog({
           <Button
             type="button"
             variant="outline"
-            className="h-10 w-full sm:h-8 sm:w-auto"
+            className="w-full sm:w-auto"
             disabled={pending}
             onClick={() => resetAndClose(false)}
           >
@@ -122,7 +122,7 @@ export function DeleteGroupDialog({
           <Button
             type="button"
             variant="destructive"
-            className="h-10 w-full sm:h-8 sm:w-auto"
+            className="w-full sm:w-auto"
             disabled={pending || !nameMatches}
             onClick={() => {
               startTransition(async () => {

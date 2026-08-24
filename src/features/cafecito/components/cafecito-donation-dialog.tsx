@@ -98,14 +98,14 @@ export function CafecitoDonationDialog({
           <Button
             type="button"
             variant="outline"
-            className="h-10 w-full sm:h-9 sm:w-auto"
+            className="w-full sm:w-auto"
             onClick={handleDismiss}
           >
             Ahora no
           </Button>
           <Button
             type="button"
-            className="h-10 w-full gap-1.5 sm:h-9 sm:w-auto"
+            className="w-full gap-1.5 sm:w-auto"
             onClick={handleDonate}
           >
             <Coffee className="size-4" strokeWidth={1.75} aria-hidden />

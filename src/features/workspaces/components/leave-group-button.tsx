@@ -47,7 +47,7 @@ export function LeaveGroupButton({
         <Button
           type="button"
           variant="outline"
-          className="h-10 w-full sm:h-8 sm:w-auto"
+          className="w-full sm:w-auto"
           disabled
         >
           <LogOut className="size-4" strokeWidth={1.75} />
@@ -87,7 +87,7 @@ export function LeaveGroupButton({
           <Button
             type="button"
             variant="outline"
-            className="h-10 w-full sm:h-8 sm:w-auto"
+            className="w-full sm:w-auto"
             disabled={pending}
             onClick={() => setOpen(false)}
           >
@@ -96,7 +96,7 @@ export function LeaveGroupButton({
           <Button
             type="button"
             variant="destructive"
-            className="h-10 w-full sm:h-8 sm:w-auto"
+            className="w-full sm:w-auto"
             disabled={pending}
             onClick={() => {
               startTransition(async () => {

@@ -17,7 +17,9 @@ export default async function ResetPasswordPage({
   if (!token || error) {
     return (
       <div className="space-y-4">
-        <h1 className="text-lg font-semibold text-foreground">Enlace inválido</h1>
+        <h1 className="font-heading text-xl font-extrabold tracking-tight text-foreground">
+          Enlace inválido
+        </h1>
         <p className="text-xs text-muted-foreground">
           Este enlace expiró o no es válido. Solicitá uno nuevo.
         </p>
@@ -34,7 +36,7 @@ export default async function ResetPasswordPage({
   return (
     <div className="space-y-6">
       <div className="space-y-1">
-        <h1 className="text-lg font-semibold text-foreground">
+        <h1 className="font-heading text-xl font-extrabold tracking-tight text-foreground">
           Restablecer contraseña
         </h1>
         <p className="text-xs text-muted-foreground">

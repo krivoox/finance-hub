@@ -3,16 +3,14 @@ import { cn } from "@/lib/utils";
 type SurfaceSectionProps = {
   children: React.ReactNode;
   className?: string;
-  /** Softer muted fill (pastel landing vibe) */
+  /** Softer muted fill (rare — prefer the default white card) */
   muted?: boolean;
   /** Remove padding — for tables flush to edges */
   flush?: boolean;
 } & React.ComponentProps<"div">;
 
 /**
- * Shared product surface — landing-aligned chrome:
- * rounded-2xl, hairline border, optional muted fill.
- * Use for dashboard widgets and denser page sections.
+ * Product card on the slate canvas: white, 16px radius, hairline + soft shadow.
  */
 export function SurfaceSection({
   children,
@@ -24,17 +22,9 @@ export function SurfaceSection({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-border",
-        /*
-          Nested elevation: panel is `card`; widgets step up.
-          Dark: secondary charcoal (clear gray ladder like Zarss).
-          Light: soft muted wash on paper.
-        */
-        muted
-          ? "bg-muted/50 dark:bg-muted"
-          : "bg-muted/35 dark:bg-secondary",
-        "dark:border-transparent dark:shadow-sm",
-        flush ? "overflow-hidden" : "p-4 sm:p-5",
+        "rounded-2xl border border-border shadow-card",
+        muted ? "bg-muted/60" : "bg-card",
+        flush ? "overflow-hidden" : "p-5 md:p-6",
         className,
       )}
       {...props}
@@ -65,7 +55,7 @@ export function SurfaceHeader({
       )}
     >
       <div className="min-w-0">
-        <h2 className="text-sm font-semibold tracking-tight text-foreground">
+        <h2 className="font-heading text-sm font-extrabold tracking-tight text-foreground">
           {title}
         </h2>
         {description ? (

@@ -46,6 +46,7 @@ export async function inviteMemberAction(
       );
     }
     revalidatePath("/groups");
+    revalidatePath("/groups/activity");
     revalidatePath("/", "layout");
     return {
       ok: true,

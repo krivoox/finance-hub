@@ -25,7 +25,7 @@
 | [guides/changelog.md](./guides/changelog.md) | Changelog, Conventional Commits, SemVer y releases |
 | [guides/maestro-mcp.md](./guides/maestro-mcp.md) | Maestro MCP: smoke UI web (Chromium) desde Cursor |
 | [security-audit.md](./security-audit.md) | Auditoría de seguridad (KRI-16): Supabase/RLS, authz, headers, plan |
-| [DESIGN.md](../DESIGN.md) | Design system UI/UX (tokens, shell Dub-like, variantes) |
+| [DESIGN.md](../DESIGN.md) | Design system UI/UX (ledger navy, tokens, shell, variantes) |
 
 ## Specs (Spec-Driven Development)
 

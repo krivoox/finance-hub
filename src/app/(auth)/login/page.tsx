@@ -49,7 +49,7 @@ export default async function LoginPage({
     <div className="space-y-6">
       <OAuthErrorToast error={error} />
       <div className="space-y-1">
-        <h1 className="text-lg font-semibold text-foreground">
+        <h1 className="font-heading text-xl font-extrabold tracking-tight text-foreground">
           Iniciá sesión
         </h1>
         <p className="text-xs text-muted-foreground">

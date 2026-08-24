@@ -9,6 +9,7 @@ import {
   requestPasswordResetSchema,
   type RequestPasswordResetInput,
 } from "@/features/auth/schemas";
+import { FormField } from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -49,10 +50,7 @@ export function ForgotPasswordForm() {
 
   return (
     <form className="space-y-4" onSubmit={onSubmit} noValidate>
-      <div className="space-y-1">
-        <label htmlFor="email" className="text-xs font-medium text-foreground">
-          Email
-        </label>
+      <FormField label="Email" htmlFor="email" error={errors.email?.message}>
         <Input
           id="email"
           type="email"
@@ -60,10 +58,7 @@ export function ForgotPasswordForm() {
           aria-invalid={Boolean(errors.email)}
           {...register("email")}
         />
-        {errors.email ? (
-          <p className="text-xs text-destructive">{errors.email.message}</p>
-        ) : null}
-      </div>
+      </FormField>
 
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting ? "Enviando..." : "Enviar enlace"}

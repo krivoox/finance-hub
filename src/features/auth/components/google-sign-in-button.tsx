@@ -122,7 +122,7 @@ export function GoogleSignInButton({
     <Button
       type="button"
       variant="outline"
-      className="h-10 w-full gap-2"
+      className="w-full gap-2"
       disabled={isLoading}
       onClick={() => void onClick()}
     >

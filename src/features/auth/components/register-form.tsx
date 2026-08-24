@@ -12,6 +12,7 @@ import {
   AuthMethodDivider,
   GoogleSignInButton,
 } from "@/features/auth/components/google-sign-in-button";
+import { FormField } from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { navigateAndRefresh } from "@/lib/navigation";
@@ -107,13 +108,11 @@ export function RegisterForm({
           </p>
         ) : null}
 
-        <div className="space-y-1">
-          <label
-            htmlFor="displayName"
-            className="text-xs font-medium text-foreground"
-          >
-            Nombre
-          </label>
+        <FormField
+          label="Nombre"
+          htmlFor="displayName"
+          error={errors.displayName?.message}
+        >
           <Input
             id="displayName"
             type="text"
@@ -121,17 +120,13 @@ export function RegisterForm({
             aria-invalid={Boolean(errors.displayName)}
             {...register("displayName")}
           />
-          {errors.displayName ? (
-            <p className="text-xs text-destructive">
-              {errors.displayName.message}
-            </p>
-          ) : null}
-        </div>
+        </FormField>
 
-        <div className="space-y-1">
-          <label htmlFor="email" className="text-xs font-medium text-foreground">
-            Email
-          </label>
+        <FormField
+          label="Email"
+          htmlFor="email"
+          error={errors.email?.message}
+        >
           <Input
             id="email"
             type="email"
@@ -140,18 +135,14 @@ export function RegisterForm({
             aria-invalid={Boolean(errors.email)}
             {...register("email")}
           />
-          {errors.email ? (
-            <p className="text-xs text-destructive">{errors.email.message}</p>
-          ) : null}
-        </div>
+        </FormField>
 
-        <div className="space-y-1">
-          <label
-            htmlFor="password"
-            className="text-xs font-medium text-foreground"
-          >
-            Contraseña
-          </label>
+        <FormField
+          label="Contraseña"
+          htmlFor="password"
+          error={errors.password?.message}
+          hint="Mínimo 8 caracteres."
+        >
           <Input
             id="password"
             type="password"
@@ -159,18 +150,9 @@ export function RegisterForm({
             aria-invalid={Boolean(errors.password)}
             {...register("password")}
           />
-          {errors.password ? (
-            <p className="text-xs text-destructive">
-              {errors.password.message}
-            </p>
-          ) : (
-            <p className="text-[10px] text-muted-foreground">
-              Mínimo 8 caracteres.
-            </p>
-          )}
-        </div>
+        </FormField>
 
-        <Button type="submit" className="h-10 w-full" disabled={isSubmitting}>
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? "Creando cuenta..." : "Crear cuenta"}
         </Button>
       </form>

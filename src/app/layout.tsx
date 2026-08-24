@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono, Nunito, Plus_Jakarta_Sans } from "next/font/google";
 import { ThemeProvider } from "@teispace/next-themes";
 import { getTheme } from "@teispace/next-themes/server";
 
@@ -10,8 +10,13 @@ import { env } from "@/lib/env";
 import { themeProviderOptions } from "@/lib/theme";
 import "./globals.css";
 
-const geistSans = Geist({
+const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-sans",
+  subsets: ["latin"],
+});
+
+const nunito = Nunito({
+  variable: "--font-heading",
   subsets: ["latin"],
 });
 
@@ -50,8 +55,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   viewportFit: "cover",
   themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f2f4f8" },
-    { media: "(prefers-color-scheme: dark)", color: "#12151c" },
+    { media: "(prefers-color-scheme: light)", color: "#f8fafc" },
+    { media: "(prefers-color-scheme: dark)", color: "#161d2e" },
   ],
 };
 
@@ -65,7 +70,7 @@ export default async function RootLayout({
   return (
     <html
       lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} min-h-full md:h-full`}
+      className={`${plusJakarta.variable} ${nunito.variable} ${geistMono.variable} min-h-full md:h-full`}
       suppressHydrationWarning
     >
       {/*

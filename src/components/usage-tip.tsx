@@ -62,7 +62,7 @@ export function UsageTip({
               <Button
                 type="button"
                 size="sm"
-                className="h-10 sm:h-8"
+                
                 onClick={onAction}
               >
                 {actionLabel}
@@ -82,7 +82,7 @@ export function UsageTip({
         <Button
           type="button"
           variant="ghost"
-          size="icon"
+          size="icon-sm"
           className="size-10 shrink-0 text-muted-foreground sm:size-8"
           aria-label="Cerrar tip"
           onClick={handleDismiss}

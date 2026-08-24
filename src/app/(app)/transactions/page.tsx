@@ -177,7 +177,7 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
   const createActions = canMutate ? (
     <Suspense
       fallback={
-        <Button className="h-10 w-full sm:h-8 sm:w-auto" disabled>
+        <Button className="w-full sm:w-auto" disabled>
           Registrar
         </Button>
       }
@@ -365,13 +365,25 @@ function TransactionsLedgerSkeleton() {
   return (
     <div aria-busy aria-label="Cargando movimientos">
       <div className="mb-5 flex flex-wrap gap-2">
-        {Array.from({ length: 4 }).map((_, i) => (
+        {Array.from({ length: 3 }).map((_, i) => (
           <Skeleton key={i} className="h-9 w-24 rounded-full" />
         ))}
+        <Skeleton className="ml-auto h-9 w-24 rounded-xl" />
       </div>
-      <div className="space-y-2">
+      <div className="mb-4 rounded-2xl border border-border bg-card p-5 shadow-card md:p-6">
+        <Skeleton className="h-3 w-40" />
+        <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="flex flex-col gap-2">
+              <Skeleton className="h-3 w-20" />
+              <Skeleton className="h-6 w-28" />
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="overflow-hidden rounded-2xl border border-border bg-card shadow-card">
         {Array.from({ length: 8 }).map((_, i) => (
-          <Skeleton key={i} className="h-14 w-full rounded-lg" />
+          <Skeleton key={i} className="h-14 w-full rounded-none" />
         ))}
       </div>
     </div>

@@ -59,7 +59,7 @@ export function DashboardSpendingBar({
         title="Gastos del mes"
         description={formatMoney(totalCents, currency)}
         action={
-          <Button variant="ghost" size="sm" className="h-8 rounded-full" asChild>
+          <Button variant="ghost" size="sm" asChild>
             <Link href="/transactions?type=expense">Ver todo</Link>
           </Button>
         }

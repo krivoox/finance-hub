@@ -85,7 +85,7 @@ export function DashboardSpending({ currency, rows }: DashboardSpendingProps) {
         title="Distribución de gastos"
         description="Por categoría, este mes"
         action={
-          <Button variant="ghost" size="sm" className="h-8 rounded-full" asChild>
+          <Button variant="ghost" size="sm" asChild>
             <Link href="/transactions?type=expense">Ver gastos</Link>
           </Button>
         }

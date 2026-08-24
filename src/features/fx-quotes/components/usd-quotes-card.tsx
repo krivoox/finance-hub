@@ -176,9 +176,9 @@ function QuotesBody({
 
   if (!quotes.available) {
     return (
-      <div className="rounded-lg border border-border px-2.5 py-2 group-data-[collapsible=icon]:hidden">
-        <p className="text-[11px] font-medium text-muted-foreground">Dólar</p>
-        <p className="mt-0.5 text-xs text-muted-foreground">
+      <div className="rounded-xl border border-sidebar-border bg-sidebar-hover px-2.5 py-2 group-data-[collapsible=icon]:hidden">
+        <p className="text-[11px] font-medium text-sidebar-foreground">Dólar</p>
+        <p className="mt-0.5 text-xs text-sidebar-foreground">
           Sin cotización por ahora.
         </p>
       </div>
@@ -187,28 +187,28 @@ function QuotesBody({
 
   return (
     <>
-      <div className="rounded-lg border border-border px-2.5 py-2 group-data-[collapsible=icon]:hidden">
+      <div className="rounded-xl border border-sidebar-border bg-sidebar-hover px-2.5 py-2 group-data-[collapsible=icon]:hidden">
         <div className="flex items-center justify-between gap-2">
-          <p className="text-[11px] font-medium text-muted-foreground">Dólar</p>
+          <p className="text-[11px] font-medium text-sidebar-foreground">Dólar</p>
           {quotes.stale ? (
             <Badge variant="warning" className="h-4 px-1.5 text-[10px]">
               Vieja
             </Badge>
           ) : null}
         </div>
-        <p className="mt-0.5 text-[10px] text-muted-foreground">
+        <p className="mt-0.5 text-[10px] text-sidebar-foreground">
           {relativeFetchedLabel(quotes.fetchedAt)}
         </p>
         <dl className="mt-1.5 space-y-0.5 text-xs tabular-nums">
           <div className="flex justify-between gap-2">
-            <dt className="text-muted-foreground">Oficial</dt>
-            <dd className="font-medium text-foreground">
+            <dt className="text-sidebar-foreground">Oficial</dt>
+            <dd className="font-medium text-sidebar-primary-foreground">
               {formatArsPerUsd(quotes.oficial!.sellArsPerUsd)}
             </dd>
           </div>
           <div className="flex justify-between gap-2">
-            <dt className="text-muted-foreground">MEP</dt>
-            <dd className="font-medium text-foreground">
+            <dt className="text-sidebar-foreground">MEP</dt>
+            <dd className="font-medium text-sidebar-primary-foreground">
               {formatArsPerUsd(quotes.mep!.sellArsPerUsd)}
             </dd>
           </div>
@@ -220,7 +220,7 @@ function QuotesBody({
               type="button"
               variant="ghost"
               size="sm"
-              className="h-8 w-full justify-center text-xs"
+              className="h-8 w-full justify-center text-xs text-sidebar-foreground hover:bg-sidebar-hover hover:text-sidebar-primary-foreground"
               onClick={() => setConverterOpen(true)}
             >
               Convertir
@@ -232,7 +232,7 @@ function QuotesBody({
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="h-8 w-full justify-center text-xs"
+                  className="h-8 w-full justify-center text-xs text-sidebar-foreground hover:bg-sidebar-hover hover:text-sidebar-primary-foreground"
                 >
                   Convertir
                 </Button>
@@ -248,7 +248,7 @@ function QuotesBody({
               type="button"
               variant="outline"
               size="sm"
-              className="h-8 w-full text-xs"
+              className="h-8 w-full border-sidebar-border text-xs text-sidebar-primary-foreground hover:bg-sidebar-hover"
               disabled={isPending}
               onClick={applyMep}
             >
@@ -257,7 +257,7 @@ function QuotesBody({
           ) : null}
         </div>
 
-        <p className="mt-1.5 text-[10px] text-muted-foreground">
+        <p className="mt-1.5 text-[10px] text-sidebar-foreground">
           {quotes.attribution}
         </p>
       </div>
@@ -269,7 +269,7 @@ function QuotesBody({
             <Button
               type="button"
               variant="ghost"
-              size="icon"
+              size="icon-sm"
               className="size-8"
               aria-label="Dólar Oficial y MEP"
               onClick={() => setConverterOpen(true)}

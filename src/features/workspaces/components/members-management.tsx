@@ -160,7 +160,7 @@ export function MembersManagement({
                   type="button"
                   variant="outline"
                   size="sm"
-                  className="h-10 sm:h-8"
+                  
                   disabled={isPending}
                   onClick={() =>
                     run(

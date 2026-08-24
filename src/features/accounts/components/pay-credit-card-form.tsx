@@ -157,7 +157,7 @@ export function PayCreditCardForm({
           <Button
             type="button"
             variant="outline"
-            className="h-10 sm:h-8"
+            
             onClick={onCancel}
           >
             Cerrar
@@ -257,13 +257,13 @@ export function PayCreditCardForm({
         <Button
           type="button"
           variant="outline"
-          className="h-10 sm:h-8"
+          
           disabled={isBusy}
           onClick={onCancel}
         >
           Cancelar
         </Button>
-        <Button type="submit" className="h-10 sm:h-8" disabled={isBusy}>
+        <Button type="submit"  disabled={isBusy}>
           {isBusy ? "Registrando…" : "Registrar pago"}
         </Button>
       </FormActions>

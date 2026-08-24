@@ -37,7 +37,8 @@ export function ContributeGoalSheet({
       trigger={
         <Button
           variant="outline"
-          className="h-10 w-full sm:h-8 sm:w-auto"
+          size="sm"
+          className="w-full sm:w-auto"
         >
           Aportar
         </Button>

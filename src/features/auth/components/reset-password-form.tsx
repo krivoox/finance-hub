@@ -11,6 +11,7 @@ import {
   resetPasswordSchema,
   type ResetPasswordInput,
 } from "@/features/auth/schemas";
+import { FormField } from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -46,13 +47,12 @@ export function ResetPasswordForm({ token }: { token: string }) {
     <form className="space-y-4" onSubmit={onSubmit} noValidate>
       <input type="hidden" {...register("token")} />
 
-      <div className="space-y-1">
-        <label
-          htmlFor="newPassword"
-          className="text-xs font-medium text-foreground"
-        >
-          Nueva contraseña
-        </label>
+      <FormField
+        label="Nueva contraseña"
+        htmlFor="newPassword"
+        error={errors.newPassword?.message}
+        hint="Mínimo 8 caracteres."
+      >
         <Input
           id="newPassword"
           type="password"
@@ -60,16 +60,7 @@ export function ResetPasswordForm({ token }: { token: string }) {
           aria-invalid={Boolean(errors.newPassword)}
           {...register("newPassword")}
         />
-        {errors.newPassword ? (
-          <p className="text-xs text-destructive">
-            {errors.newPassword.message}
-          </p>
-        ) : (
-          <p className="text-[10px] text-muted-foreground">
-            Mínimo 8 caracteres.
-          </p>
-        )}
-      </div>
+      </FormField>
 
       {serverError ? (
         <p className="text-xs text-destructive">{serverError}</p>

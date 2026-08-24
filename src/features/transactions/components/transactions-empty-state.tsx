@@ -32,7 +32,7 @@ export function TransactionsEmptyState({
         </p>
         {canMutate ? (
           <OpenNewTransactionButton
-            className="h-10 sm:h-9"
+            
             label="Nueva transacción"
           />
         ) : null}
@@ -46,7 +46,7 @@ export function TransactionsEmptyState({
         <p className="text-sm text-muted-foreground text-pretty">
           Ninguna transacción coincide con los filtros.
         </p>
-        <Button asChild variant="outline" className="h-10 sm:h-9">
+        <Button asChild variant="outline" >
           <Link
             href={transactionListHref({
               period: params.period,
@@ -79,7 +79,7 @@ export function TransactionsEmptyState({
         historial.
       </p>
       <div className="flex flex-wrap gap-2">
-        <Button asChild variant="outline" className="h-10 sm:h-9">
+        <Button asChild variant="outline" >
           <Link
             href={transactionListHref({
               period: "all",
@@ -92,7 +92,7 @@ export function TransactionsEmptyState({
           </Link>
         </Button>
         {params.period === "custom" ? (
-          <Button asChild variant="ghost" className="h-10 sm:h-9">
+          <Button asChild variant="ghost" >
             <Link
               href={transactionListHref({
                 period: "this_month",

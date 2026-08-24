@@ -52,7 +52,7 @@ export function ArchiveAccountDialog({
           <Button
             type="button"
             variant="outline"
-            className="h-10 w-full sm:h-8 sm:w-auto"
+            className="w-full sm:w-auto"
             disabled={isPending}
             onClick={() => onOpenChange(false)}
           >
@@ -61,7 +61,7 @@ export function ArchiveAccountDialog({
           <Button
             type="button"
             variant="destructive"
-            className="h-10 w-full sm:h-8 sm:w-auto"
+            className="w-full sm:w-auto"
             disabled={isPending}
             onClick={() => {
               startTransition(async () => {
@@ -140,14 +140,14 @@ export function DeleteAccountDialog({
             onChange={(e) => setConfirmName(e.target.value)}
             disabled={isPending}
             autoComplete="off"
-            className="h-10 sm:h-8"
+            
           />
         </div>
         <DialogFooter>
           <Button
             type="button"
             variant="outline"
-            className="h-10 w-full sm:h-8 sm:w-auto"
+            className="w-full sm:w-auto"
             disabled={isPending}
             onClick={() => handleOpenChange(false)}
           >
@@ -156,7 +156,7 @@ export function DeleteAccountDialog({
           <Button
             type="button"
             variant="destructive"
-            className="h-10 w-full sm:h-8 sm:w-auto"
+            className="w-full sm:w-auto"
             disabled={isPending || confirmName.trim() !== accountName.trim()}
             onClick={() => {
               startTransition(async () => {

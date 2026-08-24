@@ -40,7 +40,7 @@ export function ArchiveBudgetDialog({
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          className="h-10 w-full gap-1.5 sm:h-8 sm:w-auto"
+          className="w-full gap-1.5 sm:w-auto"
         >
           <Archive className="size-4" strokeWidth={1.75} />
           Archivar
@@ -59,7 +59,7 @@ export function ArchiveBudgetDialog({
           <Button
             type="button"
             variant="outline"
-            className="h-10 w-full sm:h-8 sm:w-auto"
+            className="w-full sm:w-auto"
             disabled={isPending}
             onClick={() => setOpen(false)}
           >
@@ -68,7 +68,7 @@ export function ArchiveBudgetDialog({
           <Button
             type="button"
             variant="destructive"
-            className="h-10 w-full sm:h-8 sm:w-auto"
+            className="w-full sm:w-auto"
             disabled={isPending}
             onClick={() => {
               startTransition(async () => {
@@ -107,7 +107,7 @@ export function UnarchiveBudgetButton({
     <Button
       type="button"
       variant="outline"
-      className={cn("h-10 w-full gap-1.5 sm:h-8 sm:w-auto", className)}
+      className={cn("w-full gap-1.5 sm:w-auto", className)}
       disabled={isPending}
       onClick={() => {
         startTransition(async () => {

@@ -77,11 +77,10 @@ export function TransactionsLedgerList({
   return (
     <>
       {showTotals ? (
-        <div className="sticky top-0 z-10 -mx-4 mb-3 border-b border-border/70 bg-card/95 px-4 backdrop-blur-sm supports-backdrop-filter:bg-card/85 sm:-mx-6 sm:px-6 md:static md:mx-0 md:mb-2 md:border-border/50 md:bg-transparent md:px-0 md:backdrop-blur-none">
+        <div className="mb-4">
           <TransactionsListTotals
             buckets={totals}
             typeFilter={query.type}
-            variant="strip"
           />
         </div>
       ) : null}
@@ -89,8 +88,6 @@ export function TransactionsLedgerList({
       <TransactionsTable
         items={items}
         workspaceId={workspaceId}
-        totals={totals}
-        typeFilter={query.type}
         canMutate={canMutate}
         accounts={accounts}
         categories={categories}
