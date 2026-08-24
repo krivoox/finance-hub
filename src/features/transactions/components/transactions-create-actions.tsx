@@ -95,7 +95,7 @@ export function TransactionsCreateActions({
       <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
         <Button
           type="button"
-          className="h-10 w-full gap-1.5 sm:w-auto"
+          className="w-full gap-1.5 sm:w-auto"
           onClick={() => openNewTransaction()}
         >
           <Plus className="size-4" strokeWidth={1.75} />
@@ -112,7 +112,7 @@ export function TransactionsCreateActions({
             trigger={
               <Button
                 variant="outline"
-                className="h-10 w-full gap-1.5 sm:w-auto"
+                className="w-full gap-1.5 sm:w-auto"
               >
                 <ArrowUpDown className="size-4" strokeWidth={1.75} />
                 Cambio
@@ -142,7 +142,7 @@ export function TransactionsCreateActions({
             trigger={
               <Button
                 variant="outline"
-                className="h-10 w-full gap-1.5 sm:w-auto"
+                className="w-full gap-1.5 sm:w-auto"
               >
                 <ArrowLeftRight className="size-4" strokeWidth={1.75} />
                 Entre espacios

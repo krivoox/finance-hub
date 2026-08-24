@@ -360,7 +360,7 @@ Componentes en `src/features/dashboard/components/`. Superficies: `src/component
 1. H1 + subtítulo (“Movimientos del mes · {workspace}”) + CTA `bg-cta`.
 2. Filtros: chips de periodo (`Este mes` / `Esta semana` / `Todo`) + `Filtros`.
 3. Strip **TOTALES · N MOVIMIENTOS** — KPIs por moneda (nunca mezclar). Eyebrow uppercase.
-4. Tabla en **una** `SurfaceSection` flush: columnas DESCRIPCIÓN · CUENTA · CATEGORÍA · TIPO · FECHA · MONTO. Headers `text-[10px] uppercase tracking-widest text-muted-foreground`.
+4. Tabla en **una** `AbmTable` (`src/components/abm-table`): `SurfaceSection` flush + `BulkActionsBar`. Columnas DESCRIPCIÓN · CUENTA · CATEGORÍA · TIPO · FECHA · MONTO. Headers `AbmHead` (`text-[10px] uppercase tracking-widest`). Celdas `AbmCell`; monto `AbmMoney`; glifo `AbmGlyph`.
 5. Filas: icono de tipo/categoría a la izquierda; monto `.tabular` con token de tipo.
 6. Checkbox de selección + `BulkActionsBar` cuando aplique.
 7. En móvil solo esenciales (`hidden sm|md:table-cell`).

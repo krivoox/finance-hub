@@ -92,7 +92,7 @@ export function InviteMemberForm({ workspaceId }: { workspaceId: string }) {
         <div className="flex items-end">
           <Button
             type="submit"
-            className="h-10 w-full sm:h-8 sm:w-auto"
+            className="w-full sm:w-auto"
             disabled={pending}
           >
             {pending ? "Invitando…" : "Crear invitación"}

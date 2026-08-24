@@ -40,12 +40,7 @@ export function DashboardAttention({
         description="Lo que conviene mirar ahora"
         action={
           hasBudgets ? (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="h-8 rounded-full"
-              asChild
-            >
+            <Button variant="ghost" size="sm" asChild>
               <Link href="/budgets">Ver presupuestos</Link>
             </Button>
           ) : null
@@ -104,8 +99,8 @@ export function DashboardAttention({
                 <h3 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
                   Balances del grupo
                 </h3>
-                <Button variant="ghost" size="sm" className="h-8 rounded-full" asChild>
-                  <Link href="/groups">Ver grupo</Link>
+                <Button variant="ghost" size="sm" asChild>
+                  <Link href="/groups/activity">Ver grupo</Link>
                 </Button>
               </div>
               <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border">

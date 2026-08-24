@@ -75,6 +75,7 @@ export async function createExpenseWithSplitAction(
             });
 
     revalidatePath("/groups");
+    revalidatePath("/groups/activity");
     revalidatePath("/groups/settings");
     revalidatePath("/dashboard");
     revalidatePath("/transactions");
@@ -133,6 +134,7 @@ export async function attachSplitAction(
             });
 
     revalidatePath("/groups");
+    revalidatePath("/groups/activity");
     revalidatePath("/dashboard");
     revalidatePath("/transactions");
     return { ok: true, data: { id: split.id } };
@@ -161,6 +163,7 @@ export async function createSettlementAction(
       ...parsed.data,
     });
     revalidatePath("/groups");
+    revalidatePath("/groups/activity");
     revalidatePath("/dashboard");
     return { ok: true, data: { id: settlement.id } };
   } catch (err) {
@@ -188,6 +191,7 @@ export async function deleteSettlementAction(
       settlementId: parsed.data.settlementId,
     });
     revalidatePath("/groups");
+    revalidatePath("/groups/activity");
     revalidatePath("/dashboard");
     return { ok: true, data: result };
   } catch (err) {

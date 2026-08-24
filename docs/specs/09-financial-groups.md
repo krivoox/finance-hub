@@ -29,6 +29,14 @@ Extiende workspaces grupales: visión de balances individuales y grupales, y con
 | FR-05 | Permisos: viewer ve consolidado; no muta |
 | FR-06 | UI separa Actividad (balances/settlements) de Administración (miembros/invites) |
 
+## 3.1 Superficie UI
+
+- `/groups` — directorio “Mis grupos” (`listMyWorkspaces` filtrado `type=group`).
+- Click en un grupo: `setActiveWorkspace` + `/groups/activity` (FR-06 Actividad del workspace activo).
+- `/groups/settings` — Administración del grupo activo (FR-06).
+- El overview de `GetGroupOverview` no es la única vista cuando hay varios grupos.
+- Números en cards del directorio: solo campos de `GetGroupOverview` de ese workspace (neto del usuario, última actividad, miembros). No hay query que agregue deudas entre grupos ni entre monedas.
+
 ## 4. Reglas de negocio
 
 - Net balance de un usuario = lo que pagó por otros − lo que le corresponde − settlements.

@@ -269,7 +269,7 @@ function QuotesBody({
             <Button
               type="button"
               variant="ghost"
-              size="icon"
+              size="icon-sm"
               className="size-8"
               aria-label="Dólar Oficial y MEP"
               onClick={() => setConverterOpen(true)}

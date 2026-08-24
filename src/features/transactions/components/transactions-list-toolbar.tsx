@@ -287,7 +287,7 @@ export function TransactionsListToolbar({
           <FormField label="Desde" htmlFor="tx-filter-from" optional>
             <DateField
               id="tx-filter-from"
-              triggerClassName="h-10 sm:h-9"
+              triggerClassName=""
               clearable
               placeholder="Sin límite"
               value={draftFrom}
@@ -307,7 +307,7 @@ export function TransactionsListToolbar({
           >
             <DateField
               id="tx-filter-to"
-              triggerClassName="h-10 sm:h-9"
+              triggerClassName=""
               clearable
               placeholder="Sin límite"
               value={draftTo}
@@ -361,14 +361,14 @@ export function TransactionsListToolbar({
             <Button
               type="button"
               variant="ghost"
-              className="h-10 w-full sm:h-9 sm:w-auto"
+              className="w-full sm:w-auto"
               onClick={clearFilters}
             >
               Limpiar
             </Button>
             <Button
               type="button"
-              className="h-10 w-full sm:h-9 sm:w-auto"
+              className="w-full sm:w-auto"
               onClick={applyFilters}
             >
               Aplicar

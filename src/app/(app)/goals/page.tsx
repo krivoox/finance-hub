@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
 import { ContentPanel } from "@/components/app-shell/content-panel";
+import { SurfaceSection } from "@/components/surface-section";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSession } from "@/lib/session";
 import {
@@ -146,7 +147,7 @@ async function GoalsListSection({
 }
 
 function NewGoalButtonSkeleton() {
-  return <Skeleton className="h-10 w-full rounded-full sm:h-8 sm:w-36" />;
+  return <Skeleton className="h-10 w-full rounded-xl sm:w-36" />;
 }
 
 /**
@@ -155,18 +156,20 @@ function NewGoalButtonSkeleton() {
  */
 function GoalsListSkeleton() {
   return (
-    <ul className="divide-y divide-border" aria-busy aria-label="Cargando objetivos">
-      {Array.from({ length: 3 }).map((_, i) => (
-        <li key={i} className="flex flex-col gap-3 py-5 first:pt-0 last:pb-0">
-          <div className="flex flex-wrap items-center gap-2">
-            <Skeleton className="h-4 w-40 max-w-full" />
-            <Skeleton className="h-5 w-16 rounded-full" />
-          </div>
-          <Skeleton className="h-3 w-48 max-w-full" />
-          <Skeleton className="h-4 w-56 max-w-full" />
-          <Skeleton className="h-3 w-full rounded-full" />
-        </li>
-      ))}
-    </ul>
+    <SurfaceSection aria-busy aria-label="Cargando objetivos">
+      <ul className="-mx-2 divide-y divide-border">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <li key={i} className="flex flex-col gap-3 px-2 py-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <Skeleton className="h-4 w-40 max-w-full" />
+              <Skeleton className="h-5 w-16 rounded-full" />
+            </div>
+            <Skeleton className="h-3 w-48 max-w-full" />
+            <Skeleton className="h-4 w-56 max-w-full" />
+            <Skeleton className="h-3 w-full rounded-full" />
+          </li>
+        ))}
+      </ul>
+    </SurfaceSection>
   );
 }

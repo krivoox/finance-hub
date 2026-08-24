@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { formatMoney } from "@/lib/format-money";
 import type { BudgetWithProgress } from "@/features/budgets/services";
 
@@ -54,17 +55,15 @@ export function ArchivedBudgetRow({
         {canMutate ? (
           <UnarchiveBudgetButton
             budgetId={budget.id}
-            className="h-10 flex-1 sm:h-8 sm:flex-none"
+            className="flex-1 sm:flex-none"
           />
         ) : null}
-        <Link
-          href={`/budgets/${budget.id}`}
-          className="inline-flex h-10 shrink-0 items-center gap-0.5 rounded-lg px-2 text-sm text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-ring/50 sm:h-8"
-          aria-label={`Ver detalle de ${budget.name}`}
-        >
-          Ver
-          <ChevronRight className="size-4" strokeWidth={1.75} />
-        </Link>
+        <Button variant="ghost" size="sm" className="shrink-0" asChild>
+          <Link href={`/budgets/${budget.id}`}>
+            Ver
+            <ChevronRight className="size-4" strokeWidth={1.75} />
+          </Link>
+        </Button>
       </div>
     </li>
   );

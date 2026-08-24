@@ -62,7 +62,7 @@ export function DashboardRecurring({ items }: DashboardRecurringProps) {
             : `${items.length} ocurrencia${items.length === 1 ? "" : "s"} en los próximos 30 días`
         }
         action={
-          <Button variant="ghost" size="sm" className="h-8 rounded-full" asChild>
+          <Button variant="ghost" size="sm" asChild>
             <Link href="/transactions/recurring">Ver todas</Link>
           </Button>
         }

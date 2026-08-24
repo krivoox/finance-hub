@@ -12,6 +12,7 @@ import {
   AuthMethodDivider,
   GoogleSignInButton,
 } from "@/features/auth/components/google-sign-in-button";
+import { FormField } from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { navigateAndRefresh } from "@/lib/navigation";
@@ -88,10 +89,11 @@ export function LoginForm({
       ) : null}
 
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <div className="space-y-1">
-          <label htmlFor="email" className="text-xs font-medium text-foreground">
-            Email
-          </label>
+        <FormField
+          label="Email"
+          htmlFor="email"
+          error={errors.email?.message}
+        >
           <Input
             id="email"
             type="email"
@@ -99,18 +101,13 @@ export function LoginForm({
             aria-invalid={Boolean(errors.email)}
             {...register("email")}
           />
-          {errors.email ? (
-            <p className="text-xs text-destructive">{errors.email.message}</p>
-          ) : null}
-        </div>
+        </FormField>
 
-        <div className="space-y-1">
-          <label
-            htmlFor="password"
-            className="text-xs font-medium text-foreground"
-          >
-            Contraseña
-          </label>
+        <FormField
+          label="Contraseña"
+          htmlFor="password"
+          error={errors.password?.message}
+        >
           <Input
             id="password"
             type="password"
@@ -118,14 +115,9 @@ export function LoginForm({
             aria-invalid={Boolean(errors.password)}
             {...register("password")}
           />
-          {errors.password ? (
-            <p className="text-xs text-destructive">
-              {errors.password.message}
-            </p>
-          ) : null}
-        </div>
+        </FormField>
 
-        <Button type="submit" className="h-10 w-full" disabled={isSubmitting}>
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? "Iniciando sesión..." : "Iniciar sesión"}
         </Button>
       </form>

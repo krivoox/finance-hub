@@ -1,8 +1,13 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { Wallet } from "lucide-react";
 
 import { ContentPanel } from "@/components/app-shell/content-panel";
+import {
+  SurfaceHeader,
+  SurfaceSection,
+} from "@/components/surface-section";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { getSession } from "@/lib/session";
@@ -99,35 +104,52 @@ async function AccountsListSection({
 
   if (activeCount === 0 && accountList.length === 0) {
     return (
-      <div className="flex flex-col items-start gap-4 py-8 sm:py-12">
-        <p className="text-sm text-muted-foreground">
-          Todavía no hay cuentas. Creá una en pesos o en dólares para empezar a
-          registrar movimientos.
-        </p>
-        {canSetup ? (
-          <Button asChild className="h-10">
-            <Link href="/onboarding">Configurar espacio</Link>
-          </Button>
-        ) : null}
-      </div>
+      <SurfaceSection>
+        <div className="flex flex-col items-start gap-3 py-2">
+          <span
+            className="flex size-10 items-center justify-center rounded-xl bg-muted text-muted-foreground"
+            aria-hidden
+          >
+            <Wallet className="size-5" strokeWidth={1.75} />
+          </span>
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-foreground">
+              Todavía no hay cuentas
+            </p>
+            <p className="text-sm text-muted-foreground text-pretty">
+              Creá una en pesos o en dólares para empezar a registrar
+              movimientos.
+            </p>
+          </div>
+          {canSetup ? (
+            <Button variant="outline" asChild>
+              <Link href="/onboarding">Configurar espacio</Link>
+            </Button>
+          ) : null}
+        </div>
+      </SurfaceSection>
     );
   }
 
   if (activeCount === 0) {
     return (
-      <div className="flex flex-col gap-6">
-        <div className="flex flex-col items-start gap-4 rounded-lg border border-border bg-muted/30 p-4 sm:p-5">
-          <p className="text-sm text-muted-foreground">
-            No hay cuentas activas. Las archivadas quedan al final del listado
-            (grisadas): desarchivá una o creá una nueva para seguir registrando
-            movimientos.
-          </p>
-          {canSetup ? (
-            <Button asChild className="h-10">
-              <Link href="/onboarding">Configurar espacio</Link>
-            </Button>
-          ) : null}
-        </div>
+      <div className="flex flex-col gap-5 sm:gap-6">
+        <SurfaceSection muted>
+          <div className="flex flex-col items-start gap-3">
+            <p className="text-sm font-medium text-foreground">
+              No hay cuentas activas
+            </p>
+            <p className="text-sm text-muted-foreground text-pretty">
+              Las archivadas quedan al final del listado (grisadas): desarchivá
+              una o creá una nueva para seguir registrando movimientos.
+            </p>
+            {canSetup ? (
+              <Button variant="outline" asChild>
+                <Link href="/onboarding">Configurar espacio</Link>
+              </Button>
+            ) : null}
+          </div>
+        </SurfaceSection>
         <AccountsList
           workspaceId={workspaceId}
           canMutate={canMutate}
@@ -152,17 +174,20 @@ async function AccountsListSection({
  */
 function AccountsListSkeleton() {
   return (
-    <ul className="divide-y divide-border" aria-busy aria-label="Cargando cuentas">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <li key={i} className="flex items-center gap-3 py-4 first:pt-0 last:pb-0">
-          <Skeleton className="size-10 shrink-0 rounded-full" />
-          <div className="min-w-0 flex-1 space-y-2">
-            <Skeleton className="h-4 w-40 max-w-full" />
-            <Skeleton className="h-3 w-24" />
-          </div>
-          <Skeleton className="h-5 w-24 shrink-0" />
-        </li>
-      ))}
-    </ul>
+    <SurfaceSection aria-busy aria-label="Cargando cuentas">
+      <SurfaceHeader title="Cuentas" />
+      <ul className="-mx-2 divide-y divide-border">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <li key={i} className="flex items-center gap-3 px-2 py-2.5">
+            <Skeleton className="size-9 shrink-0 rounded-full" />
+            <div className="min-w-0 flex-1 space-y-2">
+              <Skeleton className="h-4 w-40 max-w-full" />
+              <Skeleton className="h-3 w-24" />
+            </div>
+            <Skeleton className="h-5 w-24 shrink-0" />
+          </li>
+        ))}
+      </ul>
+    </SurfaceSection>
   );
 }

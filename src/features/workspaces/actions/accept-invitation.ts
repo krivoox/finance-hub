@@ -36,6 +36,7 @@ export async function acceptInvitationAction(
     await clearInviteTokenCookie();
     revalidatePath("/", "layout");
     revalidatePath("/groups");
+    revalidatePath("/groups/activity");
     revalidatePath("/dashboard");
     return { ok: true, data: result };
   } catch (err) {

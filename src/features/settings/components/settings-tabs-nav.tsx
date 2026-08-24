@@ -45,7 +45,7 @@ export function SettingsTabsNav({ active }: { active: SettingsTabId }) {
             className={cn(
               "relative -mb-px shrink-0 pb-3 text-sm transition-colors",
               isActive
-                ? "font-medium text-foreground"
+                ? "font-medium text-info"
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
@@ -56,7 +56,7 @@ export function SettingsTabsNav({ active }: { active: SettingsTabId }) {
             {isActive ? (
               <span
                 aria-hidden
-                className="absolute inset-x-0 bottom-0 h-0.5 bg-foreground"
+                className="absolute inset-x-0 bottom-0 h-0.5 bg-info"
               />
             ) : null}
           </Link>

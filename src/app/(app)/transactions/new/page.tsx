@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { ContentPanel } from "@/components/app-shell/content-panel";
+import { SurfaceSection } from "@/components/surface-section";
 import { Button } from "@/components/ui/button";
 import { getSession } from "@/lib/session";
 import {
@@ -60,47 +61,49 @@ export default async function NewTransactionPage() {
       title="Nueva transacción"
       description={`Gasto, ingreso o transferencia en ${workspace.baseCurrency}.`}
       actions={
-        <Button asChild variant="outline" className="h-10 sm:h-8">
+        <Button asChild variant="outline" >
           <Link href="/transactions">Volver</Link>
         </Button>
       }
     >
       <div className="mx-auto w-full max-w-lg">
-        <NewTransactionPageForm
-          workspaceId={workspace.id}
-          workspaceName={workspace.name}
-          workspaceCurrency={workspace.baseCurrency}
-          accounts={activeAccounts.map((a) => ({
-            id: a.id,
-            name: a.name,
-            currency: a.currency,
-            workspaceId: workspace.id,
-            workspaceName: workspace.name,
-            workspaceType: workspace.type,
-          }))}
-          paymentAccountGroups={paymentGroups.map((g) => ({
-            workspaceId: g.workspaceId,
-            workspaceName: g.workspaceName,
-            workspaceType: g.workspaceType,
-            accounts: g.accounts.map((a) => ({
+        <SurfaceSection>
+          <NewTransactionPageForm
+            workspaceId={workspace.id}
+            workspaceName={workspace.name}
+            workspaceCurrency={workspace.baseCurrency}
+            accounts={activeAccounts.map((a) => ({
               id: a.id,
               name: a.name,
               currency: a.currency,
-              workspaceId: a.workspaceId,
-              workspaceName: a.workspaceName,
-              workspaceType: a.workspaceType,
-            })),
-          }))}
-          categories={categories
-            .filter((c) => !c.isArchived)
-            .map((c) => ({
-              id: c.id,
-              name: c.name,
-              kind: c.kind,
+              workspaceId: workspace.id,
+              workspaceName: workspace.name,
+              workspaceType: workspace.type,
             }))}
-          groupMembers={groupMembers}
-          currentUserId={session.user.id}
-        />
+            paymentAccountGroups={paymentGroups.map((g) => ({
+              workspaceId: g.workspaceId,
+              workspaceName: g.workspaceName,
+              workspaceType: g.workspaceType,
+              accounts: g.accounts.map((a) => ({
+                id: a.id,
+                name: a.name,
+                currency: a.currency,
+                workspaceId: a.workspaceId,
+                workspaceName: a.workspaceName,
+                workspaceType: a.workspaceType,
+              })),
+            }))}
+            categories={categories
+              .filter((c) => !c.isArchived)
+              .map((c) => ({
+                id: c.id,
+                name: c.name,
+                kind: c.kind,
+              }))}
+            groupMembers={groupMembers}
+            currentUserId={session.user.id}
+          />
+        </SurfaceSection>
       </div>
     </ContentPanel>
   );

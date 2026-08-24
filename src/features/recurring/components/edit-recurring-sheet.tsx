@@ -38,7 +38,7 @@ export function EditRecurringSheet({
       description="El tipo y la moneda no se pueden cambiar."
       size="lg"
       trigger={
-        <Button variant="outline" className="h-10 w-full gap-1.5 sm:h-8 sm:w-auto">
+        <Button variant="outline" className="w-full gap-1.5 sm:w-auto">
           <Pencil className="size-4" strokeWidth={1.75} />
           Editar
         </Button>

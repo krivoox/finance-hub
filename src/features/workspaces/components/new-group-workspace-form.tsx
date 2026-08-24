@@ -12,11 +12,25 @@ import {
   type CreateGroupWorkspaceInput,
 } from "@/features/workspaces/schemas";
 import { SUPPORTED_CURRENCIES } from "@/features/auth/domain/profile";
+import {
+  FormActions,
+  FormField,
+  FormStack,
+} from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { nativeSelectClassName } from "@/components/ui/native-select";
 import { navigateAndRefresh } from "@/lib/navigation";
 
-export function NewGroupWorkspaceForm() {
+type NewGroupWorkspaceFormProps = {
+  successHref?: string;
+  onSuccess?: () => void;
+};
+
+export function NewGroupWorkspaceForm({
+  successHref = "/onboarding",
+  onSuccess,
+}: NewGroupWorkspaceFormProps = {}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const {
@@ -38,65 +52,54 @@ export function NewGroupWorkspaceForm() {
       }
       toast.success("Espacio creado");
       reset({ name: "", baseCurrency: "ARS" });
-      navigateAndRefresh(router, "/onboarding");
+      onSuccess?.();
+      navigateAndRefresh(router, successHref);
     });
   });
 
   const isBusy = isPending || isSubmitting;
 
   return (
-    <form className="max-w-md space-y-4" onSubmit={onSubmit} noValidate>
-      <div className="space-y-2">
-        <label
+    <form className="flex flex-col gap-6" onSubmit={onSubmit} noValidate>
+      <FormStack>
+        <FormField
+          label="Nombre"
           htmlFor="workspace-name"
-          className="text-sm font-medium text-muted-foreground"
+          error={errors.name?.message}
         >
-          Nombre
-        </label>
-        <Input
-          id="workspace-name"
-          placeholder="Hogar, Familia..."
-          aria-invalid={Boolean(errors.name)}
-          {...register("name")}
-        />
-        {errors.name ? (
-          <p className="text-xs text-destructive">{errors.name.message}</p>
-        ) : null}
-      </div>
+          <Input
+            id="workspace-name"
+            placeholder="Hogar, Familia..."
+            aria-invalid={Boolean(errors.name)}
+            {...register("name")}
+          />
+        </FormField>
 
-      <div className="space-y-2">
-        <label
+        <FormField
+          label="Moneda base"
           htmlFor="workspace-currency"
-          className="text-sm font-medium text-muted-foreground"
+          error={errors.baseCurrency?.message}
         >
-          Moneda base
-        </label>
-        <select
-          id="workspace-currency"
-          aria-invalid={Boolean(errors.baseCurrency)}
-          className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring sm:h-9 sm:text-sm"
-          {...register("baseCurrency")}
-        >
-          {SUPPORTED_CURRENCIES.map((code) => (
-            <option key={code} value={code}>
-              {code}
-            </option>
-          ))}
-        </select>
-        {errors.baseCurrency ? (
-          <p className="text-xs text-destructive">
-            {errors.baseCurrency.message}
-          </p>
-        ) : null}
-      </div>
+          <select
+            id="workspace-currency"
+            aria-invalid={Boolean(errors.baseCurrency)}
+            className={nativeSelectClassName}
+            {...register("baseCurrency")}
+          >
+            {SUPPORTED_CURRENCIES.map((code) => (
+              <option key={code} value={code}>
+                {code}
+              </option>
+            ))}
+          </select>
+        </FormField>
+      </FormStack>
 
-      <Button
-        type="submit"
-        className="h-10 w-full sm:h-8 sm:w-auto"
-        disabled={isBusy}
-      >
-        {isBusy ? "Creando..." : "Crear workspace"}
-      </Button>
+      <FormActions>
+        <Button type="submit" className="w-full sm:w-auto" disabled={isBusy}>
+          {isBusy ? "Creando..." : "Crear workspace"}
+        </Button>
+      </FormActions>
     </form>
   );
 }

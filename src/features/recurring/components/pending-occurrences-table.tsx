@@ -5,13 +5,17 @@ import { useRouter } from "next/navigation";
 import { CheckCircle2, Lock, Repeat } from "lucide-react";
 import { toast } from "sonner";
 
+import {
+  AbmTable,
+  AbmHead,
+  AbmCell,
+  AbmMoney,
+} from "@/components/abm-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
-  TableCell,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
@@ -23,7 +27,6 @@ import {
 } from "@/components/data-table";
 import { CategoryPill } from "@/features/categories/components/category-pill";
 import { formatDateOnly } from "@/lib/format-date";
-import { formatMoney } from "@/lib/format-money";
 import { refreshAfterMutation } from "@/lib/navigation";
 import { materializeRecurringOccurrenceAction } from "@/features/recurring/actions";
 import type { PendingOccurrence } from "@/features/recurring/services";
@@ -49,6 +52,14 @@ function amountVariant(
   if (type === "income") return "income";
   if (type === "expense") return "expense";
   return "transfer";
+}
+
+function signedAmountCents(
+  type: PendingOccurrence["ruleType"],
+  amountCents: number,
+): number {
+  if (type === "income") return amountCents;
+  return -amountCents;
 }
 
 function statusVariant(
@@ -153,45 +164,44 @@ export function PendingOccurrencesTable({
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <BulkActionsBar
-        selection={selection}
-        singular="ocurrencia seleccionada"
-        plural="ocurrencias seleccionadas"
-      >
-        <Button
-          type="button"
-          size="sm"
-          className="h-8 gap-1.5"
-          disabled={isPending}
-          onClick={() => confirmMany(selection.selectedIds)}
+    <AbmTable
+      bulk={
+        <BulkActionsBar
+          selection={selection}
+          singular="ocurrencia seleccionada"
+          plural="ocurrencias seleccionadas"
         >
-          <CheckCircle2 className="size-3.5" strokeWidth={1.75} aria-hidden />
-          {isPending ? "Registrando…" : "Confirmar"}
-        </Button>
-      </BulkActionsBar>
-
+          <Button
+            type="button"
+            size="sm"
+            disabled={isPending}
+            onClick={() => confirmMany(selection.selectedIds)}
+          >
+            <CheckCircle2 className="size-3.5" strokeWidth={1.75} aria-hidden />
+            {isPending ? "Registrando…" : "Confirmar"}
+          </Button>
+        </BulkActionsBar>
+      }
+    >
       <Table>
         <TableHeader>
-          <TableRow>
+          <TableRow className="border-border/70 hover:bg-transparent">
             {canMutate ? (
               <SelectAllHead
                 selection={selection}
                 label="Seleccionar todas las ocurrencias confirmables"
               />
             ) : null}
-            <TableHead>Descripción</TableHead>
-            <TableHead className="hidden md:table-cell">Categoría</TableHead>
-            <TableHead className="hidden lg:table-cell">Cuenta</TableHead>
-            <TableHead className="text-right">Monto</TableHead>
-            <TableHead className="hidden sm:table-cell">
-              Fecha de cobro
-            </TableHead>
-            <TableHead className="hidden sm:table-cell">Estado</TableHead>
+            <AbmHead>Descripción</AbmHead>
+            <AbmHead hideBelow="md">Categoría</AbmHead>
+            <AbmHead hideBelow="lg">Cuenta</AbmHead>
+            <AbmHead className="text-right">Monto</AbmHead>
+            <AbmHead hideBelow="sm">Fecha de cobro</AbmHead>
+            <AbmHead hideBelow="sm">Estado</AbmHead>
             {canMutate ? (
-              <TableHead className="text-right">
+              <AbmHead className="text-right">
                 <span className="sr-only">Acciones</span>
-              </TableHead>
+              </AbmHead>
             ) : null}
           </TableRow>
         </TableHeader>
@@ -199,9 +209,11 @@ export function PendingOccurrencesTable({
           {items.map((item) => {
             const key = occurrenceKey(item);
             const selectable = canMutate && item.isConfirmable;
+            const tone = amountVariant(item.ruleType);
             return (
               <TableRow
                 key={key}
+                className="border-border/60"
                 data-state={selection.isSelected(key) ? "selected" : undefined}
               >
                 {canMutate ? (
@@ -212,7 +224,7 @@ export function PendingOccurrencesTable({
                     label={`Seleccionar ${item.ruleName} del ${formatDateOnly(item.scheduledOn)}`}
                   />
                 ) : null}
-                <TableCell>
+                <AbmCell>
                   <div className="flex min-w-0 flex-col gap-0.5">
                     <span className="font-medium text-foreground">
                       {item.ruleName}
@@ -226,39 +238,37 @@ export function PendingOccurrencesTable({
                       {accountLabel(item)}
                     </span>
                   </div>
-                </TableCell>
-                <TableCell className="hidden md:table-cell">
+                </AbmCell>
+                <AbmCell hideBelow="md">
                   <CategoryPill
                     label={categoryLabel(item)}
                     toneSeed={item.categoryId}
                   />
-                </TableCell>
-                <TableCell className="hidden text-muted-foreground lg:table-cell">
+                </AbmCell>
+                <AbmCell hideBelow="lg" muted>
                   {accountLabel(item)}
-                </TableCell>
-                <TableCell className="text-right">
-                  <Badge
-                    variant={amountVariant(item.ruleType)}
-                    className="tabular-nums"
-                  >
-                    {formatMoney(item.amountCents, item.currency)}
-                  </Badge>
-                </TableCell>
-                <TableCell className="hidden tabular-nums text-muted-foreground sm:table-cell">
+                </AbmCell>
+                <AbmCell className="text-right">
+                  <AbmMoney
+                    cents={signedAmountCents(item.ruleType, item.amountCents)}
+                    currency={item.currency}
+                    tone={tone}
+                  />
+                </AbmCell>
+                <AbmCell hideBelow="sm" className="tabular-nums" muted>
                   {formatDateOnly(item.scheduledOn)}
-                </TableCell>
-                <TableCell className="hidden sm:table-cell">
+                </AbmCell>
+                <AbmCell hideBelow="sm">
                   <Badge variant={statusVariant(item.status)}>
                     {OCCURRENCE_STATUS_LABEL_ES[item.status]}
                   </Badge>
-                </TableCell>
+                </AbmCell>
                 {canMutate ? (
-                  <TableCell className="text-right">
+                  <AbmCell className="text-right">
                     {item.isConfirmable ? (
                       <Button
                         type="button"
                         size="sm"
-                        className="h-8 gap-1.5"
                         disabled={isPending}
                         onClick={() => confirmMany([key])}
                       >
@@ -282,13 +292,13 @@ export function PendingOccurrencesTable({
                         Desde {formatDateOnly(item.scheduledOn)}
                       </span>
                     )}
-                  </TableCell>
+                  </AbmCell>
                 ) : null}
               </TableRow>
             );
           })}
         </TableBody>
       </Table>
-    </div>
+    </AbmTable>
   );
 }

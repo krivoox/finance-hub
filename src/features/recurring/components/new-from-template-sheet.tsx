@@ -433,7 +433,7 @@ export function NewFromTemplateSheet({
     <Button
       type="button"
       variant="outline"
-      className="h-10 w-full gap-1.5 sm:h-8 sm:w-auto"
+      className="w-full gap-1.5 sm:w-auto"
     >
       <LayoutGrid className="size-4" strokeWidth={1.75} aria-hidden />
       Desde plantilla
@@ -801,7 +801,7 @@ export function NewFromTemplateSheet({
             <Button
               type="button"
               variant="outline"
-              className="h-10 w-full sm:h-8 sm:w-auto"
+              className="w-full sm:w-auto"
               disabled={isPending}
               onClick={() => handleOpenChange(false)}
             >
@@ -809,7 +809,7 @@ export function NewFromTemplateSheet({
             </Button>
             <Button
               type="button"
-              className="h-10 w-full sm:h-8 sm:w-auto"
+              className="w-full sm:w-auto"
               disabled={isPending || !amountPreview}
               onClick={handleCreate}
             >

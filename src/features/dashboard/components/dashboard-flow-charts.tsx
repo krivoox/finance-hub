@@ -28,7 +28,7 @@ export function DashboardFlowCharts({
   const defaultTab = hasAccounts ? "accounts" : "cashflow";
 
   return (
-    <SurfaceSection className="h-full">
+    <SurfaceSection className="hidden h-full md:block">
       <SurfaceHeader
         title="Flujo del mes"
         description="De qué cuenta salió cada gasto, o ingresos a gastos"

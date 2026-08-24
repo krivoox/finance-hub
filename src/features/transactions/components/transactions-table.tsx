@@ -7,17 +7,21 @@ import { Pencil, Repeat, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { FormSheet } from "@/components/form-sheet";
-import { SurfaceSection } from "@/components/surface-section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
-  TableCell,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AbmTable,
+  AbmHead,
+  AbmCell,
+  AbmGlyph,
+  AbmMoney,
+} from "@/components/abm-table";
 import {
   BulkActionsBar,
   SelectAllHead,
@@ -33,7 +37,6 @@ import { splitLeadingEmoji } from "@/features/categories/domain/split-leading-em
 import { deleteTransactionAction } from "@/features/transactions/actions";
 import type { TransactionType } from "@/features/transactions/domain";
 import { formatDateOnly } from "@/lib/format-date";
-import { formatSignedMoney } from "@/lib/format-money";
 import { navigateAndRefresh, refreshAfterMutation } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 
@@ -135,9 +138,6 @@ function occurredOnIso(value: Date | string): string {
   return value.toISOString().slice(0, 10);
 }
 
-const headClass = "h-10 px-4";
-const cellClass = "px-4 py-3.5";
-
 type TransactionsTableProps = {
   items: readonly TableTransaction[];
   workspaceId: string;
@@ -232,53 +232,56 @@ export function TransactionsTable({
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <BulkActionsBar
-        selection={selection}
-        singular="transacción seleccionada"
-        plural="transacciones seleccionadas"
+    <>
+      <AbmTable
+        bulk={
+          <BulkActionsBar
+            selection={selection}
+            singular="transacción seleccionada"
+            plural="transacciones seleccionadas"
+          >
+            {singleSelected ? (
+              <>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isPending}
+                  onClick={() =>
+                    navigateAndRefresh(
+                      router,
+                      `/transactions/${singleSelected.id}`,
+                    )
+                  }
+                >
+                  Abrir
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isPending}
+                  onClick={() => setEditOpen(true)}
+                >
+                  <Pencil className="size-3.5" strokeWidth={1.75} aria-hidden />
+                  Editar
+                </Button>
+              </>
+            ) : null}
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              disabled={isPending}
+              onClick={() => deleteSelected(selection.selectedIds)}
+            >
+              <Trash2 className="size-3.5" strokeWidth={1.75} aria-hidden />
+              Eliminar
+            </Button>
+          </BulkActionsBar>
+        }
       >
-        {singleSelected ? (
-          <>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="h-8"
-              disabled={isPending}
-              onClick={() =>
-                navigateAndRefresh(router, `/transactions/${singleSelected.id}`)
-              }
-            >
-              Abrir
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="h-8 gap-1.5"
-              disabled={isPending}
-              onClick={() => setEditOpen(true)}
-            >
-              <Pencil className="size-3.5" strokeWidth={1.75} aria-hidden />
-              Editar
-            </Button>
-          </>
-        ) : null}
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="h-8 gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
-          disabled={isPending}
-          onClick={() => deleteSelected(selection.selectedIds)}
-        >
-          <Trash2 className="size-3.5" strokeWidth={1.75} aria-hidden />
-          Eliminar
-        </Button>
-      </BulkActionsBar>
-
-      <SurfaceSection flush>
         <Table>
           <TableHeader>
             <TableRow className="border-border/70 hover:bg-transparent">
@@ -288,22 +291,12 @@ export function TransactionsTable({
                   label="Seleccionar todas las transacciones"
                 />
               ) : null}
-              <TableHead className={headClass}>Descripción</TableHead>
-              <TableHead className={cn(headClass, "hidden sm:table-cell")}>
-                Cuenta
-              </TableHead>
-              <TableHead className={cn(headClass, "hidden md:table-cell")}>
-                Categoría
-              </TableHead>
-              <TableHead className={cn(headClass, "hidden lg:table-cell")}>
-                Tipo
-              </TableHead>
-              <TableHead className={cn(headClass, "hidden sm:table-cell")}>
-                Fecha
-              </TableHead>
-              <TableHead className={cn(headClass, "text-right")}>
-                Monto
-              </TableHead>
+              <AbmHead>Descripción</AbmHead>
+              <AbmHead hideBelow="sm">Cuenta</AbmHead>
+              <AbmHead hideBelow="md">Categoría</AbmHead>
+              <AbmHead hideBelow="lg">Tipo</AbmHead>
+              <AbmHead hideBelow="sm">Fecha</AbmHead>
+              <AbmHead className="text-right">Monto</AbmHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -332,7 +325,6 @@ export function TransactionsTable({
                 ? `${tx.registrationWorkspaceName ?? "Otro espacio"} · ${description}`
                 : description;
               const glyph = rowGlyph(tx);
-              const amountKind = amountVariant(tx.type);
 
               return (
                 <TableRow
@@ -349,17 +341,11 @@ export function TransactionsTable({
                       label={`Seleccionar ${descriptionWithChip}`}
                     />
                   ) : null}
-                  <TableCell className={cellClass}>
+                  <AbmCell>
                     <div className="flex min-w-0 items-start gap-3">
-                      <span
-                        className={cn(
-                          "mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-lg text-base",
-                          glyph.toneClass,
-                        )}
-                        aria-hidden
-                      >
+                      <AbmGlyph className={glyph.toneClass}>
                         {glyph.emoji}
-                      </span>
+                      </AbmGlyph>
                       <div className="flex min-w-0 flex-col gap-0.5">
                         <div className="flex min-w-0 flex-wrap items-center gap-1.5">
                           <Link
@@ -402,56 +388,43 @@ export function TransactionsTable({
                         ) : null}
                       </div>
                     </div>
-                  </TableCell>
-                  <TableCell
-                    className={cn(
-                      cellClass,
-                      "hidden text-muted-foreground sm:table-cell",
-                    )}
-                  >
+                  </AbmCell>
+                  <AbmCell hideBelow="sm" muted>
                     {accountLabel}
-                  </TableCell>
-                  <TableCell className={cn(cellClass, "hidden md:table-cell")}>
+                  </AbmCell>
+                  <AbmCell hideBelow="md">
                     <CategoryPill
                       variant="text"
                       label={categoryLabel}
                       toneSeed={tx.categoryId ?? categoryLabel}
                     />
-                  </TableCell>
-                  <TableCell className={cn(cellClass, "hidden lg:table-cell")}>
-                    <span className={cn("text-sm font-medium", typeToneClass(tx.type))}>
-                      {TRANSACTION_TYPE_LABEL_ES[tx.type]}
-                    </span>
-                  </TableCell>
-                  <TableCell
-                    className={cn(
-                      cellClass,
-                      "hidden tabular-nums text-muted-foreground sm:table-cell",
-                    )}
-                  >
-                    {formatDateOnly(tx.occurredOn)}
-                  </TableCell>
-                  <TableCell className={cn(cellClass, "text-right")}>
+                  </AbmCell>
+                  <AbmCell hideBelow="lg">
                     <span
                       className={cn(
-                        "font-heading text-sm font-extrabold tabular",
-                        amountKind === "income" && "text-income",
-                        amountKind === "expense" && "text-expense",
-                        amountKind === "transfer" && "text-transfer",
+                        "text-sm font-medium",
+                        typeToneClass(tx.type),
                       )}
                     >
-                      {formatSignedMoney(
-                        signedAmountCents(tx.type, tx.amountCents),
-                        tx.currency,
-                      )}
+                      {TRANSACTION_TYPE_LABEL_ES[tx.type]}
                     </span>
-                  </TableCell>
+                  </AbmCell>
+                  <AbmCell hideBelow="sm" className="tabular-nums" muted>
+                    {formatDateOnly(tx.occurredOn)}
+                  </AbmCell>
+                  <AbmCell className="text-right">
+                    <AbmMoney
+                      cents={signedAmountCents(tx.type, tx.amountCents)}
+                      currency={tx.currency}
+                      tone={amountVariant(tx.type)}
+                    />
+                  </AbmCell>
                 </TableRow>
               );
             })}
           </TableBody>
         </Table>
-      </SurfaceSection>
+      </AbmTable>
 
       {singleSelected ? (
         <FormSheet
@@ -487,6 +460,6 @@ export function TransactionsTable({
           />
         </FormSheet>
       ) : null}
-    </div>
+    </>
   );
 }

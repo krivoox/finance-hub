@@ -17,7 +17,7 @@ function SurfaceHeaderSkeleton({ withAction = true }: { withAction?: boolean }) 
         <Skeleton className="h-4 w-32" />
         <Skeleton className="h-3 w-40 max-w-full" />
       </div>
-      {withAction ? <Skeleton className="h-8 w-20 rounded-full" /> : null}
+      {withAction ? <Skeleton className="h-8 w-20 rounded-lg" /> : null}
     </div>
   );
 }
@@ -127,7 +127,10 @@ export function DashboardAttentionSkeleton() {
 
 export function DashboardFlowChartsSkeleton() {
   return (
-    <SurfaceSection aria-label="Cargando flujo del mes" className="h-full">
+    <SurfaceSection
+      aria-label="Cargando flujo del mes"
+      className="hidden h-full md:block"
+    >
       <SurfaceHeaderSkeleton withAction={false} />
       <div className="flex gap-2">
         <Skeleton className="h-8 w-32 rounded-md" />
@@ -183,7 +186,7 @@ export function DashboardAccountsSkeleton() {
     <SurfaceSection aria-label="Cargando cuentas" className="flex h-full flex-col">
       <SurfaceHeaderSkeleton />
       <ListRowsSkeleton rows={4} />
-      <Skeleton className={cn("mt-4 h-9 w-full rounded-full")} />
+      <Skeleton className={cn("mt-4 h-10 w-full rounded-xl")} />
     </SurfaceSection>
   );
 }

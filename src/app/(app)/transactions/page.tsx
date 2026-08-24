@@ -177,7 +177,7 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
   const createActions = canMutate ? (
     <Suspense
       fallback={
-        <Button className="h-10 w-full sm:h-8 sm:w-auto" disabled>
+        <Button className="w-full sm:w-auto" disabled>
           Registrar
         </Button>
       }

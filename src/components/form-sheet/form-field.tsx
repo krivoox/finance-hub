@@ -26,7 +26,7 @@ export function FormField({
     <div className={cn("space-y-1.5", className)}>
       <label
         htmlFor={htmlFor}
-        className="flex items-baseline gap-1.5 text-sm font-medium text-foreground"
+        className="flex items-baseline gap-1.5 text-sm font-medium text-muted-foreground"
       >
         <span>{label}</span>
         {optional ? (

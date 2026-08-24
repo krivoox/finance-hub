@@ -11,7 +11,6 @@ import {
   type ActiveWorkspaceContext,
 } from "@/features/workspaces/services";
 import { GroupsSectionNav } from "@/features/splits/components/groups-section-nav";
-import { NewGroupWorkspaceForm } from "@/features/workspaces/components/new-group-workspace-form";
 import { InviteMemberForm } from "@/features/workspaces/components/invite-member-form";
 import { MembersManagement } from "@/features/workspaces/components/members-management";
 import { PendingInvitationsList } from "@/features/workspaces/components/pending-invitations-list";
@@ -28,35 +27,8 @@ export default async function GroupsSettingsPage() {
   if (!session?.user?.id) redirect("/login");
 
   const active = await getActiveWorkspaceForUser(session.user.id);
-  if (!active) {
-    return (
-      <ContentPanel
-        title="Grupos"
-        description="Administrá miembros e invitaciones."
-      >
-        <p className="text-sm text-muted-foreground">
-          No hay workspace activo.
-        </p>
-      </ContentPanel>
-    );
-  }
-
-  if (active.type !== "group") {
-    return (
-      <ContentPanel
-        title="Grupos"
-        description="Creá un workspace grupal para invitar miembros."
-      >
-        <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            El workspace activo &ldquo;{active.name}&rdquo; es personal. Creá un
-            grupo para administrar miembros e invitaciones. El workspace personal
-            no se puede eliminar ni abandonar.
-          </p>
-          <NewGroupWorkspaceForm />
-        </div>
-      </ContentPanel>
-    );
+  if (!active || active.type !== "group") {
+    redirect("/groups");
   }
 
   const canManageMembers =

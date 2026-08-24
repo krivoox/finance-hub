@@ -30,7 +30,7 @@ export default async function InvitationPage({
   if (!preview) {
     return (
       <div className="space-y-4">
-        <h1 className="text-lg font-semibold text-foreground">
+        <h1 className="font-heading text-xl font-extrabold tracking-tight text-foreground">
           Invitación inválida
         </h1>
         <p className="text-xs text-muted-foreground">
@@ -50,7 +50,7 @@ export default async function InvitationPage({
   if (preview.isExpired || preview.status === "expired") {
     return (
       <div className="space-y-4">
-        <h1 className="text-lg font-semibold text-foreground">
+        <h1 className="font-heading text-xl font-extrabold tracking-tight text-foreground">
           Invitación expirada
         </h1>
         <p className="text-xs text-muted-foreground">
@@ -63,7 +63,7 @@ export default async function InvitationPage({
   if (preview.status === "accepted" || preview.status === "rejected") {
     return (
       <div className="space-y-4">
-        <h1 className="text-lg font-semibold text-foreground">
+        <h1 className="font-heading text-xl font-extrabold tracking-tight text-foreground">
           Invitación no disponible
         </h1>
         <p className="text-xs text-muted-foreground">
@@ -81,7 +81,7 @@ export default async function InvitationPage({
     <div className="space-y-6">
       <RememberInviteToken token={token} />
       <div className="space-y-2">
-        <h1 className="text-lg font-semibold text-foreground">
+        <h1 className="font-heading text-xl font-extrabold tracking-tight text-foreground">
           Te invitaron a un workspace
         </h1>
         <p className="text-sm text-foreground">

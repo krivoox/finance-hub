@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Target } from "lucide-react";
 
 import { ProgressBar, goalProgressTone } from "@/components/progress-bar";
 import { Button } from "@/components/ui/button";
@@ -23,7 +24,7 @@ export function DashboardGoals({ currency, goals }: DashboardGoalsProps) {
         title="Objetivos"
         description="Progreso de metas activas"
         action={
-          <Button variant="ghost" size="sm" className="h-8 rounded-full" asChild>
+          <Button variant="ghost" size="sm" asChild>
             <Link href="/goals">Ver todos</Link>
           </Button>
         }
@@ -31,11 +32,21 @@ export function DashboardGoals({ currency, goals }: DashboardGoalsProps) {
 
       {visible.length === 0 ? (
         <div className="flex flex-1 flex-col items-start gap-3">
-          <p className="text-sm text-muted-foreground text-pretty">
-            Todavía no hay objetivos activos. Definí una meta para seguir tu
-            ahorro mes a mes.
-          </p>
-          <Button variant="outline" size="sm" className="h-9 rounded-full" asChild>
+          <span
+            className="flex size-10 items-center justify-center rounded-xl bg-muted text-muted-foreground"
+            aria-hidden
+          >
+            <Target className="size-5" strokeWidth={1.75} />
+          </span>
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-foreground">
+              Sin objetivos activos
+            </p>
+            <p className="text-sm text-muted-foreground text-pretty">
+              Definí una meta para seguir tu ahorro mes a mes.
+            </p>
+          </div>
+          <Button variant="outline" asChild>
             <Link href="/goals">Crear objetivo</Link>
           </Button>
         </div>
@@ -47,7 +58,7 @@ export function DashboardGoals({ currency, goals }: DashboardGoalsProps) {
                 <p className="min-w-0 truncate text-sm font-medium text-foreground">
                   {goal.name}
                 </p>
-                <span className="shrink-0 text-xs font-medium tabular-nums text-muted-foreground">
+                <span className="shrink-0 text-xs font-medium tabular text-muted-foreground">
                   {goal.progressPercent}%
                 </span>
               </div>
@@ -57,10 +68,10 @@ export function DashboardGoals({ currency, goals }: DashboardGoalsProps) {
                 aria-label={`${goal.name}: ${goal.progressPercent}%`}
               />
               <div className="flex items-baseline justify-between gap-3 text-xs text-muted-foreground">
-                <span className="tabular-nums">
+                <span className="tabular">
                   {formatMoney(goal.currentAmountCents, currency)}
                 </span>
-                <span className="tabular-nums">
+                <span className="tabular">
                   Objetivo {formatMoney(goal.targetAmountCents, currency)}
                 </span>
               </div>

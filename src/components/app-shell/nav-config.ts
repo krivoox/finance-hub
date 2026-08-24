@@ -235,7 +235,7 @@ export function isNavItemActive(pathname: string, href: string): boolean {
 }
 
 export function getPageTitle(pathname: string): string {
-  if (pathname.startsWith("/groups/settings")) return "Grupos";
+  if (pathname.startsWith("/groups/")) return "Grupos";
   if (pathname.startsWith("/budgets/") && pathname !== "/budgets") {
     return "Presupuesto";
   }

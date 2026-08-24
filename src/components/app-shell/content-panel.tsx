@@ -38,7 +38,7 @@ export function ContentPanel({
           ) : null}
         </div>
         {actions ? (
-          <div className="flex w-full shrink-0 flex-wrap items-center gap-2 sm:w-auto [&_a]:rounded-xl [&_button]:rounded-xl">
+          <div className="flex w-full shrink-0 flex-wrap items-center gap-2 sm:w-auto">
             {actions}
           </div>
         ) : null}
