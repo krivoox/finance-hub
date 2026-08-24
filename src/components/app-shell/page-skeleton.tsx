@@ -18,7 +18,7 @@ export function PageSkeleton({
   return (
     <section
       className={cn(
-        "mx-auto flex w-full max-w-[1400px] flex-1 flex-col md:min-h-0 md:overflow-hidden",
+        "mx-auto flex w-full min-w-0 max-w-[1400px] flex-1 flex-col md:min-h-0 md:overflow-hidden",
         className,
       )}
       aria-busy

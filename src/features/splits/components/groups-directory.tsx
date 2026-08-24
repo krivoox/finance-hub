@@ -44,9 +44,9 @@ export function GroupsDirectory({
 
   return (
     <div className="space-y-4">
-      <ul className="grid gap-3 sm:grid-cols-2">
+      <ul className="grid min-w-0 gap-3 sm:grid-cols-2">
         {groups.map((group) => (
-          <li key={group.id}>
+          <li key={group.id} className="min-w-0">
             <Suspense fallback={<GroupCardSkeleton />}>
               <GroupDirectoryCardLoader
                 userId={userId}

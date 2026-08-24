@@ -82,7 +82,7 @@ export function DashboardRecent({
           </Button>
         </div>
       ) : (
-        <ul className="-mx-2 divide-y divide-border">
+        <ul className="-mx-2 min-w-0 divide-y divide-border">
           {transactions.slice(0, limit).map((tx) => {
             const glyph = rowGlyph(tx);
             const amountClass = TYPE_AMOUNT[amountVariant(tx.type)];
@@ -91,10 +91,10 @@ export function DashboardRecent({
               : "Sin categoría";
 
             return (
-              <li key={tx.id} className="relative">
+              <li key={tx.id} className="relative min-w-0">
                 <Link
                   href={`/transactions/${tx.id}`}
-                  className="flex items-center gap-3 rounded-xl px-2 py-2.5 transition-colors hover:bg-background/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none dark:hover:bg-background/40"
+                  className="flex min-w-0 items-center gap-3 rounded-xl px-2 py-2.5 transition-colors hover:bg-background/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none dark:hover:bg-background/40"
                 >
                   <AbmGlyph className={glyph.toneClass}>{glyph.emoji}</AbmGlyph>
 
@@ -108,7 +108,10 @@ export function DashboardRecent({
                   </span>
 
                   <span
-                    className={cn("shrink-0 text-sm tabular", amountClass)}
+                    className={cn(
+                      "max-w-[42%] shrink-0 text-right text-xs tabular sm:text-sm",
+                      amountClass,
+                    )}
                   >
                     {formatSignedAmount(tx.type, tx.amountCents, tx.currency)}
                   </span>

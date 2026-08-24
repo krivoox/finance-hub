@@ -67,11 +67,11 @@ export function DashboardGoals({ currency, goals }: DashboardGoalsProps) {
                 tone={goalProgressTone(goal.progressPercent)}
                 aria-label={`${goal.name}: ${goal.progressPercent}%`}
               />
-              <div className="flex items-baseline justify-between gap-3 text-xs text-muted-foreground">
-                <span className="tabular">
+              <div className="flex min-w-0 items-baseline justify-between gap-3 text-xs text-muted-foreground">
+                <span className="min-w-0 truncate tabular">
                   {formatMoney(goal.currentAmountCents, currency)}
                 </span>
-                <span className="tabular">
+                <span className="min-w-0 truncate text-right tabular">
                   Objetivo {formatMoney(goal.targetAmountCents, currency)}
                 </span>
               </div>

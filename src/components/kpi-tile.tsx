@@ -72,7 +72,7 @@ export function KpiTile({
       </p>
       <p
         className={cn(
-          "font-heading font-extrabold tracking-tight tabular",
+          "font-heading font-extrabold tracking-tight break-words tabular",
           size === "sm" ? "text-base sm:text-lg" : "text-xl sm:text-2xl",
           isPlain ? "mt-0.5" : "mt-2",
           toneValue,

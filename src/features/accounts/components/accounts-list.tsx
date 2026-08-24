@@ -335,10 +335,10 @@ function AccountGroupList({
         };
 
         return (
-          <li key={account.id}>
+          <li key={account.id} className="min-w-0">
             <div
               className={cn(
-                "flex flex-wrap items-center gap-3 rounded-xl px-2 py-2.5",
+                "flex min-w-0 flex-wrap items-center gap-3 rounded-xl px-2 py-2.5",
                 account.isArchived && "opacity-70",
               )}
             >
@@ -379,7 +379,7 @@ function AccountGroupList({
 
               <p
                 className={cn(
-                  "shrink-0 text-sm tabular",
+                  "max-w-[42%] min-w-0 shrink-0 truncate text-right text-xs tabular sm:text-sm",
                   account.isArchived
                     ? "text-muted-foreground"
                     : isNegative || isCreditDebt

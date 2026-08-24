@@ -145,9 +145,9 @@ export function DashboardRecurringSkeleton() {
   return (
     <SurfaceSection aria-label="Cargando recurrentes" className="flex h-full flex-col">
       <SurfaceHeaderSkeleton />
-      <ul className="grid gap-2 sm:grid-cols-2">
+      <ul className="grid min-w-0 gap-2 md:grid-cols-2">
         {Array.from({ length: 4 }).map((_, i) => (
-          <li key={i} className="flex items-center gap-3 rounded-xl bg-background/60 px-2.5 py-2 dark:bg-background/40">
+          <li key={i} className="flex min-w-0 items-center gap-3 overflow-hidden rounded-xl bg-background/60 px-2.5 py-2 dark:bg-background/40">
             <Skeleton className="size-10 shrink-0 rounded-lg" />
             <div className="min-w-0 flex-1 space-y-1.5">
               <Skeleton className="h-3.5 w-2/3" />

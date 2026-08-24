@@ -100,6 +100,7 @@ Pantalla principal: visión clara del estado financiero del workspace activo (pe
 - Snapshot con acentos `income`/`expense` sutiles; Sankey con tabs *Ingresos → gastos* y *Cuentas → gastos*
 - No meter analytics densos adicionales en el primer viewport; deep-dive en SPEC-11
 - Cotizaciones (SPEC-19): preferir mini-card en sidebar + caption/CTA liviano aquí; no un segundo widget denso de FX en el primer viewport. Distinguir copy “Cotización” vs “TC de consolidación”.
+- **Móvil (~390px):** las cards no empujan el viewport (`scrollWidth === clientWidth`). Grids de listado (próximas recurrentes, cuentas, actividad, objetivos): 1 columna en base, 2 desde `md` (no desde `sm`). Filas de dinero: identidad `min-w-0 truncate`; monto acotado. Patrimonio: `text-2xl sm:text-3xl md:text-4xl` + `break-words`. Overflow del shell: [DESIGN.md](../../DESIGN.md) §3.1.
 
 ## 10. Notas de implementación
 

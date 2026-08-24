@@ -15,20 +15,48 @@ const nextConfig: NextConfig = {
   },
   /**
    * CDN cache contract (SPEC-20 / architecture §7.3):
-   * - `/_next/static` → long-lived immutable
+   * - Production `/_next/static` → long-lived immutable (content-hashed filenames)
+   * - `next dev` → `no-store` + `Clear-Site-Data: cache` on HTML
+     (Turbopack reuses chunk URLs; a leftover `immutable` entry hydrates stale JS)
    * - authenticated money HTML → private, no-store (never “fix” TTFB with stale saldos)
    */
   async headers() {
-    return [
-      {
-        source: "/_next/static/:path*",
-        headers: [
+    const isProd = process.env.NODE_ENV === "production";
+    const staticAssetHeaders = isProd
+      ? [
           {
-            key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
+            source: "/_next/static/:path*",
+            headers: [
+              {
+                key: "Cache-Control",
+                value: "public, max-age=31536000, immutable",
+              },
+            ],
           },
-        ],
-      },
+        ]
+      : [
+          {
+            source: "/_next/static/:path*",
+            headers: [
+              {
+                key: "Cache-Control",
+                value: "no-store",
+              },
+            ],
+          },
+          {
+            source: "/((?!_next/|api/|sw\\.js).*)",
+            headers: [
+              {
+                key: "Clear-Site-Data",
+                value: '"cache"',
+              },
+            ],
+          },
+        ];
+
+    return [
+      ...staticAssetHeaders,
       {
         source: "/sw.js",
         headers: [

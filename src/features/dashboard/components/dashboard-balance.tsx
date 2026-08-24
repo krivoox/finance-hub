@@ -68,7 +68,7 @@ export function DashboardBalance({
           <h2 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
             Patrimonio
           </h2>
-          <p className="mt-1.5 text-3xl font-semibold tracking-tight tabular-nums text-foreground sm:text-4xl">
+          <p className="mt-1.5 max-w-full text-2xl font-semibold tracking-tight break-words tabular-nums text-foreground sm:text-3xl md:text-4xl">
             {showApprox ? "≈ " : null}
             {formatMoney(heroBalance.amountCents, heroBalance.currency)}
           </p>
@@ -84,10 +84,10 @@ export function DashboardBalance({
       {showBreakdown ? (
         <ul className="mt-3 flex flex-wrap gap-2">
           {balancesByCurrency.map((row) => (
-            <li key={row.currency}>
-              <Badge variant="outline" className="h-6 gap-1 px-2 text-[11px]">
+            <li key={row.currency} className="min-w-0 max-w-full">
+              <Badge variant="outline" className="h-6 max-w-full gap-1 px-2 text-[11px]">
                 {row.currency}
-                <span className="tabular-nums text-muted-foreground">
+                <span className="truncate tabular-nums text-muted-foreground">
                   {formatMoney(row.amountCents, row.currency)}
                 </span>
               </Badge>

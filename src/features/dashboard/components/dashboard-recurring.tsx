@@ -80,7 +80,7 @@ export function DashboardRecurring({ items }: DashboardRecurringProps) {
           </p>
         </div>
       ) : (
-        <ul className="grid gap-2 sm:grid-cols-2">
+        <ul className="grid min-w-0 gap-2 md:grid-cols-2">
           {visible.map((item) => {
             const { day, month } = scheduledParts(item.scheduledOn);
             const isToday = item.status === "pending_today";
@@ -88,7 +88,7 @@ export function DashboardRecurring({ items }: DashboardRecurringProps) {
             return (
               <li
                 key={`${item.ruleId}:${item.scheduledOn}`}
-                className="flex items-center gap-3 rounded-xl bg-background/60 px-2.5 py-2 dark:bg-background/40"
+                className="flex min-w-0 items-center gap-2.5 overflow-hidden rounded-xl bg-background/60 px-2.5 py-2 dark:bg-background/40"
               >
                 <span
                   className={cn(
@@ -117,7 +117,7 @@ export function DashboardRecurring({ items }: DashboardRecurringProps) {
 
                 <span
                   className={cn(
-                    "shrink-0 text-sm font-medium tabular-nums",
+                    "max-w-[42%] shrink-0 text-right text-xs font-medium tabular-nums sm:text-sm",
                     amountTone(item),
                   )}
                 >

@@ -62,7 +62,7 @@ Rail navy flush a la izquierda (`Sidebar` `variant="sidebar"`) — **no** inset 
 | Cotización | `UsdQuotesCard` | Tokens `sidebar-*` (vive sobre navy) |
 | Tema | `ThemeToggle` en footer | Claro / Oscuro / Sistema |
 | Canvas | `bg-background` | Slate-50 en claro; navy night en oscuro |
-| Cards | `SurfaceSection` / `bg-card` | `rounded-2xl` (16px) + `border-border` + `shadow-card` |
+| Cards | `SurfaceSection` / `bg-card` | `rounded-2xl` + `shadow-card`. `min-w-0 max-w-full`. No `overflow-hidden` salvo `flush` (cliparía la sombra). |
 
 **ContentPanel** ya **no** es un card envolvente. Es chrome de página (H1 + description + actions) sobre el canvas. Cada bloque de contenido es una card propia.
 
@@ -78,7 +78,9 @@ Rail navy flush a la izquierda (`Sidebar` `variant="sidebar"`) — **no** inset 
 | Presupuestos | `/budgets` | Planificación; badge at-risk si aplica |
 | Más | sheet bottom | Cuentas, Objetivos, Grupos, Recurrentes, Ajustes, workspace, tema, salir |
 
-**Craft:** barra full-width, no pill flotante. Activo = `bg-info-muted` + `text-info-muted-foreground` + label; inactivos = icono (`sr-only` label). Clearance: `pb-[calc(4.25rem+env(safe-area-inset-bottom))]`.
+**Craft:** barra full-width, no pill flotante. Activo = `bg-info-muted` + `text-info-muted-foreground` + label; inactivos = icono (`sr-only` + `aria-label`). Clearance: `pb-[calc(4.25rem+env(safe-area-inset-bottom))]`.
+
+**Montaje (obligatorio):** `MobileTabBar` y `NewTransactionSheet` viven **fuera** del flex de `SidebarProvider`. Si la `<nav>` es hermana flex de `SidebarInset`, ensancha la página, aparece scroll lateral y la barra sale del viewport. Contrato: `position: fixed; left: 0; bottom: 0; width: 100%; max-width: 100%; z-50`. No usar `100vw` / `100dvw` (incluyen el gutter del scrollbar).
 
 **Desktop (`md+`):** sidebar navy intacto; tab bar `md:hidden`.
 
@@ -110,6 +112,17 @@ Componentes: `src/components/form-sheet/*`
 
 **Ajustes:** tabs por query (`?tab=perfil|workspace|categorias`). Gestión de categorías en `?tab=categorias`.
 
+### 3.4 Accesibilidad (WCAG 2.2 AA — lo implementado)
+
+| Pieza | Contrato |
+|-------|----------|
+| Skip link | `SkipLink` → `#main-content` (`SidebarInset`). Primer foco del documento. |
+| Landmarkas | `<main id="main-content">` + tab bar `aria-label="Navegación principal"`. |
+| Contraste | `--muted-foreground` en claro `oklch(0.445 …)` (labels 12px sobre card blanca). No aclarar sin re-chequear 4.5:1. |
+| Foco no tapado | `scroll-padding-bottom` / `scroll-margin-bottom` = altura del tab bar + safe area (`md:` 0). |
+| Motion | `prefers-reduced-motion: reduce` en `globals.css` (animación/transición ~0). |
+| Nombres | Icon-only: `aria-label` (Registrar, Más, tabs inactivas). |
+
 ---
 
 ## 3.1 Responsive — mobile first
@@ -130,10 +143,11 @@ Componentes: `src/components/form-sheet/*`
 2. **Shell:** en móvil **tab bar docked**; destinos extra en sheet “Más”. Sidebar navy desde `md`.
 3. **Tablas densas:** en base mostrar 2–3 columnas (identidad + monto). Columnas secundarias con `hidden sm:table-cell` / `md:table-cell`.
 4. **Forms:** create flows en `FormSheet` (1 columna).
-5. **Tipografía hero:** `font-heading font-extrabold` + `text-3xl sm:text-4xl` en patrimonio.
-6. **Touch:** controles críticos ≥ 40px de alto en móvil (`h-10` / padding); no depender solo de hover.
+5. **Tipografía hero:** `font-heading` + `text-2xl sm:text-3xl md:text-4xl` en patrimonio (cabe en 390px con montos ARS largos).
+6. **Touch:** controles críticos ≥ 40px de alto en móvil. `Button` `size="sm"` / `icon-sm` = `h-10` / `size-10` en base, `sm:h-8` / `sm:size-8` desde 640px.
 7. **Tabs / section nav:** scroll horizontal o labels cortos en móvil.
-8. **Nunca** bloquear el viewport con `overflow-hidden` en el body mobile sin sheet/scroll interno claro.
+8. **Overflow-x, no overflow total:** `overflow-x-hidden` en `html`/`body` y `min-w-0` en `SidebarInset`, `ContentPanel` y `SurfaceSection`. **Nunca** `overflow-hidden` en ambos ejes sobre el body mobile (traba el scroll vertical). No usar `overflow-x-clip`: este Tailwind no emite esa utilidad.
+9. **Filas de dinero:** identidad `min-w-0 truncate`; monto acotado (`max-w-[42%]` aprox.) para que la card no empuje el viewport. Grids de listado en dashboard: 1 col en base, 2 cols desde `md` (no desde `sm`).
 
 ---
 
@@ -156,7 +170,7 @@ Definidos en `:root` / `.dark` de `src/app/globals.css` y expuestos a Tailwind v
 | Token | Uso |
 |-------|-----|
 | `foreground` | Títulos, valores principales en canvas |
-| `muted-foreground` | Labels, meta, placeholders en canvas |
+| `muted-foreground` | Labels, meta, placeholders en canvas. Claro: `oklch(0.445)` (AA 12px sobre blanco). Oscuro: `oklch(0.78)`. |
 | `sidebar-foreground` | Nav idle + meta sobre navy |
 | `sidebar-primary-foreground` | Nombre, valores fuertes sobre navy |
 | `sidebar-accent-foreground` | Item de nav **activo** (azul claro) |
@@ -419,8 +433,9 @@ Card centrada, icono muted, título Nunito, copy “Esta sección estará dispon
 - [ ] Variantes CVA en lugar de className one-off repetido
 - [ ] Focus visible y estados vacíos/loading cubiertos
 - [ ] Montos con `.tabular`
-- [ ] Shell: sidebar navy flush + canvas slate + cards; tab bar docked en móvil
-- [ ] Mobile-first: layout base usable &lt; 640px
+- [ ] Shell: sidebar navy flush + canvas slate + cards; tab bar docked **fuera** del flex de `SidebarProvider`
+- [ ] Mobile-first: layout base usable &lt; 640px; **sin scroll horizontal** (`scrollWidth === clientWidth`)
+- [ ] Skip link + contraste de `muted-foreground` + targets ≥40px en móvil
 - [ ] Sin reglas de negocio en la UI
 
 ---
