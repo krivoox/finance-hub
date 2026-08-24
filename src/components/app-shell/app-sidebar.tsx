@@ -57,6 +57,7 @@ import {
   type NavBadges,
   type NavItem,
 } from "./nav-config";
+import { NavGlyph } from "./nav-glyph";
 import { navIntentPrefetchHandlers } from "./use-nav-prefetch";
 
 export type SidebarUser = {
@@ -190,7 +191,6 @@ function NavMenuItems({ items }: { items: NavItem[] }) {
   return (
     <SidebarMenu className={isPending ? "opacity-70 transition-opacity" : undefined}>
       {items.map((item) => {
-        const Icon = item.icon;
         const children = item.children ?? [];
         const childActive = children.some((child) =>
           isNavItemActive(pathname, child.href),
@@ -205,7 +205,7 @@ function NavMenuItems({ items }: { items: NavItem[] }) {
                 onClick={handleNavigate}
                 {...navIntentPrefetchHandlers(router, item.href)}
               >
-                <Icon strokeWidth={1.75} />
+                <NavGlyph>{item.glyph}</NavGlyph>
                 <span>{item.title}</span>
               </Link>
             </SidebarMenuButton>
@@ -227,7 +227,6 @@ function NavMenuItems({ items }: { items: NavItem[] }) {
             {children.length > 0 ? (
               <SidebarMenuSub>
                 {children.map((child) => {
-                  const ChildIcon = child.icon;
                   return (
                     <SidebarMenuSubItem key={child.href}>
                       <SidebarMenuSubButton
@@ -239,7 +238,7 @@ function NavMenuItems({ items }: { items: NavItem[] }) {
                           onClick={handleNavigate}
                           {...navIntentPrefetchHandlers(router, child.href)}
                         >
-                          <ChildIcon strokeWidth={1.75} />
+                          <NavGlyph>{child.glyph}</NavGlyph>
                           <span>{child.title}</span>
                         </Link>
                       </SidebarMenuSubButton>

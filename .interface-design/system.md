@@ -20,7 +20,7 @@ Responsive: **mobile-first**. Base = phone with docked tab bar; `md` navy sideba
 - No hardcoded colors in product UI (`slate-*` / `blue-*` / hex / `bg-white`)
 - Prefer shadcn + CVA variants
 - Mobile-first layouts (no desktop-first + max-* patches)
-- Dense tables: hide secondary columns below `sm`/`md`
+- Dense tables: mobile shows identity + amount only — no horizontal scroll. Hide select/status/actions below `sm`. Amount is nowrap; identity truncates.
 - Money uses `.tabular` (Nunito + tabular-nums)
 - Business logic stays out of React components
 - Create: `FormSheet` right drawer (full mobile / md–lg desktop). CTAs in `ContentPanel.actions` or `?new=1`

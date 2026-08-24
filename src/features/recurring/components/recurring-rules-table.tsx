@@ -250,15 +250,15 @@ export function RecurringRulesTable({
                 label="Seleccionar todas las plantillas"
               />
             ) : null}
-            <AbmHead>Descripción</AbmHead>
+            <AbmHead slot="identity">Descripción</AbmHead>
             <AbmHead hideBelow="md">Categoría</AbmHead>
             <AbmHead hideBelow="lg">Cuenta</AbmHead>
-            <AbmHead className="text-right">Monto</AbmHead>
+            <AbmHead slot="amount">Monto</AbmHead>
             <AbmHead hideBelow="sm">Frecuencia</AbmHead>
             <AbmHead hideBelow="sm">Fecha de cobro</AbmHead>
             <AbmHead hideBelow="md">Ejecutada</AbmHead>
-            <AbmHead>Estado</AbmHead>
-            <AbmHead className="w-10 text-right">
+            <AbmHead hideBelow="sm">Estado</AbmHead>
+            <AbmHead slot="action">
               <span className="sr-only">Acciones</span>
             </AbmHead>
           </TableRow>
@@ -283,21 +283,23 @@ export function RecurringRulesTable({
                     label={`Seleccionar ${rule.name}`}
                   />
                 ) : null}
-                <AbmCell>
+                <AbmCell slot="identity">
                   <div className="flex min-w-0 flex-col gap-0.5">
                     <Link
                       href={`/transactions/recurring/${rule.id}`}
-                      className="font-medium text-foreground after:absolute after:inset-0 hover:underline"
+                      className="min-w-0 truncate font-medium text-foreground after:absolute after:inset-0 hover:underline"
                     >
                       {rule.name}
                     </Link>
-                    <span className="text-xs text-muted-foreground sm:hidden">
+                    <span className="truncate text-xs text-muted-foreground sm:hidden">
+                      {RECURRING_STATUS_LABEL_ES[rule.status]}
+                      {" · "}
                       {RECURRING_FREQUENCY_LABEL_ES[rule.frequency]}
                       {rule.nextOccurrence
                         ? ` · ${formatDateOnly(rule.nextOccurrence)}`
                         : ""}
                     </span>
-                    <span className="text-xs text-muted-foreground md:hidden">
+                    <span className="hidden truncate text-xs text-muted-foreground sm:block md:hidden">
                       {RECURRING_TYPE_LABEL_ES[rule.type]} ·{" "}
                       {accountLabel(rule)}
                     </span>
@@ -312,7 +314,7 @@ export function RecurringRulesTable({
                 <AbmCell hideBelow="lg" muted>
                   {accountLabel(rule)}
                 </AbmCell>
-                <AbmCell className="text-right">
+                <AbmCell slot="amount">
                   <AbmMoney
                     cents={signedAmountCents(rule.type, rule.amountCents)}
                     currency={rule.currency}
@@ -334,7 +336,7 @@ export function RecurringRulesTable({
                 <AbmCell hideBelow="md" muted>
                   {executedLabel(rule.materializedCount)}
                 </AbmCell>
-                <AbmCell>
+                <AbmCell hideBelow="sm">
                   <div className="flex flex-col items-start gap-1">
                     <Badge variant={statusVariant(rule.status)}>
                       {RECURRING_STATUS_LABEL_ES[rule.status]}
@@ -346,7 +348,7 @@ export function RecurringRulesTable({
                     ) : null}
                   </div>
                 </AbmCell>
-                <AbmCell className="relative z-10 text-right">
+                <AbmCell slot="action">
                   {canMutate && rule.status !== "ended" ? (
                     <RowMenu
                       ruleId={rule.id}

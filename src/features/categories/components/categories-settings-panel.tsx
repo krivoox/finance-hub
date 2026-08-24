@@ -135,7 +135,7 @@ export function CategoriesSettingsPanel({
               return (
                 <li
                   key={category.id}
-                  className="flex items-center justify-between gap-3 px-2 py-3"
+                  className="flex min-w-0 items-center justify-between gap-3 px-2 py-3"
                 >
                   <div className="flex min-w-0 flex-wrap items-center gap-2">
                     <span className="truncate font-medium text-foreground">

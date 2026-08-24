@@ -17,6 +17,7 @@ import {
   mobileTabItems,
   type NavBadges,
 } from "./nav-config";
+import { NavGlyph } from "./nav-glyph";
 import { navIntentPrefetchHandlers } from "./use-nav-prefetch";
 
 type MobileTabBarProps = {
@@ -136,7 +137,7 @@ export function MobileTabBar({
                     </span>
                   ) : null
                 }
-                icon={<item.icon className="size-5" strokeWidth={1.75} />}
+                icon={<NavGlyph>{item.glyph}</NavGlyph>}
               />
             );
           })}

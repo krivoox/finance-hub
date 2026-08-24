@@ -45,17 +45,17 @@ export async function GroupOverviewSection({
         ) : (
           <ul className="divide-y divide-border">
             {overview.memberBalances.map((member) => (
-              <li
-                key={member.userId}
-                className="flex items-start justify-between gap-3 py-3 first:pt-0 last:pb-0 sm:items-center"
-              >
-                <p className="min-w-0 truncate font-medium text-foreground">
-                  {member.displayName}
-                </p>
-                <Badge
-                  variant={member.netCents >= 0 ? "income" : "expense"}
-                  className="shrink-0 tabular-nums"
+                <li
+                  key={member.userId}
+                  className="flex min-w-0 items-center justify-between gap-3 py-3 first:pt-0 last:pb-0"
                 >
+                  <p className="min-w-0 flex-1 truncate font-medium text-foreground">
+                    {member.displayName}
+                  </p>
+                  <Badge
+                    variant={member.netCents >= 0 ? "income" : "expense"}
+                    className="max-w-[50%] shrink-0 truncate tabular-nums"
+                  >
                   {member.netCents >= 0 ? "Le deben " : "Debe "}
                   {formatMoney(Math.abs(member.netCents), overview.currency)}
                 </Badge>
@@ -77,9 +77,9 @@ export async function GroupOverviewSection({
               <li key={tx.id} className="first:pt-0 last:pb-0">
                 <Link
                   href={`/transactions/${tx.id}`}
-                  className="flex items-start justify-between gap-3 py-3 text-sm hover:bg-muted/40"
+                  className="flex min-w-0 items-center gap-3 py-3 text-sm hover:bg-muted/40"
                 >
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <p className="truncate font-medium text-foreground">
                       {tx.description || tx.categoryName || tx.type}
                     </p>
@@ -89,7 +89,7 @@ export async function GroupOverviewSection({
                       Registró {tx.createdByDisplayName}
                     </p>
                   </div>
-                  <span className="shrink-0 tabular-nums text-foreground">
+                  <span className="max-w-[42%] shrink-0 truncate text-right tabular-nums text-foreground">
                     {formatMoney(tx.amountCents, tx.currency)}
                   </span>
                 </Link>

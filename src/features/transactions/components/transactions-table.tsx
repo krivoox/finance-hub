@@ -291,12 +291,12 @@ export function TransactionsTable({
                   label="Seleccionar todas las transacciones"
                 />
               ) : null}
-              <AbmHead>Descripción</AbmHead>
+              <AbmHead slot="identity">Descripción</AbmHead>
               <AbmHead hideBelow="sm">Cuenta</AbmHead>
               <AbmHead hideBelow="md">Categoría</AbmHead>
               <AbmHead hideBelow="lg">Tipo</AbmHead>
               <AbmHead hideBelow="sm">Fecha</AbmHead>
-              <AbmHead className="text-right">Monto</AbmHead>
+              <AbmHead slot="amount">Monto</AbmHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -341,16 +341,16 @@ export function TransactionsTable({
                       label={`Seleccionar ${descriptionWithChip}`}
                     />
                   ) : null}
-                  <AbmCell>
-                    <div className="flex min-w-0 items-start gap-3">
+                  <AbmCell slot="identity">
+                    <div className="flex min-w-0 items-start gap-2.5 sm:gap-3">
                       <AbmGlyph className={glyph.toneClass}>
                         {glyph.emoji}
                       </AbmGlyph>
                       <div className="flex min-w-0 flex-col gap-0.5">
-                        <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                        <div className="flex min-w-0 items-center gap-1.5">
                           <Link
                             href={`/transactions/${tx.id}`}
-                            className="font-semibold text-foreground after:absolute after:inset-0 hover:underline"
+                            className="min-w-0 truncate font-semibold text-foreground after:absolute after:inset-0 hover:underline"
                           >
                             {descriptionWithChip}
                           </Link>
@@ -368,7 +368,10 @@ export function TransactionsTable({
                             </span>
                           ) : null}
                           {tx.goalContribution ? (
-                            <Badge variant="info" className="relative z-10">
+                            <Badge
+                              variant="info"
+                              className="relative z-10 hidden sm:inline-flex"
+                            >
                               {tx.goalContribution.goalKind === "debt_payoff"
                                 ? "Pago de deuda"
                                 : "Aporte a objetivo"}
@@ -412,7 +415,7 @@ export function TransactionsTable({
                   <AbmCell hideBelow="sm" className="tabular-nums" muted>
                     {formatDateOnly(tx.occurredOn)}
                   </AbmCell>
-                  <AbmCell className="text-right">
+                  <AbmCell slot="amount">
                     <AbmMoney
                       cents={signedAmountCents(tx.type, tx.amountCents)}
                       currency={tx.currency}

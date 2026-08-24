@@ -1,23 +1,13 @@
 import type { LucideIcon } from "lucide-react";
-import {
-  LayoutDashboard,
-  MoreHorizontal,
-  PiggyBank,
-  Plus,
-  Receipt,
-  Repeat,
-  Settings,
-  Target,
-  Users,
-  Wallet,
-} from "lucide-react";
+import { MoreHorizontal, Plus } from "lucide-react";
 
 export type NavBadgeSeverity = "caution" | "critical";
 
 export type NavItem = {
   title: string;
   href: string;
-  icon: LucideIcon;
+  /** Colorful emoji from the Figma Make prototype; rendered via `NavGlyph`. */
+  glyph: string;
   badge?: number;
   /** Visual severity for the badge (red icon only when critical). */
   badgeSeverity?: NavBadgeSeverity;
@@ -74,14 +64,14 @@ export function budgetNavBadgePresentation(
 
 /** Primary links under the quick-create row */
 export const mainNavItems: NavItem[] = [
-  { title: "Panel", href: "/dashboard", icon: LayoutDashboard },
-  { title: "Cuentas", href: "/accounts", icon: Wallet },
+  { title: "Panel", href: "/dashboard", glyph: "🏠" },
+  { title: "Cuentas", href: "/accounts", glyph: "🏦" },
   {
     title: "Transacciones",
     href: "/transactions",
-    icon: Receipt,
+    glyph: "💸",
     children: [
-      { title: "Recurrentes", href: "/transactions/recurring", icon: Repeat },
+      { title: "Recurrentes", href: "/transactions/recurring", glyph: "🔄" },
     ],
   },
 ];
@@ -91,18 +81,18 @@ export const navGroups: NavGroup[] = [
   {
     label: "Planificación",
     items: [
-      { title: "Presupuestos", href: "/budgets", icon: PiggyBank },
-      { title: "Objetivos", href: "/goals", icon: Target },
+      { title: "Presupuestos", href: "/budgets", glyph: "📊" },
+      { title: "Objetivos", href: "/goals", glyph: "🎯" },
     ],
   },
   {
     label: "Compartido",
-    items: [{ title: "Grupos", href: "/groups", icon: Users }],
+    items: [{ title: "Grupos", href: "/groups", glyph: "👥" }],
   },
 ];
 
 export const footerNavItems: NavItem[] = [
-  { title: "Ajustes", href: "/settings", icon: Settings },
+  { title: "Ajustes", href: "/settings", glyph: "⚙️" },
 ];
 
 /**
@@ -115,7 +105,7 @@ export type MobileTabItem =
       id: string;
       title: string;
       href: string;
-      icon: LucideIcon;
+      glyph: string;
     }
   | {
       kind: "action";
@@ -136,14 +126,14 @@ export const mobileTabItems: MobileTabItem[] = [
     id: "panel",
     title: "Panel",
     href: "/dashboard",
-    icon: LayoutDashboard,
+    glyph: "🏠",
   },
   {
     kind: "link",
     id: "transactions",
     title: "Transacciones",
     href: "/transactions",
-    icon: Receipt,
+    glyph: "💸",
   },
   { kind: "action", id: "register", title: "Registrar", icon: Plus },
   {
@@ -151,7 +141,7 @@ export const mobileTabItems: MobileTabItem[] = [
     id: "budgets",
     title: "Presupuestos",
     href: "/budgets",
-    icon: PiggyBank,
+    glyph: "📊",
   },
   {
     kind: "more",
@@ -163,11 +153,11 @@ export const mobileTabItems: MobileTabItem[] = [
 
 /** Routes / destinations only reachable via the mobile “Más” sheet. */
 export const mobileMoreNavItems: NavItem[] = [
-  { title: "Cuentas", href: "/accounts", icon: Wallet },
-  { title: "Objetivos", href: "/goals", icon: Target },
-  { title: "Grupos", href: "/groups", icon: Users },
-  { title: "Recurrentes", href: "/transactions/recurring", icon: Repeat },
-  { title: "Ajustes", href: "/settings", icon: Settings },
+  { title: "Cuentas", href: "/accounts", glyph: "🏦" },
+  { title: "Objetivos", href: "/goals", glyph: "🎯" },
+  { title: "Grupos", href: "/groups", glyph: "👥" },
+  { title: "Recurrentes", href: "/transactions/recurring", glyph: "🔄" },
+  { title: "Ajustes", href: "/settings", glyph: "⚙️" },
 ];
 
 /** Merge live badge counts into static nav items for rendering. */

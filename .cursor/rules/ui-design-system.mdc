@@ -17,11 +17,11 @@ Fuente de verdad: `DESIGN.md`. Theme: `src/app/globals.css`. Dirección craft: `
 
 ## Mobile-first (obligatorio)
 
-- Estilos base = móvil (&lt; 640px). Enriquecer con `sm:` / `md:` / `lg:`.
+- Estilos base = móvil (< 640px). Ampliar con `sm:` / `md:` / `lg:`. El teléfono es la superficie primaria.
 - No diseñar primero desktop y “arreglar” con `max-md:` salvo excepción puntual.
 - Sidebar navy: sheet en móvil; flush + collapsible desde `md`.
 - Tab bar docked (borde superior, no pill flotante).
-- Tablas: en base solo columnas esenciales (identidad + monto); el resto `hidden sm:table-cell`.
+- Tablas: en base **solo identidad + monto**, sin scroll lateral. Checkbox/estado/acciones `hidden sm:table-cell`. Identidad `min-w-0 truncate`; monto `whitespace-nowrap`. `Table` con `overflow-x-hidden`.
 - Forms: 1 columna en base; grids desde `sm:`.
 - Heroes numéricos: `font-heading font-extrabold` + `text-3xl sm:text-4xl`.
 - Touch: CTAs/controles principales ≥ ~40px de alto en móvil.

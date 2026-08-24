@@ -338,7 +338,7 @@ function AccountGroupList({
           <li key={account.id} className="min-w-0">
             <div
               className={cn(
-                "flex min-w-0 flex-wrap items-center gap-3 rounded-xl px-2 py-2.5",
+                "flex min-w-0 items-center gap-3 rounded-xl px-2 py-2.5",
                 account.isArchived && "opacity-70",
               )}
             >
@@ -379,7 +379,7 @@ function AccountGroupList({
 
               <p
                 className={cn(
-                  "max-w-[42%] min-w-0 shrink-0 truncate text-right text-xs tabular sm:text-sm",
+                  "min-w-0 max-w-[42%] shrink-0 truncate text-right text-xs tabular sm:text-sm",
                   account.isArchived
                     ? "text-muted-foreground"
                     : isNegative || isCreditDebt
@@ -399,6 +399,7 @@ function AccountGroupList({
                       type="button"
                       variant="outline"
                       size="sm"
+                      className="hidden sm:inline-flex"
                       onClick={() => onPay(account.id)}
                     >
                       Pagar
@@ -418,6 +419,14 @@ function AccountGroupList({
                     <DropdownMenuContent align="end" className="min-w-44">
                       {!account.isArchived ? (
                         <>
+                          {showPay ? (
+                            <DropdownMenuItem
+                              className="sm:hidden"
+                              onSelect={() => onPay(account.id)}
+                            >
+                              Pagar
+                            </DropdownMenuItem>
+                          ) : null}
                           <DropdownMenuItem onSelect={() => onEdit(target)}>
                             Editar
                           </DropdownMenuItem>

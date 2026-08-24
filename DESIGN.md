@@ -56,8 +56,8 @@ Rail navy flush a la izquierda (`Sidebar` `variant="sidebar"`) — **no** inset 
 | Sidebar | `bg-sidebar` (`--sidebar`) | Navy **en claro y oscuro**. Ancho 220px (`13.75rem`) |
 | Workspace | avatar `bg-sidebar-primary` + nombre `text-sidebar-primary-foreground` | Arriba del todo |
 | CTA rápida | `Button` `bg-cta` rounded-xl h-10 font-bold | “Registrar” / “+ Nueva transacción” |
-| Item nav idle | `SidebarMenuButton` h-11 rounded-xl | `text-sidebar-foreground` |
-| Item nav active | `data-active` → `bg-sidebar-accent` + `text-sidebar-accent-foreground` | Azul translúcido, no gris |
+| Item nav idle | `SidebarMenuButton` h-11 rounded-xl | `text-sidebar-foreground`. Icono = emoji colorido (`NavGlyph`, prototipo Figma); el label nombra el destino |
+| Item nav active | `data-active` → `bg-sidebar-accent` + `text-sidebar-accent-foreground` | Azul translúcido, no gris. El glifo no hereda color (sigue colorido) |
 | Grupos | `SidebarGroupLabel` | Uppercase, tracking-widest, 10px (PLANIFICACIÓN, COMPARTIDO) |
 | Cotización | `UsdQuotesCard` | Tokens `sidebar-*` (vive sobre navy) |
 | Tema | `ThemeToggle` en footer | Claro / Oscuro / Sistema |
@@ -127,6 +127,8 @@ Componentes: `src/components/form-sheet/*`
 
 ## 3.1 Responsive — mobile first
 
+**El teléfono es la superficie primaria.** Los usuarios usan Finance Hub desde el celular; desktop enriquece, no define el layout.
+
 **Breakpoints (Tailwind default):**
 
 | Token | Ancho | Rol en Finance Hub |
@@ -141,7 +143,7 @@ Componentes: `src/components/form-sheet/*`
 
 1. Escribir clases **sin** breakpoint primero (móvil). Ampliar con `sm:` / `md:` / `lg:`.
 2. **Shell:** en móvil **tab bar docked**; destinos extra en sheet “Más”. Sidebar navy desde `md`.
-3. **Tablas densas:** en base mostrar 2–3 columnas (identidad + monto). Columnas secundarias con `hidden sm:table-cell` / `md:table-cell`.
+3. **Tablas densas (sin scroll lateral en móvil):** en base **solo identidad + monto**. Checkbox, estado y acciones se ocultan (`hidden sm:table-cell` / `slot="action"`). Identidad: `min-w-0 truncate`. Monto: `whitespace-nowrap` + `max-w-[38%]`. El wrapper de `Table` usa `overflow-x-hidden` (nunca `overflow-x-auto` en producto). Columnas secundarias con `hideBelow`.
 4. **Forms:** create flows en `FormSheet` (1 columna).
 5. **Tipografía hero:** `font-heading` + `text-2xl sm:text-3xl md:text-4xl` en patrimonio (cabe en 390px con montos ARS largos).
 6. **Touch:** controles críticos ≥ 40px de alto en móvil. `Button` `size="sm"` / `icon-sm` = `h-10` / `size-10` en base, `sm:h-8` / `sm:size-8` desde 640px.
@@ -377,7 +379,7 @@ Componentes en `src/features/dashboard/components/`. Superficies: `src/component
 4. Tabla en **una** `AbmTable` (`src/components/abm-table`): `SurfaceSection` flush + `BulkActionsBar`. Columnas DESCRIPCIÓN · CUENTA · CATEGORÍA · TIPO · FECHA · MONTO. Headers `AbmHead` (`text-[10px] uppercase tracking-widest`). Celdas `AbmCell`; monto `AbmMoney`; glifo `AbmGlyph`.
 5. Filas: icono de tipo/categoría a la izquierda; monto `.tabular` con token de tipo.
 6. Checkbox de selección + `BulkActionsBar` cuando aplique.
-7. En móvil solo esenciales (`hidden sm|md:table-cell`).
+7. En móvil solo identidad + monto (sin scroll lateral). Checkbox, estado y acciones desde `sm`.
 8. Fechas con `formatDateOnly` (`DD/MM/YYYY`).
 9. Txs materializadas desde recurrente: indicador muted `Repeat` junto a la descripción.
 10. **Recurrentes — confirmar:** CTA solo si `scheduledOn ≤ hoy + 1`.
