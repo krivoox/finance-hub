@@ -22,7 +22,7 @@ export function ContentPanel({
   return (
     <section
       className={cn(
-        "mx-auto flex w-full max-w-[1400px] flex-1 flex-col md:min-h-0 md:overflow-hidden",
+        "mx-auto flex w-full min-w-0 max-w-[1400px] flex-1 flex-col md:min-h-0 md:overflow-hidden",
         className,
       )}
     >
@@ -43,7 +43,7 @@ export function ContentPanel({
           </div>
         ) : null}
       </header>
-      <div className="flex-1 px-4 pb-4 sm:px-6 sm:pb-5 md:min-h-0 md:overflow-y-auto md:overscroll-contain lg:px-8 lg:pb-6">
+      <div className="min-w-0 flex-1 overflow-x-hidden px-4 pb-4 sm:px-6 sm:pb-5 md:min-h-0 md:overflow-y-auto md:overscroll-contain lg:px-8 lg:pb-6">
         {children}
       </div>
     </section>

@@ -128,8 +128,8 @@ export function GoalsList({ canMutate, goals, accounts }: GoalsListProps) {
             const isCancelled = goal.status === "cancelled";
 
             return (
-              <li key={goal.id} className="px-2 py-4 first:pt-1 last:pb-1">
-                <div className="flex flex-wrap items-start justify-between gap-3">
+              <li key={goal.id} className="min-w-0 px-2 py-4 first:pt-1 last:pb-1">
+                <div className="flex min-w-0 flex-wrap items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
                       <h3

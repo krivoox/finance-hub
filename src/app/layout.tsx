@@ -70,7 +70,7 @@ export default async function RootLayout({
   return (
     <html
       lang="es"
-      className={`${plusJakarta.variable} ${nunito.variable} ${geistMono.variable} min-h-full md:h-full`}
+      className={`${plusJakarta.variable} ${nunito.variable} ${geistMono.variable} min-h-full max-w-full overflow-x-hidden md:h-full`}
       suppressHydrationWarning
     >
       {/*
@@ -78,7 +78,7 @@ export default async function RootLayout({
         attributes like cz-shortcut-listen on <body> before React hydrates.
       */}
       <body
-        className="flex min-h-full flex-col overflow-x-hidden"
+        className="flex min-h-full max-w-full flex-col overflow-x-hidden"
         suppressHydrationWarning
       >
         <ThemeProvider

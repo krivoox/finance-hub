@@ -104,7 +104,7 @@
   --secondary: oklch(0.968 0.007 247.896);
   --secondary-foreground: oklch(0.208 0.042 265.755);
   --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
+  --muted-foreground: oklch(0.445 0.045 257.417);
   --accent: oklch(0.968 0.007 247.896);
   --accent-foreground: oklch(0.208 0.042 265.755);
 
@@ -183,7 +183,7 @@
   --secondary: oklch(0.24 0.03 264);
   --secondary-foreground: oklch(0.97 0.01 247);
   --muted: oklch(0.24 0.03 264);
-  --muted-foreground: oklch(0.704 0.04 256.788);
+  --muted-foreground: oklch(0.78 0.03 256.788);
   --accent: oklch(0.28 0.035 264);
   --accent-foreground: oklch(0.97 0.01 247);
 
@@ -254,10 +254,41 @@
     -webkit-font-smoothing: antialiased;
     scrollbar-width: thin;
     scrollbar-color: var(--border) transparent;
+    scroll-padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
+  }
+
+  @media (min-width: 768px) {
+    html {
+      scroll-padding-bottom: 0;
+    }
   }
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  :focus-visible {
+    scroll-margin-bottom: calc(4.5rem + env(safe-area-inset-bottom));
+  }
+
+  @media (min-width: 768px) {
+    :focus-visible {
+      scroll-margin-bottom: 0.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 
   h1,

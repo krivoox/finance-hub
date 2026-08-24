@@ -22,7 +22,7 @@ export function SurfaceSection({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-border shadow-card",
+        "w-full min-w-0 max-w-full rounded-2xl border border-border shadow-card",
         muted ? "bg-muted/60" : "bg-card",
         flush ? "overflow-hidden" : "p-5 md:p-6",
         className,
@@ -50,7 +50,7 @@ export function SurfaceHeader({
   return (
     <div
       className={cn(
-        "mb-4 flex flex-wrap items-end justify-between gap-2",
+        "mb-4 flex flex-wrap items-end justify-between gap-x-3 gap-y-2",
         className,
       )}
     >
@@ -62,7 +62,11 @@ export function SurfaceHeader({
           <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
         ) : null}
       </div>
-      {action ? <div className="shrink-0">{action}</div> : null}
+      {action ? (
+        <div className="flex min-h-10 shrink-0 items-center sm:min-h-0">
+          {action}
+        </div>
+      ) : null}
     </div>
   );
 }

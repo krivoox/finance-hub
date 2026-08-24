@@ -66,7 +66,7 @@ export function GroupDirectoryCard({
       className="w-full rounded-2xl text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-60"
     >
       <SurfaceSection className="transition-colors hover:bg-muted/40">
-        <div className="flex items-start gap-3">
+        <div className="flex min-w-0 items-start gap-3">
           <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-muted text-muted-foreground">
             <Users className="size-4" strokeWidth={1.75} aria-hidden />
           </div>
@@ -95,7 +95,7 @@ export function GroupDirectoryCard({
                     ? "expense"
                     : "secondary"
               }
-              className="shrink-0 tabular-nums"
+              className="max-w-[46%] shrink-0 truncate tabular-nums"
             >
               {myNetCents > 0
                 ? `Te deben ${formatMoney(myNetCents, currency)}`

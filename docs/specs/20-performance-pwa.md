@@ -59,12 +59,14 @@ Reutilizar el sheet existente cuando aplique:
 2. **Offline honesto** — sin red en Panel/Cuentas → `/offline` o mensaje claro; nunca patrimonio stale.
 3. **Acción frecuente primero** — registrar gasto/ingreso es el happy path móvil (acceso &lt;2 taps / shortcut OS).
 4. Auth sigue **Better Auth**; hosting **Vercel**. No PocketBase, no Caddy self-host, no Workbox “offline app” genérico.
+5. **Tab bar en el viewport visual** — `MobileTabBar` y `NewTransactionSheet` se montan **fuera** del flex de `SidebarProvider` (`position: fixed; left: 0; bottom: 0; width: 100%`). Overflow horizontal del canvas saca la barra `fixed` del área visible; contrato `min-w-0` + `overflow-x-hidden` ([DESIGN.md](../../DESIGN.md) §3.1.1, [architecture §7.2](../architecture.md)). No `100vw`/`100dvw` en la nav (incluyen el gutter del scrollbar).
 
 ## 5. Criterios de aceptación
 
 ### Soft-nav (H1)
 
 - [x] Given estoy en cualquier ruta `(app)`, When toco un ítem del tab bar / sidebar, Then no hay full document reload y el shell permanece.
+- [x] Given viewport móvil (~390px) con montos ARS largos, When veo cualquier ruta `(app)`, Then no hay scroll horizontal y la tab bar permanece anclada al borde inferior del viewport.
 - [x] Given soft-nav, When el RSC aún no llega, Then veo `loading.tsx` / `PageSkeleton` de inmediato.
 - [ ] Meta MVP: tip→skeleton &lt;200 ms; tip→contenido usable &lt;800 ms en 4G bueno (medición manual / Speed Insights).
 
@@ -83,6 +85,7 @@ Reutilizar el sheet existente cuando aplique:
 
 - [x] SW custom (no Workbox offline-first monolítico).
 - [x] Cache-first solo `/_next/static/*` (hashed / immutable).
+- [x] `Cache-Control: immutable` de `/_next/static` **solo en producción**. En `next dev`: `no-store` en estáticos + `Clear-Site-Data: "cache"` en HTML (las URLs de Turbopack no cambian; un `immutable` viejo hidrata JS stale).
 - [x] Nunca en Cache Storage: HTML de dashboards/listados, `/api/*`, flights RSC como source of truth offline.
 - [x] Given creo un gasto, When vuelvo al panel, Then saldos reflejan el cambio sin hard reload.
 
@@ -105,6 +108,7 @@ Checklist manual / QA:
 | Q-03 | Cache Storage tras instalar SW | Solo static hashed (+ offline/cargar si aplica); cero API |
 | Q-04 | Airplane mode → Panel | `/offline` o error honesto; sin patrimonio |
 | Q-05 | Shortcut “Nuevo gasto” | Abre flujo `?new=expense` |
+| Q-06 | Viewport 390px en cualquier ruta `(app)` | Sin scroll horizontal (`scrollWidth === clientWidth`); tab bar anclada al borde inferior del viewport; slots Panel / Transacciones / Registrar / Presupuestos / Más |
 
 ## 7. Fuera de alcance
 

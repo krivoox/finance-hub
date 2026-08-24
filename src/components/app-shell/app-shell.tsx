@@ -12,6 +12,7 @@ import { NewTransactionSheet } from "@/features/transactions/components/new-tran
 
 import { AppSidebar, type AppSidebarProps } from "./app-sidebar";
 import { MobileTabBar } from "./mobile-tab-bar";
+import { SkipLink } from "./skip-link";
 import { useNavPrefetch } from "./use-nav-prefetch";
 
 type AppShellProps = AppSidebarProps & {
@@ -38,37 +39,46 @@ export function AppShell({
   useNavPrefetch(Boolean(activeWorkspace));
 
   return (
-    <SidebarProvider className="min-h-svh md:h-svh md:overflow-hidden">
-      <AppSidebar
-        user={user}
-        workspaces={workspaces}
-        activeWorkspace={activeWorkspace}
-        navBadges={navBadges}
-        usdQuotes={usdQuotes}
-        cafecitoUrl={cafecitoUrl}
-      />
-      {/*
-        Mobile: document/body scrolls (no nested overflow trap).
-        md+: capped viewport + nested scroll inside ContentPanel.
-        Canvas is always `bg-background` (slate paper / navy night).
-      */}
-      <SidebarInset className="flex min-h-svh flex-col bg-background md:h-svh md:max-h-svh md:overflow-hidden">
-        <OfflineBanner />
+    <>
+      <SkipLink />
+      <SidebarProvider className="min-h-svh max-w-full overflow-x-hidden md:h-svh md:overflow-hidden">
+        <AppSidebar
+          user={user}
+          workspaces={workspaces}
+          activeWorkspace={activeWorkspace}
+          navBadges={navBadges}
+          usdQuotes={usdQuotes}
+          cafecitoUrl={cafecitoUrl}
+        />
         {/*
-          Desktop: collapse trigger only — page title lives in ContentPanel.
-          Mobile: tab bar is primary nav; ContentPanel owns the H1.
+          Mobile: document/body scrolls (no nested overflow trap).
+          md+: capped viewport + nested scroll inside ContentPanel.
+          Canvas is always `bg-background` (slate paper / navy night).
+          Tab bar lives *outside* this flex row so it cannot widen the page
+          or become a third column (that hid the dock and caused lateral scroll).
         */}
-        <header className="hidden h-11 shrink-0 items-center gap-2 px-3 md:flex">
-          <SidebarTrigger className="-ml-1 size-9" />
-        </header>
-        <div
-          className={`flex flex-1 flex-col p-0 pt-[env(safe-area-inset-top)] md:min-h-0 md:overflow-hidden ${MOBILE_TAB_BAR_CLEARANCE}`}
+        <SidebarInset
+          id="main-content"
+          tabIndex={-1}
+          className="flex min-h-svh min-w-0 max-w-full flex-col bg-background outline-none md:h-svh md:max-h-svh md:overflow-hidden"
         >
-          {children}
-        </div>
-        <InstallPrompt />
-        <CafecitoDonationDialog donationUrl={cafecitoUrl} />
-      </SidebarInset>
+          <OfflineBanner />
+          {/*
+            Desktop: collapse trigger only — page title lives in ContentPanel.
+            Mobile: tab bar is primary nav; ContentPanel owns the H1.
+          */}
+          <header className="hidden h-11 shrink-0 items-center gap-2 px-3 md:flex">
+            <SidebarTrigger className="-ml-1 size-9" />
+          </header>
+          <div
+            className={`flex min-w-0 flex-1 flex-col overflow-x-hidden p-0 pt-[env(safe-area-inset-top)] md:min-h-0 md:overflow-hidden ${MOBILE_TAB_BAR_CLEARANCE}`}
+          >
+            {children}
+          </div>
+          <InstallPrompt />
+          <CafecitoDonationDialog donationUrl={cafecitoUrl} />
+        </SidebarInset>
+      </SidebarProvider>
 
       <MobileTabBar
         user={user}
@@ -83,6 +93,6 @@ export function AppShell({
         enabled={Boolean(activeWorkspace) && canMutate}
         workspaceId={activeWorkspace?.id ?? null}
       />
-    </SidebarProvider>
+    </>
   );
 }

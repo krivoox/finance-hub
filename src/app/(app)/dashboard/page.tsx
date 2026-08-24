@@ -104,8 +104,8 @@ export default async function DashboardPage() {
         chrome aparece al instante y los bloques de dinero streamean cuando su
         read model resuelve (SPEC-20 H1/H8). Sin cache de saldos.
       */}
-      <div className="flex flex-col gap-5 sm:gap-6">
-        <div className="grid gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(18rem,1fr)] lg:items-stretch lg:gap-6">
+      <div className="flex min-w-0 flex-col gap-5 sm:gap-6">
+        <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:items-stretch lg:gap-6">
           <Suspense fallback={<DashboardBalanceSkeleton />}>
             <DashboardBalanceSection
               dashboard={dashboardPromise}
@@ -126,7 +126,7 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <div className="grid gap-5 sm:gap-6 lg:grid-cols-2 lg:items-stretch">
+        <div className="grid min-w-0 gap-5 sm:gap-6 lg:grid-cols-2 lg:items-stretch">
           <Suspense fallback={<DashboardGoalsSkeleton />}>
             <DashboardGoalsSection
               dashboard={dashboardPromise}
@@ -159,7 +159,7 @@ export default async function DashboardPage() {
           <DashboardRecurringSection dashboard={dashboardPromise} />
         </Suspense>
 
-        <div className="grid gap-5 sm:gap-6 lg:grid-cols-2 lg:items-stretch">
+        <div className="grid min-w-0 gap-5 sm:gap-6 lg:grid-cols-2 lg:items-stretch">
           {/* Donut completo en md+; móvil ya vio la barra segmentada arriba. */}
           <div className="hidden md:block">
             <Suspense fallback={<DashboardSpendingSkeleton />}>

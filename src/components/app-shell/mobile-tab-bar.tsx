@@ -59,7 +59,7 @@ export function MobileTabBar({
     <>
       <nav
         aria-label="Navegación principal"
-        className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur-sm md:hidden"
+        className="fixed bottom-0 left-0 z-50 w-full max-w-full overflow-x-hidden border-t border-border bg-card/95 backdrop-blur-sm md:hidden"
       >
         <div
           className="grid grid-cols-5 items-center gap-0.5 px-1.5 pt-1.5"
@@ -193,6 +193,7 @@ function TabSlot({ active, label, icon, href, onClick, badge }: TabSlotProps) {
     return (
       <Link
         href={href}
+        aria-label={label}
         aria-current={active ? "page" : undefined}
         className={className}
         {...navIntentPrefetchHandlers(router, href)}
@@ -203,7 +204,7 @@ function TabSlot({ active, label, icon, href, onClick, badge }: TabSlotProps) {
   }
 
   return (
-    <button type="button" onClick={onClick} className={className}>
+    <button type="button" onClick={onClick} aria-label={label} className={className}>
       {body}
     </button>
   );

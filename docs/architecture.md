@@ -7,7 +7,7 @@ Documento técnico obligatorio. Stack fijado en [stack.md](./stack.md) (plantill
 | Documento | Gana en |
 |-----------|---------|
 | **AGENTS.md** + **docs/specs/** | Alcance de producto / MVP / reglas de negocio |
-| **docs/architecture.md** (este) + **docs/stack.md** | Decisiones técnicas, carpetas, auth, datos |
+| **docs/architecture.md** (este) + **docs/stack.md** | Decisiones técnicas, carpetas, auth, datos, shell autenticado |
 | **DESIGN.md** | UI / tokens / craft visual |
 | **docs/tdd-workflow.md** | Cómo testear lógica de negocio |
 
@@ -210,6 +210,8 @@ Las páginas autenticadas son **RSC** (Prisma en servidor). El feedback al naveg
 | `experimental.staleTimes.static: 180` | Reuso de loading boundaries / prefetch completo en segmentos estáticos |
 | `src/lib/navigation.ts` | Helpers client post-mutación (`refreshAfterMutation`, `navigateAndRefresh`, `replaceAndRefresh`) |
 
+**Layout del shell (`AppShell`):** `SkipLink` → `#main-content` (`SidebarInset`). `SidebarProvider` envuelve **solo** sidebar + inset. `MobileTabBar` y `NewTransactionSheet` se montan **fuera** de ese flex (`position: fixed` abajo, `width: 100%`, sin `100vw`/`100dvw`). Si la tab bar es hermana flex de `SidebarInset`, aparece overflow horizontal y la barra sale del viewport visual. Cadena flex: `min-w-0 max-w-full` en provider/inset/`ContentPanel`; `html`/`body`: `overflow-x-hidden`. Craft y a11y: [DESIGN.md](../DESIGN.md) §3.1 / §3.4.
+
 **Contrato post-mutación (Client Components):**
 
 1. Server Action llama `revalidatePath` (y `revalidatePath("/", "layout")` si el shell cambia).
@@ -240,7 +242,7 @@ Producto: [SPEC-20](./specs/20-performance-pwa.md). Manifest: `src/app/manifest.
 
 **Filosofía:** saldos viejos sin avisar son **peores** que offline. El SW (si existe) es **custom** y de alcance deliberadamente chico — no un precache de la app entera.
 
-Headers / CDN (Vercel): estáticos `/_next/static` con cache largo; HTML de `(app)` dinámico (`private, no-store` / equivalente) — no “arreglar” TTFB cacheando paneles.
+Headers / CDN (Vercel): estáticos `/_next/static` con cache largo **solo en producción** (`immutable`; filenames hasheados). En `next dev` se envía `Cache-Control: no-store` y, en HTML, `Clear-Site-Data: "cache"` para evictar entradas `immutable` viejas (Turbopack reusa URLs de chunk). HTML de `(app)` dinámico (`private, no-store`) — no “arreglar” TTFB cacheando paneles.
 
 ## 8. Flujo de una mutación
 
