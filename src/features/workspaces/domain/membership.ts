@@ -15,6 +15,8 @@ export type LedgerMembershipCandidate = {
   readonly type: string;
   readonly joinedAt: Date;
   readonly cookieHit: boolean;
+  /** Accounts + transactions already in that tenant. */
+  readonly ledgerItemCount: number;
 };
 
 /**
@@ -28,14 +30,26 @@ export function toProductWorkspaceType(_type: string): WorkspaceType {
 /**
  * Picks the one ledger the session uses (KRI-29: no multi-tenant switcher).
  *
- * 1. Cookie hit that still has a membership (so existing data stays in view).
- * 2. A `personal` workspace, oldest membership first.
- * 3. Any leftover membership (`group` tenants included).
+ * 1. Among tenants that already have accounts/txs, keep the cookie if it
+ *    still has data; otherwise take the heaviest ledger (the one they used).
+ * 2. If every tenant is empty: cookie → personal → leftover group.
  */
 export function pickDefaultLedgerWorkspace(
   candidates: readonly LedgerMembershipCandidate[],
 ): string | null {
   if (candidates.length === 0) return null;
+
+  const withData = candidates.filter((c) => c.ledgerItemCount > 0);
+  if (withData.length > 0) {
+    const cookieWithData = withData.find((c) => c.cookieHit);
+    if (cookieWithData) return cookieWithData.workspaceId;
+    return withData.toSorted((a, b) => {
+      if (b.ledgerItemCount !== a.ledgerItemCount) {
+        return b.ledgerItemCount - a.ledgerItemCount;
+      }
+      return a.joinedAt.getTime() - b.joinedAt.getTime();
+    })[0]!.workspaceId;
+  }
 
   const cookieHit = candidates.find((c) => c.cookieHit);
   if (cookieHit) return cookieHit.workspaceId;

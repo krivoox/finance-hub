@@ -65,11 +65,39 @@ async function loadMemberships(userId: string): Promise<MembershipRow[]> {
   });
 }
 
+async function ledgerItemCountsByWorkspace(
+  workspaceIds: string[],
+): Promise<Map<string, number>> {
+  const counts = new Map<string, number>();
+  if (workspaceIds.length === 0) return counts;
+
+  const [accounts, transactions] = await Promise.all([
+    prisma.financeAccount.groupBy({
+      by: ["workspaceId"],
+      where: { workspaceId: { in: workspaceIds } },
+      _count: { _all: true },
+    }),
+    prisma.transaction.groupBy({
+      by: ["workspaceId"],
+      where: { workspaceId: { in: workspaceIds } },
+      _count: { _all: true },
+    }),
+  ]);
+
+  for (const row of accounts) {
+    counts.set(row.workspaceId, (counts.get(row.workspaceId) ?? 0) + row._count._all);
+  }
+  for (const row of transactions) {
+    counts.set(row.workspaceId, (counts.get(row.workspaceId) ?? 0) + row._count._all);
+  }
+  return counts;
+}
+
 /**
  * Resolves the single implicit ledger for a user. There is no tenant switcher.
  *
- * Order: valid cookie membership (any type) → personal → leftover group
- * tenant → create a personal workspace if the user has none.
+ * Order: tenant that already has accounts/txs (heaviest ledger; cookie
+ * only if it still has data) → empty cookie/personal/leftover → create.
  *
  * Cached per RSC request so layout and page resolve the workspace once.
  */
@@ -79,12 +107,16 @@ export const getActiveWorkspaceForUser = cache(
     const cookieId = cookieStore.get(ACTIVE_WORKSPACE_COOKIE)?.value;
 
     let memberships = await loadMemberships(userId);
+    const counts = await ledgerItemCountsByWorkspace(
+      memberships.map((m) => m.workspace.id),
+    );
     let pickedId = pickDefaultLedgerWorkspace(
       memberships.map((m) => ({
         workspaceId: m.workspace.id,
         type: m.workspace.type,
         joinedAt: m.joinedAt,
         cookieHit: Boolean(cookieId) && m.workspace.id === cookieId,
+        ledgerItemCount: counts.get(m.workspace.id) ?? 0,
       })),
     );
 

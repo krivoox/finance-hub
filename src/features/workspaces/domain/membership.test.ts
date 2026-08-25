@@ -37,7 +37,28 @@ describe("Workspaces domain — authz predicates (SPEC-02 §5)", () => {
       expect(pickDefaultLedgerWorkspace([])).toBeNull();
     });
 
-    it("keeps the cookie workspace so existing data stays in view", () => {
+    it("ignores an empty personal cookie when another tenant has the money", () => {
+      expect(
+        pickDefaultLedgerWorkspace([
+          {
+            workspaceId: "personal-1",
+            type: "personal",
+            joinedAt: t0,
+            cookieHit: true,
+            ledgerItemCount: 0,
+          },
+          {
+            workspaceId: "group-casa",
+            type: "group",
+            joinedAt: t1,
+            cookieHit: false,
+            ledgerItemCount: 12,
+          },
+        ]),
+      ).toBe("group-casa");
+    });
+
+    it("keeps the cookie workspace when that tenant has the data", () => {
       expect(
         pickDefaultLedgerWorkspace([
           {
@@ -45,18 +66,20 @@ describe("Workspaces domain — authz predicates (SPEC-02 §5)", () => {
             type: "personal",
             joinedAt: t0,
             cookieHit: false,
+            ledgerItemCount: 1,
           },
           {
             workspaceId: "group-casa",
             type: "group",
             joinedAt: t1,
             cookieHit: true,
+            ledgerItemCount: 8,
           },
         ]),
       ).toBe("group-casa");
     });
 
-    it("prefers personal when there is no cookie", () => {
+    it("prefers empty personal only when no tenant has ledger data", () => {
       expect(
         pickDefaultLedgerWorkspace([
           {
@@ -64,12 +87,14 @@ describe("Workspaces domain — authz predicates (SPEC-02 §5)", () => {
             type: "group",
             joinedAt: t0,
             cookieHit: false,
+            ledgerItemCount: 0,
           },
           {
             workspaceId: "personal-1",
             type: "personal",
             joinedAt: t1,
             cookieHit: false,
+            ledgerItemCount: 0,
           },
         ]),
       ).toBe("personal-1");
@@ -83,6 +108,7 @@ describe("Workspaces domain — authz predicates (SPEC-02 §5)", () => {
             type: "group",
             joinedAt: t0,
             cookieHit: false,
+            ledgerItemCount: 4,
           },
         ]),
       ).toBe("group-casa");

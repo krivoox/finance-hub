@@ -36,6 +36,7 @@ export async function createPersonalWorkspaceForUser({
       type: m.workspace.type,
       joinedAt: m.joinedAt,
       cookieHit: false,
+      ledgerItemCount: 0,
     })),
   );
   if (existingId) {
