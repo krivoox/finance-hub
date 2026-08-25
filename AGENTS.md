@@ -53,7 +53,7 @@ Mismo que Siturn — detalle en `docs/stack.md`:
 - Next.js 16 App Router, React 19, TypeScript strict, Tailwind 4, shadcn
 - **Better Auth** (no Supabase Auth)
 - **Prisma** + Postgres (Supabase)
-- Zod + RHF, TanStack Query, Zustand (solo UI)
+- Zod + RHF, Zustand (solo UI)
 - Vitest para TDD de negocio
 - Performance / PWA: [SPEC-20](./docs/specs/20-performance-pwa.md) + [architecture §7.2–7.3](./docs/architecture.md) (soft-nav, prefetch, SW static-only)
 

@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/session";
 import {
   createCrossWorkspaceContributionSchema,
@@ -8,6 +7,7 @@ import {
 } from "@/features/transactions/schemas";
 import { createCrossWorkspaceContribution as createContributionService } from "@/features/transactions/services/create-cross-workspace-contribution";
 import { transactionErrorToMessage, type ActionResult } from "./errors";
+import { revalidateMoneyPaths } from "./revalidate-money-paths";
 
 export async function createCrossWorkspaceContributionAction(
   input: CreateCrossWorkspaceContributionInput,
@@ -32,12 +32,7 @@ export async function createCrossWorkspaceContributionAction(
       occurredOn: parsed.data.occurredOn,
       description: parsed.data.description ?? null,
     });
-    revalidatePath("/transactions");
-    revalidatePath("/accounts");
-    revalidatePath("/dashboard");
-    revalidatePath("/groups");
-    revalidatePath("/groups/activity");
-    revalidatePath("/", "layout");
+    revalidateMoneyPaths({ groups: true });
     return {
       ok: true,
       data: {

@@ -39,6 +39,7 @@ import type { TransactionType } from "@/features/transactions/domain";
 import { formatDateOnly } from "@/lib/format-date";
 import { navigateAndRefresh, refreshAfterMutation } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
+import { navIntentPrefetchHandlers } from "@/components/app-shell/use-nav-prefetch";
 
 import { EditTransactionForm } from "./edit-transaction-form";
 import { TRANSACTION_TYPE_LABEL_ES } from "./transaction-type-labels";
@@ -351,6 +352,10 @@ export function TransactionsTable({
                           <Link
                             href={`/transactions/${tx.id}`}
                             className="min-w-0 truncate font-semibold text-foreground after:absolute after:inset-0 hover:underline"
+                            {...navIntentPrefetchHandlers(
+                              router,
+                              `/transactions/${tx.id}`,
+                            )}
                           >
                             {descriptionWithChip}
                           </Link>

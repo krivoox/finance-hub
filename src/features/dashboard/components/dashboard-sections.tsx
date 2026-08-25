@@ -1,6 +1,7 @@
 import "server-only";
 
 import { Suspense } from "react";
+import dynamic from "next/dynamic";
 
 import {
   buildAccountExpenseSankey,
@@ -18,7 +19,6 @@ import {
   DashboardBalanceTrend,
   DashboardBalanceTrendSkeleton,
 } from "./dashboard-balance-trend";
-import { DashboardFlowCharts } from "./dashboard-flow-charts";
 import { DashboardAttention } from "./dashboard-attention";
 import { DashboardGoals } from "./dashboard-goals";
 import { DashboardSpending } from "./dashboard-spending";
@@ -37,6 +37,12 @@ import {
   DashboardRecurringSkeleton,
   DashboardSpendingSkeleton,
 } from "./dashboard-skeletons";
+
+const DashboardFlowCharts = dynamic(
+  () =>
+    import("./dashboard-flow-charts").then((mod) => mod.DashboardFlowCharts),
+  { loading: () => <DashboardFlowChartsSkeleton /> },
+);
 
 /**
  * Streaming sections for the Panel (SPEC-20 H1/H8).

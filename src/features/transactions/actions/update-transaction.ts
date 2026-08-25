@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/session";
 import {
   updateTransactionSchema,
@@ -8,6 +7,7 @@ import {
 } from "@/features/transactions/schemas";
 import { updateTransaction as updateTransactionService } from "@/features/transactions/services";
 import { transactionErrorToMessage, type ActionResult } from "./errors";
+import { revalidateMoneyPaths } from "./revalidate-money-paths";
 
 export async function updateTransactionAction(
   input: UpdateTransactionInput,
@@ -43,11 +43,7 @@ export async function updateTransactionAction(
           ? undefined
           : parsed.data.counterpartyAccountId,
     });
-    revalidatePath("/transactions");
-    revalidatePath("/accounts");
-    revalidatePath("/dashboard");
-    revalidatePath("/goals");
-    revalidatePath("/", "layout");
+    revalidateMoneyPaths({ goals: true });
     return { ok: true, data: { transactionId: tx.id } };
   } catch (err) {
     return { ok: false, error: transactionErrorToMessage(err) };

@@ -13,6 +13,7 @@ import {
   buildListTransactionsWhere,
   type ListTransactionsFilterInput,
 } from "./list-transactions-where";
+import { listLocalAccountIds } from "./list-local-account-ids";
 
 export type SumFilteredTransactionsInput = ListTransactionsFilterInput & {
   userId: string;
@@ -24,15 +25,11 @@ export type SumFilteredTransactionsInput = ListTransactionsFilterInput & {
 export async function sumFilteredTransactions(
   input: SumFilteredTransactionsInput,
 ): Promise<CurrencyListTotals[]> {
-  const { role } = await requireMembership(input.userId, input.workspaceId);
+  const [{ role }, localAccountIds] = await Promise.all([
+    requireMembership(input.userId, input.workspaceId),
+    listLocalAccountIds(input.workspaceId),
+  ]);
   assertCanReadTransactions(role);
-
-  const localAccountIds = (
-    await prisma.financeAccount.findMany({
-      where: { workspaceId: input.workspaceId },
-      select: { id: true },
-    })
-  ).map((a) => a.id);
 
   const where = buildListTransactionsWhere(input, localAccountIds);
 
