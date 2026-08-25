@@ -76,7 +76,7 @@ export function useRowSelection(
   };
 }
 
-const SELECT_CELL_CLASS = "w-10 pl-3";
+const SELECT_CELL_CLASS = "hidden w-10 pl-3 sm:table-cell";
 
 export function SelectAllHead({
   selection,

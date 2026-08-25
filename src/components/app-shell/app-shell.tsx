@@ -12,6 +12,7 @@ import { NewTransactionSheet } from "@/features/transactions/components/new-tran
 
 import { AppSidebar, type AppSidebarProps } from "./app-sidebar";
 import { MobileTabBar } from "./mobile-tab-bar";
+import { ShellLayoutSync } from "./shell-layout-sync";
 import { SkipLink } from "./skip-link";
 import { useNavPrefetch } from "./use-nav-prefetch";
 
@@ -23,7 +24,7 @@ type AppShellProps = AppSidebarProps & {
 
 /** Space reserved for the docked mobile tab bar + safe area. */
 const MOBILE_TAB_BAR_CLEARANCE =
-  "pb-[calc(4.25rem+env(safe-area-inset-bottom))] md:pb-0";
+  "pb-[calc(4.75rem+env(safe-area-inset-bottom))] md:pb-0";
 
 export function AppShell({
   children,
@@ -40,6 +41,7 @@ export function AppShell({
 
   return (
     <>
+      <ShellLayoutSync />
       <SkipLink />
       <SidebarProvider className="min-h-svh max-w-full overflow-x-hidden md:h-svh md:overflow-hidden">
         <AppSidebar

@@ -1,7 +1,9 @@
 import "server-only";
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import {
   aggregateSpendingByCategory,
+  aggregateSpendingByCategoryByMonth,
   aggregateSpendingFlows,
   buildMonthlySeries,
   computeInsights,
@@ -19,32 +21,30 @@ import { requireMembership } from "@/features/workspaces/services";
 
 export type GetAnalyticsResult = {
   spendingByCategory: SpendingByCategoryRow[];
+  /** Expenses by category for each month in `monthlySeries` (transfers/`fx_*` excluded). */
+  monthlyCategorySpending: Record<string, SpendingByCategoryRow[]>;
   spendingFlows: SpendingFlow[];
   cashflow: CashflowSummary;
   monthlySeries: MonthlySeriesPoint[];
   insights: Insight[];
 };
 
-export async function getAnalytics(input: {
+/** Mobile Panel home: monthly bars + category donut. No insights / budgets. */
+export type GetAnalyticsHomeResult = Pick<
+  GetAnalyticsResult,
+  "monthlySeries" | "monthlyCategorySpending"
+>;
+
+type AnalyticsInput = {
   userId: string;
   workspaceId: string;
   timezone: string;
   now?: Date;
   months?: number;
-  /**
-   * Optional when the caller already loaded budgets (e.g. getDashboard).
-   * Accepts a Promise so the dashboard page can share the request-scoped
-   * budget snapshot without waterfalling analytics txs behind getDashboard.
-   */
-  budgetsExceededCount?: number | Promise<number>;
-}): Promise<GetAnalyticsResult> {
-  await requireMembership(input.userId, input.workspaceId);
+};
 
-  const now = input.now ?? new Date();
-  const months = input.months ?? 6;
-  const currentPeriod = getCurrentMonthPeriod(now, input.timezone);
-
-  // Previous calendar month window [prevStart, currentStart)
+function analyticsSeriesWindow(now: Date, timezone: string, months: number) {
+  const currentPeriod = getCurrentMonthPeriod(now, timezone);
   const prevStart = new Date(
     Date.UTC(
       currentPeriod.start.getUTCFullYear(),
@@ -52,7 +52,6 @@ export async function getAnalytics(input: {
       1,
     ),
   );
-
   const seriesStart = new Date(
     Date.UTC(
       currentPeriod.start.getUTCFullYear(),
@@ -60,26 +59,27 @@ export async function getAnalytics(input: {
       1,
     ),
   );
+  return { currentPeriod, prevStart, seriesStart };
+}
 
-  const budgetsExceededCountPromise =
-    input.budgetsExceededCount !== undefined
-      ? Promise.resolve(input.budgetsExceededCount)
-      : listBudgetsWithStatus({
-          userId: input.userId,
-          workspaceId: input.workspaceId,
-          referenceDate: now,
-        }).then(
-          (budgets) =>
-            budgets.filter(
-              (b) => !b.isArchived && b.progress.status === "exceeded",
-            ).length,
-        );
+/**
+ * Ledger slice for analytics series. Primitive args so React.cache hits when
+ * the mobile home and full getAnalytics run in the same RSC request.
+ * Request-scoped only — no cross-request TTL of money data (SPEC-20).
+ */
+const loadAnalyticsTransactions = cache(
+  async (
+    userId: string,
+    workspaceId: string,
+    seriesStartIso: string,
+    periodEndIso: string,
+  ): Promise<AnalyticsTransaction[]> => {
+    await requireMembership(userId, workspaceId);
 
-  const [txRows, budgetsExceededCount] = await Promise.all([
-    prisma.transaction.findMany({
+    const txRows = await prisma.transaction.findMany({
       where: {
-        workspaceId: input.workspaceId,
-        occurredOn: { gte: seriesStart, lt: currentPeriod.end },
+        workspaceId,
+        occurredOn: { gte: new Date(seriesStartIso), lt: new Date(periodEndIso) },
         type: { in: ["income", "expense"] },
       },
       select: {
@@ -91,20 +91,87 @@ export async function getAnalytics(input: {
         category: { select: { name: true } },
         account: { select: { name: true } },
       },
+    });
+
+    return txRows.map((r) => ({
+      type: r.type as "income" | "expense",
+      amountCents: r.amountCents,
+      categoryId: r.categoryId,
+      categoryName: r.category?.name ?? null,
+      accountId: r.accountId,
+      accountName: r.account?.name ?? null,
+      occurredOn: r.occurredOn,
+    }));
+  },
+);
+
+function toAnalyticsHome(
+  all: AnalyticsTransaction[],
+  months: number,
+  currentPeriodStart: Date,
+): GetAnalyticsHomeResult {
+  const monthlySeries = buildMonthlySeries(all, months, currentPeriodStart);
+  return {
+    monthlySeries,
+    monthlyCategorySpending: aggregateSpendingByCategoryByMonth(
+      all,
+      monthlySeries.map((p) => p.yearMonth),
+    ),
+  };
+}
+
+async function loadAnalyticsLedger(input: AnalyticsInput): Promise<{
+  all: AnalyticsTransaction[];
+  months: number;
+  currentPeriod: ReturnType<typeof getCurrentMonthPeriod>;
+  prevStart: Date;
+}> {
+  const now = input.now ?? new Date();
+  const months = input.months ?? 6;
+  const { currentPeriod, prevStart, seriesStart } = analyticsSeriesWindow(
+    now,
+    input.timezone,
+    months,
+  );
+
+  const all = await loadAnalyticsTransactions(
+    input.userId,
+    input.workspaceId,
+    seriesStart.toISOString(),
+    currentPeriod.end.toISOString(),
+  );
+
+  return { all, months, currentPeriod, prevStart };
+}
+
+/**
+ * Lightweight analytics for the mobile Panel home. Awaits only the cached
+ * transaction slice + monthly aggregates — not budgets, insights, or GetDashboard.
+ */
+export async function getAnalyticsHome(
+  input: AnalyticsInput,
+): Promise<GetAnalyticsHomeResult> {
+  const { all, months, currentPeriod } = await loadAnalyticsLedger(input);
+  return toAnalyticsHome(all, months, currentPeriod.start);
+}
+
+export async function getAnalytics(
+  input: AnalyticsInput,
+): Promise<GetAnalyticsResult> {
+  const now = input.now ?? new Date();
+
+  // Txs and budgets in parallel. Home does not await this budgets call;
+  // listBudgetsWithStatus is already request-cached with GetDashboard.
+  const [ledger, budgets] = await Promise.all([
+    loadAnalyticsLedger({ ...input, now }),
+    listBudgetsWithStatus({
+      userId: input.userId,
+      workspaceId: input.workspaceId,
+      referenceDate: now,
     }),
-    budgetsExceededCountPromise,
   ]);
 
-  const all: AnalyticsTransaction[] = txRows.map((r) => ({
-    type: r.type as "income" | "expense",
-    amountCents: r.amountCents,
-    categoryId: r.categoryId,
-    categoryName: r.category?.name ?? null,
-    accountId: r.accountId,
-    accountName: r.account?.name ?? null,
-    occurredOn: r.occurredOn,
-  }));
-
+  const { all, months, currentPeriod, prevStart } = ledger;
   const currentTxs = all.filter(
     (t) =>
       t.occurredOn >= currentPeriod.start && t.occurredOn < currentPeriod.end,
@@ -114,18 +181,19 @@ export async function getAnalytics(input: {
   );
 
   const spendingByCategory = aggregateSpendingByCategory(currentTxs);
-  const spendingFlows = aggregateSpendingFlows(currentTxs);
-  const previousSpending = aggregateSpendingByCategory(previousTxs);
+  const home = toAnalyticsHome(all, months, currentPeriod.start);
 
   return {
+    ...home,
     spendingByCategory,
-    spendingFlows,
+    spendingFlows: aggregateSpendingFlows(currentTxs),
     cashflow: summarizeCashflow(currentTxs),
-    monthlySeries: buildMonthlySeries(all, months, currentPeriod.start),
     insights: computeInsights({
       currentSpending: spendingByCategory,
-      previousSpending,
-      budgetsExceededCount,
+      previousSpending: aggregateSpendingByCategory(previousTxs),
+      budgetsExceededCount: budgets.filter(
+        (b) => !b.isArchived && b.progress.status === "exceeded",
+      ).length,
     }),
   };
 }

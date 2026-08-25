@@ -30,6 +30,7 @@ import {
   mobileMoreNavItems,
   type NavBadges,
 } from "./nav-config";
+import { NavGlyph } from "./nav-glyph";
 import type { SidebarUser } from "./app-sidebar";
 import { navIntentPrefetchHandlers } from "./use-nav-prefetch";
 
@@ -102,7 +103,6 @@ export function MobileMoreSheet({
           <nav aria-label="Más destinos">
             <ul className="grid gap-0.5">
               {items.map((item) => {
-                const Icon = item.icon;
                 const active = isNavItemActive(pathname, item.href);
                 return (
                   <li key={item.href}>
@@ -118,7 +118,7 @@ export function MobileMoreSheet({
                           : "text-foreground hover:bg-muted/60",
                       )}
                     >
-                      <Icon className="size-4 shrink-0" strokeWidth={1.75} />
+                      <NavGlyph>{item.glyph}</NavGlyph>
                       <span className="min-w-0 flex-1 truncate">
                         {item.title}
                       </span>

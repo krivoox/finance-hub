@@ -4,7 +4,11 @@ import {
   aggregateSpendingFlows,
   buildAccountExpenseSankey,
 } from "./account-sankey";
-import type { AnalyticsTransaction } from "./analytics-types";
+import {
+  UNCATEGORIZED_CATEGORY_ID,
+  UNCATEGORIZED_CATEGORY_NAME,
+  type AnalyticsTransaction,
+} from "./analytics-types";
 
 function tx(
   partial: Partial<AnalyticsTransaction> &
@@ -83,8 +87,8 @@ describe("aggregateSpendingFlows", () => {
       {
         accountId: "_unknown",
         accountName: "Sin cuenta",
-        categoryId: "_uncategorized",
-        categoryName: "Sin categoría",
+        categoryId: UNCATEGORIZED_CATEGORY_ID,
+        categoryName: UNCATEGORIZED_CATEGORY_NAME,
         amountCents: 15,
       },
     ]);

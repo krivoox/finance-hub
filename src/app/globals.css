@@ -254,7 +254,7 @@
     -webkit-font-smoothing: antialiased;
     scrollbar-width: thin;
     scrollbar-color: var(--border) transparent;
-    scroll-padding-bottom: calc(4.5rem + env(safe-area-inset-bottom));
+    scroll-padding-bottom: calc(5rem + env(safe-area-inset-bottom));
   }
 
   @media (min-width: 768px) {

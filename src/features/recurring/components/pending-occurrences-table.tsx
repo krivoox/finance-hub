@@ -192,14 +192,14 @@ export function PendingOccurrencesTable({
                 label="Seleccionar todas las ocurrencias confirmables"
               />
             ) : null}
-            <AbmHead>Descripción</AbmHead>
+            <AbmHead slot="identity">Descripción</AbmHead>
             <AbmHead hideBelow="md">Categoría</AbmHead>
             <AbmHead hideBelow="lg">Cuenta</AbmHead>
-            <AbmHead className="text-right">Monto</AbmHead>
+            <AbmHead slot="amount">Monto</AbmHead>
             <AbmHead hideBelow="sm">Fecha de cobro</AbmHead>
             <AbmHead hideBelow="sm">Estado</AbmHead>
             {canMutate ? (
-              <AbmHead className="text-right">
+              <AbmHead slot="action">
                 <span className="sr-only">Acciones</span>
               </AbmHead>
             ) : null}
@@ -224,19 +224,36 @@ export function PendingOccurrencesTable({
                     label={`Seleccionar ${item.ruleName} del ${formatDateOnly(item.scheduledOn)}`}
                   />
                 ) : null}
-                <AbmCell>
+                <AbmCell slot="identity">
                   <div className="flex min-w-0 flex-col gap-0.5">
-                    <span className="font-medium text-foreground">
+                    <span className="min-w-0 truncate font-medium text-foreground">
                       {item.ruleName}
                     </span>
-                    <span className="text-xs text-muted-foreground sm:hidden">
+                    <span className="truncate text-xs text-muted-foreground sm:hidden">
                       {formatDateOnly(item.scheduledOn)} ·{" "}
                       {OCCURRENCE_STATUS_LABEL_ES[item.status]}
                     </span>
-                    <span className="text-xs text-muted-foreground md:hidden">
+                    <span className="hidden truncate text-xs text-muted-foreground sm:block md:hidden">
                       {RECURRING_TYPE_LABEL_ES[item.ruleType]} ·{" "}
                       {accountLabel(item)}
                     </span>
+                    {canMutate && item.isConfirmable ? (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className="relative z-10 mt-1 w-fit sm:hidden"
+                        disabled={isPending}
+                        onClick={() => confirmMany([key])}
+                      >
+                        <CheckCircle2
+                          className="size-3.5"
+                          strokeWidth={1.75}
+                          aria-hidden
+                        />
+                        Confirmar
+                      </Button>
+                    ) : null}
                   </div>
                 </AbmCell>
                 <AbmCell hideBelow="md">
@@ -248,7 +265,7 @@ export function PendingOccurrencesTable({
                 <AbmCell hideBelow="lg" muted>
                   {accountLabel(item)}
                 </AbmCell>
-                <AbmCell className="text-right">
+                <AbmCell slot="amount">
                   <AbmMoney
                     cents={signedAmountCents(item.ruleType, item.amountCents)}
                     currency={item.currency}
@@ -264,7 +281,7 @@ export function PendingOccurrencesTable({
                   </Badge>
                 </AbmCell>
                 {canMutate ? (
-                  <AbmCell className="text-right">
+                  <AbmCell slot="action">
                     {item.isConfirmable ? (
                       <Button
                         type="button"

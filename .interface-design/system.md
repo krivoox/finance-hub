@@ -4,7 +4,7 @@ Direction: ledger navy — cool slate canvas, always-dark navy rail, blue gradie
 Depth: hairline border + `shadow-card` (0 1px 8px / 6%). No heavy Material shadows.
 Spacing base: 4px. Product density: medium (card pad 20–24px, section gap 16–24px).
 Type: Plus Jakarta Sans (UI 400–700) + Nunito display/headings/money (up to 800). Geist Mono for code.
-Signature: navy sidebar (220px, both themes) + independent white cards on slate canvas — never a wrapping content-panel card. Create flows via right FormSheet.
+Signature: navy sidebar (220px, both themes) + independent white cards on slate canvas — never a wrapping content-panel card. Create flows via FormSheet (bottom on mobile, right from md).
 Responsive: **mobile-first**. Base = phone with docked tab bar; `md` navy sidebar; `lg` dashboard 2-col.
 
 ## Tokens (see globals.css)
@@ -20,10 +20,10 @@ Responsive: **mobile-first**. Base = phone with docked tab bar; `md` navy sideba
 - No hardcoded colors in product UI (`slate-*` / `blue-*` / hex / `bg-white`)
 - Prefer shadcn + CVA variants
 - Mobile-first layouts (no desktop-first + max-* patches)
-- Dense tables: hide secondary columns below `sm`/`md`
+- Dense tables: mobile shows identity + amount only — no horizontal scroll. Hide select/status/actions below `sm`. Amount is nowrap; identity truncates.
 - Money uses `.tabular` (Nunito + tabular-nums)
 - Business logic stays out of React components
-- Create: `FormSheet` right drawer (full mobile / md–lg desktop). CTAs in `ContentPanel.actions` or `?new=1`
+- Create: `FormSheet` bottom sheet on mobile / right drawer from `md`. CTAs in `ContentPanel.actions` or `?new=1`
 - Form density: 1 column · `FormField` · `FormSection` · `SegmentedControl` for type toggles
 - Progress bars: `ProgressBar` with ≥3 tones; rose (`alert`) only for real alerts (budget exceeded)
 - Page chrome is `ContentPanel` (H1 + actions on canvas). Blocks are `SurfaceSection` cards.

@@ -69,6 +69,22 @@ describe("computeMonthlyCashflow — SPEC-12 §4 / T-02", () => {
     expect(cashflow.netCents).toBe(40_000);
   });
 
+  it("excludes fx debit/credit from income and expense", () => {
+    const txs: DashboardTransaction[] = [
+      tx({ type: "expense", amountCents: 10_000 }),
+      tx({ type: "fx_debit", amountCents: 8_000 }),
+      tx({ type: "fx_credit", amountCents: 8_000 }),
+    ];
+    const cashflow = computeMonthlyCashflow(
+      txs,
+      PERIOD_START,
+      PERIOD_END,
+      "ARS",
+    );
+    expect(cashflow.expenseCents).toBe(10_000);
+    expect(cashflow.incomeCents).toBe(0);
+  });
+
   it("uses a half-open [start, end) window: start is inclusive, end is exclusive", () => {
     const txs: DashboardTransaction[] = [
       tx({

@@ -8,6 +8,7 @@ import {
   buildNetTrend,
 } from "@/features/dashboard/domain";
 import type {
+  GetAnalyticsHomeResult,
   GetAnalyticsResult,
   GetDashboardResult,
 } from "@/features/dashboard/services";
@@ -25,20 +26,29 @@ import { DashboardSpendingBar } from "./dashboard-spending-bar";
 import { DashboardRecent } from "./dashboard-recent";
 import { DashboardRecurring } from "./dashboard-recurring";
 import { DashboardAccounts } from "./dashboard-accounts";
+import { DashboardMobileHome } from "./dashboard-mobile-home";
+import {
+  DashboardAccountsSkeleton,
+  DashboardAttentionSkeleton,
+  DashboardBalanceSkeleton,
+  DashboardFlowChartsSkeleton,
+  DashboardGoalsSkeleton,
+  DashboardRecentSkeleton,
+  DashboardRecurringSkeleton,
+  DashboardSpendingSkeleton,
+} from "./dashboard-skeletons";
 
 /**
  * Streaming sections for the Panel (SPEC-20 H1/H8).
  *
- * The route creates two request-scoped promises — `getDashboard` and
- * `getAnalytics` — once, and shares them across these async Server Components.
- * Each section awaits only the data it needs, so every `<Suspense>` boundary
- * streams independently while the shared promises still run each read model a
- * single time (no per-section re-query). No money is cached: this only reorders
- * when blocks paint, never how fresh they are.
+ * `fh-shell` chooses which read model the route starts: compact →
+ * `getAnalyticsHome` only; full → `getDashboard` + `getAnalytics`. Each
+ * section awaits only the data it needs. No money is cached across requests.
  */
 
 type DashboardPromise = Promise<GetDashboardResult>;
 type AnalyticsPromise = Promise<GetAnalyticsResult>;
+type AnalyticsHomePromise = Promise<GetAnalyticsHomeResult>;
 
 type BalanceSectionProps = {
   dashboard: DashboardPromise;
@@ -104,6 +114,23 @@ export async function DashboardSpendingBarSection({
       currency={currency}
       rows={a.spendingByCategory}
       limit={3}
+    />
+  );
+}
+
+export async function DashboardMobileHomeSection({
+  home,
+  currency,
+}: {
+  home: AnalyticsHomePromise;
+  currency: string;
+}) {
+  const a = await home;
+  return (
+    <DashboardMobileHome
+      currency={currency}
+      monthlySeries={a.monthlySeries}
+      monthlyCategorySpending={a.monthlyCategorySpending}
     />
   );
 }
@@ -207,4 +234,66 @@ export async function DashboardAccountsSection({
 }) {
   const d = await dashboard;
   return <DashboardAccounts accounts={d.accounts} />;
+}
+
+/** Desktop Panel composition. Only mount when `fh-shell=full` so compact skips this work. */
+export function DashboardDesktopSections({
+  dashboard,
+  analytics,
+  currency,
+  periodLabel,
+}: {
+  dashboard: DashboardPromise;
+  analytics: AnalyticsPromise;
+  currency: string;
+  periodLabel: string;
+}) {
+  return (
+    <>
+      <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:items-stretch lg:gap-6">
+        <Suspense fallback={<DashboardBalanceSkeleton />}>
+          <DashboardBalanceSection
+            dashboard={dashboard}
+            analytics={analytics}
+            periodLabel={periodLabel}
+          />
+        </Suspense>
+        <div className="lg:contents">
+          <Suspense fallback={<DashboardRecentSkeleton />}>
+            <DashboardRecentSection dashboard={dashboard} />
+          </Suspense>
+        </div>
+      </div>
+
+      <div className="grid min-w-0 gap-5 sm:gap-6 lg:grid-cols-2 lg:items-stretch">
+        <Suspense fallback={<DashboardGoalsSkeleton />}>
+          <DashboardGoalsSection dashboard={dashboard} currency={currency} />
+        </Suspense>
+        <Suspense fallback={<DashboardAttentionSkeleton />}>
+          <DashboardAttentionSection
+            dashboard={dashboard}
+            analytics={analytics}
+            currency={currency}
+          />
+        </Suspense>
+      </div>
+
+      <Suspense fallback={<DashboardFlowChartsSkeleton />}>
+        <DashboardFlowChartsSection analytics={analytics} currency={currency} />
+      </Suspense>
+
+      <Suspense fallback={<DashboardRecurringSkeleton />}>
+        <DashboardRecurringSection dashboard={dashboard} />
+      </Suspense>
+
+      <div className="grid min-w-0 gap-5 sm:gap-6 lg:grid-cols-2 lg:items-stretch">
+        <Suspense fallback={<DashboardSpendingSkeleton />}>
+          <DashboardSpendingSection analytics={analytics} currency={currency} />
+        </Suspense>
+        <Suspense fallback={<DashboardAccountsSkeleton />}>
+          <DashboardAccountsSection dashboard={dashboard} />
+        </Suspense>
+      </div>
+    </>
+  );
 }

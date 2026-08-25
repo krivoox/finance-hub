@@ -98,7 +98,8 @@ export function FormActions({ children, className }: FormActionsProps) {
   return (
     <div
       className={cn(
-        "flex flex-col-reverse gap-2 border-t border-border pt-4 sm:flex-row sm:justify-end",
+        "flex flex-col-reverse gap-2 border-t border-border bg-popover pt-4 sm:static sm:flex-row sm:justify-end sm:bg-transparent",
+        "sticky bottom-0 z-10 -mx-4 mt-2 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:mx-0 sm:mt-0 sm:px-0 sm:py-0 sm:pb-0 sm:pt-4",
         className,
       )}
     >
