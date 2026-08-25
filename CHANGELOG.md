@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **ui:** Keep the mobile tab bar in view and avoid stale JS in next dev
 
+- **nav:** Keep mobile Más sheet inside sidebar context
+
 [Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.16.0...HEAD
 
 ## [0.13.0] - 2026-08-11
