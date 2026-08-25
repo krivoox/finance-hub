@@ -5,7 +5,6 @@ import {
   assertCanDeleteAccount,
   assertCanMutateAccounts,
   assertDeleteAccountConfirmation,
-  AccountHasCrossWorkspaceLinksError,
 } from "@/features/accounts/domain";
 import {
   reverseContribution,
@@ -38,7 +37,7 @@ export async function deleteAccount({
 
   const workspaceId = account.workspaceId;
 
-  const [activeGoalsLinkedToAccount, activeAccountCountInWorkspace, crossLink] =
+  const [activeGoalsLinkedToAccount, activeAccountCountInWorkspace] =
     await Promise.all([
       prisma.goal.findMany({
         where: { linkedAccountId: accountId, status: "active" },
@@ -47,26 +46,6 @@ export async function deleteAccount({
       prisma.financeAccount.count({
         where: { workspaceId, isArchived: false },
       }),
-      prisma.transaction.findFirst({
-        where: {
-          workspaceId,
-          AND: [
-            {
-              OR: [
-                { accountId },
-                { counterpartyAccountId: accountId },
-              ],
-            },
-            {
-              OR: [
-                { crossWorkspaceLinkAsSource: { isNot: null } },
-                { crossWorkspaceLinkAsTarget: { isNot: null } },
-              ],
-            },
-          ],
-        },
-        select: { id: true },
-      }),
     ]);
 
   assertCanDeleteAccount({
@@ -74,7 +53,6 @@ export async function deleteAccount({
     isArchived: account.isArchived,
     activeAccountCountInWorkspace,
     activeGoalsLinkedToAccount,
-    hasCrossWorkspaceLinks: crossLink != null,
   });
 
   await prisma.$transaction(async (tx) => {
@@ -156,16 +134,10 @@ export async function deleteAccount({
             },
           },
         },
-        crossWorkspaceLinkAsSource: { select: { id: true } },
-        crossWorkspaceLinkAsTarget: { select: { id: true } },
       },
     });
 
     for (const row of remaining) {
-      if (row.crossWorkspaceLinkAsSource || row.crossWorkspaceLinkAsTarget) {
-        throw new AccountHasCrossWorkspaceLinksError();
-      }
-
       if (row.goalContribution) {
         const { newCurrentAmountCents, newStatus } = reverseContribution(
           {
@@ -204,7 +176,7 @@ async function recheckDeleteGuards(
     isArchived: boolean;
   },
 ): Promise<void> {
-  const [activeGoalsLinkedToAccount, activeAccountCountInWorkspace, crossLink] =
+  const [activeGoalsLinkedToAccount, activeAccountCountInWorkspace] =
     await Promise.all([
       tx.goal.findMany({
         where: { linkedAccountId: input.accountId, status: "active" },
@@ -213,26 +185,6 @@ async function recheckDeleteGuards(
       tx.financeAccount.count({
         where: { workspaceId: input.workspaceId, isArchived: false },
       }),
-      tx.transaction.findFirst({
-        where: {
-          workspaceId: input.workspaceId,
-          AND: [
-            {
-              OR: [
-                { accountId: input.accountId },
-                { counterpartyAccountId: input.accountId },
-              ],
-            },
-            {
-              OR: [
-                { crossWorkspaceLinkAsSource: { isNot: null } },
-                { crossWorkspaceLinkAsTarget: { isNot: null } },
-              ],
-            },
-          ],
-        },
-        select: { id: true },
-      }),
     ]);
 
   assertCanDeleteAccount({
@@ -240,6 +192,5 @@ async function recheckDeleteGuards(
     isArchived: input.isArchived,
     activeAccountCountInWorkspace,
     activeGoalsLinkedToAccount,
-    hasCrossWorkspaceLinks: crossLink != null,
   });
 }

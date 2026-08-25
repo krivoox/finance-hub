@@ -1,7 +1,6 @@
 import {
   AccountDeleteConfirmationMismatchError,
   AccountDomainError,
-  AccountHasCrossWorkspaceLinksError,
   AccountLinkedToActiveGoalError,
   AccountNotFoundError,
   CannotDeleteLastActiveAccountError,
@@ -26,9 +25,6 @@ export function domainErrorToMessage(err: unknown): string {
   }
   if (err instanceof CannotDeleteLastActiveAccountError) {
     return "No podés eliminar la única cuenta activa. Archivá esta cuenta o creá otra antes de eliminarla.";
-  }
-  if (err instanceof AccountHasCrossWorkspaceLinksError) {
-    return "Esta cuenta tiene movimientos vinculados a otro espacio. No se puede eliminar.";
   }
   if (err instanceof AccountDeleteConfirmationMismatchError) {
     return "El nombre no coincide. Escribí el nombre exacto de la cuenta.";

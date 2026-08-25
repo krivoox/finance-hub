@@ -26,7 +26,7 @@ import {
   parseSettingsTab,
   SettingsTabsNav,
 } from "@/features/settings/components/settings-tabs-nav";
-import { NewGroupWorkspaceForm } from "@/features/workspaces/components/new-group-workspace-form";
+import { RenameWorkspaceForm } from "@/features/workspaces/components/rename-workspace-form";
 import {
   getActiveWorkspaceForUser,
   type ActiveWorkspaceContext,
@@ -110,6 +110,20 @@ export default async function SettingsPage({ searchParams }: PageProps) {
           {workspace ? (
             <SurfaceSection>
               <SurfaceHeader
+                title="Tu espacio"
+                description="Nombre de tu workspace personal. Los grupos de gastos divididos viven aparte, en Grupos."
+              />
+              <RenameWorkspaceForm
+                workspaceId={workspace.id}
+                initialName={workspace.name}
+                canRename={workspace.role === "owner" || workspace.role === "admin"}
+              />
+            </SurfaceSection>
+          ) : null}
+
+          {workspace ? (
+            <SurfaceSection>
+              <SurfaceHeader
                 title="Tasa de consolidación"
                 description={`Usada en el dashboard para estimar el patrimonio ≈ en ${workspace.baseCurrency} cuando hay saldos ARS y USD.`}
               />
@@ -122,14 +136,6 @@ export default async function SettingsPage({ searchParams }: PageProps) {
               </Suspense>
             </SurfaceSection>
           ) : null}
-
-          <SurfaceSection>
-            <SurfaceHeader
-              title="Nuevo workspace grupal"
-              description="Creá un workspace compartido con miembros y saldos comunes. El workspace personal no se puede eliminar."
-            />
-            <NewGroupWorkspaceForm />
-          </SurfaceSection>
         </div>
       ) : null}
 

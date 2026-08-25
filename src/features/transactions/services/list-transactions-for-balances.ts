@@ -4,11 +4,8 @@ import type { BalanceEffectTx } from "@/features/accounts/domain";
 import type { TransactionType } from "@/features/transactions/domain";
 
 /**
- * Loads every transaction that can affect account balances **of accounts that
- * belong to this workspace** — including externally funded txs whose
- * `transaction.workspaceId` is another space (SPEC-14).
- *
- * Also includes classic same-workspace transfers (counterparty in this WS).
+ * Loads every transaction that can affect account balances of accounts that
+ * belong to this workspace (origin or transfer counterparty).
  */
 export async function loadWorkspaceBalanceEffects(
   workspaceId: string,

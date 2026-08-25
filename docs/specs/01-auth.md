@@ -7,6 +7,8 @@
 | Prioridad | P0 |
 | Dependencias | — |
 
+> **KRI-29.** Las invitaciones a workspace grupal (`inviteToken`, `acceptPendingInvitationsForEmail`, cookie `fh-invite-token`) **se retiraron**. Unirse a un círculo de gastos es `JoinSplitGroup` vía `/s/[token]` ([SPEC-09](./09-financial-groups.md)).
+
 ## 1. Contexto
 
 Los usuarios deben autenticarse para acceder a sus workspaces y datos financieros. El perfil guarda preferencias que afectan periodos y formato (timezone, moneda preferida).

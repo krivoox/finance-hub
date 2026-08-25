@@ -3,7 +3,6 @@ export {
   AccountCurrencyMismatchError,
   AccountDeleteConfirmationMismatchError,
   AccountDomainError,
-  AccountHasCrossWorkspaceLinksError,
   AccountLinkedToActiveGoalError,
   AccountNotFoundError,
   CannotDeleteLastActiveAccountError,

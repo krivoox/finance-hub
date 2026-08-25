@@ -57,7 +57,6 @@ export const ModelName = {
   Verification: 'Verification',
   Workspace: 'Workspace',
   Membership: 'Membership',
-  Invitation: 'Invitation',
   Category: 'Category',
   FinanceAccount: 'FinanceAccount',
   Transaction: 'Transaction',
@@ -66,11 +65,12 @@ export const ModelName = {
   WorkspaceConsolidationRate: 'WorkspaceConsolidationRate',
   UsdQuoteSnapshot: 'UsdQuoteSnapshot',
   UsdQuoteLine: 'UsdQuoteLine',
-  CrossWorkspaceLink: 'CrossWorkspaceLink',
   Budget: 'Budget',
   BudgetCategory: 'BudgetCategory',
   Goal: 'Goal',
   GoalContribution: 'GoalContribution',
+  SplitGroup: 'SplitGroup',
+  SplitGroupMember: 'SplitGroupMember',
   ExpenseSplit: 'ExpenseSplit',
   ExpenseSplitShare: 'ExpenseSplitShare',
   Settlement: 'Settlement'
@@ -174,22 +174,6 @@ export const MembershipScalarFieldEnum = {
 } as const
 
 export type MembershipScalarFieldEnum = (typeof MembershipScalarFieldEnum)[keyof typeof MembershipScalarFieldEnum]
-
-
-export const InvitationScalarFieldEnum = {
-  id: 'id',
-  workspaceId: 'workspaceId',
-  email: 'email',
-  role: 'role',
-  token: 'token',
-  status: 'status',
-  expiresAt: 'expiresAt',
-  invitedByUserId: 'invitedByUserId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type InvitationScalarFieldEnum = (typeof InvitationScalarFieldEnum)[keyof typeof InvitationScalarFieldEnum]
 
 
 export const CategoryScalarFieldEnum = {
@@ -327,17 +311,6 @@ export const UsdQuoteLineScalarFieldEnum = {
 export type UsdQuoteLineScalarFieldEnum = (typeof UsdQuoteLineScalarFieldEnum)[keyof typeof UsdQuoteLineScalarFieldEnum]
 
 
-export const CrossWorkspaceLinkScalarFieldEnum = {
-  id: 'id',
-  kind: 'kind',
-  sourceTransactionId: 'sourceTransactionId',
-  targetTransactionId: 'targetTransactionId',
-  createdAt: 'createdAt'
-} as const
-
-export type CrossWorkspaceLinkScalarFieldEnum = (typeof CrossWorkspaceLinkScalarFieldEnum)[keyof typeof CrossWorkspaceLinkScalarFieldEnum]
-
-
 export const BudgetScalarFieldEnum = {
   id: 'id',
   workspaceId: 'workspaceId',
@@ -395,11 +368,39 @@ export const GoalContributionScalarFieldEnum = {
 export type GoalContributionScalarFieldEnum = (typeof GoalContributionScalarFieldEnum)[keyof typeof GoalContributionScalarFieldEnum]
 
 
-export const ExpenseSplitScalarFieldEnum = {
+export const SplitGroupScalarFieldEnum = {
   id: 'id',
   workspaceId: 'workspaceId',
+  name: 'name',
+  kind: 'kind',
+  currency: 'currency',
+  publicShareToken: 'publicShareToken',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SplitGroupScalarFieldEnum = (typeof SplitGroupScalarFieldEnum)[keyof typeof SplitGroupScalarFieldEnum]
+
+
+export const SplitGroupMemberScalarFieldEnum = {
+  id: 'id',
+  splitGroupId: 'splitGroupId',
+  kind: 'kind',
+  userId: 'userId',
+  displayName: 'displayName',
+  displayNameKey: 'displayNameKey',
+  createdAt: 'createdAt'
+} as const
+
+export type SplitGroupMemberScalarFieldEnum = (typeof SplitGroupMemberScalarFieldEnum)[keyof typeof SplitGroupMemberScalarFieldEnum]
+
+
+export const ExpenseSplitScalarFieldEnum = {
+  id: 'id',
+  splitGroupId: 'splitGroupId',
   expenseTransactionId: 'expenseTransactionId',
-  paidByUserId: 'paidByUserId',
+  paidByMemberId: 'paidByMemberId',
   method: 'method',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -411,7 +412,7 @@ export type ExpenseSplitScalarFieldEnum = (typeof ExpenseSplitScalarFieldEnum)[k
 export const ExpenseSplitShareScalarFieldEnum = {
   id: 'id',
   splitId: 'splitId',
-  userId: 'userId',
+  memberId: 'memberId',
   shareCents: 'shareCents'
 } as const
 
@@ -420,9 +421,9 @@ export type ExpenseSplitShareScalarFieldEnum = (typeof ExpenseSplitShareScalarFi
 
 export const SettlementScalarFieldEnum = {
   id: 'id',
-  workspaceId: 'workspaceId',
-  fromUserId: 'fromUserId',
-  toUserId: 'toUserId',
+  splitGroupId: 'splitGroupId',
+  fromMemberId: 'fromMemberId',
+  toMemberId: 'toMemberId',
   amountCents: 'amountCents',
   occurredOn: 'occurredOn',
   note: 'note',

@@ -7,7 +7,6 @@ import {
   AccountArchivedError,
   AccountCurrencyMismatchError,
   AccountDeleteConfirmationMismatchError,
-  AccountHasCrossWorkspaceLinksError,
   AccountLinkedToActiveGoalError,
   CannotDeleteLastActiveAccountError,
   InvalidAccountNameError,
@@ -21,7 +20,6 @@ export {
   AccountArchivedError,
   AccountCurrencyMismatchError,
   AccountDeleteConfirmationMismatchError,
-  AccountHasCrossWorkspaceLinksError,
   AccountLinkedToActiveGoalError,
   CannotDeleteLastActiveAccountError,
   InvalidAccountNameError,
@@ -145,16 +143,12 @@ export function assertCanDeleteAccount(input: {
   readonly isArchived: boolean;
   readonly activeAccountCountInWorkspace: number;
   readonly activeGoalsLinkedToAccount: ReadonlyArray<{ readonly id: string }>;
-  readonly hasCrossWorkspaceLinks: boolean;
 }): void {
   if (input.activeGoalsLinkedToAccount.length > 0) {
     throw new AccountLinkedToActiveGoalError();
   }
   if (!input.isArchived && input.activeAccountCountInWorkspace === 1) {
     throw new CannotDeleteLastActiveAccountError();
-  }
-  if (input.hasCrossWorkspaceLinks) {
-    throw new AccountHasCrossWorkspaceLinksError();
   }
 }
 

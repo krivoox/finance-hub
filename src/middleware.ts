@@ -10,7 +10,7 @@ const AUTH_FORM_ROUTES = [
 ];
 
 /** Public routes that both guests and signed-in users may visit. */
-const ALWAYS_PUBLIC_PREFIXES = ["/invitaciones"];
+const ALWAYS_PUBLIC_PREFIXES = ["/s"];
 
 /** Exact public paths (marketing + crawl surfaces + PWA). */
 const PUBLIC_EXACT = new Set([

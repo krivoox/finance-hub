@@ -12,7 +12,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatSignedMoney, formatMoney } from "@/lib/format-money";
 import { formatDateOnly } from "@/lib/format-date";
-import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/session";
 import { listAccounts } from "@/features/accounts/services";
 import { listCategories } from "@/features/categories/services";
@@ -20,7 +19,6 @@ import { getTransactionDetail } from "@/features/transactions/services";
 import { EditTransactionSheet } from "@/features/transactions/components/edit-transaction-sheet";
 import { TRANSACTION_TYPE_LABEL_ES } from "@/features/transactions/components/transaction-type-labels";
 import {
-  formatPaymentAccountLabel,
   TransactionNotFoundError,
   type TransactionType,
 } from "@/features/transactions/domain";
@@ -82,42 +80,15 @@ async function TransactionDetailBody({
     throw err;
   }
 
-  const [accounts, categories, membership, personalOwner] = await Promise.all([
+  const [accounts, categories, membership] = await Promise.all([
     listAccounts({ userId, workspaceId: detail.workspaceId }),
     listCategories({ userId, workspaceId: detail.workspaceId }),
     requireMembership(userId, detail.workspaceId),
-    detail.accountWorkspaceType === "personal"
-      ? prisma.membership.findFirst({
-          where: {
-            workspaceId: detail.accountWorkspaceId,
-            role: "owner",
-          },
-          select: {
-            userId: true,
-            user: {
-              select: { displayName: true, name: true, email: true },
-            },
-          },
-        })
-      : Promise.resolve(null),
   ]);
 
   const canMutate = membership.role !== "viewer";
 
-  const accountLabel = formatPaymentAccountLabel({
-    viewerUserId: userId,
-    accountName: detail.accountName,
-    accountWorkspaceId: detail.accountWorkspaceId,
-    registrationWorkspaceId: detail.workspaceId,
-    accountWorkspaceName: detail.accountWorkspaceName,
-    accountWorkspaceType: detail.accountWorkspaceType,
-    personalOwnerUserId: personalOwner?.userId ?? null,
-    personalOwnerDisplayName:
-      personalOwner?.user.displayName?.trim() ||
-      personalOwner?.user.name ||
-      personalOwner?.user.email ||
-      null,
-  });
+  const accountLabel = detail.accountName;
 
   const transferLabel =
     detail.type === "transfer" && detail.counterpartyAccountName
@@ -127,17 +98,6 @@ async function TransactionDetailBody({
   const accountOptions = accounts
     .filter((a) => !a.isArchived)
     .map((a) => ({ id: a.id, name: a.name, currency: a.currency }));
-
-  if (
-    detail.isExternallyFunded &&
-    !accountOptions.some((a) => a.id === detail.accountId)
-  ) {
-    accountOptions.unshift({
-      id: detail.accountId,
-      name: `${detail.accountWorkspaceName} · ${detail.accountName}`,
-      currency: detail.currency,
-    });
-  }
 
   const title =
     detail.description ??
@@ -239,16 +199,6 @@ async function TransactionDetailBody({
               </dt>
               <dd className="text-foreground">{detail.createdByDisplayName}</dd>
             </div>
-            {detail.isExternallyFunded ? (
-              <div className="space-y-1 sm:col-span-2">
-                <dt className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
-                  Origen del dinero
-                </dt>
-                <dd className="text-foreground">
-                  Cuenta de {detail.accountWorkspaceName} (otro espacio)
-                </dd>
-              </div>
-            ) : null}
           </dl>
         </SurfaceSection>
 
@@ -272,15 +222,14 @@ async function TransactionDetailBody({
 
         {detail.split ? (
           <SurfaceSection>
-            <SurfaceHeader title="Reparto" />
+            <SurfaceHeader title={`Reparto en «${detail.split.splitGroupName}»`} />
             <p className="mb-3 text-sm text-muted-foreground">
-              Pagó {detail.split.paidByDisplayName} · método{" "}
-              {detail.split.method}
+              Pagó {detail.split.paidByDisplayName}
             </p>
             <ul className="-mx-2 divide-y divide-border">
               {detail.split.shares.map((s) => (
                 <li
-                  key={s.userId}
+                  key={s.memberId}
                   className="flex items-center justify-between gap-3 px-2 py-2.5 text-sm"
                 >
                   <span className="text-foreground">{s.displayName}</span>
@@ -290,29 +239,9 @@ async function TransactionDetailBody({
                 </li>
               ))}
             </ul>
-          </SurfaceSection>
-        ) : null}
-
-        {detail.crossWorkspaceLink ? (
-          <SurfaceSection>
-            <SurfaceHeader
-              title={
-                detail.crossWorkspaceLink.kind === "contribution"
-                  ? "Aporte vinculado"
-                  : "Transacción vinculada"
-              }
-            />
-            <p className="text-sm text-muted-foreground">
-              {detail.crossWorkspaceLink.role === "source"
-                ? "Entra en"
-                : "Sale de"}{" "}
-              {detail.crossWorkspaceLink.twinWorkspaceName}
-            </p>
             <Button variant="outline" className="mt-3" asChild>
-              <Link
-                href={`/transactions/${detail.crossWorkspaceLink.twinTransactionId}`}
-              >
-                Ver movimiento vinculado
+              <Link href={`/groups/${detail.split.splitGroupId}`}>
+                Ver grupo
               </Link>
             </Button>
           </SurfaceSection>

@@ -20,7 +20,7 @@
 | [tdd-workflow.md](./tdd-workflow.md) | Cómo aplicar TDD en este repo |
 | [roadmap.md](./roadmap.md) | Orden de implementación sugerido |
 | [glossary.md](./glossary.md) | Glosario de términos de negocio |
-| [guides/workspaces-and-invites.md](./guides/workspaces-and-invites.md) | Workspaces, roles, invitaciones y first-run (onboarding) |
+| [guides/workspaces-and-invites.md](./guides/workspaces-and-invites.md) | Workspace personal, onboarding y grupos de splits (KRI-29) |
 | [guides/git-flow.md](./guides/git-flow.md) | Git Flow: `main`/`develop`, PRs, borrado de ramas, Vercel |
 | [guides/changelog.md](./guides/changelog.md) | Changelog, Conventional Commits, SemVer y releases |
 | [guides/maestro-mcp.md](./guides/maestro-mcp.md) | Maestro MCP: smoke UI web (Chromium) desde Cursor |

@@ -3,28 +3,24 @@ import {
   InvalidSplitInputError,
   SplitSumMismatchError,
 } from "./errors";
-
-export type SplitShare = {
-  userId: string;
-  shareCents: number;
-};
+import type { SplitShare } from "./types";
 
 /**
  * SPEC-10 normative equal allocation:
- * sort userIds ascending; base = floor(total/n); remainder = total % n;
+ * sort memberIds ascending; base = floor(total/n); remainder = total % n;
  * first `remainder` members (by sorted order) get +1 cent.
  */
 export function allocateEqual(
   totalCents: number,
-  userIds: readonly string[],
+  memberIds: readonly string[],
 ): SplitShare[] {
   assertPositiveTotal(totalCents);
-  if (userIds.length === 0) {
+  if (memberIds.length === 0) {
     throw new InvalidSplitInputError("At least one participant is required");
   }
-  const unique = [...new Set(userIds)];
-  if (unique.length !== userIds.length) {
-    throw new InvalidSplitInputError("Duplicate userIds in split participants");
+  const unique = [...new Set(memberIds)];
+  if (unique.length !== memberIds.length) {
+    throw new InvalidSplitInputError("Duplicate memberIds in split participants");
   }
 
   const sorted = [...unique].toSorted((a, b) => a.localeCompare(b));
@@ -32,8 +28,8 @@ export function allocateEqual(
   const base = Math.floor(totalCents / n);
   const remainder = totalCents % n;
 
-  const shares = sorted.map((userId, i) => ({
-    userId,
+  const shares = sorted.map((memberId, i) => ({
+    memberId,
     shareCents: base + (i < remainder ? 1 : 0),
   }));
 
@@ -44,11 +40,11 @@ export function allocateEqual(
 /**
  * Convert percentages (must sum to 100) into cents with the same remainder
  * rule as equal: floor each share, then distribute leftover cents to the
- * first participants by userId ascending.
+ * first participants by memberId ascending.
  */
 export function allocatePercentage(
   totalCents: number,
-  percentages: readonly { userId: string; percent: number }[],
+  percentages: readonly { memberId: string; percent: number }[],
 ): SplitShare[] {
   assertPositiveTotal(totalCents);
   if (percentages.length === 0) {
@@ -61,11 +57,11 @@ export function allocatePercentage(
   }
 
   const sorted = [...percentages].toSorted((a, b) =>
-    a.userId.localeCompare(b.userId),
+    a.memberId.localeCompare(b.memberId),
   );
 
   const floored = sorted.map((p) => ({
-    userId: p.userId,
+    memberId: p.memberId,
     shareCents: Math.floor((totalCents * p.percent) / 100),
   }));
 
@@ -85,7 +81,7 @@ export function allocatePercentage(
 
 export function allocateExact(
   totalCents: number,
-  exact: readonly { userId: string; cents: number }[],
+  exact: readonly { memberId: string; cents: number }[],
 ): SplitShare[] {
   assertPositiveTotal(totalCents);
   if (exact.length === 0) {
@@ -103,7 +99,7 @@ export function allocateExact(
   if (!exact.some((row) => row.cents > 0)) {
     throw new InvalidSplitInputError("At least one share must be greater than zero");
   }
-  return exact.map((row) => ({ userId: row.userId, shareCents: row.cents }));
+  return exact.map((row) => ({ memberId: row.memberId, shareCents: row.cents }));
 }
 
 function assertPositiveTotal(totalCents: number): void {

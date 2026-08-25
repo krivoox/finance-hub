@@ -176,7 +176,6 @@ export async function DashboardAttentionSection({
       currency={currency}
       budgetsAtRisk={d.budgetsAtRisk}
       insights={a.insights}
-      memberBalances={d.memberBalances}
     />
   );
 }

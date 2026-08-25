@@ -190,9 +190,8 @@ function NewTransactionSheetInner({
           workspaceName={visibleLoad.options.workspaceName}
           workspaceCurrency={visibleLoad.options.workspaceCurrency}
           accounts={visibleLoad.options.accounts}
-          paymentAccountGroups={visibleLoad.options.paymentAccountGroups}
           categories={visibleLoad.options.categories}
-          groupMembers={visibleLoad.options.groupMembers}
+          splitGroups={visibleLoad.options.splitGroups}
           currentUserId={visibleLoad.options.currentUserId}
           initialType={initialType}
           onSuccess={handleSuccess}

@@ -16,7 +16,7 @@ const ONE_YEAR_SECONDS = 60 * 60 * 24 * 365;
 export type ActiveWorkspaceContext = {
   id: string;
   name: string;
-  type: "personal" | "group";
+  type: "personal";
   baseCurrency: string;
   role: MembershipRole;
 };
@@ -58,7 +58,7 @@ export const getActiveWorkspaceForUser = cache(
         return {
           id: membership.workspace.id,
           name: membership.workspace.name,
-          type: membership.workspace.type as "personal" | "group",
+          type: membership.workspace.type as "personal",
           baseCurrency: membership.workspace.baseCurrency,
           role: membership.role as MembershipRole,
         };
@@ -86,7 +86,7 @@ export const getActiveWorkspaceForUser = cache(
     return {
       id: fallback.workspace.id,
       name: fallback.workspace.name,
-      type: fallback.workspace.type as "personal" | "group",
+      type: fallback.workspace.type as "personal",
       baseCurrency: fallback.workspace.baseCurrency,
       role: fallback.role as MembershipRole,
     };

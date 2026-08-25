@@ -14,7 +14,6 @@ import { listAccounts } from "@/features/accounts/services";
 import { listCategories } from "@/features/categories/services";
 import {
   listTransactions,
-  listPaymentAccountsForUser,
   sumFilteredTransactions,
 } from "@/features/transactions/services";
 import {
@@ -45,7 +44,6 @@ type AccountsResult = Awaited<ReturnType<typeof listAccounts>>;
 type CategoriesResult = Awaited<ReturnType<typeof listCategories>>;
 type TxPageResult = Awaited<ReturnType<typeof listTransactions>>;
 type TotalsResult = Awaited<ReturnType<typeof sumFilteredTransactions>>;
-type PaymentGroupsResult = Awaited<ReturnType<typeof listPaymentAccountsForUser>>;
 
 function toPageItems(
   items: TxPageResult["items"],
@@ -69,8 +67,6 @@ function toPageItems(
     counterpartyAccountName: tx.counterpartyAccountName,
     categoryName: tx.categoryName,
     createdByDisplayName: tx.createdByDisplayName,
-    isExternalToWorkspace: tx.isExternalToWorkspace,
-    registrationWorkspaceName: tx.registrationWorkspaceName,
     goalContribution: tx.goalContribution,
     recurring: tx.recurring,
   }));
@@ -170,9 +166,6 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
     cursor: listParams.cursor,
   });
   const totalsPromise = sumFilteredTransactions(listFilter);
-  const paymentGroupsPromise: Promise<PaymentGroupsResult> = canMutate
-    ? listPaymentAccountsForUser(session.user.id)
-    : Promise.resolve([]);
 
   const createActions = canMutate ? (
     <Suspense
@@ -185,7 +178,6 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
       <TransactionsActionsSection
         workspace={workspace}
         accounts={accountsPromise}
-        paymentGroups={paymentGroupsPromise}
       />
     </Suspense>
   ) : undefined;
@@ -220,41 +212,21 @@ type ActiveWorkspace = NonNullable<
 async function TransactionsActionsSection({
   workspace,
   accounts,
-  paymentGroups,
 }: {
   workspace: ActiveWorkspace;
   accounts: Promise<AccountsResult>;
-  paymentGroups: Promise<PaymentGroupsResult>;
 }) {
-  const [accountList, paymentGroupList] = await Promise.all([
-    accounts,
-    paymentGroups,
-  ]);
+  const accountList = await accounts;
   const activeAccounts = accountList.filter((a) => !a.isArchived);
-  const contributionAccounts = paymentGroupList.flatMap((g) =>
-    g.accounts.map((a) => ({
-      id: a.id,
-      name: a.name,
-      currency: a.currency,
-      workspaceId: a.workspaceId,
-      workspaceName: a.workspaceName,
-      workspaceType: a.workspaceType,
-    })),
-  );
 
   return (
     <TransactionsCreateActions
       workspaceId={workspace.id}
-      workspaceCurrency={workspace.baseCurrency}
       accounts={activeAccounts.map((a) => ({
         id: a.id,
         name: a.name,
         currency: a.currency,
-        workspaceId: workspace.id,
-        workspaceName: workspace.name,
-        workspaceType: workspace.type,
       }))}
-      contributionAccounts={contributionAccounts}
     />
   );
 }

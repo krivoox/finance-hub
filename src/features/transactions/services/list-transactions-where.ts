@@ -15,12 +15,9 @@ export type ListTransactionsFilterInput = {
 
 /**
  * Shared Prisma `where` for list + filtered totals (SPEC-05 FR-04 / §4.6).
- * Includes SPEC-14 OR: txs registered elsewhere that hit local accounts.
+ * KRI-29: only the personal workspace ledger (no cross-tenant account hits).
  */
-export function buildListTransactionsWhere(
-  input: ListTransactionsFilterInput,
-  localAccountIds: readonly string[],
-) {
+export function buildListTransactionsWhere(input: ListTransactionsFilterInput) {
   const dateRange =
     input.from || input.to
       ? {
@@ -33,26 +30,7 @@ export function buildListTransactionsWhere(
 
   return {
     AND: [
-      {
-        OR: [
-          { workspaceId: input.workspaceId },
-          ...(localAccountIds.length > 0
-            ? [
-                {
-                  AND: [
-                    { workspaceId: { not: input.workspaceId } },
-                    {
-                      OR: [
-                        { accountId: { in: [...localAccountIds] } },
-                        { counterpartyAccountId: { in: [...localAccountIds] } },
-                      ],
-                    },
-                  ],
-                },
-              ]
-            : []),
-        ],
-      },
+      { workspaceId: input.workspaceId },
       ...(typeFilter ? [typeFilter] : []),
       ...(input.categoryId ? [{ categoryId: input.categoryId }] : []),
       ...(input.accountId

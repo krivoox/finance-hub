@@ -10,8 +10,7 @@
 */
 
 export const WorkspaceType = {
-  personal: 'personal',
-  group: 'group'
+  personal: 'personal'
 } as const
 
 export type WorkspaceType = (typeof WorkspaceType)[keyof typeof WorkspaceType]
@@ -25,16 +24,6 @@ export const MembershipRole = {
 } as const
 
 export type MembershipRole = (typeof MembershipRole)[keyof typeof MembershipRole]
-
-
-export const InvitationStatus = {
-  pending: 'pending',
-  accepted: 'accepted',
-  rejected: 'rejected',
-  expired: 'expired'
-} as const
-
-export type InvitationStatus = (typeof InvitationStatus)[keyof typeof InvitationStatus]
 
 
 export const CategoryKind = {
@@ -103,12 +92,20 @@ export const SplitMethod = {
 export type SplitMethod = (typeof SplitMethod)[keyof typeof SplitMethod]
 
 
-export const CrossWorkspaceLinkKind = {
-  contribution: 'contribution',
-  externally_funded_expense: 'externally_funded_expense'
+export const SplitGroupKind = {
+  ongoing: 'ongoing',
+  one_time: 'one_time'
 } as const
 
-export type CrossWorkspaceLinkKind = (typeof CrossWorkspaceLinkKind)[keyof typeof CrossWorkspaceLinkKind]
+export type SplitGroupKind = (typeof SplitGroupKind)[keyof typeof SplitGroupKind]
+
+
+export const SplitMemberKind = {
+  user: 'user',
+  ghost: 'ghost'
+} as const
+
+export type SplitMemberKind = (typeof SplitMemberKind)[keyof typeof SplitMemberKind]
 
 
 export const RecurringFrequency = {

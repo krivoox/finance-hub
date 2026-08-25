@@ -14,7 +14,7 @@ import { getUsdQuotes } from "@/features/fx-quotes/services";
 import { env } from "@/lib/env";
 
 /** Routes that live outside this layout but may still set x-pathname while app chrome loads. */
-const SETUP_EXEMPT_PREFIXES = ["/invitaciones"];
+const SETUP_EXEMPT_PREFIXES = ["/s"];
 
 function isSetupExempt(pathname: string): boolean {
   return SETUP_EXEMPT_PREFIXES.some(

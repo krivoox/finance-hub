@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import {
   currenciesPresentInAccounts,
   filterAccountsByCurrency,
-  filterPaymentGroupsByCurrency,
   resolveTransactionFormCurrency,
 } from "./currency";
 
@@ -77,31 +76,6 @@ describe("filterAccountsByCurrency — SPEC-05 T-23", () => {
     expect(
       filterAccountsByCurrency([{ id: "x", currency: "ARS" }], "USD"),
     ).toEqual([]);
-  });
-});
-
-describe("filterPaymentGroupsByCurrency", () => {
-  it("filters accounts inside groups and drops empty groups", () => {
-    const groups = [
-      {
-        workspaceId: "ws-1",
-        accounts: [
-          { id: "a1", currency: "ARS" },
-          { id: "a2", currency: "USD" },
-        ],
-      },
-      {
-        workspaceId: "ws-2",
-        accounts: [{ id: "a3", currency: "ARS" }],
-      },
-    ];
-
-    expect(filterPaymentGroupsByCurrency(groups, "USD")).toEqual([
-      {
-        workspaceId: "ws-1",
-        accounts: [{ id: "a2", currency: "USD" }],
-      },
-    ]);
   });
 });
 

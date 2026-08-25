@@ -33,7 +33,6 @@ export {
   selectActiveGoalsProgress,
   type BudgetAtRiskItem,
   type GoalProgressItem,
-  type MemberBalanceItem,
 } from "./enrichment";
 export {
   aggregateSpendingByCategory,

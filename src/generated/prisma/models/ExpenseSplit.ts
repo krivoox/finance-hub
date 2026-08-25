@@ -26,9 +26,9 @@ export type AggregateExpenseSplit = {
 
 export type ExpenseSplitMinAggregateOutputType = {
   id: string | null
-  workspaceId: string | null
+  splitGroupId: string | null
   expenseTransactionId: string | null
-  paidByUserId: string | null
+  paidByMemberId: string | null
   method: $Enums.SplitMethod | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -36,9 +36,9 @@ export type ExpenseSplitMinAggregateOutputType = {
 
 export type ExpenseSplitMaxAggregateOutputType = {
   id: string | null
-  workspaceId: string | null
+  splitGroupId: string | null
   expenseTransactionId: string | null
-  paidByUserId: string | null
+  paidByMemberId: string | null
   method: $Enums.SplitMethod | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -46,9 +46,9 @@ export type ExpenseSplitMaxAggregateOutputType = {
 
 export type ExpenseSplitCountAggregateOutputType = {
   id: number
-  workspaceId: number
+  splitGroupId: number
   expenseTransactionId: number
-  paidByUserId: number
+  paidByMemberId: number
   method: number
   createdAt: number
   updatedAt: number
@@ -58,9 +58,9 @@ export type ExpenseSplitCountAggregateOutputType = {
 
 export type ExpenseSplitMinAggregateInputType = {
   id?: true
-  workspaceId?: true
+  splitGroupId?: true
   expenseTransactionId?: true
-  paidByUserId?: true
+  paidByMemberId?: true
   method?: true
   createdAt?: true
   updatedAt?: true
@@ -68,9 +68,9 @@ export type ExpenseSplitMinAggregateInputType = {
 
 export type ExpenseSplitMaxAggregateInputType = {
   id?: true
-  workspaceId?: true
+  splitGroupId?: true
   expenseTransactionId?: true
-  paidByUserId?: true
+  paidByMemberId?: true
   method?: true
   createdAt?: true
   updatedAt?: true
@@ -78,9 +78,9 @@ export type ExpenseSplitMaxAggregateInputType = {
 
 export type ExpenseSplitCountAggregateInputType = {
   id?: true
-  workspaceId?: true
+  splitGroupId?: true
   expenseTransactionId?: true
-  paidByUserId?: true
+  paidByMemberId?: true
   method?: true
   createdAt?: true
   updatedAt?: true
@@ -161,9 +161,9 @@ export type ExpenseSplitGroupByArgs<ExtArgs extends runtime.Types.Extensions.Int
 
 export type ExpenseSplitGroupByOutputType = {
   id: string
-  workspaceId: string
+  splitGroupId: string
   expenseTransactionId: string
-  paidByUserId: string
+  paidByMemberId: string
   method: $Enums.SplitMethod
   createdAt: Date
   updatedAt: Date
@@ -192,27 +192,29 @@ export type ExpenseSplitWhereInput = {
   OR?: Prisma.ExpenseSplitWhereInput[]
   NOT?: Prisma.ExpenseSplitWhereInput | Prisma.ExpenseSplitWhereInput[]
   id?: Prisma.StringFilter<"ExpenseSplit"> | string
-  workspaceId?: Prisma.StringFilter<"ExpenseSplit"> | string
+  splitGroupId?: Prisma.StringFilter<"ExpenseSplit"> | string
   expenseTransactionId?: Prisma.StringFilter<"ExpenseSplit"> | string
-  paidByUserId?: Prisma.StringFilter<"ExpenseSplit"> | string
+  paidByMemberId?: Prisma.StringFilter<"ExpenseSplit"> | string
   method?: Prisma.EnumSplitMethodFilter<"ExpenseSplit"> | $Enums.SplitMethod
   createdAt?: Prisma.DateTimeFilter<"ExpenseSplit"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ExpenseSplit"> | Date | string
-  workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  splitGroup?: Prisma.XOR<Prisma.SplitGroupScalarRelationFilter, Prisma.SplitGroupWhereInput>
   expense?: Prisma.XOR<Prisma.TransactionScalarRelationFilter, Prisma.TransactionWhereInput>
+  paidBy?: Prisma.XOR<Prisma.SplitGroupMemberScalarRelationFilter, Prisma.SplitGroupMemberWhereInput>
   shares?: Prisma.ExpenseSplitShareListRelationFilter
 }
 
 export type ExpenseSplitOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  workspaceId?: Prisma.SortOrder
+  splitGroupId?: Prisma.SortOrder
   expenseTransactionId?: Prisma.SortOrder
-  paidByUserId?: Prisma.SortOrder
+  paidByMemberId?: Prisma.SortOrder
   method?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  workspace?: Prisma.WorkspaceOrderByWithRelationInput
+  splitGroup?: Prisma.SplitGroupOrderByWithRelationInput
   expense?: Prisma.TransactionOrderByWithRelationInput
+  paidBy?: Prisma.SplitGroupMemberOrderByWithRelationInput
   shares?: Prisma.ExpenseSplitShareOrderByRelationAggregateInput
 }
 
@@ -222,21 +224,22 @@ export type ExpenseSplitWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.ExpenseSplitWhereInput | Prisma.ExpenseSplitWhereInput[]
   OR?: Prisma.ExpenseSplitWhereInput[]
   NOT?: Prisma.ExpenseSplitWhereInput | Prisma.ExpenseSplitWhereInput[]
-  workspaceId?: Prisma.StringFilter<"ExpenseSplit"> | string
-  paidByUserId?: Prisma.StringFilter<"ExpenseSplit"> | string
+  splitGroupId?: Prisma.StringFilter<"ExpenseSplit"> | string
+  paidByMemberId?: Prisma.StringFilter<"ExpenseSplit"> | string
   method?: Prisma.EnumSplitMethodFilter<"ExpenseSplit"> | $Enums.SplitMethod
   createdAt?: Prisma.DateTimeFilter<"ExpenseSplit"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ExpenseSplit"> | Date | string
-  workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  splitGroup?: Prisma.XOR<Prisma.SplitGroupScalarRelationFilter, Prisma.SplitGroupWhereInput>
   expense?: Prisma.XOR<Prisma.TransactionScalarRelationFilter, Prisma.TransactionWhereInput>
+  paidBy?: Prisma.XOR<Prisma.SplitGroupMemberScalarRelationFilter, Prisma.SplitGroupMemberWhereInput>
   shares?: Prisma.ExpenseSplitShareListRelationFilter
 }, "id" | "expenseTransactionId">
 
 export type ExpenseSplitOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  workspaceId?: Prisma.SortOrder
+  splitGroupId?: Prisma.SortOrder
   expenseTransactionId?: Prisma.SortOrder
-  paidByUserId?: Prisma.SortOrder
+  paidByMemberId?: Prisma.SortOrder
   method?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -250,9 +253,9 @@ export type ExpenseSplitScalarWhereWithAggregatesInput = {
   OR?: Prisma.ExpenseSplitScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ExpenseSplitScalarWhereWithAggregatesInput | Prisma.ExpenseSplitScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"ExpenseSplit"> | string
-  workspaceId?: Prisma.StringWithAggregatesFilter<"ExpenseSplit"> | string
+  splitGroupId?: Prisma.StringWithAggregatesFilter<"ExpenseSplit"> | string
   expenseTransactionId?: Prisma.StringWithAggregatesFilter<"ExpenseSplit"> | string
-  paidByUserId?: Prisma.StringWithAggregatesFilter<"ExpenseSplit"> | string
+  paidByMemberId?: Prisma.StringWithAggregatesFilter<"ExpenseSplit"> | string
   method?: Prisma.EnumSplitMethodWithAggregatesFilter<"ExpenseSplit"> | $Enums.SplitMethod
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ExpenseSplit"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ExpenseSplit"> | Date | string
@@ -260,20 +263,20 @@ export type ExpenseSplitScalarWhereWithAggregatesInput = {
 
 export type ExpenseSplitCreateInput = {
   id?: string
-  paidByUserId: string
   method: $Enums.SplitMethod
   createdAt?: Date | string
   updatedAt?: Date | string
-  workspace: Prisma.WorkspaceCreateNestedOneWithoutExpenseSplitsInput
+  splitGroup: Prisma.SplitGroupCreateNestedOneWithoutSplitsInput
   expense: Prisma.TransactionCreateNestedOneWithoutExpenseSplitInput
+  paidBy: Prisma.SplitGroupMemberCreateNestedOneWithoutPaidSplitsInput
   shares?: Prisma.ExpenseSplitShareCreateNestedManyWithoutSplitInput
 }
 
 export type ExpenseSplitUncheckedCreateInput = {
   id?: string
-  workspaceId: string
+  splitGroupId: string
   expenseTransactionId: string
-  paidByUserId: string
+  paidByMemberId: string
   method: $Enums.SplitMethod
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -282,20 +285,20 @@ export type ExpenseSplitUncheckedCreateInput = {
 
 export type ExpenseSplitUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  paidByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   method?: Prisma.EnumSplitMethodFieldUpdateOperationsInput | $Enums.SplitMethod
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutExpenseSplitsNestedInput
+  splitGroup?: Prisma.SplitGroupUpdateOneRequiredWithoutSplitsNestedInput
   expense?: Prisma.TransactionUpdateOneRequiredWithoutExpenseSplitNestedInput
+  paidBy?: Prisma.SplitGroupMemberUpdateOneRequiredWithoutPaidSplitsNestedInput
   shares?: Prisma.ExpenseSplitShareUpdateManyWithoutSplitNestedInput
 }
 
 export type ExpenseSplitUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  splitGroupId?: Prisma.StringFieldUpdateOperationsInput | string
   expenseTransactionId?: Prisma.StringFieldUpdateOperationsInput | string
-  paidByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  paidByMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   method?: Prisma.EnumSplitMethodFieldUpdateOperationsInput | $Enums.SplitMethod
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -304,9 +307,9 @@ export type ExpenseSplitUncheckedUpdateInput = {
 
 export type ExpenseSplitCreateManyInput = {
   id?: string
-  workspaceId: string
+  splitGroupId: string
   expenseTransactionId: string
-  paidByUserId: string
+  paidByMemberId: string
   method: $Enums.SplitMethod
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -314,7 +317,6 @@ export type ExpenseSplitCreateManyInput = {
 
 export type ExpenseSplitUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  paidByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   method?: Prisma.EnumSplitMethodFieldUpdateOperationsInput | $Enums.SplitMethod
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -322,12 +324,17 @@ export type ExpenseSplitUpdateManyMutationInput = {
 
 export type ExpenseSplitUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  splitGroupId?: Prisma.StringFieldUpdateOperationsInput | string
   expenseTransactionId?: Prisma.StringFieldUpdateOperationsInput | string
-  paidByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  paidByMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   method?: Prisma.EnumSplitMethodFieldUpdateOperationsInput | $Enums.SplitMethod
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ExpenseSplitNullableScalarRelationFilter = {
+  is?: Prisma.ExpenseSplitWhereInput | null
+  isNot?: Prisma.ExpenseSplitWhereInput | null
 }
 
 export type ExpenseSplitListRelationFilter = {
@@ -340,16 +347,11 @@ export type ExpenseSplitOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type ExpenseSplitNullableScalarRelationFilter = {
-  is?: Prisma.ExpenseSplitWhereInput | null
-  isNot?: Prisma.ExpenseSplitWhereInput | null
-}
-
 export type ExpenseSplitCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  workspaceId?: Prisma.SortOrder
+  splitGroupId?: Prisma.SortOrder
   expenseTransactionId?: Prisma.SortOrder
-  paidByUserId?: Prisma.SortOrder
+  paidByMemberId?: Prisma.SortOrder
   method?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -357,9 +359,9 @@ export type ExpenseSplitCountOrderByAggregateInput = {
 
 export type ExpenseSplitMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  workspaceId?: Prisma.SortOrder
+  splitGroupId?: Prisma.SortOrder
   expenseTransactionId?: Prisma.SortOrder
-  paidByUserId?: Prisma.SortOrder
+  paidByMemberId?: Prisma.SortOrder
   method?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -367,9 +369,9 @@ export type ExpenseSplitMaxOrderByAggregateInput = {
 
 export type ExpenseSplitMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  workspaceId?: Prisma.SortOrder
+  splitGroupId?: Prisma.SortOrder
   expenseTransactionId?: Prisma.SortOrder
-  paidByUserId?: Prisma.SortOrder
+  paidByMemberId?: Prisma.SortOrder
   method?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -378,48 +380,6 @@ export type ExpenseSplitMinOrderByAggregateInput = {
 export type ExpenseSplitScalarRelationFilter = {
   is?: Prisma.ExpenseSplitWhereInput
   isNot?: Prisma.ExpenseSplitWhereInput
-}
-
-export type ExpenseSplitCreateNestedManyWithoutWorkspaceInput = {
-  create?: Prisma.XOR<Prisma.ExpenseSplitCreateWithoutWorkspaceInput, Prisma.ExpenseSplitUncheckedCreateWithoutWorkspaceInput> | Prisma.ExpenseSplitCreateWithoutWorkspaceInput[] | Prisma.ExpenseSplitUncheckedCreateWithoutWorkspaceInput[]
-  connectOrCreate?: Prisma.ExpenseSplitCreateOrConnectWithoutWorkspaceInput | Prisma.ExpenseSplitCreateOrConnectWithoutWorkspaceInput[]
-  createMany?: Prisma.ExpenseSplitCreateManyWorkspaceInputEnvelope
-  connect?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
-}
-
-export type ExpenseSplitUncheckedCreateNestedManyWithoutWorkspaceInput = {
-  create?: Prisma.XOR<Prisma.ExpenseSplitCreateWithoutWorkspaceInput, Prisma.ExpenseSplitUncheckedCreateWithoutWorkspaceInput> | Prisma.ExpenseSplitCreateWithoutWorkspaceInput[] | Prisma.ExpenseSplitUncheckedCreateWithoutWorkspaceInput[]
-  connectOrCreate?: Prisma.ExpenseSplitCreateOrConnectWithoutWorkspaceInput | Prisma.ExpenseSplitCreateOrConnectWithoutWorkspaceInput[]
-  createMany?: Prisma.ExpenseSplitCreateManyWorkspaceInputEnvelope
-  connect?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
-}
-
-export type ExpenseSplitUpdateManyWithoutWorkspaceNestedInput = {
-  create?: Prisma.XOR<Prisma.ExpenseSplitCreateWithoutWorkspaceInput, Prisma.ExpenseSplitUncheckedCreateWithoutWorkspaceInput> | Prisma.ExpenseSplitCreateWithoutWorkspaceInput[] | Prisma.ExpenseSplitUncheckedCreateWithoutWorkspaceInput[]
-  connectOrCreate?: Prisma.ExpenseSplitCreateOrConnectWithoutWorkspaceInput | Prisma.ExpenseSplitCreateOrConnectWithoutWorkspaceInput[]
-  upsert?: Prisma.ExpenseSplitUpsertWithWhereUniqueWithoutWorkspaceInput | Prisma.ExpenseSplitUpsertWithWhereUniqueWithoutWorkspaceInput[]
-  createMany?: Prisma.ExpenseSplitCreateManyWorkspaceInputEnvelope
-  set?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
-  disconnect?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
-  delete?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
-  connect?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
-  update?: Prisma.ExpenseSplitUpdateWithWhereUniqueWithoutWorkspaceInput | Prisma.ExpenseSplitUpdateWithWhereUniqueWithoutWorkspaceInput[]
-  updateMany?: Prisma.ExpenseSplitUpdateManyWithWhereWithoutWorkspaceInput | Prisma.ExpenseSplitUpdateManyWithWhereWithoutWorkspaceInput[]
-  deleteMany?: Prisma.ExpenseSplitScalarWhereInput | Prisma.ExpenseSplitScalarWhereInput[]
-}
-
-export type ExpenseSplitUncheckedUpdateManyWithoutWorkspaceNestedInput = {
-  create?: Prisma.XOR<Prisma.ExpenseSplitCreateWithoutWorkspaceInput, Prisma.ExpenseSplitUncheckedCreateWithoutWorkspaceInput> | Prisma.ExpenseSplitCreateWithoutWorkspaceInput[] | Prisma.ExpenseSplitUncheckedCreateWithoutWorkspaceInput[]
-  connectOrCreate?: Prisma.ExpenseSplitCreateOrConnectWithoutWorkspaceInput | Prisma.ExpenseSplitCreateOrConnectWithoutWorkspaceInput[]
-  upsert?: Prisma.ExpenseSplitUpsertWithWhereUniqueWithoutWorkspaceInput | Prisma.ExpenseSplitUpsertWithWhereUniqueWithoutWorkspaceInput[]
-  createMany?: Prisma.ExpenseSplitCreateManyWorkspaceInputEnvelope
-  set?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
-  disconnect?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
-  delete?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
-  connect?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
-  update?: Prisma.ExpenseSplitUpdateWithWhereUniqueWithoutWorkspaceInput | Prisma.ExpenseSplitUpdateWithWhereUniqueWithoutWorkspaceInput[]
-  updateMany?: Prisma.ExpenseSplitUpdateManyWithWhereWithoutWorkspaceInput | Prisma.ExpenseSplitUpdateManyWithWhereWithoutWorkspaceInput[]
-  deleteMany?: Prisma.ExpenseSplitScalarWhereInput | Prisma.ExpenseSplitScalarWhereInput[]
 }
 
 export type ExpenseSplitCreateNestedOneWithoutExpenseInput = {
@@ -454,6 +414,90 @@ export type ExpenseSplitUncheckedUpdateOneWithoutExpenseNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ExpenseSplitUpdateToOneWithWhereWithoutExpenseInput, Prisma.ExpenseSplitUpdateWithoutExpenseInput>, Prisma.ExpenseSplitUncheckedUpdateWithoutExpenseInput>
 }
 
+export type ExpenseSplitCreateNestedManyWithoutSplitGroupInput = {
+  create?: Prisma.XOR<Prisma.ExpenseSplitCreateWithoutSplitGroupInput, Prisma.ExpenseSplitUncheckedCreateWithoutSplitGroupInput> | Prisma.ExpenseSplitCreateWithoutSplitGroupInput[] | Prisma.ExpenseSplitUncheckedCreateWithoutSplitGroupInput[]
+  connectOrCreate?: Prisma.ExpenseSplitCreateOrConnectWithoutSplitGroupInput | Prisma.ExpenseSplitCreateOrConnectWithoutSplitGroupInput[]
+  createMany?: Prisma.ExpenseSplitCreateManySplitGroupInputEnvelope
+  connect?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
+}
+
+export type ExpenseSplitUncheckedCreateNestedManyWithoutSplitGroupInput = {
+  create?: Prisma.XOR<Prisma.ExpenseSplitCreateWithoutSplitGroupInput, Prisma.ExpenseSplitUncheckedCreateWithoutSplitGroupInput> | Prisma.ExpenseSplitCreateWithoutSplitGroupInput[] | Prisma.ExpenseSplitUncheckedCreateWithoutSplitGroupInput[]
+  connectOrCreate?: Prisma.ExpenseSplitCreateOrConnectWithoutSplitGroupInput | Prisma.ExpenseSplitCreateOrConnectWithoutSplitGroupInput[]
+  createMany?: Prisma.ExpenseSplitCreateManySplitGroupInputEnvelope
+  connect?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
+}
+
+export type ExpenseSplitUpdateManyWithoutSplitGroupNestedInput = {
+  create?: Prisma.XOR<Prisma.ExpenseSplitCreateWithoutSplitGroupInput, Prisma.ExpenseSplitUncheckedCreateWithoutSplitGroupInput> | Prisma.ExpenseSplitCreateWithoutSplitGroupInput[] | Prisma.ExpenseSplitUncheckedCreateWithoutSplitGroupInput[]
+  connectOrCreate?: Prisma.ExpenseSplitCreateOrConnectWithoutSplitGroupInput | Prisma.ExpenseSplitCreateOrConnectWithoutSplitGroupInput[]
+  upsert?: Prisma.ExpenseSplitUpsertWithWhereUniqueWithoutSplitGroupInput | Prisma.ExpenseSplitUpsertWithWhereUniqueWithoutSplitGroupInput[]
+  createMany?: Prisma.ExpenseSplitCreateManySplitGroupInputEnvelope
+  set?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
+  disconnect?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
+  delete?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
+  connect?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
+  update?: Prisma.ExpenseSplitUpdateWithWhereUniqueWithoutSplitGroupInput | Prisma.ExpenseSplitUpdateWithWhereUniqueWithoutSplitGroupInput[]
+  updateMany?: Prisma.ExpenseSplitUpdateManyWithWhereWithoutSplitGroupInput | Prisma.ExpenseSplitUpdateManyWithWhereWithoutSplitGroupInput[]
+  deleteMany?: Prisma.ExpenseSplitScalarWhereInput | Prisma.ExpenseSplitScalarWhereInput[]
+}
+
+export type ExpenseSplitUncheckedUpdateManyWithoutSplitGroupNestedInput = {
+  create?: Prisma.XOR<Prisma.ExpenseSplitCreateWithoutSplitGroupInput, Prisma.ExpenseSplitUncheckedCreateWithoutSplitGroupInput> | Prisma.ExpenseSplitCreateWithoutSplitGroupInput[] | Prisma.ExpenseSplitUncheckedCreateWithoutSplitGroupInput[]
+  connectOrCreate?: Prisma.ExpenseSplitCreateOrConnectWithoutSplitGroupInput | Prisma.ExpenseSplitCreateOrConnectWithoutSplitGroupInput[]
+  upsert?: Prisma.ExpenseSplitUpsertWithWhereUniqueWithoutSplitGroupInput | Prisma.ExpenseSplitUpsertWithWhereUniqueWithoutSplitGroupInput[]
+  createMany?: Prisma.ExpenseSplitCreateManySplitGroupInputEnvelope
+  set?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
+  disconnect?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
+  delete?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
+  connect?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
+  update?: Prisma.ExpenseSplitUpdateWithWhereUniqueWithoutSplitGroupInput | Prisma.ExpenseSplitUpdateWithWhereUniqueWithoutSplitGroupInput[]
+  updateMany?: Prisma.ExpenseSplitUpdateManyWithWhereWithoutSplitGroupInput | Prisma.ExpenseSplitUpdateManyWithWhereWithoutSplitGroupInput[]
+  deleteMany?: Prisma.ExpenseSplitScalarWhereInput | Prisma.ExpenseSplitScalarWhereInput[]
+}
+
+export type ExpenseSplitCreateNestedManyWithoutPaidByInput = {
+  create?: Prisma.XOR<Prisma.ExpenseSplitCreateWithoutPaidByInput, Prisma.ExpenseSplitUncheckedCreateWithoutPaidByInput> | Prisma.ExpenseSplitCreateWithoutPaidByInput[] | Prisma.ExpenseSplitUncheckedCreateWithoutPaidByInput[]
+  connectOrCreate?: Prisma.ExpenseSplitCreateOrConnectWithoutPaidByInput | Prisma.ExpenseSplitCreateOrConnectWithoutPaidByInput[]
+  createMany?: Prisma.ExpenseSplitCreateManyPaidByInputEnvelope
+  connect?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
+}
+
+export type ExpenseSplitUncheckedCreateNestedManyWithoutPaidByInput = {
+  create?: Prisma.XOR<Prisma.ExpenseSplitCreateWithoutPaidByInput, Prisma.ExpenseSplitUncheckedCreateWithoutPaidByInput> | Prisma.ExpenseSplitCreateWithoutPaidByInput[] | Prisma.ExpenseSplitUncheckedCreateWithoutPaidByInput[]
+  connectOrCreate?: Prisma.ExpenseSplitCreateOrConnectWithoutPaidByInput | Prisma.ExpenseSplitCreateOrConnectWithoutPaidByInput[]
+  createMany?: Prisma.ExpenseSplitCreateManyPaidByInputEnvelope
+  connect?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
+}
+
+export type ExpenseSplitUpdateManyWithoutPaidByNestedInput = {
+  create?: Prisma.XOR<Prisma.ExpenseSplitCreateWithoutPaidByInput, Prisma.ExpenseSplitUncheckedCreateWithoutPaidByInput> | Prisma.ExpenseSplitCreateWithoutPaidByInput[] | Prisma.ExpenseSplitUncheckedCreateWithoutPaidByInput[]
+  connectOrCreate?: Prisma.ExpenseSplitCreateOrConnectWithoutPaidByInput | Prisma.ExpenseSplitCreateOrConnectWithoutPaidByInput[]
+  upsert?: Prisma.ExpenseSplitUpsertWithWhereUniqueWithoutPaidByInput | Prisma.ExpenseSplitUpsertWithWhereUniqueWithoutPaidByInput[]
+  createMany?: Prisma.ExpenseSplitCreateManyPaidByInputEnvelope
+  set?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
+  disconnect?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
+  delete?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
+  connect?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
+  update?: Prisma.ExpenseSplitUpdateWithWhereUniqueWithoutPaidByInput | Prisma.ExpenseSplitUpdateWithWhereUniqueWithoutPaidByInput[]
+  updateMany?: Prisma.ExpenseSplitUpdateManyWithWhereWithoutPaidByInput | Prisma.ExpenseSplitUpdateManyWithWhereWithoutPaidByInput[]
+  deleteMany?: Prisma.ExpenseSplitScalarWhereInput | Prisma.ExpenseSplitScalarWhereInput[]
+}
+
+export type ExpenseSplitUncheckedUpdateManyWithoutPaidByNestedInput = {
+  create?: Prisma.XOR<Prisma.ExpenseSplitCreateWithoutPaidByInput, Prisma.ExpenseSplitUncheckedCreateWithoutPaidByInput> | Prisma.ExpenseSplitCreateWithoutPaidByInput[] | Prisma.ExpenseSplitUncheckedCreateWithoutPaidByInput[]
+  connectOrCreate?: Prisma.ExpenseSplitCreateOrConnectWithoutPaidByInput | Prisma.ExpenseSplitCreateOrConnectWithoutPaidByInput[]
+  upsert?: Prisma.ExpenseSplitUpsertWithWhereUniqueWithoutPaidByInput | Prisma.ExpenseSplitUpsertWithWhereUniqueWithoutPaidByInput[]
+  createMany?: Prisma.ExpenseSplitCreateManyPaidByInputEnvelope
+  set?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
+  disconnect?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
+  delete?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
+  connect?: Prisma.ExpenseSplitWhereUniqueInput | Prisma.ExpenseSplitWhereUniqueInput[]
+  update?: Prisma.ExpenseSplitUpdateWithWhereUniqueWithoutPaidByInput | Prisma.ExpenseSplitUpdateWithWhereUniqueWithoutPaidByInput[]
+  updateMany?: Prisma.ExpenseSplitUpdateManyWithWhereWithoutPaidByInput | Prisma.ExpenseSplitUpdateManyWithWhereWithoutPaidByInput[]
+  deleteMany?: Prisma.ExpenseSplitScalarWhereInput | Prisma.ExpenseSplitScalarWhereInput[]
+}
+
 export type EnumSplitMethodFieldUpdateOperationsInput = {
   set?: $Enums.SplitMethod
 }
@@ -472,79 +516,20 @@ export type ExpenseSplitUpdateOneRequiredWithoutSharesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ExpenseSplitUpdateToOneWithWhereWithoutSharesInput, Prisma.ExpenseSplitUpdateWithoutSharesInput>, Prisma.ExpenseSplitUncheckedUpdateWithoutSharesInput>
 }
 
-export type ExpenseSplitCreateWithoutWorkspaceInput = {
-  id?: string
-  paidByUserId: string
-  method: $Enums.SplitMethod
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  expense: Prisma.TransactionCreateNestedOneWithoutExpenseSplitInput
-  shares?: Prisma.ExpenseSplitShareCreateNestedManyWithoutSplitInput
-}
-
-export type ExpenseSplitUncheckedCreateWithoutWorkspaceInput = {
-  id?: string
-  expenseTransactionId: string
-  paidByUserId: string
-  method: $Enums.SplitMethod
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  shares?: Prisma.ExpenseSplitShareUncheckedCreateNestedManyWithoutSplitInput
-}
-
-export type ExpenseSplitCreateOrConnectWithoutWorkspaceInput = {
-  where: Prisma.ExpenseSplitWhereUniqueInput
-  create: Prisma.XOR<Prisma.ExpenseSplitCreateWithoutWorkspaceInput, Prisma.ExpenseSplitUncheckedCreateWithoutWorkspaceInput>
-}
-
-export type ExpenseSplitCreateManyWorkspaceInputEnvelope = {
-  data: Prisma.ExpenseSplitCreateManyWorkspaceInput | Prisma.ExpenseSplitCreateManyWorkspaceInput[]
-  skipDuplicates?: boolean
-}
-
-export type ExpenseSplitUpsertWithWhereUniqueWithoutWorkspaceInput = {
-  where: Prisma.ExpenseSplitWhereUniqueInput
-  update: Prisma.XOR<Prisma.ExpenseSplitUpdateWithoutWorkspaceInput, Prisma.ExpenseSplitUncheckedUpdateWithoutWorkspaceInput>
-  create: Prisma.XOR<Prisma.ExpenseSplitCreateWithoutWorkspaceInput, Prisma.ExpenseSplitUncheckedCreateWithoutWorkspaceInput>
-}
-
-export type ExpenseSplitUpdateWithWhereUniqueWithoutWorkspaceInput = {
-  where: Prisma.ExpenseSplitWhereUniqueInput
-  data: Prisma.XOR<Prisma.ExpenseSplitUpdateWithoutWorkspaceInput, Prisma.ExpenseSplitUncheckedUpdateWithoutWorkspaceInput>
-}
-
-export type ExpenseSplitUpdateManyWithWhereWithoutWorkspaceInput = {
-  where: Prisma.ExpenseSplitScalarWhereInput
-  data: Prisma.XOR<Prisma.ExpenseSplitUpdateManyMutationInput, Prisma.ExpenseSplitUncheckedUpdateManyWithoutWorkspaceInput>
-}
-
-export type ExpenseSplitScalarWhereInput = {
-  AND?: Prisma.ExpenseSplitScalarWhereInput | Prisma.ExpenseSplitScalarWhereInput[]
-  OR?: Prisma.ExpenseSplitScalarWhereInput[]
-  NOT?: Prisma.ExpenseSplitScalarWhereInput | Prisma.ExpenseSplitScalarWhereInput[]
-  id?: Prisma.StringFilter<"ExpenseSplit"> | string
-  workspaceId?: Prisma.StringFilter<"ExpenseSplit"> | string
-  expenseTransactionId?: Prisma.StringFilter<"ExpenseSplit"> | string
-  paidByUserId?: Prisma.StringFilter<"ExpenseSplit"> | string
-  method?: Prisma.EnumSplitMethodFilter<"ExpenseSplit"> | $Enums.SplitMethod
-  createdAt?: Prisma.DateTimeFilter<"ExpenseSplit"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"ExpenseSplit"> | Date | string
-}
-
 export type ExpenseSplitCreateWithoutExpenseInput = {
   id?: string
-  paidByUserId: string
   method: $Enums.SplitMethod
   createdAt?: Date | string
   updatedAt?: Date | string
-  workspace: Prisma.WorkspaceCreateNestedOneWithoutExpenseSplitsInput
+  splitGroup: Prisma.SplitGroupCreateNestedOneWithoutSplitsInput
+  paidBy: Prisma.SplitGroupMemberCreateNestedOneWithoutPaidSplitsInput
   shares?: Prisma.ExpenseSplitShareCreateNestedManyWithoutSplitInput
 }
 
 export type ExpenseSplitUncheckedCreateWithoutExpenseInput = {
   id?: string
-  workspaceId: string
-  paidByUserId: string
+  splitGroupId: string
+  paidByMemberId: string
   method: $Enums.SplitMethod
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -569,39 +554,144 @@ export type ExpenseSplitUpdateToOneWithWhereWithoutExpenseInput = {
 
 export type ExpenseSplitUpdateWithoutExpenseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  paidByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   method?: Prisma.EnumSplitMethodFieldUpdateOperationsInput | $Enums.SplitMethod
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutExpenseSplitsNestedInput
+  splitGroup?: Prisma.SplitGroupUpdateOneRequiredWithoutSplitsNestedInput
+  paidBy?: Prisma.SplitGroupMemberUpdateOneRequiredWithoutPaidSplitsNestedInput
   shares?: Prisma.ExpenseSplitShareUpdateManyWithoutSplitNestedInput
 }
 
 export type ExpenseSplitUncheckedUpdateWithoutExpenseInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
-  paidByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  splitGroupId?: Prisma.StringFieldUpdateOperationsInput | string
+  paidByMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   method?: Prisma.EnumSplitMethodFieldUpdateOperationsInput | $Enums.SplitMethod
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shares?: Prisma.ExpenseSplitShareUncheckedUpdateManyWithoutSplitNestedInput
 }
 
-export type ExpenseSplitCreateWithoutSharesInput = {
+export type ExpenseSplitCreateWithoutSplitGroupInput = {
   id?: string
-  paidByUserId: string
   method: $Enums.SplitMethod
   createdAt?: Date | string
   updatedAt?: Date | string
-  workspace: Prisma.WorkspaceCreateNestedOneWithoutExpenseSplitsInput
   expense: Prisma.TransactionCreateNestedOneWithoutExpenseSplitInput
+  paidBy: Prisma.SplitGroupMemberCreateNestedOneWithoutPaidSplitsInput
+  shares?: Prisma.ExpenseSplitShareCreateNestedManyWithoutSplitInput
+}
+
+export type ExpenseSplitUncheckedCreateWithoutSplitGroupInput = {
+  id?: string
+  expenseTransactionId: string
+  paidByMemberId: string
+  method: $Enums.SplitMethod
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  shares?: Prisma.ExpenseSplitShareUncheckedCreateNestedManyWithoutSplitInput
+}
+
+export type ExpenseSplitCreateOrConnectWithoutSplitGroupInput = {
+  where: Prisma.ExpenseSplitWhereUniqueInput
+  create: Prisma.XOR<Prisma.ExpenseSplitCreateWithoutSplitGroupInput, Prisma.ExpenseSplitUncheckedCreateWithoutSplitGroupInput>
+}
+
+export type ExpenseSplitCreateManySplitGroupInputEnvelope = {
+  data: Prisma.ExpenseSplitCreateManySplitGroupInput | Prisma.ExpenseSplitCreateManySplitGroupInput[]
+  skipDuplicates?: boolean
+}
+
+export type ExpenseSplitUpsertWithWhereUniqueWithoutSplitGroupInput = {
+  where: Prisma.ExpenseSplitWhereUniqueInput
+  update: Prisma.XOR<Prisma.ExpenseSplitUpdateWithoutSplitGroupInput, Prisma.ExpenseSplitUncheckedUpdateWithoutSplitGroupInput>
+  create: Prisma.XOR<Prisma.ExpenseSplitCreateWithoutSplitGroupInput, Prisma.ExpenseSplitUncheckedCreateWithoutSplitGroupInput>
+}
+
+export type ExpenseSplitUpdateWithWhereUniqueWithoutSplitGroupInput = {
+  where: Prisma.ExpenseSplitWhereUniqueInput
+  data: Prisma.XOR<Prisma.ExpenseSplitUpdateWithoutSplitGroupInput, Prisma.ExpenseSplitUncheckedUpdateWithoutSplitGroupInput>
+}
+
+export type ExpenseSplitUpdateManyWithWhereWithoutSplitGroupInput = {
+  where: Prisma.ExpenseSplitScalarWhereInput
+  data: Prisma.XOR<Prisma.ExpenseSplitUpdateManyMutationInput, Prisma.ExpenseSplitUncheckedUpdateManyWithoutSplitGroupInput>
+}
+
+export type ExpenseSplitScalarWhereInput = {
+  AND?: Prisma.ExpenseSplitScalarWhereInput | Prisma.ExpenseSplitScalarWhereInput[]
+  OR?: Prisma.ExpenseSplitScalarWhereInput[]
+  NOT?: Prisma.ExpenseSplitScalarWhereInput | Prisma.ExpenseSplitScalarWhereInput[]
+  id?: Prisma.StringFilter<"ExpenseSplit"> | string
+  splitGroupId?: Prisma.StringFilter<"ExpenseSplit"> | string
+  expenseTransactionId?: Prisma.StringFilter<"ExpenseSplit"> | string
+  paidByMemberId?: Prisma.StringFilter<"ExpenseSplit"> | string
+  method?: Prisma.EnumSplitMethodFilter<"ExpenseSplit"> | $Enums.SplitMethod
+  createdAt?: Prisma.DateTimeFilter<"ExpenseSplit"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"ExpenseSplit"> | Date | string
+}
+
+export type ExpenseSplitCreateWithoutPaidByInput = {
+  id?: string
+  method: $Enums.SplitMethod
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  splitGroup: Prisma.SplitGroupCreateNestedOneWithoutSplitsInput
+  expense: Prisma.TransactionCreateNestedOneWithoutExpenseSplitInput
+  shares?: Prisma.ExpenseSplitShareCreateNestedManyWithoutSplitInput
+}
+
+export type ExpenseSplitUncheckedCreateWithoutPaidByInput = {
+  id?: string
+  splitGroupId: string
+  expenseTransactionId: string
+  method: $Enums.SplitMethod
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  shares?: Prisma.ExpenseSplitShareUncheckedCreateNestedManyWithoutSplitInput
+}
+
+export type ExpenseSplitCreateOrConnectWithoutPaidByInput = {
+  where: Prisma.ExpenseSplitWhereUniqueInput
+  create: Prisma.XOR<Prisma.ExpenseSplitCreateWithoutPaidByInput, Prisma.ExpenseSplitUncheckedCreateWithoutPaidByInput>
+}
+
+export type ExpenseSplitCreateManyPaidByInputEnvelope = {
+  data: Prisma.ExpenseSplitCreateManyPaidByInput | Prisma.ExpenseSplitCreateManyPaidByInput[]
+  skipDuplicates?: boolean
+}
+
+export type ExpenseSplitUpsertWithWhereUniqueWithoutPaidByInput = {
+  where: Prisma.ExpenseSplitWhereUniqueInput
+  update: Prisma.XOR<Prisma.ExpenseSplitUpdateWithoutPaidByInput, Prisma.ExpenseSplitUncheckedUpdateWithoutPaidByInput>
+  create: Prisma.XOR<Prisma.ExpenseSplitCreateWithoutPaidByInput, Prisma.ExpenseSplitUncheckedCreateWithoutPaidByInput>
+}
+
+export type ExpenseSplitUpdateWithWhereUniqueWithoutPaidByInput = {
+  where: Prisma.ExpenseSplitWhereUniqueInput
+  data: Prisma.XOR<Prisma.ExpenseSplitUpdateWithoutPaidByInput, Prisma.ExpenseSplitUncheckedUpdateWithoutPaidByInput>
+}
+
+export type ExpenseSplitUpdateManyWithWhereWithoutPaidByInput = {
+  where: Prisma.ExpenseSplitScalarWhereInput
+  data: Prisma.XOR<Prisma.ExpenseSplitUpdateManyMutationInput, Prisma.ExpenseSplitUncheckedUpdateManyWithoutPaidByInput>
+}
+
+export type ExpenseSplitCreateWithoutSharesInput = {
+  id?: string
+  method: $Enums.SplitMethod
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  splitGroup: Prisma.SplitGroupCreateNestedOneWithoutSplitsInput
+  expense: Prisma.TransactionCreateNestedOneWithoutExpenseSplitInput
+  paidBy: Prisma.SplitGroupMemberCreateNestedOneWithoutPaidSplitsInput
 }
 
 export type ExpenseSplitUncheckedCreateWithoutSharesInput = {
   id?: string
-  workspaceId: string
+  splitGroupId: string
   expenseTransactionId: string
-  paidByUserId: string
+  paidByMemberId: string
   method: $Enums.SplitMethod
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -625,57 +715,95 @@ export type ExpenseSplitUpdateToOneWithWhereWithoutSharesInput = {
 
 export type ExpenseSplitUpdateWithoutSharesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  paidByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   method?: Prisma.EnumSplitMethodFieldUpdateOperationsInput | $Enums.SplitMethod
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutExpenseSplitsNestedInput
+  splitGroup?: Prisma.SplitGroupUpdateOneRequiredWithoutSplitsNestedInput
   expense?: Prisma.TransactionUpdateOneRequiredWithoutExpenseSplitNestedInput
+  paidBy?: Prisma.SplitGroupMemberUpdateOneRequiredWithoutPaidSplitsNestedInput
 }
 
 export type ExpenseSplitUncheckedUpdateWithoutSharesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
+  splitGroupId?: Prisma.StringFieldUpdateOperationsInput | string
   expenseTransactionId?: Prisma.StringFieldUpdateOperationsInput | string
-  paidByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  paidByMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   method?: Prisma.EnumSplitMethodFieldUpdateOperationsInput | $Enums.SplitMethod
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type ExpenseSplitCreateManyWorkspaceInput = {
+export type ExpenseSplitCreateManySplitGroupInput = {
   id?: string
   expenseTransactionId: string
-  paidByUserId: string
+  paidByMemberId: string
   method: $Enums.SplitMethod
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
-export type ExpenseSplitUpdateWithoutWorkspaceInput = {
+export type ExpenseSplitUpdateWithoutSplitGroupInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  paidByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   method?: Prisma.EnumSplitMethodFieldUpdateOperationsInput | $Enums.SplitMethod
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expense?: Prisma.TransactionUpdateOneRequiredWithoutExpenseSplitNestedInput
+  paidBy?: Prisma.SplitGroupMemberUpdateOneRequiredWithoutPaidSplitsNestedInput
   shares?: Prisma.ExpenseSplitShareUpdateManyWithoutSplitNestedInput
 }
 
-export type ExpenseSplitUncheckedUpdateWithoutWorkspaceInput = {
+export type ExpenseSplitUncheckedUpdateWithoutSplitGroupInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   expenseTransactionId?: Prisma.StringFieldUpdateOperationsInput | string
-  paidByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  paidByMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   method?: Prisma.EnumSplitMethodFieldUpdateOperationsInput | $Enums.SplitMethod
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   shares?: Prisma.ExpenseSplitShareUncheckedUpdateManyWithoutSplitNestedInput
 }
 
-export type ExpenseSplitUncheckedUpdateManyWithoutWorkspaceInput = {
+export type ExpenseSplitUncheckedUpdateManyWithoutSplitGroupInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   expenseTransactionId?: Prisma.StringFieldUpdateOperationsInput | string
-  paidByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  paidByMemberId?: Prisma.StringFieldUpdateOperationsInput | string
+  method?: Prisma.EnumSplitMethodFieldUpdateOperationsInput | $Enums.SplitMethod
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ExpenseSplitCreateManyPaidByInput = {
+  id?: string
+  splitGroupId: string
+  expenseTransactionId: string
+  method: $Enums.SplitMethod
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ExpenseSplitUpdateWithoutPaidByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  method?: Prisma.EnumSplitMethodFieldUpdateOperationsInput | $Enums.SplitMethod
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  splitGroup?: Prisma.SplitGroupUpdateOneRequiredWithoutSplitsNestedInput
+  expense?: Prisma.TransactionUpdateOneRequiredWithoutExpenseSplitNestedInput
+  shares?: Prisma.ExpenseSplitShareUpdateManyWithoutSplitNestedInput
+}
+
+export type ExpenseSplitUncheckedUpdateWithoutPaidByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  splitGroupId?: Prisma.StringFieldUpdateOperationsInput | string
+  expenseTransactionId?: Prisma.StringFieldUpdateOperationsInput | string
+  method?: Prisma.EnumSplitMethodFieldUpdateOperationsInput | $Enums.SplitMethod
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  shares?: Prisma.ExpenseSplitShareUncheckedUpdateManyWithoutSplitNestedInput
+}
+
+export type ExpenseSplitUncheckedUpdateManyWithoutPaidByInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  splitGroupId?: Prisma.StringFieldUpdateOperationsInput | string
+  expenseTransactionId?: Prisma.StringFieldUpdateOperationsInput | string
   method?: Prisma.EnumSplitMethodFieldUpdateOperationsInput | $Enums.SplitMethod
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -714,80 +842,87 @@ export type ExpenseSplitCountOutputTypeCountSharesArgs<ExtArgs extends runtime.T
 
 export type ExpenseSplitSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  workspaceId?: boolean
+  splitGroupId?: boolean
   expenseTransactionId?: boolean
-  paidByUserId?: boolean
+  paidByMemberId?: boolean
   method?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  splitGroup?: boolean | Prisma.SplitGroupDefaultArgs<ExtArgs>
   expense?: boolean | Prisma.TransactionDefaultArgs<ExtArgs>
+  paidBy?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
   shares?: boolean | Prisma.ExpenseSplit$sharesArgs<ExtArgs>
   _count?: boolean | Prisma.ExpenseSplitCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["expenseSplit"]>
 
 export type ExpenseSplitSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  workspaceId?: boolean
+  splitGroupId?: boolean
   expenseTransactionId?: boolean
-  paidByUserId?: boolean
+  paidByMemberId?: boolean
   method?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  splitGroup?: boolean | Prisma.SplitGroupDefaultArgs<ExtArgs>
   expense?: boolean | Prisma.TransactionDefaultArgs<ExtArgs>
+  paidBy?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["expenseSplit"]>
 
 export type ExpenseSplitSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  workspaceId?: boolean
+  splitGroupId?: boolean
   expenseTransactionId?: boolean
-  paidByUserId?: boolean
+  paidByMemberId?: boolean
   method?: boolean
   createdAt?: boolean
   updatedAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  splitGroup?: boolean | Prisma.SplitGroupDefaultArgs<ExtArgs>
   expense?: boolean | Prisma.TransactionDefaultArgs<ExtArgs>
+  paidBy?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["expenseSplit"]>
 
 export type ExpenseSplitSelectScalar = {
   id?: boolean
-  workspaceId?: boolean
+  splitGroupId?: boolean
   expenseTransactionId?: boolean
-  paidByUserId?: boolean
+  paidByMemberId?: boolean
   method?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ExpenseSplitOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "expenseTransactionId" | "paidByUserId" | "method" | "createdAt" | "updatedAt", ExtArgs["result"]["expenseSplit"]>
+export type ExpenseSplitOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "splitGroupId" | "expenseTransactionId" | "paidByMemberId" | "method" | "createdAt" | "updatedAt", ExtArgs["result"]["expenseSplit"]>
 export type ExpenseSplitInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  splitGroup?: boolean | Prisma.SplitGroupDefaultArgs<ExtArgs>
   expense?: boolean | Prisma.TransactionDefaultArgs<ExtArgs>
+  paidBy?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
   shares?: boolean | Prisma.ExpenseSplit$sharesArgs<ExtArgs>
   _count?: boolean | Prisma.ExpenseSplitCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ExpenseSplitIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  splitGroup?: boolean | Prisma.SplitGroupDefaultArgs<ExtArgs>
   expense?: boolean | Prisma.TransactionDefaultArgs<ExtArgs>
+  paidBy?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
 }
 export type ExpenseSplitIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  splitGroup?: boolean | Prisma.SplitGroupDefaultArgs<ExtArgs>
   expense?: boolean | Prisma.TransactionDefaultArgs<ExtArgs>
+  paidBy?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
 }
 
 export type $ExpenseSplitPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ExpenseSplit"
   objects: {
-    workspace: Prisma.$WorkspacePayload<ExtArgs>
+    splitGroup: Prisma.$SplitGroupPayload<ExtArgs>
     expense: Prisma.$TransactionPayload<ExtArgs>
+    paidBy: Prisma.$SplitGroupMemberPayload<ExtArgs>
     shares: Prisma.$ExpenseSplitSharePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    workspaceId: string
+    splitGroupId: string
     expenseTransactionId: string
-    paidByUserId: string
+    paidByMemberId: string
     method: $Enums.SplitMethod
     createdAt: Date
     updatedAt: Date
@@ -1185,8 +1320,9 @@ readonly fields: ExpenseSplitFieldRefs;
  */
 export interface Prisma__ExpenseSplitClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  splitGroup<T extends Prisma.SplitGroupDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SplitGroupDefaultArgs<ExtArgs>>): Prisma.Prisma__SplitGroupClient<runtime.Types.Result.GetResult<Prisma.$SplitGroupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   expense<T extends Prisma.TransactionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TransactionDefaultArgs<ExtArgs>>): Prisma.Prisma__TransactionClient<runtime.Types.Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  paidBy<T extends Prisma.SplitGroupMemberDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SplitGroupMemberDefaultArgs<ExtArgs>>): Prisma.Prisma__SplitGroupMemberClient<runtime.Types.Result.GetResult<Prisma.$SplitGroupMemberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   shares<T extends Prisma.ExpenseSplit$sharesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ExpenseSplit$sharesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpenseSplitSharePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1218,9 +1354,9 @@ export interface Prisma__ExpenseSplitClient<T, Null = never, ExtArgs extends run
  */
 export interface ExpenseSplitFieldRefs {
   readonly id: Prisma.FieldRef<"ExpenseSplit", 'String'>
-  readonly workspaceId: Prisma.FieldRef<"ExpenseSplit", 'String'>
+  readonly splitGroupId: Prisma.FieldRef<"ExpenseSplit", 'String'>
   readonly expenseTransactionId: Prisma.FieldRef<"ExpenseSplit", 'String'>
-  readonly paidByUserId: Prisma.FieldRef<"ExpenseSplit", 'String'>
+  readonly paidByMemberId: Prisma.FieldRef<"ExpenseSplit", 'String'>
   readonly method: Prisma.FieldRef<"ExpenseSplit", 'SplitMethod'>
   readonly createdAt: Prisma.FieldRef<"ExpenseSplit", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ExpenseSplit", 'DateTime'>

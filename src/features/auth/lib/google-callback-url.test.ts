@@ -2,17 +2,7 @@ import { describe, expect, it } from "vitest";
 import { resolveGoogleCallbackURL } from "@/features/auth/lib/google-callback-url";
 
 describe("resolveGoogleCallbackURL", () => {
-  it("prefers invite token path", () => {
-    expect(
-      resolveGoogleCallbackURL({
-        mode: "login",
-        inviteToken: "tok-1",
-        callbackUrl: "/dashboard",
-      }),
-    ).toBe("/invitaciones/tok-1");
-  });
-
-  it("uses onboarding for register without invite", () => {
+  it("uses onboarding for register", () => {
     expect(resolveGoogleCallbackURL({ mode: "register" })).toBe("/onboarding");
   });
 

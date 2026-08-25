@@ -92,26 +92,7 @@ export async function createIncomeOrExpense(
     throw new TransactionDomainError("La categoría está archivada");
   }
 
-  // SPEC-14: account may belong to another workspace (externally funded).
-  if (account.workspaceId !== input.workspaceId) {
-    const accountMembership = await prisma.membership.findUnique({
-      where: {
-        workspaceId_userId: {
-          workspaceId: account.workspaceId,
-          userId: input.userId,
-        },
-      },
-      select: { role: true },
-    });
-    if (!accountMembership) {
-      throw new TransactionDomainError(
-        "No tenés permiso para usar esa cuenta de otro espacio",
-      );
-    }
-    assertCanMutateTransactions(accountMembership.role);
-  } else {
-    assertAccountBelongsToWorkspace(account.workspaceId, input.workspaceId);
-  }
+  assertAccountBelongsToWorkspace(account.workspaceId, input.workspaceId);
   if (category.workspaceId !== input.workspaceId) {
     throw new TransactionDomainError(
       "La categoría no pertenece al workspace de la transacción",

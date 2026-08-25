@@ -23,7 +23,6 @@ import {
   TRANSACTION_SELECT,
   type TransactionRecord,
 } from "./require-transaction-membership";
-import { requireContributionTwinAuthz } from "./require-contribution-twin-authz";
 
 export type UpdateTransactionServiceInput = {
   userId: string;
@@ -50,15 +49,6 @@ export async function updateTransaction(
     input.transactionId,
   );
   assertCanMutateTransactions(membership.role);
-
-  // SPEC-14 T-06 / KRI-19 — fail closed before any ledger write.
-  const twin = await requireContributionTwinAuthz({
-    userId: input.userId,
-    transactionId: transaction.id,
-    localWorkspaceId: membership.workspaceId,
-    localRole: membership.role,
-    kind: "contribution",
-  });
 
   const type: TransactionType = transaction.type;
 
@@ -216,18 +206,6 @@ export async function updateTransaction(
         data: {
           ...(input.description !== undefined ? { note: nextDescription } : {}),
           ...(nextOccurredOn ? { contributedOn: nextOccurredOn } : {}),
-        },
-      });
-    }
-
-    // SPEC-14 FR-08 / KRI-19 — sync twin in the same transaction.
-    if (twin) {
-      await tx.transaction.update({
-        where: { id: twin.twinId },
-        data: {
-          amountCents: nextAmount,
-          description: nextDescription,
-          ...(nextOccurredOn ? { occurredOn: nextOccurredOn } : {}),
         },
       });
     }

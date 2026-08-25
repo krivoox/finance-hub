@@ -7,7 +7,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { signUp } from "@/lib/auth-client";
 import { registerSchema, type RegisterInput } from "@/features/auth/schemas";
-import { acceptInvitationAction } from "@/features/workspaces/actions";
 import {
   AuthMethodDivider,
   GoogleSignInButton,
@@ -18,12 +17,10 @@ import { Input } from "@/components/ui/input";
 import { navigateAndRefresh } from "@/lib/navigation";
 
 export function RegisterForm({
-  inviteToken,
   prefillEmail,
   googleEnabled = false,
   googleClientId,
 }: {
-  inviteToken?: string;
   prefillEmail?: string;
   googleEnabled?: boolean;
   googleClientId?: string;
@@ -67,21 +64,7 @@ export function RegisterForm({
       return;
     }
 
-    // Personal workspace + pending invites are accepted in the auth hook.
-    // Call accept with the token to set the active group workspace cookie.
-    if (inviteToken) {
-      const accepted = await acceptInvitationAction({ token: inviteToken });
-      if (!accepted.ok) {
-        toast.message("Cuenta creada", {
-          description:
-            "No pudimos activar el workspace invitado automáticamente. Abrí el link de nuevo.",
-        });
-      } else {
-        toast.success("Cuenta creada y unido al workspace");
-      }
-    } else {
-      toast.success("Cuenta creada");
-    }
+    toast.success("Cuenta creada");
 
     setIsSubmitting(false);
     navigateAndRefresh(router, "/onboarding");
@@ -93,7 +76,6 @@ export function RegisterForm({
         <>
           <GoogleSignInButton
             mode="register"
-            inviteToken={inviteToken}
             googleClientId={googleClientId}
           />
           <AuthMethodDivider />
@@ -101,13 +83,6 @@ export function RegisterForm({
       ) : null}
 
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-        {inviteToken ? (
-          <p className="rounded-md border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-            Al registrarte vas a tener tu espacio personal y también vas a
-            unirte al workspace al que te invitaron.
-          </p>
-        ) : null}
-
         <FormField
           label="Nombre"
           htmlFor="displayName"

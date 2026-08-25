@@ -191,14 +191,12 @@ export type WorkspaceWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Workspace"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Workspace"> | Date | string
   memberships?: Prisma.MembershipListRelationFilter
-  invitations?: Prisma.InvitationListRelationFilter
   categories?: Prisma.CategoryListRelationFilter
   financeAccounts?: Prisma.FinanceAccountListRelationFilter
   transactions?: Prisma.TransactionListRelationFilter
   budgets?: Prisma.BudgetListRelationFilter
   goals?: Prisma.GoalListRelationFilter
-  expenseSplits?: Prisma.ExpenseSplitListRelationFilter
-  settlements?: Prisma.SettlementListRelationFilter
+  splitGroups?: Prisma.SplitGroupListRelationFilter
   currencyExchanges?: Prisma.CurrencyExchangeListRelationFilter
   consolidationRate?: Prisma.XOR<Prisma.WorkspaceConsolidationRateNullableScalarRelationFilter, Prisma.WorkspaceConsolidationRateWhereInput> | null
   recurringRules?: Prisma.RecurringRuleListRelationFilter
@@ -212,14 +210,12 @@ export type WorkspaceOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   memberships?: Prisma.MembershipOrderByRelationAggregateInput
-  invitations?: Prisma.InvitationOrderByRelationAggregateInput
   categories?: Prisma.CategoryOrderByRelationAggregateInput
   financeAccounts?: Prisma.FinanceAccountOrderByRelationAggregateInput
   transactions?: Prisma.TransactionOrderByRelationAggregateInput
   budgets?: Prisma.BudgetOrderByRelationAggregateInput
   goals?: Prisma.GoalOrderByRelationAggregateInput
-  expenseSplits?: Prisma.ExpenseSplitOrderByRelationAggregateInput
-  settlements?: Prisma.SettlementOrderByRelationAggregateInput
+  splitGroups?: Prisma.SplitGroupOrderByRelationAggregateInput
   currencyExchanges?: Prisma.CurrencyExchangeOrderByRelationAggregateInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateOrderByWithRelationInput
   recurringRules?: Prisma.RecurringRuleOrderByRelationAggregateInput
@@ -236,14 +232,12 @@ export type WorkspaceWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Workspace"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Workspace"> | Date | string
   memberships?: Prisma.MembershipListRelationFilter
-  invitations?: Prisma.InvitationListRelationFilter
   categories?: Prisma.CategoryListRelationFilter
   financeAccounts?: Prisma.FinanceAccountListRelationFilter
   transactions?: Prisma.TransactionListRelationFilter
   budgets?: Prisma.BudgetListRelationFilter
   goals?: Prisma.GoalListRelationFilter
-  expenseSplits?: Prisma.ExpenseSplitListRelationFilter
-  settlements?: Prisma.SettlementListRelationFilter
+  splitGroups?: Prisma.SplitGroupListRelationFilter
   currencyExchanges?: Prisma.CurrencyExchangeListRelationFilter
   consolidationRate?: Prisma.XOR<Prisma.WorkspaceConsolidationRateNullableScalarRelationFilter, Prisma.WorkspaceConsolidationRateWhereInput> | null
   recurringRules?: Prisma.RecurringRuleListRelationFilter
@@ -276,19 +270,17 @@ export type WorkspaceScalarWhereWithAggregatesInput = {
 export type WorkspaceCreateInput = {
   id?: string
   name: string
-  type: $Enums.WorkspaceType
+  type?: $Enums.WorkspaceType
   baseCurrency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.InvitationCreateNestedManyWithoutWorkspaceInput
   categories?: Prisma.CategoryCreateNestedManyWithoutWorkspaceInput
   financeAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutWorkspaceInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutWorkspaceInput
   budgets?: Prisma.BudgetCreateNestedManyWithoutWorkspaceInput
   goals?: Prisma.GoalCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementCreateNestedManyWithoutWorkspaceInput
+  splitGroups?: Prisma.SplitGroupCreateNestedManyWithoutWorkspaceInput
   currencyExchanges?: Prisma.CurrencyExchangeCreateNestedManyWithoutWorkspaceInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateCreateNestedOneWithoutWorkspaceInput
   recurringRules?: Prisma.RecurringRuleCreateNestedManyWithoutWorkspaceInput
@@ -297,19 +289,17 @@ export type WorkspaceCreateInput = {
 export type WorkspaceUncheckedCreateInput = {
   id?: string
   name: string
-  type: $Enums.WorkspaceType
+  type?: $Enums.WorkspaceType
   baseCurrency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutWorkspaceInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutWorkspaceInput
   financeAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutWorkspaceInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutWorkspaceInput
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutWorkspaceInput
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementUncheckedCreateNestedManyWithoutWorkspaceInput
+  splitGroups?: Prisma.SplitGroupUncheckedCreateNestedManyWithoutWorkspaceInput
   currencyExchanges?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutWorkspaceInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedCreateNestedOneWithoutWorkspaceInput
   recurringRules?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutWorkspaceInput
@@ -323,14 +313,12 @@ export type WorkspaceUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.InvitationUpdateManyWithoutWorkspaceNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutWorkspaceNestedInput
   financeAccounts?: Prisma.FinanceAccountUpdateManyWithoutWorkspaceNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutWorkspaceNestedInput
   budgets?: Prisma.BudgetUpdateManyWithoutWorkspaceNestedInput
   goals?: Prisma.GoalUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUpdateManyWithoutWorkspaceNestedInput
+  splitGroups?: Prisma.SplitGroupUpdateManyWithoutWorkspaceNestedInput
   currencyExchanges?: Prisma.CurrencyExchangeUpdateManyWithoutWorkspaceNestedInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUpdateOneWithoutWorkspaceNestedInput
   recurringRules?: Prisma.RecurringRuleUpdateManyWithoutWorkspaceNestedInput
@@ -344,14 +332,12 @@ export type WorkspaceUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.InvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutWorkspaceNestedInput
   financeAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutWorkspaceNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutWorkspaceNestedInput
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutWorkspaceNestedInput
   goals?: Prisma.GoalUncheckedUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUncheckedUpdateManyWithoutWorkspaceNestedInput
+  splitGroups?: Prisma.SplitGroupUncheckedUpdateManyWithoutWorkspaceNestedInput
   currencyExchanges?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutWorkspaceNestedInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedUpdateOneWithoutWorkspaceNestedInput
   recurringRules?: Prisma.RecurringRuleUncheckedUpdateManyWithoutWorkspaceNestedInput
@@ -360,7 +346,7 @@ export type WorkspaceUncheckedUpdateInput = {
 export type WorkspaceCreateManyInput = {
   id?: string
   name: string
-  type: $Enums.WorkspaceType
+  type?: $Enums.WorkspaceType
   baseCurrency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -432,20 +418,6 @@ export type WorkspaceUpdateOneRequiredWithoutMembershipsNestedInput = {
   upsert?: Prisma.WorkspaceUpsertWithoutMembershipsInput
   connect?: Prisma.WorkspaceWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutMembershipsInput, Prisma.WorkspaceUpdateWithoutMembershipsInput>, Prisma.WorkspaceUncheckedUpdateWithoutMembershipsInput>
-}
-
-export type WorkspaceCreateNestedOneWithoutInvitationsInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutInvitationsInput, Prisma.WorkspaceUncheckedCreateWithoutInvitationsInput>
-  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutInvitationsInput
-  connect?: Prisma.WorkspaceWhereUniqueInput
-}
-
-export type WorkspaceUpdateOneRequiredWithoutInvitationsNestedInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutInvitationsInput, Prisma.WorkspaceUncheckedCreateWithoutInvitationsInput>
-  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutInvitationsInput
-  upsert?: Prisma.WorkspaceUpsertWithoutInvitationsInput
-  connect?: Prisma.WorkspaceWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutInvitationsInput, Prisma.WorkspaceUpdateWithoutInvitationsInput>, Prisma.WorkspaceUncheckedUpdateWithoutInvitationsInput>
 }
 
 export type WorkspaceCreateNestedOneWithoutCategoriesInput = {
@@ -560,49 +532,33 @@ export type WorkspaceUpdateOneRequiredWithoutGoalsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutGoalsInput, Prisma.WorkspaceUpdateWithoutGoalsInput>, Prisma.WorkspaceUncheckedUpdateWithoutGoalsInput>
 }
 
-export type WorkspaceCreateNestedOneWithoutExpenseSplitsInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutExpenseSplitsInput, Prisma.WorkspaceUncheckedCreateWithoutExpenseSplitsInput>
-  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutExpenseSplitsInput
+export type WorkspaceCreateNestedOneWithoutSplitGroupsInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutSplitGroupsInput, Prisma.WorkspaceUncheckedCreateWithoutSplitGroupsInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutSplitGroupsInput
   connect?: Prisma.WorkspaceWhereUniqueInput
 }
 
-export type WorkspaceUpdateOneRequiredWithoutExpenseSplitsNestedInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutExpenseSplitsInput, Prisma.WorkspaceUncheckedCreateWithoutExpenseSplitsInput>
-  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutExpenseSplitsInput
-  upsert?: Prisma.WorkspaceUpsertWithoutExpenseSplitsInput
+export type WorkspaceUpdateOneRequiredWithoutSplitGroupsNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutSplitGroupsInput, Prisma.WorkspaceUncheckedCreateWithoutSplitGroupsInput>
+  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutSplitGroupsInput
+  upsert?: Prisma.WorkspaceUpsertWithoutSplitGroupsInput
   connect?: Prisma.WorkspaceWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutExpenseSplitsInput, Prisma.WorkspaceUpdateWithoutExpenseSplitsInput>, Prisma.WorkspaceUncheckedUpdateWithoutExpenseSplitsInput>
-}
-
-export type WorkspaceCreateNestedOneWithoutSettlementsInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutSettlementsInput, Prisma.WorkspaceUncheckedCreateWithoutSettlementsInput>
-  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutSettlementsInput
-  connect?: Prisma.WorkspaceWhereUniqueInput
-}
-
-export type WorkspaceUpdateOneRequiredWithoutSettlementsNestedInput = {
-  create?: Prisma.XOR<Prisma.WorkspaceCreateWithoutSettlementsInput, Prisma.WorkspaceUncheckedCreateWithoutSettlementsInput>
-  connectOrCreate?: Prisma.WorkspaceCreateOrConnectWithoutSettlementsInput
-  upsert?: Prisma.WorkspaceUpsertWithoutSettlementsInput
-  connect?: Prisma.WorkspaceWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutSettlementsInput, Prisma.WorkspaceUpdateWithoutSettlementsInput>, Prisma.WorkspaceUncheckedUpdateWithoutSettlementsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkspaceUpdateToOneWithWhereWithoutSplitGroupsInput, Prisma.WorkspaceUpdateWithoutSplitGroupsInput>, Prisma.WorkspaceUncheckedUpdateWithoutSplitGroupsInput>
 }
 
 export type WorkspaceCreateWithoutMembershipsInput = {
   id?: string
   name: string
-  type: $Enums.WorkspaceType
+  type?: $Enums.WorkspaceType
   baseCurrency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  invitations?: Prisma.InvitationCreateNestedManyWithoutWorkspaceInput
   categories?: Prisma.CategoryCreateNestedManyWithoutWorkspaceInput
   financeAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutWorkspaceInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutWorkspaceInput
   budgets?: Prisma.BudgetCreateNestedManyWithoutWorkspaceInput
   goals?: Prisma.GoalCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementCreateNestedManyWithoutWorkspaceInput
+  splitGroups?: Prisma.SplitGroupCreateNestedManyWithoutWorkspaceInput
   currencyExchanges?: Prisma.CurrencyExchangeCreateNestedManyWithoutWorkspaceInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateCreateNestedOneWithoutWorkspaceInput
   recurringRules?: Prisma.RecurringRuleCreateNestedManyWithoutWorkspaceInput
@@ -611,18 +567,16 @@ export type WorkspaceCreateWithoutMembershipsInput = {
 export type WorkspaceUncheckedCreateWithoutMembershipsInput = {
   id?: string
   name: string
-  type: $Enums.WorkspaceType
+  type?: $Enums.WorkspaceType
   baseCurrency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutWorkspaceInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutWorkspaceInput
   financeAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutWorkspaceInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutWorkspaceInput
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutWorkspaceInput
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementUncheckedCreateNestedManyWithoutWorkspaceInput
+  splitGroups?: Prisma.SplitGroupUncheckedCreateNestedManyWithoutWorkspaceInput
   currencyExchanges?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutWorkspaceInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedCreateNestedOneWithoutWorkspaceInput
   recurringRules?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutWorkspaceInput
@@ -651,14 +605,12 @@ export type WorkspaceUpdateWithoutMembershipsInput = {
   baseCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  invitations?: Prisma.InvitationUpdateManyWithoutWorkspaceNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutWorkspaceNestedInput
   financeAccounts?: Prisma.FinanceAccountUpdateManyWithoutWorkspaceNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutWorkspaceNestedInput
   budgets?: Prisma.BudgetUpdateManyWithoutWorkspaceNestedInput
   goals?: Prisma.GoalUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUpdateManyWithoutWorkspaceNestedInput
+  splitGroups?: Prisma.SplitGroupUpdateManyWithoutWorkspaceNestedInput
   currencyExchanges?: Prisma.CurrencyExchangeUpdateManyWithoutWorkspaceNestedInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUpdateOneWithoutWorkspaceNestedInput
   recurringRules?: Prisma.RecurringRuleUpdateManyWithoutWorkspaceNestedInput
@@ -671,110 +623,12 @@ export type WorkspaceUncheckedUpdateWithoutMembershipsInput = {
   baseCurrency?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  invitations?: Prisma.InvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutWorkspaceNestedInput
   financeAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutWorkspaceNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutWorkspaceNestedInput
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutWorkspaceNestedInput
   goals?: Prisma.GoalUncheckedUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUncheckedUpdateManyWithoutWorkspaceNestedInput
-  currencyExchanges?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutWorkspaceNestedInput
-  consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedUpdateOneWithoutWorkspaceNestedInput
-  recurringRules?: Prisma.RecurringRuleUncheckedUpdateManyWithoutWorkspaceNestedInput
-}
-
-export type WorkspaceCreateWithoutInvitationsInput = {
-  id?: string
-  name: string
-  type: $Enums.WorkspaceType
-  baseCurrency?: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  memberships?: Prisma.MembershipCreateNestedManyWithoutWorkspaceInput
-  categories?: Prisma.CategoryCreateNestedManyWithoutWorkspaceInput
-  financeAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutWorkspaceInput
-  transactions?: Prisma.TransactionCreateNestedManyWithoutWorkspaceInput
-  budgets?: Prisma.BudgetCreateNestedManyWithoutWorkspaceInput
-  goals?: Prisma.GoalCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementCreateNestedManyWithoutWorkspaceInput
-  currencyExchanges?: Prisma.CurrencyExchangeCreateNestedManyWithoutWorkspaceInput
-  consolidationRate?: Prisma.WorkspaceConsolidationRateCreateNestedOneWithoutWorkspaceInput
-  recurringRules?: Prisma.RecurringRuleCreateNestedManyWithoutWorkspaceInput
-}
-
-export type WorkspaceUncheckedCreateWithoutInvitationsInput = {
-  id?: string
-  name: string
-  type: $Enums.WorkspaceType
-  baseCurrency?: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutWorkspaceInput
-  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutWorkspaceInput
-  financeAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutWorkspaceInput
-  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutWorkspaceInput
-  budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutWorkspaceInput
-  goals?: Prisma.GoalUncheckedCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementUncheckedCreateNestedManyWithoutWorkspaceInput
-  currencyExchanges?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutWorkspaceInput
-  consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedCreateNestedOneWithoutWorkspaceInput
-  recurringRules?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutWorkspaceInput
-}
-
-export type WorkspaceCreateOrConnectWithoutInvitationsInput = {
-  where: Prisma.WorkspaceWhereUniqueInput
-  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutInvitationsInput, Prisma.WorkspaceUncheckedCreateWithoutInvitationsInput>
-}
-
-export type WorkspaceUpsertWithoutInvitationsInput = {
-  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutInvitationsInput, Prisma.WorkspaceUncheckedUpdateWithoutInvitationsInput>
-  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutInvitationsInput, Prisma.WorkspaceUncheckedCreateWithoutInvitationsInput>
-  where?: Prisma.WorkspaceWhereInput
-}
-
-export type WorkspaceUpdateToOneWithWhereWithoutInvitationsInput = {
-  where?: Prisma.WorkspaceWhereInput
-  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutInvitationsInput, Prisma.WorkspaceUncheckedUpdateWithoutInvitationsInput>
-}
-
-export type WorkspaceUpdateWithoutInvitationsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.EnumWorkspaceTypeFieldUpdateOperationsInput | $Enums.WorkspaceType
-  baseCurrency?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  memberships?: Prisma.MembershipUpdateManyWithoutWorkspaceNestedInput
-  categories?: Prisma.CategoryUpdateManyWithoutWorkspaceNestedInput
-  financeAccounts?: Prisma.FinanceAccountUpdateManyWithoutWorkspaceNestedInput
-  transactions?: Prisma.TransactionUpdateManyWithoutWorkspaceNestedInput
-  budgets?: Prisma.BudgetUpdateManyWithoutWorkspaceNestedInput
-  goals?: Prisma.GoalUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUpdateManyWithoutWorkspaceNestedInput
-  currencyExchanges?: Prisma.CurrencyExchangeUpdateManyWithoutWorkspaceNestedInput
-  consolidationRate?: Prisma.WorkspaceConsolidationRateUpdateOneWithoutWorkspaceNestedInput
-  recurringRules?: Prisma.RecurringRuleUpdateManyWithoutWorkspaceNestedInput
-}
-
-export type WorkspaceUncheckedUpdateWithoutInvitationsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.EnumWorkspaceTypeFieldUpdateOperationsInput | $Enums.WorkspaceType
-  baseCurrency?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
-  categories?: Prisma.CategoryUncheckedUpdateManyWithoutWorkspaceNestedInput
-  financeAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutWorkspaceNestedInput
-  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutWorkspaceNestedInput
-  budgets?: Prisma.BudgetUncheckedUpdateManyWithoutWorkspaceNestedInput
-  goals?: Prisma.GoalUncheckedUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUncheckedUpdateManyWithoutWorkspaceNestedInput
+  splitGroups?: Prisma.SplitGroupUncheckedUpdateManyWithoutWorkspaceNestedInput
   currencyExchanges?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutWorkspaceNestedInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedUpdateOneWithoutWorkspaceNestedInput
   recurringRules?: Prisma.RecurringRuleUncheckedUpdateManyWithoutWorkspaceNestedInput
@@ -783,18 +637,16 @@ export type WorkspaceUncheckedUpdateWithoutInvitationsInput = {
 export type WorkspaceCreateWithoutCategoriesInput = {
   id?: string
   name: string
-  type: $Enums.WorkspaceType
+  type?: $Enums.WorkspaceType
   baseCurrency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.InvitationCreateNestedManyWithoutWorkspaceInput
   financeAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutWorkspaceInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutWorkspaceInput
   budgets?: Prisma.BudgetCreateNestedManyWithoutWorkspaceInput
   goals?: Prisma.GoalCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementCreateNestedManyWithoutWorkspaceInput
+  splitGroups?: Prisma.SplitGroupCreateNestedManyWithoutWorkspaceInput
   currencyExchanges?: Prisma.CurrencyExchangeCreateNestedManyWithoutWorkspaceInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateCreateNestedOneWithoutWorkspaceInput
   recurringRules?: Prisma.RecurringRuleCreateNestedManyWithoutWorkspaceInput
@@ -803,18 +655,16 @@ export type WorkspaceCreateWithoutCategoriesInput = {
 export type WorkspaceUncheckedCreateWithoutCategoriesInput = {
   id?: string
   name: string
-  type: $Enums.WorkspaceType
+  type?: $Enums.WorkspaceType
   baseCurrency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutWorkspaceInput
   financeAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutWorkspaceInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutWorkspaceInput
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutWorkspaceInput
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementUncheckedCreateNestedManyWithoutWorkspaceInput
+  splitGroups?: Prisma.SplitGroupUncheckedCreateNestedManyWithoutWorkspaceInput
   currencyExchanges?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutWorkspaceInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedCreateNestedOneWithoutWorkspaceInput
   recurringRules?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutWorkspaceInput
@@ -844,13 +694,11 @@ export type WorkspaceUpdateWithoutCategoriesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.InvitationUpdateManyWithoutWorkspaceNestedInput
   financeAccounts?: Prisma.FinanceAccountUpdateManyWithoutWorkspaceNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutWorkspaceNestedInput
   budgets?: Prisma.BudgetUpdateManyWithoutWorkspaceNestedInput
   goals?: Prisma.GoalUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUpdateManyWithoutWorkspaceNestedInput
+  splitGroups?: Prisma.SplitGroupUpdateManyWithoutWorkspaceNestedInput
   currencyExchanges?: Prisma.CurrencyExchangeUpdateManyWithoutWorkspaceNestedInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUpdateOneWithoutWorkspaceNestedInput
   recurringRules?: Prisma.RecurringRuleUpdateManyWithoutWorkspaceNestedInput
@@ -864,13 +712,11 @@ export type WorkspaceUncheckedUpdateWithoutCategoriesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.InvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
   financeAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutWorkspaceNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutWorkspaceNestedInput
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutWorkspaceNestedInput
   goals?: Prisma.GoalUncheckedUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUncheckedUpdateManyWithoutWorkspaceNestedInput
+  splitGroups?: Prisma.SplitGroupUncheckedUpdateManyWithoutWorkspaceNestedInput
   currencyExchanges?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutWorkspaceNestedInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedUpdateOneWithoutWorkspaceNestedInput
   recurringRules?: Prisma.RecurringRuleUncheckedUpdateManyWithoutWorkspaceNestedInput
@@ -879,18 +725,16 @@ export type WorkspaceUncheckedUpdateWithoutCategoriesInput = {
 export type WorkspaceCreateWithoutFinanceAccountsInput = {
   id?: string
   name: string
-  type: $Enums.WorkspaceType
+  type?: $Enums.WorkspaceType
   baseCurrency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.InvitationCreateNestedManyWithoutWorkspaceInput
   categories?: Prisma.CategoryCreateNestedManyWithoutWorkspaceInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutWorkspaceInput
   budgets?: Prisma.BudgetCreateNestedManyWithoutWorkspaceInput
   goals?: Prisma.GoalCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementCreateNestedManyWithoutWorkspaceInput
+  splitGroups?: Prisma.SplitGroupCreateNestedManyWithoutWorkspaceInput
   currencyExchanges?: Prisma.CurrencyExchangeCreateNestedManyWithoutWorkspaceInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateCreateNestedOneWithoutWorkspaceInput
   recurringRules?: Prisma.RecurringRuleCreateNestedManyWithoutWorkspaceInput
@@ -899,18 +743,16 @@ export type WorkspaceCreateWithoutFinanceAccountsInput = {
 export type WorkspaceUncheckedCreateWithoutFinanceAccountsInput = {
   id?: string
   name: string
-  type: $Enums.WorkspaceType
+  type?: $Enums.WorkspaceType
   baseCurrency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutWorkspaceInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutWorkspaceInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutWorkspaceInput
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutWorkspaceInput
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementUncheckedCreateNestedManyWithoutWorkspaceInput
+  splitGroups?: Prisma.SplitGroupUncheckedCreateNestedManyWithoutWorkspaceInput
   currencyExchanges?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutWorkspaceInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedCreateNestedOneWithoutWorkspaceInput
   recurringRules?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutWorkspaceInput
@@ -940,13 +782,11 @@ export type WorkspaceUpdateWithoutFinanceAccountsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.InvitationUpdateManyWithoutWorkspaceNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutWorkspaceNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutWorkspaceNestedInput
   budgets?: Prisma.BudgetUpdateManyWithoutWorkspaceNestedInput
   goals?: Prisma.GoalUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUpdateManyWithoutWorkspaceNestedInput
+  splitGroups?: Prisma.SplitGroupUpdateManyWithoutWorkspaceNestedInput
   currencyExchanges?: Prisma.CurrencyExchangeUpdateManyWithoutWorkspaceNestedInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUpdateOneWithoutWorkspaceNestedInput
   recurringRules?: Prisma.RecurringRuleUpdateManyWithoutWorkspaceNestedInput
@@ -960,13 +800,11 @@ export type WorkspaceUncheckedUpdateWithoutFinanceAccountsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.InvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutWorkspaceNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutWorkspaceNestedInput
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutWorkspaceNestedInput
   goals?: Prisma.GoalUncheckedUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUncheckedUpdateManyWithoutWorkspaceNestedInput
+  splitGroups?: Prisma.SplitGroupUncheckedUpdateManyWithoutWorkspaceNestedInput
   currencyExchanges?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutWorkspaceNestedInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedUpdateOneWithoutWorkspaceNestedInput
   recurringRules?: Prisma.RecurringRuleUncheckedUpdateManyWithoutWorkspaceNestedInput
@@ -975,18 +813,16 @@ export type WorkspaceUncheckedUpdateWithoutFinanceAccountsInput = {
 export type WorkspaceCreateWithoutTransactionsInput = {
   id?: string
   name: string
-  type: $Enums.WorkspaceType
+  type?: $Enums.WorkspaceType
   baseCurrency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.InvitationCreateNestedManyWithoutWorkspaceInput
   categories?: Prisma.CategoryCreateNestedManyWithoutWorkspaceInput
   financeAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutWorkspaceInput
   budgets?: Prisma.BudgetCreateNestedManyWithoutWorkspaceInput
   goals?: Prisma.GoalCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementCreateNestedManyWithoutWorkspaceInput
+  splitGroups?: Prisma.SplitGroupCreateNestedManyWithoutWorkspaceInput
   currencyExchanges?: Prisma.CurrencyExchangeCreateNestedManyWithoutWorkspaceInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateCreateNestedOneWithoutWorkspaceInput
   recurringRules?: Prisma.RecurringRuleCreateNestedManyWithoutWorkspaceInput
@@ -995,18 +831,16 @@ export type WorkspaceCreateWithoutTransactionsInput = {
 export type WorkspaceUncheckedCreateWithoutTransactionsInput = {
   id?: string
   name: string
-  type: $Enums.WorkspaceType
+  type?: $Enums.WorkspaceType
   baseCurrency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutWorkspaceInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutWorkspaceInput
   financeAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutWorkspaceInput
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutWorkspaceInput
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementUncheckedCreateNestedManyWithoutWorkspaceInput
+  splitGroups?: Prisma.SplitGroupUncheckedCreateNestedManyWithoutWorkspaceInput
   currencyExchanges?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutWorkspaceInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedCreateNestedOneWithoutWorkspaceInput
   recurringRules?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutWorkspaceInput
@@ -1036,13 +870,11 @@ export type WorkspaceUpdateWithoutTransactionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.InvitationUpdateManyWithoutWorkspaceNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutWorkspaceNestedInput
   financeAccounts?: Prisma.FinanceAccountUpdateManyWithoutWorkspaceNestedInput
   budgets?: Prisma.BudgetUpdateManyWithoutWorkspaceNestedInput
   goals?: Prisma.GoalUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUpdateManyWithoutWorkspaceNestedInput
+  splitGroups?: Prisma.SplitGroupUpdateManyWithoutWorkspaceNestedInput
   currencyExchanges?: Prisma.CurrencyExchangeUpdateManyWithoutWorkspaceNestedInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUpdateOneWithoutWorkspaceNestedInput
   recurringRules?: Prisma.RecurringRuleUpdateManyWithoutWorkspaceNestedInput
@@ -1056,13 +888,11 @@ export type WorkspaceUncheckedUpdateWithoutTransactionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.InvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutWorkspaceNestedInput
   financeAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutWorkspaceNestedInput
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutWorkspaceNestedInput
   goals?: Prisma.GoalUncheckedUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUncheckedUpdateManyWithoutWorkspaceNestedInput
+  splitGroups?: Prisma.SplitGroupUncheckedUpdateManyWithoutWorkspaceNestedInput
   currencyExchanges?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutWorkspaceNestedInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedUpdateOneWithoutWorkspaceNestedInput
   recurringRules?: Prisma.RecurringRuleUncheckedUpdateManyWithoutWorkspaceNestedInput
@@ -1071,19 +901,17 @@ export type WorkspaceUncheckedUpdateWithoutTransactionsInput = {
 export type WorkspaceCreateWithoutRecurringRulesInput = {
   id?: string
   name: string
-  type: $Enums.WorkspaceType
+  type?: $Enums.WorkspaceType
   baseCurrency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.InvitationCreateNestedManyWithoutWorkspaceInput
   categories?: Prisma.CategoryCreateNestedManyWithoutWorkspaceInput
   financeAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutWorkspaceInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutWorkspaceInput
   budgets?: Prisma.BudgetCreateNestedManyWithoutWorkspaceInput
   goals?: Prisma.GoalCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementCreateNestedManyWithoutWorkspaceInput
+  splitGroups?: Prisma.SplitGroupCreateNestedManyWithoutWorkspaceInput
   currencyExchanges?: Prisma.CurrencyExchangeCreateNestedManyWithoutWorkspaceInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateCreateNestedOneWithoutWorkspaceInput
 }
@@ -1091,19 +919,17 @@ export type WorkspaceCreateWithoutRecurringRulesInput = {
 export type WorkspaceUncheckedCreateWithoutRecurringRulesInput = {
   id?: string
   name: string
-  type: $Enums.WorkspaceType
+  type?: $Enums.WorkspaceType
   baseCurrency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutWorkspaceInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutWorkspaceInput
   financeAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutWorkspaceInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutWorkspaceInput
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutWorkspaceInput
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementUncheckedCreateNestedManyWithoutWorkspaceInput
+  splitGroups?: Prisma.SplitGroupUncheckedCreateNestedManyWithoutWorkspaceInput
   currencyExchanges?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutWorkspaceInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedCreateNestedOneWithoutWorkspaceInput
 }
@@ -1132,14 +958,12 @@ export type WorkspaceUpdateWithoutRecurringRulesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.InvitationUpdateManyWithoutWorkspaceNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutWorkspaceNestedInput
   financeAccounts?: Prisma.FinanceAccountUpdateManyWithoutWorkspaceNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutWorkspaceNestedInput
   budgets?: Prisma.BudgetUpdateManyWithoutWorkspaceNestedInput
   goals?: Prisma.GoalUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUpdateManyWithoutWorkspaceNestedInput
+  splitGroups?: Prisma.SplitGroupUpdateManyWithoutWorkspaceNestedInput
   currencyExchanges?: Prisma.CurrencyExchangeUpdateManyWithoutWorkspaceNestedInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUpdateOneWithoutWorkspaceNestedInput
 }
@@ -1152,14 +976,12 @@ export type WorkspaceUncheckedUpdateWithoutRecurringRulesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.InvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutWorkspaceNestedInput
   financeAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutWorkspaceNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutWorkspaceNestedInput
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutWorkspaceNestedInput
   goals?: Prisma.GoalUncheckedUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUncheckedUpdateManyWithoutWorkspaceNestedInput
+  splitGroups?: Prisma.SplitGroupUncheckedUpdateManyWithoutWorkspaceNestedInput
   currencyExchanges?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutWorkspaceNestedInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedUpdateOneWithoutWorkspaceNestedInput
 }
@@ -1167,19 +989,17 @@ export type WorkspaceUncheckedUpdateWithoutRecurringRulesInput = {
 export type WorkspaceCreateWithoutCurrencyExchangesInput = {
   id?: string
   name: string
-  type: $Enums.WorkspaceType
+  type?: $Enums.WorkspaceType
   baseCurrency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.InvitationCreateNestedManyWithoutWorkspaceInput
   categories?: Prisma.CategoryCreateNestedManyWithoutWorkspaceInput
   financeAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutWorkspaceInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutWorkspaceInput
   budgets?: Prisma.BudgetCreateNestedManyWithoutWorkspaceInput
   goals?: Prisma.GoalCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementCreateNestedManyWithoutWorkspaceInput
+  splitGroups?: Prisma.SplitGroupCreateNestedManyWithoutWorkspaceInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateCreateNestedOneWithoutWorkspaceInput
   recurringRules?: Prisma.RecurringRuleCreateNestedManyWithoutWorkspaceInput
 }
@@ -1187,19 +1007,17 @@ export type WorkspaceCreateWithoutCurrencyExchangesInput = {
 export type WorkspaceUncheckedCreateWithoutCurrencyExchangesInput = {
   id?: string
   name: string
-  type: $Enums.WorkspaceType
+  type?: $Enums.WorkspaceType
   baseCurrency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutWorkspaceInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutWorkspaceInput
   financeAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutWorkspaceInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutWorkspaceInput
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutWorkspaceInput
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementUncheckedCreateNestedManyWithoutWorkspaceInput
+  splitGroups?: Prisma.SplitGroupUncheckedCreateNestedManyWithoutWorkspaceInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedCreateNestedOneWithoutWorkspaceInput
   recurringRules?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutWorkspaceInput
 }
@@ -1228,14 +1046,12 @@ export type WorkspaceUpdateWithoutCurrencyExchangesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.InvitationUpdateManyWithoutWorkspaceNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutWorkspaceNestedInput
   financeAccounts?: Prisma.FinanceAccountUpdateManyWithoutWorkspaceNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutWorkspaceNestedInput
   budgets?: Prisma.BudgetUpdateManyWithoutWorkspaceNestedInput
   goals?: Prisma.GoalUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUpdateManyWithoutWorkspaceNestedInput
+  splitGroups?: Prisma.SplitGroupUpdateManyWithoutWorkspaceNestedInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUpdateOneWithoutWorkspaceNestedInput
   recurringRules?: Prisma.RecurringRuleUpdateManyWithoutWorkspaceNestedInput
 }
@@ -1248,14 +1064,12 @@ export type WorkspaceUncheckedUpdateWithoutCurrencyExchangesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.InvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutWorkspaceNestedInput
   financeAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutWorkspaceNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutWorkspaceNestedInput
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutWorkspaceNestedInput
   goals?: Prisma.GoalUncheckedUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUncheckedUpdateManyWithoutWorkspaceNestedInput
+  splitGroups?: Prisma.SplitGroupUncheckedUpdateManyWithoutWorkspaceNestedInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedUpdateOneWithoutWorkspaceNestedInput
   recurringRules?: Prisma.RecurringRuleUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
@@ -1263,19 +1077,17 @@ export type WorkspaceUncheckedUpdateWithoutCurrencyExchangesInput = {
 export type WorkspaceCreateWithoutConsolidationRateInput = {
   id?: string
   name: string
-  type: $Enums.WorkspaceType
+  type?: $Enums.WorkspaceType
   baseCurrency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.InvitationCreateNestedManyWithoutWorkspaceInput
   categories?: Prisma.CategoryCreateNestedManyWithoutWorkspaceInput
   financeAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutWorkspaceInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutWorkspaceInput
   budgets?: Prisma.BudgetCreateNestedManyWithoutWorkspaceInput
   goals?: Prisma.GoalCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementCreateNestedManyWithoutWorkspaceInput
+  splitGroups?: Prisma.SplitGroupCreateNestedManyWithoutWorkspaceInput
   currencyExchanges?: Prisma.CurrencyExchangeCreateNestedManyWithoutWorkspaceInput
   recurringRules?: Prisma.RecurringRuleCreateNestedManyWithoutWorkspaceInput
 }
@@ -1283,19 +1095,17 @@ export type WorkspaceCreateWithoutConsolidationRateInput = {
 export type WorkspaceUncheckedCreateWithoutConsolidationRateInput = {
   id?: string
   name: string
-  type: $Enums.WorkspaceType
+  type?: $Enums.WorkspaceType
   baseCurrency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutWorkspaceInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutWorkspaceInput
   financeAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutWorkspaceInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutWorkspaceInput
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutWorkspaceInput
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementUncheckedCreateNestedManyWithoutWorkspaceInput
+  splitGroups?: Prisma.SplitGroupUncheckedCreateNestedManyWithoutWorkspaceInput
   currencyExchanges?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutWorkspaceInput
   recurringRules?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutWorkspaceInput
 }
@@ -1324,14 +1134,12 @@ export type WorkspaceUpdateWithoutConsolidationRateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.InvitationUpdateManyWithoutWorkspaceNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutWorkspaceNestedInput
   financeAccounts?: Prisma.FinanceAccountUpdateManyWithoutWorkspaceNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutWorkspaceNestedInput
   budgets?: Prisma.BudgetUpdateManyWithoutWorkspaceNestedInput
   goals?: Prisma.GoalUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUpdateManyWithoutWorkspaceNestedInput
+  splitGroups?: Prisma.SplitGroupUpdateManyWithoutWorkspaceNestedInput
   currencyExchanges?: Prisma.CurrencyExchangeUpdateManyWithoutWorkspaceNestedInput
   recurringRules?: Prisma.RecurringRuleUpdateManyWithoutWorkspaceNestedInput
 }
@@ -1344,14 +1152,12 @@ export type WorkspaceUncheckedUpdateWithoutConsolidationRateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.InvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutWorkspaceNestedInput
   financeAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutWorkspaceNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutWorkspaceNestedInput
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutWorkspaceNestedInput
   goals?: Prisma.GoalUncheckedUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUncheckedUpdateManyWithoutWorkspaceNestedInput
+  splitGroups?: Prisma.SplitGroupUncheckedUpdateManyWithoutWorkspaceNestedInput
   currencyExchanges?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutWorkspaceNestedInput
   recurringRules?: Prisma.RecurringRuleUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
@@ -1359,18 +1165,16 @@ export type WorkspaceUncheckedUpdateWithoutConsolidationRateInput = {
 export type WorkspaceCreateWithoutBudgetsInput = {
   id?: string
   name: string
-  type: $Enums.WorkspaceType
+  type?: $Enums.WorkspaceType
   baseCurrency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.InvitationCreateNestedManyWithoutWorkspaceInput
   categories?: Prisma.CategoryCreateNestedManyWithoutWorkspaceInput
   financeAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutWorkspaceInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutWorkspaceInput
   goals?: Prisma.GoalCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementCreateNestedManyWithoutWorkspaceInput
+  splitGroups?: Prisma.SplitGroupCreateNestedManyWithoutWorkspaceInput
   currencyExchanges?: Prisma.CurrencyExchangeCreateNestedManyWithoutWorkspaceInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateCreateNestedOneWithoutWorkspaceInput
   recurringRules?: Prisma.RecurringRuleCreateNestedManyWithoutWorkspaceInput
@@ -1379,18 +1183,16 @@ export type WorkspaceCreateWithoutBudgetsInput = {
 export type WorkspaceUncheckedCreateWithoutBudgetsInput = {
   id?: string
   name: string
-  type: $Enums.WorkspaceType
+  type?: $Enums.WorkspaceType
   baseCurrency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutWorkspaceInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutWorkspaceInput
   financeAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutWorkspaceInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutWorkspaceInput
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementUncheckedCreateNestedManyWithoutWorkspaceInput
+  splitGroups?: Prisma.SplitGroupUncheckedCreateNestedManyWithoutWorkspaceInput
   currencyExchanges?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutWorkspaceInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedCreateNestedOneWithoutWorkspaceInput
   recurringRules?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutWorkspaceInput
@@ -1420,13 +1222,11 @@ export type WorkspaceUpdateWithoutBudgetsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.InvitationUpdateManyWithoutWorkspaceNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutWorkspaceNestedInput
   financeAccounts?: Prisma.FinanceAccountUpdateManyWithoutWorkspaceNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutWorkspaceNestedInput
   goals?: Prisma.GoalUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUpdateManyWithoutWorkspaceNestedInput
+  splitGroups?: Prisma.SplitGroupUpdateManyWithoutWorkspaceNestedInput
   currencyExchanges?: Prisma.CurrencyExchangeUpdateManyWithoutWorkspaceNestedInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUpdateOneWithoutWorkspaceNestedInput
   recurringRules?: Prisma.RecurringRuleUpdateManyWithoutWorkspaceNestedInput
@@ -1440,13 +1240,11 @@ export type WorkspaceUncheckedUpdateWithoutBudgetsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.InvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutWorkspaceNestedInput
   financeAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutWorkspaceNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutWorkspaceNestedInput
   goals?: Prisma.GoalUncheckedUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUncheckedUpdateManyWithoutWorkspaceNestedInput
+  splitGroups?: Prisma.SplitGroupUncheckedUpdateManyWithoutWorkspaceNestedInput
   currencyExchanges?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutWorkspaceNestedInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedUpdateOneWithoutWorkspaceNestedInput
   recurringRules?: Prisma.RecurringRuleUncheckedUpdateManyWithoutWorkspaceNestedInput
@@ -1455,18 +1253,16 @@ export type WorkspaceUncheckedUpdateWithoutBudgetsInput = {
 export type WorkspaceCreateWithoutGoalsInput = {
   id?: string
   name: string
-  type: $Enums.WorkspaceType
+  type?: $Enums.WorkspaceType
   baseCurrency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.InvitationCreateNestedManyWithoutWorkspaceInput
   categories?: Prisma.CategoryCreateNestedManyWithoutWorkspaceInput
   financeAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutWorkspaceInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutWorkspaceInput
   budgets?: Prisma.BudgetCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementCreateNestedManyWithoutWorkspaceInput
+  splitGroups?: Prisma.SplitGroupCreateNestedManyWithoutWorkspaceInput
   currencyExchanges?: Prisma.CurrencyExchangeCreateNestedManyWithoutWorkspaceInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateCreateNestedOneWithoutWorkspaceInput
   recurringRules?: Prisma.RecurringRuleCreateNestedManyWithoutWorkspaceInput
@@ -1475,18 +1271,16 @@ export type WorkspaceCreateWithoutGoalsInput = {
 export type WorkspaceUncheckedCreateWithoutGoalsInput = {
   id?: string
   name: string
-  type: $Enums.WorkspaceType
+  type?: $Enums.WorkspaceType
   baseCurrency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutWorkspaceInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutWorkspaceInput
   financeAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutWorkspaceInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutWorkspaceInput
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementUncheckedCreateNestedManyWithoutWorkspaceInput
+  splitGroups?: Prisma.SplitGroupUncheckedCreateNestedManyWithoutWorkspaceInput
   currencyExchanges?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutWorkspaceInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedCreateNestedOneWithoutWorkspaceInput
   recurringRules?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutWorkspaceInput
@@ -1516,13 +1310,11 @@ export type WorkspaceUpdateWithoutGoalsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.InvitationUpdateManyWithoutWorkspaceNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutWorkspaceNestedInput
   financeAccounts?: Prisma.FinanceAccountUpdateManyWithoutWorkspaceNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutWorkspaceNestedInput
   budgets?: Prisma.BudgetUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUpdateManyWithoutWorkspaceNestedInput
+  splitGroups?: Prisma.SplitGroupUpdateManyWithoutWorkspaceNestedInput
   currencyExchanges?: Prisma.CurrencyExchangeUpdateManyWithoutWorkspaceNestedInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUpdateOneWithoutWorkspaceNestedInput
   recurringRules?: Prisma.RecurringRuleUpdateManyWithoutWorkspaceNestedInput
@@ -1536,75 +1328,69 @@ export type WorkspaceUncheckedUpdateWithoutGoalsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.InvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutWorkspaceNestedInput
   financeAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutWorkspaceNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutWorkspaceNestedInput
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUncheckedUpdateManyWithoutWorkspaceNestedInput
+  splitGroups?: Prisma.SplitGroupUncheckedUpdateManyWithoutWorkspaceNestedInput
   currencyExchanges?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutWorkspaceNestedInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedUpdateOneWithoutWorkspaceNestedInput
   recurringRules?: Prisma.RecurringRuleUncheckedUpdateManyWithoutWorkspaceNestedInput
 }
 
-export type WorkspaceCreateWithoutExpenseSplitsInput = {
+export type WorkspaceCreateWithoutSplitGroupsInput = {
   id?: string
   name: string
-  type: $Enums.WorkspaceType
+  type?: $Enums.WorkspaceType
   baseCurrency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.InvitationCreateNestedManyWithoutWorkspaceInput
   categories?: Prisma.CategoryCreateNestedManyWithoutWorkspaceInput
   financeAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutWorkspaceInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutWorkspaceInput
   budgets?: Prisma.BudgetCreateNestedManyWithoutWorkspaceInput
   goals?: Prisma.GoalCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementCreateNestedManyWithoutWorkspaceInput
   currencyExchanges?: Prisma.CurrencyExchangeCreateNestedManyWithoutWorkspaceInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateCreateNestedOneWithoutWorkspaceInput
   recurringRules?: Prisma.RecurringRuleCreateNestedManyWithoutWorkspaceInput
 }
 
-export type WorkspaceUncheckedCreateWithoutExpenseSplitsInput = {
+export type WorkspaceUncheckedCreateWithoutSplitGroupsInput = {
   id?: string
   name: string
-  type: $Enums.WorkspaceType
+  type?: $Enums.WorkspaceType
   baseCurrency?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutWorkspaceInput
   categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutWorkspaceInput
   financeAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutWorkspaceInput
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutWorkspaceInput
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutWorkspaceInput
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutWorkspaceInput
-  settlements?: Prisma.SettlementUncheckedCreateNestedManyWithoutWorkspaceInput
   currencyExchanges?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutWorkspaceInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedCreateNestedOneWithoutWorkspaceInput
   recurringRules?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutWorkspaceInput
 }
 
-export type WorkspaceCreateOrConnectWithoutExpenseSplitsInput = {
+export type WorkspaceCreateOrConnectWithoutSplitGroupsInput = {
   where: Prisma.WorkspaceWhereUniqueInput
-  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutExpenseSplitsInput, Prisma.WorkspaceUncheckedCreateWithoutExpenseSplitsInput>
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutSplitGroupsInput, Prisma.WorkspaceUncheckedCreateWithoutSplitGroupsInput>
 }
 
-export type WorkspaceUpsertWithoutExpenseSplitsInput = {
-  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutExpenseSplitsInput, Prisma.WorkspaceUncheckedUpdateWithoutExpenseSplitsInput>
-  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutExpenseSplitsInput, Prisma.WorkspaceUncheckedCreateWithoutExpenseSplitsInput>
+export type WorkspaceUpsertWithoutSplitGroupsInput = {
+  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutSplitGroupsInput, Prisma.WorkspaceUncheckedUpdateWithoutSplitGroupsInput>
+  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutSplitGroupsInput, Prisma.WorkspaceUncheckedCreateWithoutSplitGroupsInput>
   where?: Prisma.WorkspaceWhereInput
 }
 
-export type WorkspaceUpdateToOneWithWhereWithoutExpenseSplitsInput = {
+export type WorkspaceUpdateToOneWithWhereWithoutSplitGroupsInput = {
   where?: Prisma.WorkspaceWhereInput
-  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutExpenseSplitsInput, Prisma.WorkspaceUncheckedUpdateWithoutExpenseSplitsInput>
+  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutSplitGroupsInput, Prisma.WorkspaceUncheckedUpdateWithoutSplitGroupsInput>
 }
 
-export type WorkspaceUpdateWithoutExpenseSplitsInput = {
+export type WorkspaceUpdateWithoutSplitGroupsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumWorkspaceTypeFieldUpdateOperationsInput | $Enums.WorkspaceType
@@ -1612,19 +1398,17 @@ export type WorkspaceUpdateWithoutExpenseSplitsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.InvitationUpdateManyWithoutWorkspaceNestedInput
   categories?: Prisma.CategoryUpdateManyWithoutWorkspaceNestedInput
   financeAccounts?: Prisma.FinanceAccountUpdateManyWithoutWorkspaceNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutWorkspaceNestedInput
   budgets?: Prisma.BudgetUpdateManyWithoutWorkspaceNestedInput
   goals?: Prisma.GoalUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUpdateManyWithoutWorkspaceNestedInput
   currencyExchanges?: Prisma.CurrencyExchangeUpdateManyWithoutWorkspaceNestedInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUpdateOneWithoutWorkspaceNestedInput
   recurringRules?: Prisma.RecurringRuleUpdateManyWithoutWorkspaceNestedInput
 }
 
-export type WorkspaceUncheckedUpdateWithoutExpenseSplitsInput = {
+export type WorkspaceUncheckedUpdateWithoutSplitGroupsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumWorkspaceTypeFieldUpdateOperationsInput | $Enums.WorkspaceType
@@ -1632,109 +1416,11 @@ export type WorkspaceUncheckedUpdateWithoutExpenseSplitsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.InvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
   categories?: Prisma.CategoryUncheckedUpdateManyWithoutWorkspaceNestedInput
   financeAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutWorkspaceNestedInput
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutWorkspaceNestedInput
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutWorkspaceNestedInput
   goals?: Prisma.GoalUncheckedUpdateManyWithoutWorkspaceNestedInput
-  settlements?: Prisma.SettlementUncheckedUpdateManyWithoutWorkspaceNestedInput
-  currencyExchanges?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutWorkspaceNestedInput
-  consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedUpdateOneWithoutWorkspaceNestedInput
-  recurringRules?: Prisma.RecurringRuleUncheckedUpdateManyWithoutWorkspaceNestedInput
-}
-
-export type WorkspaceCreateWithoutSettlementsInput = {
-  id?: string
-  name: string
-  type: $Enums.WorkspaceType
-  baseCurrency?: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  memberships?: Prisma.MembershipCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.InvitationCreateNestedManyWithoutWorkspaceInput
-  categories?: Prisma.CategoryCreateNestedManyWithoutWorkspaceInput
-  financeAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutWorkspaceInput
-  transactions?: Prisma.TransactionCreateNestedManyWithoutWorkspaceInput
-  budgets?: Prisma.BudgetCreateNestedManyWithoutWorkspaceInput
-  goals?: Prisma.GoalCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitCreateNestedManyWithoutWorkspaceInput
-  currencyExchanges?: Prisma.CurrencyExchangeCreateNestedManyWithoutWorkspaceInput
-  consolidationRate?: Prisma.WorkspaceConsolidationRateCreateNestedOneWithoutWorkspaceInput
-  recurringRules?: Prisma.RecurringRuleCreateNestedManyWithoutWorkspaceInput
-}
-
-export type WorkspaceUncheckedCreateWithoutSettlementsInput = {
-  id?: string
-  name: string
-  type: $Enums.WorkspaceType
-  baseCurrency?: string
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutWorkspaceInput
-  invitations?: Prisma.InvitationUncheckedCreateNestedManyWithoutWorkspaceInput
-  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutWorkspaceInput
-  financeAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutWorkspaceInput
-  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutWorkspaceInput
-  budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutWorkspaceInput
-  goals?: Prisma.GoalUncheckedCreateNestedManyWithoutWorkspaceInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedCreateNestedManyWithoutWorkspaceInput
-  currencyExchanges?: Prisma.CurrencyExchangeUncheckedCreateNestedManyWithoutWorkspaceInput
-  consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedCreateNestedOneWithoutWorkspaceInput
-  recurringRules?: Prisma.RecurringRuleUncheckedCreateNestedManyWithoutWorkspaceInput
-}
-
-export type WorkspaceCreateOrConnectWithoutSettlementsInput = {
-  where: Prisma.WorkspaceWhereUniqueInput
-  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutSettlementsInput, Prisma.WorkspaceUncheckedCreateWithoutSettlementsInput>
-}
-
-export type WorkspaceUpsertWithoutSettlementsInput = {
-  update: Prisma.XOR<Prisma.WorkspaceUpdateWithoutSettlementsInput, Prisma.WorkspaceUncheckedUpdateWithoutSettlementsInput>
-  create: Prisma.XOR<Prisma.WorkspaceCreateWithoutSettlementsInput, Prisma.WorkspaceUncheckedCreateWithoutSettlementsInput>
-  where?: Prisma.WorkspaceWhereInput
-}
-
-export type WorkspaceUpdateToOneWithWhereWithoutSettlementsInput = {
-  where?: Prisma.WorkspaceWhereInput
-  data: Prisma.XOR<Prisma.WorkspaceUpdateWithoutSettlementsInput, Prisma.WorkspaceUncheckedUpdateWithoutSettlementsInput>
-}
-
-export type WorkspaceUpdateWithoutSettlementsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.EnumWorkspaceTypeFieldUpdateOperationsInput | $Enums.WorkspaceType
-  baseCurrency?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  memberships?: Prisma.MembershipUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.InvitationUpdateManyWithoutWorkspaceNestedInput
-  categories?: Prisma.CategoryUpdateManyWithoutWorkspaceNestedInput
-  financeAccounts?: Prisma.FinanceAccountUpdateManyWithoutWorkspaceNestedInput
-  transactions?: Prisma.TransactionUpdateManyWithoutWorkspaceNestedInput
-  budgets?: Prisma.BudgetUpdateManyWithoutWorkspaceNestedInput
-  goals?: Prisma.GoalUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUpdateManyWithoutWorkspaceNestedInput
-  currencyExchanges?: Prisma.CurrencyExchangeUpdateManyWithoutWorkspaceNestedInput
-  consolidationRate?: Prisma.WorkspaceConsolidationRateUpdateOneWithoutWorkspaceNestedInput
-  recurringRules?: Prisma.RecurringRuleUpdateManyWithoutWorkspaceNestedInput
-}
-
-export type WorkspaceUncheckedUpdateWithoutSettlementsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.EnumWorkspaceTypeFieldUpdateOperationsInput | $Enums.WorkspaceType
-  baseCurrency?: Prisma.StringFieldUpdateOperationsInput | string
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutWorkspaceNestedInput
-  invitations?: Prisma.InvitationUncheckedUpdateManyWithoutWorkspaceNestedInput
-  categories?: Prisma.CategoryUncheckedUpdateManyWithoutWorkspaceNestedInput
-  financeAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutWorkspaceNestedInput
-  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutWorkspaceNestedInput
-  budgets?: Prisma.BudgetUncheckedUpdateManyWithoutWorkspaceNestedInput
-  goals?: Prisma.GoalUncheckedUpdateManyWithoutWorkspaceNestedInput
-  expenseSplits?: Prisma.ExpenseSplitUncheckedUpdateManyWithoutWorkspaceNestedInput
   currencyExchanges?: Prisma.CurrencyExchangeUncheckedUpdateManyWithoutWorkspaceNestedInput
   consolidationRate?: Prisma.WorkspaceConsolidationRateUncheckedUpdateOneWithoutWorkspaceNestedInput
   recurringRules?: Prisma.RecurringRuleUncheckedUpdateManyWithoutWorkspaceNestedInput
@@ -1747,28 +1433,24 @@ export type WorkspaceUncheckedUpdateWithoutSettlementsInput = {
 
 export type WorkspaceCountOutputType = {
   memberships: number
-  invitations: number
   categories: number
   financeAccounts: number
   transactions: number
   budgets: number
   goals: number
-  expenseSplits: number
-  settlements: number
+  splitGroups: number
   currencyExchanges: number
   recurringRules: number
 }
 
 export type WorkspaceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   memberships?: boolean | WorkspaceCountOutputTypeCountMembershipsArgs
-  invitations?: boolean | WorkspaceCountOutputTypeCountInvitationsArgs
   categories?: boolean | WorkspaceCountOutputTypeCountCategoriesArgs
   financeAccounts?: boolean | WorkspaceCountOutputTypeCountFinanceAccountsArgs
   transactions?: boolean | WorkspaceCountOutputTypeCountTransactionsArgs
   budgets?: boolean | WorkspaceCountOutputTypeCountBudgetsArgs
   goals?: boolean | WorkspaceCountOutputTypeCountGoalsArgs
-  expenseSplits?: boolean | WorkspaceCountOutputTypeCountExpenseSplitsArgs
-  settlements?: boolean | WorkspaceCountOutputTypeCountSettlementsArgs
+  splitGroups?: boolean | WorkspaceCountOutputTypeCountSplitGroupsArgs
   currencyExchanges?: boolean | WorkspaceCountOutputTypeCountCurrencyExchangesArgs
   recurringRules?: boolean | WorkspaceCountOutputTypeCountRecurringRulesArgs
 }
@@ -1788,13 +1470,6 @@ export type WorkspaceCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Ex
  */
 export type WorkspaceCountOutputTypeCountMembershipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.MembershipWhereInput
-}
-
-/**
- * WorkspaceCountOutputType without action
- */
-export type WorkspaceCountOutputTypeCountInvitationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.InvitationWhereInput
 }
 
 /**
@@ -1835,15 +1510,8 @@ export type WorkspaceCountOutputTypeCountGoalsArgs<ExtArgs extends runtime.Types
 /**
  * WorkspaceCountOutputType without action
  */
-export type WorkspaceCountOutputTypeCountExpenseSplitsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ExpenseSplitWhereInput
-}
-
-/**
- * WorkspaceCountOutputType without action
- */
-export type WorkspaceCountOutputTypeCountSettlementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.SettlementWhereInput
+export type WorkspaceCountOutputTypeCountSplitGroupsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SplitGroupWhereInput
 }
 
 /**
@@ -1869,14 +1537,12 @@ export type WorkspaceSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   createdAt?: boolean
   updatedAt?: boolean
   memberships?: boolean | Prisma.Workspace$membershipsArgs<ExtArgs>
-  invitations?: boolean | Prisma.Workspace$invitationsArgs<ExtArgs>
   categories?: boolean | Prisma.Workspace$categoriesArgs<ExtArgs>
   financeAccounts?: boolean | Prisma.Workspace$financeAccountsArgs<ExtArgs>
   transactions?: boolean | Prisma.Workspace$transactionsArgs<ExtArgs>
   budgets?: boolean | Prisma.Workspace$budgetsArgs<ExtArgs>
   goals?: boolean | Prisma.Workspace$goalsArgs<ExtArgs>
-  expenseSplits?: boolean | Prisma.Workspace$expenseSplitsArgs<ExtArgs>
-  settlements?: boolean | Prisma.Workspace$settlementsArgs<ExtArgs>
+  splitGroups?: boolean | Prisma.Workspace$splitGroupsArgs<ExtArgs>
   currencyExchanges?: boolean | Prisma.Workspace$currencyExchangesArgs<ExtArgs>
   consolidationRate?: boolean | Prisma.Workspace$consolidationRateArgs<ExtArgs>
   recurringRules?: boolean | Prisma.Workspace$recurringRulesArgs<ExtArgs>
@@ -1913,14 +1579,12 @@ export type WorkspaceSelectScalar = {
 export type WorkspaceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "type" | "baseCurrency" | "createdAt" | "updatedAt", ExtArgs["result"]["workspace"]>
 export type WorkspaceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   memberships?: boolean | Prisma.Workspace$membershipsArgs<ExtArgs>
-  invitations?: boolean | Prisma.Workspace$invitationsArgs<ExtArgs>
   categories?: boolean | Prisma.Workspace$categoriesArgs<ExtArgs>
   financeAccounts?: boolean | Prisma.Workspace$financeAccountsArgs<ExtArgs>
   transactions?: boolean | Prisma.Workspace$transactionsArgs<ExtArgs>
   budgets?: boolean | Prisma.Workspace$budgetsArgs<ExtArgs>
   goals?: boolean | Prisma.Workspace$goalsArgs<ExtArgs>
-  expenseSplits?: boolean | Prisma.Workspace$expenseSplitsArgs<ExtArgs>
-  settlements?: boolean | Prisma.Workspace$settlementsArgs<ExtArgs>
+  splitGroups?: boolean | Prisma.Workspace$splitGroupsArgs<ExtArgs>
   currencyExchanges?: boolean | Prisma.Workspace$currencyExchangesArgs<ExtArgs>
   consolidationRate?: boolean | Prisma.Workspace$consolidationRateArgs<ExtArgs>
   recurringRules?: boolean | Prisma.Workspace$recurringRulesArgs<ExtArgs>
@@ -1933,14 +1597,12 @@ export type $WorkspacePayload<ExtArgs extends runtime.Types.Extensions.InternalA
   name: "Workspace"
   objects: {
     memberships: Prisma.$MembershipPayload<ExtArgs>[]
-    invitations: Prisma.$InvitationPayload<ExtArgs>[]
     categories: Prisma.$CategoryPayload<ExtArgs>[]
     financeAccounts: Prisma.$FinanceAccountPayload<ExtArgs>[]
     transactions: Prisma.$TransactionPayload<ExtArgs>[]
     budgets: Prisma.$BudgetPayload<ExtArgs>[]
     goals: Prisma.$GoalPayload<ExtArgs>[]
-    expenseSplits: Prisma.$ExpenseSplitPayload<ExtArgs>[]
-    settlements: Prisma.$SettlementPayload<ExtArgs>[]
+    splitGroups: Prisma.$SplitGroupPayload<ExtArgs>[]
     currencyExchanges: Prisma.$CurrencyExchangePayload<ExtArgs>[]
     consolidationRate: Prisma.$WorkspaceConsolidationRatePayload<ExtArgs> | null
     recurringRules: Prisma.$RecurringRulePayload<ExtArgs>[]
@@ -2347,14 +2009,12 @@ readonly fields: WorkspaceFieldRefs;
 export interface Prisma__WorkspaceClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   memberships<T extends Prisma.Workspace$membershipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  invitations<T extends Prisma.Workspace$invitationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$invitationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvitationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   categories<T extends Prisma.Workspace$categoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$categoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   financeAccounts<T extends Prisma.Workspace$financeAccountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$financeAccountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   transactions<T extends Prisma.Workspace$transactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   budgets<T extends Prisma.Workspace$budgetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$budgetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BudgetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   goals<T extends Prisma.Workspace$goalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$goalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GoalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  expenseSplits<T extends Prisma.Workspace$expenseSplitsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$expenseSplitsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExpenseSplitPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  settlements<T extends Prisma.Workspace$settlementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$settlementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SettlementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  splitGroups<T extends Prisma.Workspace$splitGroupsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$splitGroupsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SplitGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   currencyExchanges<T extends Prisma.Workspace$currencyExchangesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$currencyExchangesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CurrencyExchangePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   consolidationRate<T extends Prisma.Workspace$consolidationRateArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$consolidationRateArgs<ExtArgs>>): Prisma.Prisma__WorkspaceConsolidationRateClient<runtime.Types.Result.GetResult<Prisma.$WorkspaceConsolidationRatePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   recurringRules<T extends Prisma.Workspace$recurringRulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Workspace$recurringRulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecurringRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -2810,30 +2470,6 @@ export type Workspace$membershipsArgs<ExtArgs extends runtime.Types.Extensions.I
 }
 
 /**
- * Workspace.invitations
- */
-export type Workspace$invitationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Invitation
-   */
-  select?: Prisma.InvitationSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Invitation
-   */
-  omit?: Prisma.InvitationOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.InvitationInclude<ExtArgs> | null
-  where?: Prisma.InvitationWhereInput
-  orderBy?: Prisma.InvitationOrderByWithRelationInput | Prisma.InvitationOrderByWithRelationInput[]
-  cursor?: Prisma.InvitationWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.InvitationScalarFieldEnum | Prisma.InvitationScalarFieldEnum[]
-}
-
-/**
  * Workspace.categories
  */
 export type Workspace$categoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2954,51 +2590,27 @@ export type Workspace$goalsArgs<ExtArgs extends runtime.Types.Extensions.Interna
 }
 
 /**
- * Workspace.expenseSplits
+ * Workspace.splitGroups
  */
-export type Workspace$expenseSplitsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Workspace$splitGroupsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ExpenseSplit
+   * Select specific fields to fetch from the SplitGroup
    */
-  select?: Prisma.ExpenseSplitSelect<ExtArgs> | null
+  select?: Prisma.SplitGroupSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ExpenseSplit
+   * Omit specific fields from the SplitGroup
    */
-  omit?: Prisma.ExpenseSplitOmit<ExtArgs> | null
+  omit?: Prisma.SplitGroupOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ExpenseSplitInclude<ExtArgs> | null
-  where?: Prisma.ExpenseSplitWhereInput
-  orderBy?: Prisma.ExpenseSplitOrderByWithRelationInput | Prisma.ExpenseSplitOrderByWithRelationInput[]
-  cursor?: Prisma.ExpenseSplitWhereUniqueInput
+  include?: Prisma.SplitGroupInclude<ExtArgs> | null
+  where?: Prisma.SplitGroupWhereInput
+  orderBy?: Prisma.SplitGroupOrderByWithRelationInput | Prisma.SplitGroupOrderByWithRelationInput[]
+  cursor?: Prisma.SplitGroupWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.ExpenseSplitScalarFieldEnum | Prisma.ExpenseSplitScalarFieldEnum[]
-}
-
-/**
- * Workspace.settlements
- */
-export type Workspace$settlementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Settlement
-   */
-  select?: Prisma.SettlementSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Settlement
-   */
-  omit?: Prisma.SettlementOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.SettlementInclude<ExtArgs> | null
-  where?: Prisma.SettlementWhereInput
-  orderBy?: Prisma.SettlementOrderByWithRelationInput | Prisma.SettlementOrderByWithRelationInput[]
-  cursor?: Prisma.SettlementWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.SettlementScalarFieldEnum | Prisma.SettlementScalarFieldEnum[]
+  distinct?: Prisma.SplitGroupScalarFieldEnum | Prisma.SplitGroupScalarFieldEnum[]
 }
 
 /**

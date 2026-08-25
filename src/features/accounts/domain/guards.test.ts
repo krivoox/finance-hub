@@ -3,7 +3,6 @@ import { isWorkspaceReadyToUse } from "@/features/workspaces/domain";
 import {
   AccountArchivedError,
   AccountDeleteConfirmationMismatchError,
-  AccountHasCrossWorkspaceLinksError,
   AccountLinkedToActiveGoalError,
   CannotDeleteLastActiveAccountError,
   InvalidAccountNameError,
@@ -158,7 +157,6 @@ describe("assertCanDeleteAccount — SPEC-03 T-13 / T-14 / T-18 / T-20", () => {
     isArchived: false,
     activeAccountCountInWorkspace: 2,
     activeGoalsLinkedToAccount: [] as { id: string }[],
-    hasCrossWorkspaceLinks: false,
   };
 
   it("passes when all guards clear", () => {
@@ -191,15 +189,6 @@ describe("assertCanDeleteAccount — SPEC-03 T-13 / T-14 / T-18 / T-20", () => {
         activeGoalsLinkedToAccount: [{ id: "goal-1" }],
       }),
     ).toThrow(AccountLinkedToActiveGoalError);
-  });
-
-  it("throws AccountHasCrossWorkspaceLinks when cross-ws flag is set (T-18)", () => {
-    expect(() =>
-      assertCanDeleteAccount({
-        ...base,
-        hasCrossWorkspaceLinks: true,
-      }),
-    ).toThrow(AccountHasCrossWorkspaceLinksError);
   });
 
   it("checks active goal before last-active (goal wins)", () => {
