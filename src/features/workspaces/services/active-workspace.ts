@@ -3,7 +3,10 @@ import { cache } from "react";
 import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { env } from "@/lib/env";
-import type { MembershipRole } from "@/features/workspaces/domain";
+import {
+  asPersonalWorkspaceType,
+  type MembershipRole,
+} from "@/features/workspaces/domain";
 
 /**
  * Cookie carrying the currently-active workspace for the session (SPEC-02 FR-09).
@@ -21,16 +24,38 @@ export type ActiveWorkspaceContext = {
   role: MembershipRole;
 };
 
+function toActiveContext(row: {
+  role: string;
+  workspace: {
+    id: string;
+    name: string;
+    type: string;
+    baseCurrency: string;
+  };
+}): ActiveWorkspaceContext | null {
+  const type = asPersonalWorkspaceType(row.workspace.type);
+  if (!type) return null;
+  return {
+    id: row.workspace.id,
+    name: row.workspace.name,
+    type,
+    baseCurrency: row.workspace.baseCurrency,
+    role: row.role as MembershipRole,
+  };
+}
+
 /**
  * Resolves the active workspace for a user.
  *
  * Order:
- * 1. `fh-workspace-id` cookie, if it still points to a valid membership.
- * 2. The user's personal workspace.
- * 3. First membership by name.
+ * 1. `fh-workspace-id` cookie, if it still points to a valid **personal** membership.
+ * 2. The user's personal workspace (first by join date).
  *
- * Returns `null` if the user has no memberships (edge case: brand-new user
- * during registration).
+ * Group-tenant leftovers are skipped so a stale cookie or unmigrated preview
+ * DB cannot 500 the authenticated shell.
+ *
+ * Returns `null` if the user has no personal memberships (edge case: brand-new
+ * user during registration).
  *
  * Cached per RSC request so layout and page resolve the workspace once.
  */
@@ -39,57 +64,39 @@ export const getActiveWorkspaceForUser = cache(
     const cookieStore = await cookies();
     const cookieId = cookieStore.get(ACTIVE_WORKSPACE_COOKIE)?.value;
 
+    const workspaceSelect = {
+      id: true,
+      name: true,
+      type: true,
+      baseCurrency: true,
+    } as const;
+
     if (cookieId) {
-      const membership = await prisma.membership.findUnique({
-        where: { workspaceId_userId: { workspaceId: cookieId, userId } },
+      const membership = await prisma.membership.findFirst({
+        where: {
+          workspaceId: cookieId,
+          userId,
+          workspace: { type: "personal" },
+        },
         select: {
           role: true,
-          workspace: {
-            select: {
-              id: true,
-              name: true,
-              type: true,
-              baseCurrency: true,
-            },
-          },
+          workspace: { select: workspaceSelect },
         },
       });
-      if (membership) {
-        return {
-          id: membership.workspace.id,
-          name: membership.workspace.name,
-          type: membership.workspace.type as "personal",
-          baseCurrency: membership.workspace.baseCurrency,
-          role: membership.role as MembershipRole,
-        };
-      }
+      const fromCookie = membership ? toActiveContext(membership) : null;
+      if (fromCookie) return fromCookie;
     }
 
     const fallback = await prisma.membership.findFirst({
-      where: { userId },
-      orderBy: [{ workspace: { type: "asc" } }, { joinedAt: "asc" }],
+      where: { userId, workspace: { type: "personal" } },
+      orderBy: { joinedAt: "asc" },
       select: {
         role: true,
-        workspace: {
-          select: {
-            id: true,
-            name: true,
-            type: true,
-            baseCurrency: true,
-          },
-        },
+        workspace: { select: workspaceSelect },
       },
     });
 
-    if (!fallback) return null;
-
-    return {
-      id: fallback.workspace.id,
-      name: fallback.workspace.name,
-      type: fallback.workspace.type as "personal",
-      baseCurrency: fallback.workspace.baseCurrency,
-      role: fallback.role as MembershipRole,
-    };
+    return fallback ? toActiveContext(fallback) : null;
   },
 );
 

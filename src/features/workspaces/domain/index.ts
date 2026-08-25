@@ -1,6 +1,7 @@
 export {
   ForbiddenError,
   WorkspaceDomainError,
+  asPersonalWorkspaceType,
   assertCanRename,
 } from "./membership";
 

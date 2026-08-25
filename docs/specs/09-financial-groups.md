@@ -353,7 +353,7 @@ No dejar shims ni flags del modelo viejo.
 | Dashboard SPEC-12 | `memberBalances` de workspace group; CTA “Ver grupo” hacia tenant |
 | Onboarding SPEC-15 | Trigger post-`CreateGroupWorkspace`; copy “al crear un grupal” |
 | Nav | `/groups` se **queda** pero significa SplitGroups, no el tenant |
-| Prisma | Drop `WorkspaceType.group` (tras borrar rows), drop `Invitation`, drop `CrossWorkspaceLink`, reemplazar `ExpenseSplit`/`Settlement` por el schema SPEC-10 §12 (ancla `splitGroupId` + `memberId`). |
+| Prisma | Borrar rows `Workspace.type=group` (el label del enum queda unused hasta follow-up), drop `Invitation`, drop `CrossWorkspaceLink`, reemplazar `ExpenseSplit`/`Settlement` por el schema SPEC-10 §12 (ancla `splitGroupId` + `memberId`). |
 | Guía | [workspaces-and-invites.md](../guides/workspaces-and-invites.md) se reescribe: invites pasan a SplitGroup |
 
 **No matar:** workspace personal, `getActiveWorkspaceForUser` (siempre el personal), membership owner del personal, onboarding de **cuentas** del personal (SPEC-15), auth Better Auth.

@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { assertCanRename, ForbiddenError } from "./membership";
+import {
+  asPersonalWorkspaceType,
+  assertCanRename,
+  ForbiddenError,
+} from "./membership";
 
 describe("Workspaces domain — authz predicates (SPEC-02 §5)", () => {
   describe("assertCanRename (owner/admin) — T-04: viewer cannot mutate", () => {
@@ -14,6 +18,16 @@ describe("Workspaces domain — authz predicates (SPEC-02 §5)", () => {
 
     it("throws Forbidden for member", () => {
       expect(() => assertCanRename("member")).toThrow(ForbiddenError);
+    });
+  });
+
+  describe("asPersonalWorkspaceType — leftover group tenants (KRI-29)", () => {
+    it("keeps personal workspaces", () => {
+      expect(asPersonalWorkspaceType("personal")).toBe("personal");
+    });
+
+    it("drops group leftovers instead of treating them as the active tenant", () => {
+      expect(asPersonalWorkspaceType("group")).toBeNull();
     });
   });
 });

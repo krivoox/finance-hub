@@ -125,15 +125,10 @@ DROP TABLE IF EXISTS "settlement";
 DROP TYPE IF EXISTS "CrossWorkspaceLinkKind";
 DROP TYPE IF EXISTS "InvitationStatus";
 
--- Recreate WorkspaceType with only `personal`.
-ALTER TABLE "workspace" ALTER COLUMN "type" DROP DEFAULT;
-CREATE TYPE "WorkspaceType_new" AS ENUM ('personal');
-ALTER TABLE "workspace"
-  ALTER COLUMN "type" TYPE "WorkspaceType_new"
-  USING ("type"::text::"WorkspaceType_new");
-DROP TYPE "WorkspaceType";
-ALTER TYPE "WorkspaceType_new" RENAME TO "WorkspaceType";
-ALTER TABLE "workspace" ALTER COLUMN "type" SET DEFAULT 'personal'::"WorkspaceType";
+-- Keep unused `WorkspaceType.group` in Postgres. Product never writes it
+-- after the DELETE above; dropping the enum label here 500s any preview
+-- that has not run this migration yet (Prisma cannot decode leftover rows).
+-- Follow-up: drop the label once every environment has applied this migration.
 
 -- ---------------------------------------------------------------------------
 -- 3. New SplitGroup model.

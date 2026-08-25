@@ -575,7 +575,7 @@ Cubierto en T-08; mantener un `it` explícito `assertMemberCanPay(ghost)` → `G
 2. **Drop grafo SPEC-14:** tabla `cross_workspace_link` + enum `CrossWorkspaceLinkKind`. Quitar relaciones en `Transaction`.
 3. **Drop splits viejos:** `expense_split_share`, `expense_split`, `settlement` (el modelo actual está anclado a `workspaceId` de group WS).
 4. **Drop invites de tenant:** tabla `invitation` + enum `InvitationStatus` si queda huérfano. SPEC-01: quitar `acceptPendingInvitationsForEmail`.
-5. **Enum `WorkspaceType`:** eliminar valor `group` en la **misma** migración (recreate enum PostgreSQL → solo `personal`). Dejar columna `Workspace.type` con default `personal` para no reescribir todos los `create` en este PR; el código de producto **no** ramifica en `type` para grupos. Drop de la columna = follow-up opcional (no bloquea).
+5. **Enum `WorkspaceType`:** el producto **no** escribe `group`. La migración **borra** tenants `group` pero **deja** el label en PostgreSQL (y Prisma lo mantiene como valor deprecado) para que un preview sin `migrate deploy` no 500 al decodificar filas viejas. Drop del label / de la columna = follow-up cuando todos los entornos ya migraron. El código de producto **no** ramifica en `type` para grupos: el shell solo activa workspaces `personal`.
 6. **Create** tablas nuevas (§12.2).
 7. Tras `CREATE TABLE` en `public`: `SELECT public.apply_rls_lockdown_to_public_tables();`
 
@@ -715,7 +715,7 @@ Notas de integridad:
 
 | Pieza | Destino |
 |-------|---------|
-| `WorkspaceType.group` | Eliminar valor del enum en la misma migración, tras borrar rows |
+| `WorkspaceType.group` | Borrar **rows** de tenants `group`. El label del enum PG queda unused (Prisma lo decodifica) hasta un follow-up post-migrate |
 | `Workspace.type` columna | Se queda (`personal` only) este PR; código deja de ramificar grupos por `type` |
 | `Invitation` + `InvitationStatus` | **Drop.** Invites de producto = token de SplitGroup. No dejar tabla vacía. |
 | `CrossWorkspaceLink` + enum | **Drop.** SPEC-14 retirada. |

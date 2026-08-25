@@ -10,7 +10,8 @@
 */
 
 export const WorkspaceType = {
-  personal: 'personal'
+  personal: 'personal',
+  group: 'group'
 } as const
 
 export type WorkspaceType = (typeof WorkspaceType)[keyof typeof WorkspaceType]

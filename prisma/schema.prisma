@@ -87,6 +87,9 @@ model Verification {
 
 enum WorkspaceType {
   personal
+  /// Unused leftover of group tenants (KRI-29). Never persist. Kept so Prisma
+  /// can decode preview/prod rows until migrate deploy deletes those workspaces.
+  group
 }
 
 enum MembershipRole {

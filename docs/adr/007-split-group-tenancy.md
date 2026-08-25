@@ -24,7 +24,7 @@ Hace falta una regla de tenancy que:
 
 - El Workspace sigue siendo la unidad de tenancy del **ledger** (cuentas, categorías, transacciones, presupuestos, objetivos, recurrentes, canjes).
 - En producto hay **un workspace personal por usuario**, inborrable, con `Membership` `owner`.
-- `Workspace.type = group` **deja de existir** como producto y como valor persistido. La migración KRI-29 borra los tenants `group` y su grafo (breaking, sin convivencia de modelos).
+- `Workspace.type = group` **deja de existir** como producto: no se crea ni se activa. La migración KRI-29 borra los tenants `group` y su grafo (breaking, sin convivencia de modelos). El label del enum puede quedar unused en Postgres/Prisma hasta un follow-up, para no 500 preview/prod si `migrate deploy` todavía no corrió.
 - Invitar gente al ledger (`Invitation` de tenant) **se retira**. No hay segundo tenant al que unirse.
 
 ### 2. SplitGroup = círculo de splits, no tenant

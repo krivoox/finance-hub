@@ -9,6 +9,16 @@ export type MembershipRole = "owner" | "admin" | "member" | "viewer";
 
 export type WorkspaceType = "personal";
 
+/**
+ * Product only activates personal tenants (ADR-007). `group` may still exist
+ * in preview/prod rows until migrate deploy deletes those workspaces.
+ */
+export function asPersonalWorkspaceType(
+  type: string,
+): WorkspaceType | null {
+  return type === "personal" ? "personal" : null;
+}
+
 export type MembershipEntry = {
   readonly userId: string;
   readonly role: MembershipRole;
