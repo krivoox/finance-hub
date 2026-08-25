@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { redirect, notFound } from "next/navigation";
 
 import { ContentPanel } from "@/components/app-shell/content-panel";
+import { PageSkeleton } from "@/components/app-shell/page-skeleton";
 import {
   SurfaceHeader,
   SurfaceSection,
@@ -56,11 +58,24 @@ export default async function TransactionDetailPage({ params }: PageProps) {
   }
 
   const { id } = await params;
-  const userId = session.user.id;
 
+  return (
+    <Suspense fallback={<PageSkeleton variant="detail" />}>
+      <TransactionDetailBody userId={session.user.id} transactionId={id} />
+    </Suspense>
+  );
+}
+
+async function TransactionDetailBody({
+  userId,
+  transactionId,
+}: {
+  userId: string;
+  transactionId: string;
+}) {
   let detail;
   try {
-    detail = await getTransactionDetail({ userId, transactionId: id });
+    detail = await getTransactionDetail({ userId, transactionId });
   } catch (err) {
     if (err instanceof TransactionNotFoundError) notFound();
     if (err instanceof ForbiddenError) redirect("/transactions");

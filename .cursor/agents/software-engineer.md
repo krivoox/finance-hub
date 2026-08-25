@@ -41,7 +41,6 @@ Si falta detalle en la spec: **actualizá la spec primero**, luego codificá. No
 | Prisma + Postgres (Supabase) | Datos relacionales |
 | Zod | Validación (cliente + servidor) |
 | React Hook Form | Forms cliente |
-| TanStack Query | Datos cliente cuando corresponda |
 | Zustand | **Solo** estado de UI |
 | Vitest | TDD de dominio / lógica pura |
 | Tailwind 4 + shadcn + CVA | UI |

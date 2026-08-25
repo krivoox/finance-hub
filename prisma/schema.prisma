@@ -321,8 +321,8 @@ model Transaction {
   goalContribution           GoalContribution?
 
   @@unique([recurringRuleId, scheduledOn])
-  @@index([workspaceId, occurredOn])
-  @@index([workspaceId, type, occurredOn])
+  @@index([workspaceId, occurredOn, createdAt])
+  @@index([workspaceId, type, occurredOn, createdAt])
   @@index([accountId])
   @@index([counterpartyAccountId])
   @@index([categoryId])

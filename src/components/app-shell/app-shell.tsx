@@ -10,6 +10,8 @@ import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { OfflineBanner } from "@/components/pwa/offline-banner";
 import { CafecitoDonationDialog } from "@/features/cafecito/components/cafecito-donation-dialog";
 import { NewTransactionSheet } from "@/features/transactions/components/new-transaction-sheet";
+import { TransactionAmountSplash } from "@/features/transactions/components/transaction-amount-splash";
+import { MoneyFreshnessFrame } from "@/features/transactions/components/money-freshness-frame";
 
 import { AppSidebar, type AppSidebarProps } from "./app-sidebar";
 import { MobileTabBar } from "./mobile-tab-bar";
@@ -81,7 +83,7 @@ export function AppShell({
             <div
               className={`flex min-w-0 flex-1 flex-col overflow-x-hidden p-0 pt-[env(safe-area-inset-top)] md:min-h-0 md:overflow-hidden ${MOBILE_TAB_BAR_CLEARANCE}`}
             >
-              {children}
+              <MoneyFreshnessFrame>{children}</MoneyFreshnessFrame>
             </div>
             <InstallPrompt />
             <CafecitoDonationDialog donationUrl={cafecitoUrl} />
@@ -101,6 +103,7 @@ export function AppShell({
           enabled={Boolean(activeWorkspace) && canMutate}
           workspaceId={activeWorkspace?.id ?? null}
         />
+        <TransactionAmountSplash />
       </SidebarProvider>
     </>
   );

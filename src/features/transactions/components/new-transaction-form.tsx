@@ -37,6 +37,7 @@ import {
 } from "@/lib/offline-draft";
 import { refreshAfterMutation } from "@/lib/navigation";
 import { TRANSACTION_TYPE_LABEL_ES } from "./transaction-type-labels";
+import { useTransactionFeedbackStore } from "../stores/transaction-feedback-store";
 
 type AccountOption = {
   id: string;
@@ -136,6 +137,7 @@ export function NewTransactionForm({
 }: NewTransactionFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const showFeedback = useTransactionFeedbackStore((s) => s.showFeedback);
   const canSplit = groupMembers.length > 0;
 
   const flatPaymentAccounts = useMemo(
@@ -444,15 +446,11 @@ export function NewTransactionForm({
         return;
       }
 
-      const successMessage =
-        values.type === "income"
-          ? "Ingreso registrado"
-          : values.type === "expense" && shareExpense
-            ? "Gasto compartido registrado"
-            : values.type === "expense"
-              ? "Gasto registrado"
-              : "Transferencia registrada";
-      toast.success(successMessage);
+      showFeedback({
+        amountCents,
+        currency,
+        kind: values.type,
+      });
       clearOfflineDraftFromStorage(
         typeof window !== "undefined" ? window.sessionStorage : null,
       );

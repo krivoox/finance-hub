@@ -6,8 +6,16 @@ const nextConfig: NextConfig = {
    * Client Router Cache — `dynamic: 0` keeps money listados fresh after mutations.
    * Perceived speed on soft-nav comes from `loading.tsx` + closing the mobile sidebar.
    * See docs/architecture.md §7.2.
+   *
+   * Cache Components (`cacheComponents: true`) is the next structural step
+   * (SPEC-20 §10): it turns on PPR and requires Suspense around every
+   * dynamic IO. Not enabled here — flipping it without wrapping the
+   * authenticated layout would stall the shell. Money stays uncached.
+   *
+   * `optimizePackageImports` lives under `experimental` in Next 16.2.x types.
    */
   experimental: {
+    optimizePackageImports: ["lucide-react", "radix-ui", "date-fns"],
     staleTimes: {
       dynamic: 0,
       static: 180,

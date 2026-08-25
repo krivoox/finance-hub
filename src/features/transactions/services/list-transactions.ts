@@ -8,6 +8,7 @@ import {
 } from "@/features/transactions/domain";
 import type { TransactionRecord } from "./require-transaction-membership";
 import { buildListTransactionsWhere } from "./list-transactions-where";
+import { listLocalAccountIds } from "./list-local-account-ids";
 
 export type ListTransactionsServiceInput = {
   userId: string;
@@ -65,31 +66,28 @@ const MAX_LIMIT = 200;
 export async function listTransactions(
   input: ListTransactionsServiceInput,
 ): Promise<ListTransactionsResult> {
-  const { role } = await requireMembership(input.userId, input.workspaceId);
-  assertCanReadTransactions(role);
-
   const limit = Math.min(input.limit ?? LIST_PAGE_SIZE, MAX_LIMIT);
 
-  const localAccountIds = (
-    await prisma.financeAccount.findMany({
-      where: { workspaceId: input.workspaceId },
-      select: { id: true },
-    })
-  ).map((a) => a.id);
+  const membershipPromise = requireMembership(input.userId, input.workspaceId);
+  const localAccountIdsPromise = listLocalAccountIds(input.workspaceId);
+  const cursorPromise = input.cursor
+    ? prisma.transaction.findUnique({
+        where: { id: input.cursor },
+        select: { id: true },
+      })
+    : Promise.resolve(null);
+
+  const [{ role }, localAccountIds, anchor] = await Promise.all([
+    membershipPromise,
+    localAccountIdsPromise,
+    cursorPromise,
+  ]);
+  assertCanReadTransactions(role);
 
   const filters = buildListTransactionsWhere(input, localAccountIds);
 
   // Soft-reset: missing / foreign cursor → first page (SPEC-05 §4.5).
-  let cursorId = input.cursor;
-  if (cursorId) {
-    const anchor = await prisma.transaction.findUnique({
-      where: { id: cursorId },
-      select: { id: true },
-    });
-    if (!anchor) {
-      cursorId = undefined;
-    }
-  }
+  const cursorId = input.cursor && anchor ? input.cursor : undefined;
 
   const rows = await prisma.transaction.findMany({
     where: filters,

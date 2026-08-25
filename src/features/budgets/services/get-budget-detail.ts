@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import {
   assertCanReadBudgets,
   computeBudgetProgress,
+  getBudgetPeriodBounds,
   listMatchingBudgetExpenses,
   type BudgetLike,
 } from "@/features/budgets/domain";
@@ -58,11 +59,14 @@ export async function getBudgetDetail({
     isArchived: budget.isArchived,
   };
 
+  const periodBounds = getBudgetPeriodBounds(like, referenceDate);
+
   const [expenseRows, contributionCats, linkedCategories] = await Promise.all([
     prisma.transaction.findMany({
       where: {
         workspaceId: budget.workspaceId,
         type: "expense",
+        occurredOn: { gte: periodBounds.start, lte: periodBounds.end },
       },
       select: {
         id: true,

@@ -84,8 +84,7 @@ Detalle y versiones → [stack.md](./stack.md).
 | Prisma + pg | ORM; client en `src/generated/prisma` vía `@/lib/prisma` |
 | Postgres (Supabase) | DB; `DATABASE_URL` / `DIRECT_URL` |
 | Zod + RHF | Forms y validación de actions |
-| TanStack Query | Datos en cliente |
-| Zustand | UI efímera |
+| Zustand | UI efímera (sheets, splash post-mutación) |
 | Vitest | Tests de `domain` / servicios puros |
 | shadcn + Tailwind 4 | UI; tokens en `DESIGN.md` / `globals.css` |
 
@@ -184,7 +183,7 @@ El layout `(app)` y las páginas suelen resolver **sesión, usuario, workspace a
 
 **Presupuestos:** `listBudgetsWithStatus` carga un snapshot request-scoped (`budgets` + expenses) y calcula `progress` por call. Los expenses se filtran a la **unión de periodos activos** (`unionBudgetPeriodBounds`), no al ledger completo. El badge de nav usa `summarizeBudgetsAtRisk` / `summarizeBudgetNavSignal` sobre ese snapshot (`atRisk` + `exceeded` en una pasada). Layout badge, `/budgets` y `GetDashboard` comparten la misma carga SQL en el request.
 
-Mutaciones que afectan el badge (gastos, update/archive budget, etc.) llaman `revalidatePath("/", "layout")` para refrescar el shell.
+Mutaciones de **ledger** (crear/editar/borrar movimiento) invalidan páginas de dinero (`revalidateMoneyPaths`: `/transactions`, `/accounts`, `/dashboard`, `/budgets`, y grupos/objetivos si aplica). **No** llaman `revalidatePath("/", "layout")`: eso vacía el Client Router Cache del shell. El badge de presupuestos en riesgo se actualiza en el próximo render de layout. Mutaciones que sí cambian el chrome (workspace, cuentas, categorías, setup) siguen revalidando el layout.
 
 **Args:** `React.cache` usa igualdad superficial (`Object.is`). Preferir parámetros **primitivos** (`userId`, `workspaceId`, `includeArchived`) en las funciones cacheadas; no pasar objetos inline como única clave.
 
@@ -192,11 +191,11 @@ Mutaciones que afectan el badge (gastos, update/archive budget, etc.) llaman `re
 
 | No cachear así | Motivo |
 |----------------|--------|
-| Saldos / ledger / listados de txs entre requests (`unstable_cache`, LRU TTL) | Mutaciones frecuentes; UI de dinero incorrecta |
+| Saldos / ledger / listados de txs entre requests (`unstable_cache`, LRU TTL, `"use cache"` sin tag) | Mutaciones frecuentes; UI de dinero incorrecta |
 | Membership / roles con TTL cross-request | Authz stale tras expulsión o cambio de rol |
-| Dashboard / analytics “congelados” sin tags de invalidación por mutación | Hoy solo hay `revalidatePath`; no hay tag matrix |
+| Dashboard / analytics “congelados” sin tags de invalidación por mutación | Hoy `revalidatePath` por ruta; Cache Components + `cacheTag` es el siguiente paso (SPEC-20 §10) |
 
-Tras mutaciones se sigue invalidando con `revalidatePath` (página + layout cuando el shell debe refrescar). Eso **re-ejecuta** el request; el `React.cache` no evita trabajo entre navegaciones.
+Tras mutaciones se sigue invalidando con `revalidatePath` de las **páginas de dinero**, no del layout salvo que el shell cambie. Eso **re-ejecuta** el request; el `React.cache` no evita trabajo entre navegaciones.
 
 ### 7.2 Navegación inmediata y Client Router Cache
 
@@ -214,9 +213,10 @@ Las páginas autenticadas son **RSC** (Prisma en servidor). El feedback al naveg
 
 **Contrato post-mutación (Client Components):**
 
-1. Server Action llama `revalidatePath` (y `revalidatePath("/", "layout")` si el shell cambia).
-2. En el cliente: `onSuccess?.()` primero (cerrar sheet, limpiar UI local).
+1. Server Action llama `revalidatePath` de las páginas de dinero (`revalidateMoneyPaths`). `revalidatePath("/", "layout")` **solo** si el chrome del shell cambia (workspace, setup, categorías).
+2. En el cliente: splash del monto + `onSuccess?.()` (cerrar sheet) en el mismo tick.
 3. Luego `refreshAfterMutation(router)` si permanece en la misma ruta, o `navigateAndRefresh` / `replaceAndRefresh` si hay soft-nav.
+4. Mientras llega el RSC, el patrimonio se **atenúa** (`MoneyFreshnessFrame`) — no se reemplaza con un saldo calculado en el cliente.
 
 El `refresh` se difiere con `setTimeout(0)` para que corra **después** del `push`/`replace` y no pierda la carrera contra el Client Router Cache.
 

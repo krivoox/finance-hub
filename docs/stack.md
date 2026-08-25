@@ -23,7 +23,6 @@ Versiones de referencia: `turno-app` / Siturn (marzo 2026). Mantener alineadas s
 | Driver SQL | `pg` | `^8.21.x` |
 | Base de datos | PostgreSQL (hosting **Supabase**) | — |
 | Supabase SDK | `@supabase/supabase-js`, `@supabase/ssr` | `^2.78` / `^0.10` |
-| Estado servidor (cliente) | TanStack React Query | `^5` |
 | Estado UI | Zustand | `^5` (**solo UI**) |
 | Fechas | `date-fns`, `@date-fns/tz` | `^4` / `^1.5` |
 | Toasts | Sonner | `^2` |
@@ -45,8 +44,7 @@ Versiones de referencia: `turno-app` / Siturn (marzo 2026). Mantener alineadas s
 | **Postgres (Supabase)** | Persistencia, constraints, RLS deny-all (KRI-18) |
 | **Supabase SDK** | Server-only; Storage/Realtime futuro — no reemplaza Prisma ni Better Auth |
 | **Zod** | Validación doble: forms (cliente) + Server Actions |
-| **React Query** | Cache/fetch en Client Components (UI islands); listados de dinero siguen en RSC |
-| **Zustand** | Solo UI (modales, sidebar, workspace activo en cliente) |
+| **Zustand** | Solo UI (modales, sidebar, splash post-mutación) |
 | **Vitest** | TDD de lógica de negocio (no UI) |
 | **Maestro** | Smoke / exploración UI vía CLI o MCP (web beta); no sustituye Vitest |
 
@@ -101,12 +99,15 @@ En `next.config.ts`:
 
 ```ts
 experimental: {
+  optimizePackageImports: ["lucide-react", "radix-ui", "date-fns"],
   staleTimes: {
     dynamic: 0,   // sin cache cross-nav en segmentos dinámicos (listados de dinero)
     static: 180,  // loading boundaries / prefetch estático
   },
 }
 ```
+
+`cacheComponents` **no** está activo: el flag prende PPR y exige Suspense alrededor de todo IO dinámico (sesión, cookies, headers). Encenderlo sin migrar el layout autenticado bloquearía el shell. El contrato (cachear estructura, nunca dinero) vive en [SPEC-20 §10](./specs/20-performance-pwa.md).
 
 Velocidad percibida en soft-nav: `loading.tsx` + `PageSkeleton` + cerrar sidebar móvil al click. Detalle: [architecture.md §7.2](./architecture.md#72-navegación-inmediata-y-client-router-cache).
 
@@ -157,7 +158,7 @@ Misma que Siturn — ver detalle en [architecture.md](./architecture.md):
 - `src/app/api/auth/[...all]/route.ts`
 - `src/lib/supabase/server.ts` (`server-only`; no hay browser client hasta Storage + RLS propio, KRI-18)
 - `src/middleware.ts` (cookie `better-auth*`)
-- `src/components/providers.tsx` (QueryClient + Sonner)
+- `src/components/providers.tsx` (Tooltip + Sonner)
 - `prisma/schema.prisma` + `prisma.config.ts`
 
 Referencia de implementación: repo `turno-app` (Siturn).

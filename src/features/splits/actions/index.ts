@@ -80,6 +80,7 @@ export async function createExpenseWithSplitAction(
     revalidatePath("/dashboard");
     revalidatePath("/transactions");
     revalidatePath("/accounts");
+    revalidatePath("/budgets");
     return {
       ok: true,
       data: {
