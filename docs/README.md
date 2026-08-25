@@ -39,12 +39,12 @@
 | 06 | [Transferencias](./specs/06-transfers.md) | P0 |
 | 07 | [Presupuestos](./specs/07-budgets.md) | P1 |
 | 08 | [Objetivos financieros](./specs/08-goals.md) | P1 |
-| 09 | [Grupos y gastos compartidos](./specs/09-financial-groups.md) | P1 |
+| 09 | [Grupos de splits (SplitGroup) — KRI-29](./specs/09-financial-groups.md) | P1 |
 | 10 | [Distribución de gastos (splits)](./specs/10-expense-splitting.md) | P1 |
 | 11 | [Analytics e insights](./specs/11-analytics.md) | P2 |
 | 12 | [Dashboard](./specs/12-dashboard.md) | P1 |
 | 13 | [Detalle de movimiento](./specs/13-transaction-detail.md) | P1 |
-| 14 | [Dinero cross-workspace](./specs/14-cross-workspace-money.md) | P1 |
+| 14 | [Dinero cross-workspace](./specs/14-cross-workspace-money.md) | **Retirada (KRI-29)** |
 | 15 | [Onboarding de workspace](./specs/15-workspace-onboarding.md) | P0 |
 | 16 | [Canje de moneda (FX)](./specs/16-currency-exchange.md) | P1 |
 | 17 | [Landing de marketing](./specs/17-marketing-landing.md) | P0 |

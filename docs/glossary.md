@@ -2,7 +2,7 @@
 
 | Término | Definición |
 |---------|------------|
-| Workspace | Espacio financiero (personal o grupal) que agrupa cuentas y movimientos |
+| Workspace | Tenant de datos financieros. Producto (KRI-29): **personal** (cuentas y movimientos del usuario). El tipo group como ledger compartido está retirado |
 | Onboarding de workspace | First-run en `/onboarding` (modal sin shell): ≥1 cuenta; gasto inicial opcional; ready = estado derivado |
 | Account | Cuenta: banco, efectivo, billetera, tarjeta de crédito, etc. |
 | Credit card (tipo de cuenta) | Pasivo: saldo positivo = deuda. Pago del resumen = transferencia hacia la tarjeta (SPEC-03 / SPEC-06) |
@@ -19,15 +19,18 @@
 | Consolidation rate | Tasa del workspace para patrimonio estimado en `baseCurrency` (manual o apply explícito desde MEP) |
 | Cotización / Usd quote | Precio de mercado USD del día (oficial, bolsa/MEP, …) cacheado vía DolarApi — SPEC-19; no es el TC de consolidación hasta que el usuario aplique |
 | MEP / Dólar bolsa | Cotización bursátil (`casa: "bolsa"` en DolarApi); en producto se muestra como MEP |
-| Cross-workspace contribution | Aporte: expense en un espacio + income en otro, ligados |
-| Externally funded expense | Gasto registrado en un workspace pagado con cuenta de otro |
+| Cross-workspace contribution | **Retirado (KRI-29 / SPEC-14).** Histórico: expense en un espacio + income en otro |
+| Externally funded expense | **Retirado (KRI-29 / SPEC-14).** Histórico: gasto en un workspace pagado con cuenta de otro |
+| SplitGroup | Círculo de gastos divididos (casa, asado) dentro del personal; no es un workspace |
+| Ghost member | Miembro de un SplitGroup solo con nombre, sin cuenta de la app |
+| Public share link | Enlace para ver quién debe en un SplitGroup **sin instalar** la app |
 | Category | Etiqueta de clasificación de ingresos/gastos |
 | Budget | Límite de gasto en un periodo para una o más categorías |
 | Goal | Objetivo de ahorro o de pago de deuda |
 | Goal contribution / Aporte a objetivo | Evento que avanza el progreso del Goal y, desde H4, materializa una transferencia ledger origen → `linkedAccountId` (1:1 con `Transaction`) |
 | Linked account (goal) | Cuenta destino típica del objetivo (ahorro o tarjeta a saldar); obligatoria para aportar |
-| Split | Reparto de un gasto entre miembros de un grupo |
-| Settlement | Pago entre miembros para saldar deudas de splits |
+| Split / SplitExpense | Reparto de un gasto entre miembros de un `SplitGroup` (user o ghost) |
+| Settlement | Pago entre miembros de un SplitGroup para saldar deudas de splits |
 | Membership | Relación usuario–workspace con un rol |
 | Money | Value object: monto en centavos + moneda |
 | Balance | Saldo derivado de una cuenta o entre miembros |

@@ -2,7 +2,9 @@
 
 ## Estado
 
-Aceptado
+Aceptado — **enmienda pendiente (KRI-29)**
+
+> Conflicto de producto: [SPEC-09](../specs/09-financial-groups.md) retira el workspace `group` como “hogar”. El tenant **personal** se mantiene. No se reescribe este ADR aquí: `business-logic-architect` propone la enmienda (Workspace = tenancy personal; círculos de split = `SplitGroup` con authz por miembro, no por `Membership` de un tenant ajeno).
 
 ## Contexto
 

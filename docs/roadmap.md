@@ -39,18 +39,18 @@ Orden de ingeniería sugerido: SW policy + manifest shortcuts → prefetch nav �
 | 7 | [12-dashboard](./specs/12-dashboard.md) | Read model básico (puede ir en paralelo parcial) |
 | 8 | [07-budgets](./specs/07-budgets.md) | Presupuestos |
 | 9 | [08-goals](./specs/08-goals.md) | Objetivos |
-| 10 | [09-financial-groups](./specs/09-financial-groups.md) + [10-expense-splitting](./specs/10-expense-splitting.md) | Grupos y splits |
+| 10 | [09-financial-groups](./specs/09-financial-groups.md) + [10-expense-splitting](./specs/10-expense-splitting.md) | **KRI-29:** matar workspace `group` + SPEC-14; `SplitGroup` + splits en el form de gasto (ghosts, link público) |
 
 ## Fase 2.5 — Detalle y cross-workspace
 
 | Orden | Spec | Entregable |
 |-------|------|------------|
 | 10b | [13-transaction-detail](./specs/13-transaction-detail.md) | Ficha `/transactions/[id]` + edit/delete UI |
-| 10c | [14-cross-workspace-money](./specs/14-cross-workspace-money.md) | Aporte entre espacios + expense funded externo |
+| 10c | [14-cross-workspace-money](./specs/14-cross-workspace-money.md) | **Retirada (KRI-29).** No implementar; el kill va en el ítem 10 (SPEC-09/10) |
 | 10d | [18-recurring-transactions](./specs/18-recurring-transactions.md) | Plantillas recurrentes + bandeja semi-auto + rename Transacciones |
 | 10e | [16-currency-exchange](./specs/16-currency-exchange.md) | Canje ARS↔USD + tasa de consolidación manual |
 | 10f | [19-usd-quotes-dolarapi](./specs/19-usd-quotes-dolarapi.md) | Snapshot diario Oficial/MEP (DolarApi) + convertidor + “Usar MEP de hoy” |
-| 10g | [02-workspaces](./specs/02-workspaces.md) (ABM) | Rename/leave/delete group (hard-delete) + UI miembros; personal inborrable; bloqueo si hay vínculos SPEC-14 |
+| 10g | [02-workspaces](./specs/02-workspaces.md) (ABM) | **Superseded por KRI-29:** no hay ABM de group-tenant. Personal inborrable se mantiene |
 
 ## Fase 3 — P2 Insights
 

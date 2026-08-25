@@ -5,7 +5,9 @@
 | ID | SPEC-05 |
 | Estado | Draft |
 | Prioridad | P0 |
-| Dependencias | SPEC-01 (timezone), SPEC-03, SPEC-04; listado cruzado SPEC-14; canje SPEC-16 |
+| Dependencias | SPEC-01 (timezone), SPEC-03, SPEC-04; canje SPEC-16 |
+
+> **KRI-29.** Alta de **expense**: toggle “Dividirlo con alguien” → `SplitGroup` (SPEC-09 / SPEC-10). Listado/cuentas **cross-workspace (SPEC-14) se retiran** con el epic.
 
 ## 1. Contexto
 

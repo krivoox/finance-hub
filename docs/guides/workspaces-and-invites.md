@@ -2,6 +2,8 @@
 
 Guía corta de producto sobre tenancy, grupos y cómo sumar personas.
 
+> **KRI-29.** El workspace **grupal como tenant** (cuentas compartidas, switcher, `/invitaciones` de membership) **se retira**. El usuario queda con su workspace **personal**. Los círculos de gastos (casa, asado, ghosts, link de WhatsApp) son `SplitGroup`: ver [SPEC-09](../specs/09-financial-groups.md) y [SPEC-10](../specs/10-expense-splitting.md). El resto de esta guía describe el modelo **anterior** hasta que el epic elimine esa UI.
+
 ## Personal vs grupal
 
 | Tipo | Origen | Uso |

@@ -6,14 +6,17 @@ Lenguaje ubicuo en inglés en código; términos de negocio en español en docs.
 
 ```text
 User
-  └── Membership ──► Workspace
+  └── Membership ──► Workspace (producto: siempre personal; KRI-29)
                         ├── Account
                         ├── Category
                         ├── Transaction (Income | Expense | Transfer) ──► RecurringRule? (opcional)
                         ├── RecurringRule
                         ├── Budget
                         ├── Goal
-                        └── (si es grupal) Split / Settlement
+                        └── SplitGroup[]          (círculo de gastos; SPEC-09)
+                               ├── SplitGroupMember (user | ghost)
+                               ├── SplitExpense / shares (SPEC-10)
+                               └── Settlement
 ```
 
 ## Entidades
@@ -38,13 +41,13 @@ Persona autenticada. Identidad de producto vía **Better Auth** (email/password 
 
 ### Workspace
 
-Contenedor de datos financieros. Puede ser personal (1 miembro) o grupal (N miembros).
+Contenedor de datos financieros (tenancy, ADR-002). **Producto (KRI-29):** el usuario opera un workspace `personal`. El tipo `group` como segundo ledger **está retirado**; los círculos de gastos son `SplitGroup` (SPEC-09), no un tenant.
 
 | Campo | Tipo | Notas |
 |-------|------|-------|
 | id | Id | |
 | name | string | |
-| type | `personal` \| `group` | |
+| type | `personal` \| `group` | `group` retirado de producto (KRI-29); no crear más |
 | baseCurrency | CurrencyCode | moneda de consolidación |
 | createdAt | DateTime | |
 
@@ -54,7 +57,7 @@ Contenedor de datos financieros. Puede ser personal (1 miembro) o grupal (N miem
 - Un User puede pertenecer a varios Workspaces vía Membership.
 - Un workspace está **listo para usar** (onboarding, SPEC-15) cuando tiene ≥1 Account no archivada. Es un estado **derivado**; no hay campo de “setup completado” en el modelo.
 - Workspace `personal`: **inborrable** (nunca hard-delete ni soft-archive de workspace en v1 / cercano).
-- Workspace `group`: el owner puede **hard-delete** el tenant completo (SPEC-02 FR-10) si no hay vínculos cross-workspace (SPEC-14 / SPEC-02 §5.4). Es **excepción explícita** a la preferencia transversal de soft-delete (§ Reglas transversales): sin grace period ni restore.
+- Workspace `group`: **retirado de producto (KRI-29)**. El hard-delete histórico de SPEC-02 no se ofrece como feature; la migración del epic **borra** tenants `group` existentes. Los grupos de usuario son `SplitGroup` (SPEC-09).
 
 ### Membership
 
@@ -72,7 +75,7 @@ Contenedor de datos financieros. Puede ser personal (1 miembro) o grupal (N miem
 
 ### Invitation
 
-Invitación a un workspace (típicamente `group`) por email.
+Invitación a un workspace por email. **KRI-29:** las invites de tenant `group` se eliminan. Sumar gente a un círculo de gastos = invite/share de `SplitGroup` (SPEC-09), no esta entidad.
 
 | Campo | Tipo | Notas |
 |-------|------|-------|
@@ -173,7 +176,7 @@ Campos comunes:
 - `amount.currency` debe coincidir con la cuenta afectada. El formulario de alta permite elegir ARS|USD (default = `workspace.baseCurrency`) y solo lista cuentas de esa moneda; mismatch → `TransactionCurrencyMismatchError`.
 - Transfer: `accountId ≠ counterpartyAccountId`, ambas del mismo workspace, **misma currency**.
 - Canje (`fx_debit` / `fx_credit`): ver `CurrencyExchange`; no cuentan en cashflow ni budget spent.
-- Income/expense: `accountId` puede ser de otro workspace del mismo usuario (funded externo, SPEC-14); el `workspaceId` de la tx es el contexto de registro (categorías, budgets, splits).
+- Income/expense: `accountId` del mismo workspace personal (SPEC-14 retirado en KRI-29; no hay cuenta foreign de otro tenant).
 - Baja de cuenta: **preferir Archivar** (conserva txs). `DeleteAccount` (SPEC-03) es excepción de producto: hard-delete con cascada explícita de txs/reglas/canjes de esa cuenta.
 - Transfer ligada a `GoalContribution` (SPEC-08 H4): delete cascada deshace el aporte; update de monto/cuentas rechazado.
 - `(recurringRuleId, scheduledOn)` es único cuando `recurringRuleId != null` (materialización idempotente, SPEC-18).
@@ -233,9 +236,9 @@ Snapshot **global** (no tenancy) de cotizaciones USD del día vía [DolarApi.com
 - `tarjeta` informativa / opcional; **no** es fuente fiscal (suele ser oficial × 1.30 legacy).
 - Snapshot usable en UI requiere al menos `oficial` + `bolsa`.
 
-### CrossWorkspaceLink
+### CrossWorkspaceLink (retirado — KRI-29)
 
-Vínculo 1↔1 entre dos transacciones de workspaces distintos (aporte / fondeo).
+Vínculo 1↔1 entre dos transacciones de workspaces distintos (aporte / fondeo). **No forma parte del producto post-KRI-29** (SPEC-14 retirada). El código y el modelo se eliminan en el mismo epic que SPEC-09.
 
 | Campo | Tipo | Notas |
 |-------|------|-------|
@@ -324,22 +327,46 @@ Evento de aporte a un Goal. Inmutable en MVP salvo cascada al borrar la transfer
 - Delete de la transfer: elimina la contribución y restaura `Goal.currentAmount` (y status `completed`→`active` si aplica).
 - Update de amount/cuentas de la transfer ligada: rechazado (`TransferLinkedToGoal`).
 
-### Split (gasto compartido)
+### SplitGroup (círculo de gastos — SPEC-09, KRI-29)
 
-Distribución de un expense entre miembros del workspace grupal.
+No es un Workspace. Dueño de datos = `workspaceId` del creador (personal). Otros **user-miembros** acceden por `SplitGroupMember`, no por `Membership` del tenant de Ana. Invariantes profundas: `business-logic-architect`.
 
 | Campo | Tipo | Notas |
 |-------|------|-------|
 | id | Id | |
-| workspaceId | Id | |
-| expenseTransactionId | Id | |
-| paidByUserId | Id | quién pagó |
+| workspaceId | Id | tenant del creador |
+| name | string | |
+| kind | `ongoing` \| `one_time` | casa vs asado |
+| currency | CurrencyCode | v1 = baseCurrency al crear |
+| publicShareToken | string | vista pública de balances |
+| createdByUserId | Id | |
+
+### SplitGroupMember
+
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| id | Id | identidad en shares / nets |
+| splitGroupId | Id | |
+| kind | `user` \| `ghost` | ghost = solo nombre, sin User |
+| userId | Id? | required si `user` |
+| displayName | string | |
+
+### SplitExpense (gasto compartido — SPEC-10)
+
+Distribución de un expense entre miembros del `SplitGroup`.
+
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| id | Id | |
+| splitGroupId | Id | |
+| expenseTransactionId | Id | v1: tx del registrador (su ledger) |
+| paidByMemberId | Id | miembro `user` del que pagó |
 | method | `equal` \| `percentage` \| `exact` | |
 | shares | SplitShare[] | |
 
 ```ts
 type SplitShare = {
-  userId: Id
+  memberId: Id
   shareCents: number // >= 0
 }
 ```
@@ -347,18 +374,19 @@ type SplitShare = {
 **Invariantes**
 
 - `Σ shareCents === expense.amount.amountCents`
-- Solo en workspaces `type === 'group'`
+- Participantes = miembros del `SplitGroup` (user o ghost)
+- Matemática equal/remainder: SPEC-10 (sort por `memberId`)
 
 ### Settlement
 
-Pago entre miembros para saldar balances de splits.
+Pago entre miembros de un `SplitGroup` para saldar balances.
 
 | Campo | Tipo | Notas |
 |-------|------|-------|
 | id | Id | |
-| workspaceId | Id | |
-| fromUserId | Id | |
-| toUserId | Id | |
+| splitGroupId | Id | |
+| fromMemberId | Id | |
+| toMemberId | Id | |
 | amount | Money | |
 | occurredOn | Date | |
 
@@ -412,16 +440,17 @@ Plantilla que describe **qué** movimiento se repite y **cada cuánto**. No es u
 | Transaction | Transaction | — |
 | Budget | Budget | — |
 | Goal | Goal | GoalContribution[] |
-| Split | Split | shares |
+| SplitGroup | SplitGroup | members, SplitExpense[], Settlement[] |
+| SplitExpense | SplitExpense | shares |
 | RecurringRule | RecurringRule | — (ocurrencias son proyecciones; materializaciones viven bajo `Transaction`) |
 
 Los saldos de cuenta y balances entre miembros son **lecturas derivadas**, no estado mutable independiente (salvo settlements que ajustan el ledger de deudas).
 
 ## Reglas transversales
 
-1. Autorización: toda mutación verifica Membership + role.
+1. Autorización: mutaciones de ledger verifican Membership + role del workspace personal. Mutaciones de `SplitGroup` verifican miembro `user` (o owner del grupo); el visitante del link público solo lee una proyección.
 2. Soft-delete / archive preferido a hard-delete cuando hay historial.
-   - **Excepción (SPEC-02):** eliminar un workspace `group` es **hard-delete real** del grafo del tenant (cuentas, txs, budgets, goals, memberships, etc.). Bloqueado si hay involucramiento cross-workspace (SPEC-14). El workspace `personal` no se elimina.
+   - **Excepción histórica (SPEC-02):** hard-delete de workspace `group`. **KRI-29** retira el tipo group de producto; la migración borra esos tenants. El workspace `personal` no se elimina.
    - **Excepción (SPEC-03):** `DeleteAccount` — hard-delete de cuenta con confirmación fuerte y cascada de servicio; Archive sigue siendo el camino recomendado.
 3. Idempotencia: comandos de creación pueden aceptar `clientRequestId` (fase P1+).
 4. Multi-moneda (ADR-006): cuentas ARS|USD; ledger nativo por moneda; canje explícito (`CurrencyExchange`); patrimonio consolidado solo con tasa manual del workspace. `baseCurrency` = consolidación y defaults — no única moneda permitida.

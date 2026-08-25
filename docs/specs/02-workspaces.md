@@ -3,15 +3,17 @@
 | Campo | Valor |
 |-------|-------|
 | ID | SPEC-02 |
-| Estado | Draft |
+| Estado | Draft — **group tenant retirado por KRI-29** |
 | Prioridad | P0 |
 | Dependencias | SPEC-01 |
 
+> **KRI-29 / SPEC-09.** El producto **ya no** ofrece workspaces `type=group`. El Workspace sigue siendo el tenant (ADR-002) y cada usuario conserva **exactamente su workspace personal** (inborrable). Los “grupos” de producto son `SplitGroup` ([SPEC-09](./09-financial-groups.md)), no un segundo ledger. El ABM de esta spec (crear grupo-tenant, switcher, invites de membership, leave/delete de group WS) es **kill list**: no implementar más; eliminar código en el epic KRI-29. Lo que sigue abajo describe el modelo *anterior* hasta que el SE borre esas FRs.
+
 ## 1. Contexto
 
-El Workspace es la unidad de tenancy (ADR-002). Agrupa cuentas, movimientos y, si es grupal, miembros y gastos compartidos.
+El Workspace es la unidad de tenancy (ADR-002). Agrupa cuentas, movimientos, presupuestos y objetivos del **espacio personal**.
 
-Esta spec cubre el **ABM de workspaces grupales** (crear, listar/switch, renombrar, salir, eliminar, gestionar miembros) y las reglas que el workspace **personal** no se elimina nunca.
+Esta spec cubría el **ABM de workspaces grupales** (crear, listar/switch, renombrar, salir, eliminar, gestionar miembros) y las reglas que el workspace **personal** no se elimina nunca. Post KRI-29: solo aplica lo relativo al **personal**.
 
 ## 2. Actores
 
