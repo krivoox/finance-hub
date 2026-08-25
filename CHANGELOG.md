@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **ui:** Roll out ledger navy across the app
 
+- **ui:** Colorful nav glyphs and mobile-first money rows
+
+- **dashboard:** Compact mobile home without desktop read models
+
 ### Fixed
 
 - **ui:** Keep the mobile tab bar in view and avoid stale JS in next dev
