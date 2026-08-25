@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
@@ -124,6 +124,11 @@ export function NewTransactionForm({
   const [selectedSplitGroupId, setSelectedSplitGroupId] = useState(
     splitGroups[0]?.id ?? "",
   );
+
+  useEffect(() => {
+    if (splitGroups.some((group) => group.id === selectedSplitGroupId)) return;
+    setSelectedSplitGroupId(splitGroups[0]?.id ?? "");
+  }, [splitGroups, selectedSplitGroupId]);
 
   const defaultCurrency = resolveTransactionFormCurrency({
     workspaceBaseCurrency: workspaceCurrency,

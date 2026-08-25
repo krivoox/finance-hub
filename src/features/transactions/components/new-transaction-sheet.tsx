@@ -90,14 +90,15 @@ function NewTransactionSheetInner({
   useEffect(() => {
     if (!open || !enabled || !workspaceId) return;
 
+    let cancelled = false;
     const cached = cacheRef.current;
+    // Show last options instantly, but always refetch: a group or member
+    // created after the previous open would otherwise be missing.
     if (cached && cached.workspaceId === workspaceId) {
       setLoad({ status: "ready", options: cached.options });
-      return;
+    } else {
+      setLoad({ status: "loading" });
     }
-
-    let cancelled = false;
-    setLoad({ status: "loading" });
 
     void getNewTransactionFormOptionsAction().then((result) => {
       if (cancelled) return;
