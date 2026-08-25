@@ -93,8 +93,7 @@ export default async function TransactionsPage({ searchParams }: PageProps) {
         description="Ingresos, gastos y transferencias."
       >
         <p className="text-sm text-muted-foreground">
-          Todavía no tenés un workspace. Creá uno para empezar a registrar
-          transacciones.
+          No se pudo cargar tu cuenta. Recargá la página.
         </p>
       </ContentPanel>
     );

@@ -2,7 +2,7 @@ import "server-only";
 import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import {
-  asPersonalWorkspaceType,
+  toProductWorkspaceType,
   type MembershipRole,
 } from "@/features/workspaces/domain";
 
@@ -16,16 +16,15 @@ export type WorkspaceSummary = {
 };
 
 /**
- * Lists every **personal** workspace where `userId` has a membership.
- * Group-tenant leftovers (pre-KRI-29) are ignored so the app shell does not
- * 500 when Prisma would otherwise decode `WorkspaceType.group`.
+ * Lists the caller's ledgers. Product is single-tenant: leftover `group`
+ * rows are surfaced as personal so existing accounts keep working.
  *
  * Cached per RSC request (layout label; no cross-request TTL).
  */
 export const listMyWorkspaces = cache(
   async (userId: string): Promise<WorkspaceSummary[]> => {
     const memberships = await prisma.membership.findMany({
-      where: { userId, workspace: { type: "personal" } },
+      where: { userId },
       select: {
         role: true,
         joinedAt: true,
@@ -41,20 +40,14 @@ export const listMyWorkspaces = cache(
     });
 
     return memberships
-      .flatMap((m) => {
-        const type = asPersonalWorkspaceType(m.workspace.type);
-        if (!type) return [];
-        return [
-          {
-            id: m.workspace.id,
-            name: m.workspace.name,
-            type,
-            baseCurrency: m.workspace.baseCurrency,
-            role: m.role as MembershipRole,
-            joinedAt: m.joinedAt,
-          },
-        ];
-      })
+      .map((m) => ({
+        id: m.workspace.id,
+        name: m.workspace.name,
+        type: toProductWorkspaceType(m.workspace.type),
+        baseCurrency: m.workspace.baseCurrency,
+        role: m.role as MembershipRole,
+        joinedAt: m.joinedAt,
+      }))
       .sort((a, b) => a.name.localeCompare(b.name));
   },
 );

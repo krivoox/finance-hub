@@ -192,8 +192,7 @@ export default async function BudgetsPage() {
         description="Límites del periodo en curso."
       >
         <p className="text-sm text-muted-foreground">
-          Todavía no tenés un workspace. Creá uno para empezar a definir
-          presupuestos.
+          No se pudo cargar tu cuenta. Recargá la página.
         </p>
       </ContentPanel>
     );

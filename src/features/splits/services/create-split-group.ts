@@ -19,7 +19,7 @@ export async function createSplitGroup(input: CreateSplitGroupInput) {
   const name = normalizeSplitGroupName(input.name);
   const workspace = await getActiveWorkspaceForUser(input.userId);
   if (!workspace) {
-    throw new ForbiddenError("No personal workspace");
+    throw new ForbiddenError("No account");
   }
 
   const user = await prisma.user.findUniqueOrThrow({

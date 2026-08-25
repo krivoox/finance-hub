@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import { seedDefaultCategories } from "@/features/categories/services";
+import { pickDefaultLedgerWorkspace } from "@/features/workspaces/domain";
 
 export type CreatePersonalWorkspaceInput = {
   userId: string;
@@ -12,7 +13,8 @@ export type CreatePersonalWorkspaceInput = {
  * Creates a `personal` Workspace + `owner` Membership + default categories
  * (SPEC-04 FR-01) for a freshly-registered user.
  *
- * Idempotent: if the user already owns a personal workspace, this is a no-op.
+ * Idempotent: if the user already has any membership (including a leftover
+ * group tenant), this is a no-op and returns that ledger.
  * Runs atomically inside a transaction (SPEC-01, FR-07).
  */
 export async function createPersonalWorkspaceForUser({
@@ -20,15 +22,24 @@ export async function createPersonalWorkspaceForUser({
   userName,
   baseCurrency = "ARS",
 }: CreatePersonalWorkspaceInput): Promise<{ workspaceId: string }> {
-  const existing = await prisma.membership.findFirst({
-    where: {
-      userId,
-      workspace: { type: "personal" },
+  const existing = await prisma.membership.findMany({
+    where: { userId },
+    select: {
+      workspaceId: true,
+      joinedAt: true,
+      workspace: { select: { type: true } },
     },
-    select: { workspaceId: true },
   });
-  if (existing) {
-    return { workspaceId: existing.workspaceId };
+  const existingId = pickDefaultLedgerWorkspace(
+    existing.map((m) => ({
+      workspaceId: m.workspaceId,
+      type: m.workspace.type,
+      joinedAt: m.joinedAt,
+      cookieHit: false,
+    })),
+  );
+  if (existingId) {
+    return { workspaceId: existingId };
   }
 
   const workspaceName = deriveWorkspaceName(userName);

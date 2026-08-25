@@ -65,8 +65,7 @@ export default async function RecurringHubPage() {
         description="Automatizá sueldos, alquiler y suscripciones."
       >
         <p className="text-sm text-muted-foreground">
-          Todavía no tenés un workspace. Creá uno para empezar con
-          recurrentes.
+          No se pudo cargar tu cuenta. Recargá la página.
         </p>
       </ContentPanel>
     );

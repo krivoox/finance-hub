@@ -32,8 +32,7 @@ export default async function AccountsPage() {
         description="Saldos de bancos, billeteras y tarjetas."
       >
         <p className="text-sm text-muted-foreground">
-          Todavía no tenés un espacio. Creá uno para empezar a registrar
-          cuentas.
+          No se pudo cargar tu cuenta. Recargá la página.
         </p>
       </ContentPanel>
     );

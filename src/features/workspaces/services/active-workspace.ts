@@ -4,9 +4,11 @@ import { cookies } from "next/headers";
 import { prisma } from "@/lib/prisma";
 import { env } from "@/lib/env";
 import {
-  asPersonalWorkspaceType,
+  pickDefaultLedgerWorkspace,
+  toProductWorkspaceType,
   type MembershipRole,
 } from "@/features/workspaces/domain";
+import { createPersonalWorkspaceForUser } from "./create-personal-workspace";
 
 /**
  * Cookie carrying the currently-active workspace for the session (SPEC-02 FR-09).
@@ -24,38 +26,50 @@ export type ActiveWorkspaceContext = {
   role: MembershipRole;
 };
 
-function toActiveContext(row: {
+const workspaceSelect = {
+  id: true,
+  name: true,
+  type: true,
+  baseCurrency: true,
+} as const;
+
+type MembershipRow = {
   role: string;
+  joinedAt: Date;
   workspace: {
     id: string;
     name: string;
     type: string;
     baseCurrency: string;
   };
-}): ActiveWorkspaceContext | null {
-  const type = asPersonalWorkspaceType(row.workspace.type);
-  if (!type) return null;
+};
+
+function toActiveContext(row: MembershipRow): ActiveWorkspaceContext {
   return {
     id: row.workspace.id,
     name: row.workspace.name,
-    type,
+    type: toProductWorkspaceType(row.workspace.type),
     baseCurrency: row.workspace.baseCurrency,
     role: row.role as MembershipRole,
   };
 }
 
+async function loadMemberships(userId: string): Promise<MembershipRow[]> {
+  return prisma.membership.findMany({
+    where: { userId },
+    select: {
+      role: true,
+      joinedAt: true,
+      workspace: { select: workspaceSelect },
+    },
+  });
+}
+
 /**
- * Resolves the active workspace for a user.
+ * Resolves the single implicit ledger for a user. There is no tenant switcher.
  *
- * Order:
- * 1. `fh-workspace-id` cookie, if it still points to a valid **personal** membership.
- * 2. The user's personal workspace (first by join date).
- *
- * Group-tenant leftovers are skipped so a stale cookie or unmigrated preview
- * DB cannot 500 the authenticated shell.
- *
- * Returns `null` if the user has no personal memberships (edge case: brand-new
- * user during registration).
+ * Order: valid cookie membership (any type) → personal → leftover group
+ * tenant → create a personal workspace if the user has none.
  *
  * Cached per RSC request so layout and page resolve the workspace once.
  */
@@ -64,39 +78,42 @@ export const getActiveWorkspaceForUser = cache(
     const cookieStore = await cookies();
     const cookieId = cookieStore.get(ACTIVE_WORKSPACE_COOKIE)?.value;
 
-    const workspaceSelect = {
-      id: true,
-      name: true,
-      type: true,
-      baseCurrency: true,
-    } as const;
+    let memberships = await loadMemberships(userId);
+    let pickedId = pickDefaultLedgerWorkspace(
+      memberships.map((m) => ({
+        workspaceId: m.workspace.id,
+        type: m.workspace.type,
+        joinedAt: m.joinedAt,
+        cookieHit: Boolean(cookieId) && m.workspace.id === cookieId,
+      })),
+    );
 
-    if (cookieId) {
-      const membership = await prisma.membership.findFirst({
-        where: {
-          workspaceId: cookieId,
-          userId,
-          workspace: { type: "personal" },
-        },
-        select: {
-          role: true,
-          workspace: { select: workspaceSelect },
-        },
+    if (!pickedId) {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { name: true, email: true, preferredCurrency: true },
       });
-      const fromCookie = membership ? toActiveContext(membership) : null;
-      if (fromCookie) return fromCookie;
+      const created = await createPersonalWorkspaceForUser({
+        userId,
+        userName: user?.name || user?.email || "Personal",
+        baseCurrency: user?.preferredCurrency ?? "ARS",
+      });
+      pickedId = created.workspaceId;
+      memberships = await loadMemberships(userId);
     }
 
-    const fallback = await prisma.membership.findFirst({
-      where: { userId, workspace: { type: "personal" } },
-      orderBy: { joinedAt: "asc" },
-      select: {
-        role: true,
-        workspace: { select: workspaceSelect },
-      },
-    });
+    const row = memberships.find((m) => m.workspace.id === pickedId);
+    if (!row) return null;
 
-    return fallback ? toActiveContext(fallback) : null;
+    if (row.workspace.type !== "personal") {
+      await prisma.workspace.update({
+        where: { id: row.workspace.id },
+        data: { type: "personal" },
+      });
+      row.workspace.type = "personal";
+    }
+
+    return toActiveContext(row);
   },
 );
 

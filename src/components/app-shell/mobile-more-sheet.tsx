@@ -46,7 +46,7 @@ type MobileMoreSheetProps = {
 
 /**
  * Overflow menu for mobile tab bar — routes outside the 4 primary tabs,
- * plus workspace, theme, and sign-out.
+ * plus theme and sign-out.
  */
 export function MobileMoreSheet({
   open,
@@ -96,8 +96,8 @@ export function MobileMoreSheet({
 
         <div className="flex flex-col gap-4 px-4 pt-3">
           <WorkspaceSwitcher
-            active={activeWorkspace}
-            workspaces={workspaces}
+            userName={user.displayName}
+            userInitials={user.initials}
           />
 
           <nav aria-label="Más destinos">

@@ -7,7 +7,7 @@
 | Prioridad | P0 |
 | Dependencias | SPEC-01 |
 
-> **KRI-29 / SPEC-09.** El producto **ya no** ofrece workspaces `type=group`. El Workspace sigue siendo el tenant (ADR-002) y cada usuario conserva **exactamente su workspace personal** (inborrable). Los “grupos” de producto son `SplitGroup` ([SPEC-09](./09-financial-groups.md)), no un segundo ledger. El ABM de esta spec (crear grupo-tenant, switcher, invites de membership, leave/delete de group WS) es **kill list**: no implementar más; eliminar código en el epic KRI-29. Lo que sigue abajo describe el modelo *anterior* hasta que el SE borre esas FRs.
+> **KRI-29.** El producto **no** expone workspaces ni switcher: hay un único ledger implícito (el que ya tenía la cuenta; leftovers `group` se tratan como personal). Los “grupos” de producto son `SplitGroup` ([SPEC-09](./09-financial-groups.md)). El ABM de tenants grupales (crear, switcher, invites, leave/delete) es kill list.
 
 ## 1. Contexto
 

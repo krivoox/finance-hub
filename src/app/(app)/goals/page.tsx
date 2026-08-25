@@ -51,8 +51,7 @@ export default async function GoalsPage() {
         description="Ahorro con meta y progreso."
       >
         <p className="text-sm text-muted-foreground">
-          Todavía no tenés un workspace. Creá uno para empezar a fijar
-          objetivos.
+          No se pudo cargar tu cuenta. Recargá la página.
         </p>
       </ContentPanel>
     );

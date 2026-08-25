@@ -1,7 +1,5 @@
 "use client";
 
-import { Home } from "lucide-react";
-
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -17,8 +15,8 @@ export type WorkspaceOption = {
 };
 
 export type WorkspaceSwitcherProps = {
-  active: WorkspaceOption | null;
-  workspaces?: readonly WorkspaceOption[];
+  userName: string;
+  userInitials: string;
 };
 
 function initialsFromName(name: string): string {
@@ -31,11 +29,13 @@ function initialsFromName(name: string): string {
 }
 
 /**
- * KRI-29: product is personal-only. The control is a label, not a switcher.
+ * KRI-29: no tenant switcher. The header is the signed-in account, not a workspace.
  */
-export function WorkspaceSwitcher({ active }: WorkspaceSwitcherProps) {
-  const activeName = active?.name ?? "Personal";
-  const activeInitials = active ? initialsFromName(active.name) : "FH";
+export function WorkspaceSwitcher({
+  userName,
+  userInitials,
+}: WorkspaceSwitcherProps) {
+  const initials = userInitials || initialsFromName(userName);
 
   return (
     <SidebarMenu>
@@ -43,18 +43,17 @@ export function WorkspaceSwitcher({ active }: WorkspaceSwitcherProps) {
         <SidebarMenuButton
           size="lg"
           className="pointer-events-none cursor-default"
-          aria-label={activeName}
+          aria-label={userName}
         >
           <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-sidebar-primary text-xs font-bold text-sidebar-primary-foreground">
-            {activeInitials}
+            {initials}
           </div>
           <div className="grid min-w-0 flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-semibold">{activeName}</span>
+            <span className="truncate font-semibold">{userName}</span>
             <span className="truncate text-xs text-sidebar-foreground/70">
-              Personal
+              Tu cuenta
             </span>
           </div>
-          <Home className="size-4 opacity-50" aria-hidden />
         </SidebarMenuButton>
       </SidebarMenuItem>
     </SidebarMenu>

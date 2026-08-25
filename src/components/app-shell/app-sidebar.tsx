@@ -276,8 +276,8 @@ export function AppSidebar({
     <Sidebar collapsible="icon" variant="sidebar">
       <SidebarHeader className="gap-3">
         <WorkspaceSwitcher
-          active={activeWorkspace}
-          workspaces={workspaces}
+          userName={user.displayName}
+          userInitials={user.initials}
         />
 
         {canMutate ? (

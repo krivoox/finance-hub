@@ -47,7 +47,7 @@ export async function getNewTransactionFormOptionsAction(): Promise<
   try {
     const workspace = await getActiveWorkspaceForUser(session.user.id);
     if (!workspace) {
-      return { ok: false, error: "Todavía no tenés un workspace activo." };
+      return { ok: false, error: "No se pudo cargar tu cuenta." };
     }
     if (workspace.role === "viewer") {
       return {

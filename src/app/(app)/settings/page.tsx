@@ -84,7 +84,7 @@ export default async function SettingsPage({ searchParams }: PageProps) {
   return (
     <ContentPanel
       title="Ajustes"
-      description="Preferencias de tu cuenta y del workspace activo."
+      description="Preferencias de tu cuenta."
     >
       <SettingsTabsNav active={activeTab} />
 
@@ -110,8 +110,8 @@ export default async function SettingsPage({ searchParams }: PageProps) {
           {workspace ? (
             <SurfaceSection>
               <SurfaceHeader
-                title="Tu espacio"
-                description="Nombre de tu workspace personal. Los grupos de gastos divididos viven aparte, en Grupos."
+                title="Tu cuenta"
+                description="Nombre que ves en la app. Los gastos compartidos viven en Grupos."
               />
               <RenameWorkspaceForm
                 workspaceId={workspace.id}
@@ -151,7 +151,7 @@ export default async function SettingsPage({ searchParams }: PageProps) {
         ) : (
           <SurfaceSection>
             <p className="text-sm text-muted-foreground">
-              Necesitás un workspace activo para gestionar categorías.
+              Necesitás una cuenta para gestionar categorías.
             </p>
           </SurfaceSection>
         )

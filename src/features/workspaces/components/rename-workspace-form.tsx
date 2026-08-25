@@ -51,7 +51,7 @@ export function RenameWorkspaceForm({
       <div className="space-y-1">
         <p className="text-sm font-medium text-foreground">{initialName}</p>
         <p className="text-xs text-muted-foreground">
-          Solo owner o admin pueden renombrar el espacio.
+          Solo owner o admin pueden cambiar este nombre.
         </p>
       </div>
     );

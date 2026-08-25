@@ -1,11 +1,17 @@
 export {
   ForbiddenError,
   WorkspaceDomainError,
-  asPersonalWorkspaceType,
+  pickDefaultLedgerWorkspace,
+  toProductWorkspaceType,
   assertCanRename,
 } from "./membership";
 
-export type { MembershipEntry, MembershipRole, WorkspaceType } from "./membership";
+export type {
+  LedgerMembershipCandidate,
+  MembershipEntry,
+  MembershipRole,
+  WorkspaceType,
+} from "./membership";
 
 export {
   SetupDismissNotAllowed,
