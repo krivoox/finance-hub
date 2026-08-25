@@ -26,13 +26,13 @@ Documento técnico obligatorio. Stack fijado en [stack.md](./stack.md) (plantill
 2. **Better Auth** para login; **no** Supabase Auth para usuarios del producto.
 3. **Prisma** en servidor para datos relacionales; schema en `prisma/schema.prisma`.
 4. **Supabase** = Postgres (+ Storage/Realtime/RLS cuando aplique); no reemplaza Prisma ni Better Auth.
-5. **Server Actions:** `getSession()` + Zod **dentro** de cada action; authz por `workspaceId` + membership.
+5. **Server Actions:** `getSession()` + Zod **dentro** de cada action; authz de **ledger** por `workspaceId` + membership del personal. Authz de `SplitGroup` por `SplitGroupMember` (ADR-007) — no exigir membership en el tenant del creador.
 6. **Validación doble:** Zod en cliente (RHF) y servidor.
 7. **Env** solo en `src/lib/env.ts`.
 8. **TypeScript strict** — sin `any`.
 9. **Zustand** solo estado de UI.
 10. **TDD** en lógica de negocio; **no** tests de UI ([tdd-workflow.md](./tdd-workflow.md), ADR-003).
-11. **Dinero** en centavos enteros (ADR-001); tenancy por **Workspace** (ADR-002).
+11. **Dinero** en centavos enteros (ADR-001); tenancy de ledger por **Workspace personal** (ADR-002 enmendado por ADR-007). Círculos de splits = `SplitGroup`, no un segundo tenant.
 12. **Git Flow:** no commitear en `develop` ni `main` (excepto bot de CI para changelog/release); ramas `feat/`, `fix/`, `chore/`; borrar ramas al mergear. Detalle: [guides/git-flow.md](./guides/git-flow.md).
 13. **Changelog / SemVer:** Keep a Changelog + Conventional Commits + git-cliff; Unreleased en `develop`, release en `main`. Detalle: [guides/changelog.md](./guides/changelog.md), ADR-005.
 
@@ -171,7 +171,7 @@ export default async function AccountsPage() {
 
 - Schema Prisma = fuente de verdad relacional
 - Runtime: `DATABASE_URL`; migraciones CLI: `DIRECT_URL`
-- Multi-tenant: todo modelo de negocio con `workspaceId`; verificar membership en cada action/service
+- Multi-tenant: todo **ledger** con `workspaceId`; verificar membership del **propio** personal en cada action/service de dinero. **Excepción (ADR-007):** `SplitGroup` se autoriza por `SplitGroupMember` `kind=user` (o `publicShareToken` en lectura). El `ExpenseSplit` puede FK-referenciar una `Transaction` de **otro** workspace personal (IOU ≠ ledger compartido).
 - RLS en Postgres como defensa en profundidad **deny-all** para `anon` / `authenticated` (KRI-18). No sustituye membership en servidor. Prisma (`DATABASE_URL`) bypasea RLS. Data API no debe exponer `public` (schema `postgrest_locked` o Data API off). Tras un `CREATE TABLE` nuevo en `public`, ejecutar `SELECT public.apply_rls_lockdown_to_public_tables();` (el rol `postgres` de Supabase no puede crear event triggers). Detalle: [security-audit.md](./security-audit.md) §1.
 - Logs SQL de Prisma: por defecto **no** se imprimen `query` en desarrollo. Activar solo con `PRISMA_LOG_QUERIES=1` (o `true`) vía `src/lib/env.ts` — ver [stack.md](./stack.md)
 

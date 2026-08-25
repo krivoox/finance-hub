@@ -57,11 +57,12 @@
 | ADR | Tema |
 |-----|------|
 | [001](./adr/001-money-as-integer-cents.md) | Dinero como enteros (centavos) |
-| [002](./adr/002-workspace-tenancy.md) | Workspace como unidad de tenancy |
+| [002](./adr/002-workspace-tenancy.md) | Workspace como unidad de tenancy (histórico; enmendado) |
 | [003](./adr/003-tdd-domain-only.md) | TDD solo en lógica de negocio |
 | [004](./adr/004-stack-siturn.md) | Stack Siturn (template) |
 | [005](./adr/005-changelog-semver.md) | Changelog automatizado y SemVer |
 | [006](./adr/006-multi-currency-ars-usd.md) | Multi-moneda ARS + USD |
+| [007](./adr/007-split-group-tenancy.md) | Workspace personal + SplitGroup (KRI-29; enmienda ADR-002) |
 
 ## Formato de una spec
 

@@ -57,7 +57,7 @@ Eliminar el **concepto de Workspace** (tenancy). Rompería ADR-002, Better Auth 
 
 **El hogar / el asado pasa a ser `SplitGroup`**, no un tenant.
 
-Conflicto con ADR-002: el ADR dice que el hogar *es* un workspace grupal. **No se reescribe el ADR en este cambio**; el arquitecto debe proponer enmienda: *Workspace = tenant personal; los grupos interpersonales son `SplitGroup` con acceso colaborativo vía miembros, no vía `Membership` de workspace.*
+Conflicto con ADR-002: el ADR original dice que el hogar *es* un workspace grupal. **Enmienda vigente:** [ADR-007](../adr/007-split-group-tenancy.md) — Workspace = tenant personal; los grupos interpersonales son `SplitGroup` con acceso colaborativo vía `SplitGroupMember`, no vía `Membership` de un tenant ajeno.
 
 Excepción de authz (producto): un `SplitGroup` tiene **dueño de datos** = workspace personal del creador, pero **otros usuarios-miembro** lo ven sin ser members del workspace de Ana. No ven cuentas ni movimientos personales de Ana, solo la proyección del grupo (nombres, splits, balances).
 
@@ -142,7 +142,7 @@ Riesgo principal de C: usuarios que ya usaban el workspace grupal como ledger de
 - Toggle de split **solo en alta de expense** (no income, no transfer, no desde `/groups` como form de carga).
 - Default: partes iguales entre **todos** los miembros actuales del grupo (incl. ghosts). Preview normativo.
 - Payer v1 = **quien registra** (su cuenta se debita; “vos pusiste todo”).
-- Moneda del grupo = `workspace.baseCurrency` al crear. Expense de otra moneda → no se puede splittear en ese grupo (el arquitecto fija el error).
+- Moneda del grupo = `workspace.baseCurrency` al crear. Expense de otra moneda → `SplitCurrencyMismatchError` (SPEC-10).
 - Delete del expense con split: cascada del split (igual espíritu SPEC-10 actual).
 - Authz: viewer de **workspace** ya no aplica a grupos; en SplitGroup no hay rol `viewer` en v1.
 
@@ -272,7 +272,7 @@ Agrupados por historia. Verificables en pantalla o por test de dominio (montos).
 
 ## 9. Modelo de dominio propuesto
 
-Lenguaje ubicuo. Invariantes de centavos y escenarios TDD profundos: **`business-logic-architect`** (no inventar aquí más que lo ya normativo en SPEC-10).
+Lenguaje ubicuo. Invariantes de centavos, errores tipados, frontera domain/service, escenarios TDD (T-01…T-20) y propuesta Prisma: **[SPEC-10](./10-expense-splitting.md)**. Tenancy: [ADR-007](../adr/007-split-group-tenancy.md).
 
 ```text
 User ── Membership ──► Workspace (siempre personal en producto)
@@ -306,7 +306,7 @@ User ── Membership ──► Workspace (siempre personal en producto)
 | userId | required si `user`; null si `ghost` |
 | displayName | ghosts: el nombre cargado; users: snapshot o displayName vivo |
 
-Invariantes de producto (el arquitecto formaliza):
+Invariantes de producto (cerradas en SPEC-10 / domain-model):
 
 - Creador queda como miembro `user` al crear.
 - Ghost: sin `userId`; no inicia sesión; igual entra en `allocate*`.
@@ -323,7 +323,7 @@ Invariantes de producto (el arquitecto formaliza):
 | method | `equal` (default) \| `exact` \| `percentage` |
 | shares | `Σ shareCents = amount` (SPEC-10) |
 
-La tx vive en el workspace del que pagó. El split vive anclado al `SplitGroup` (tenant del creador). Eso **cruza tenants a nivel FK** — frontera domain/services para el arquitecto; producto: *cada uno lleva su gasto en su ledger; el grupo solo guarda el IOU*.
+La tx vive en el workspace del que pagó. El split vive anclado al `SplitGroup` (tenant del creador). El cruce de tenants es un FK de IOU → tx (SPEC-10 T-09 / ADR-007). Producto: *cada uno lleva su gasto en su ledger; el grupo solo guarda el IOU*.
 
 ### Settlement
 
@@ -349,11 +349,11 @@ No dejar shims ni flags del modelo viejo.
 | SPEC-02 group ABM | `CreateGroupWorkspace`, leave/delete group tenant, rename **como grupo-tenant**, transfer ownership de group WS, `InviteMember` de workspace, `AcceptInvitation` de tenant, auto-accept de invites de grupo al `RegisterUser` |
 | UI | `workspace-switcher` (si queda 1 personal: ocultar/eliminar), `NewGroupWorkspaceForm`, `InviteMemberForm` de WS, `MembersManagement` de WS group, `DeleteGroupDialog` / `LeaveGroupButton` de tenant, `/groups/settings` como admin de workspace, `/invitaciones/[token]` de **tenant** |
 | Splits actuales | Gate `assertGroupWorkspace` / `NotAGroupWorkspaceError`; shares por `userId` de membership de group WS; overview de patrimonio Σ cuentas del group WS |
-| SPEC-14 | `CrossWorkspaceLink`, aporte Personal→Casa, selector de cuenta foreign, labels “Espacio personal de X”, gates `WorkspaceHasCrossLinks` / `AccountHasCrossWorkspaceLinks` **si ya no hay group WS** (el arquitecto confirma qué queda si solo hay personales — en la práctica no hay segundo tenant) |
+| SPEC-14 | `CrossWorkspaceLink`, aporte Personal→Casa, selector de cuenta foreign, labels “Espacio personal de X”, gates `WorkspaceHasCrossLinks` / `AccountHasCrossWorkspaceLinks`: **drop total** (no queda segundo tenant; ADR-007). |
 | Dashboard SPEC-12 | `memberBalances` de workspace group; CTA “Ver grupo” hacia tenant |
 | Onboarding SPEC-15 | Trigger post-`CreateGroupWorkspace`; copy “al crear un grupal” |
 | Nav | `/groups` se **queda** pero significa SplitGroups, no el tenant |
-| Prisma | `WorkspaceType.group` deja de usarse; datos group se borran; enum puede quedar un release “deprecated” o eliminarse en la misma migración (preferir **eliminar usos** y migrar rows; el arquitecto decide si drop del enum es el mismo PR) |
+| Prisma | Drop `WorkspaceType.group` (tras borrar rows), drop `Invitation`, drop `CrossWorkspaceLink`, reemplazar `ExpenseSplit`/`Settlement` por el schema SPEC-10 §12 (ancla `splitGroupId` + `memberId`). |
 | Guía | [workspaces-and-invites.md](../guides/workspaces-and-invites.md) se reescribe: invites pasan a SplitGroup |
 
 **No matar:** workspace personal, `getActiveWorkspaceForUser` (siempre el personal), membership owner del personal, onboarding de **cuentas** del personal (SPEC-15), auth Better Auth.
@@ -372,7 +372,7 @@ No dejar shims ni flags del modelo viejo.
 | **SPEC-01** | Quitar auto-accept de invitaciones de **workspace group**. Un invite de SplitGroup es otro token. |
 | **SPEC-03 / 06 / 07 / 08 / 16 / 18 / 20** | Quitar menciones operativas a group WS / SPEC-14 donde bloqueen delete o listados. SPEC-20: link público dinámico, no SW de saldos. |
 | **Visión** | Principio “hogar primero”: el hogar es **círculo de splits de primera clase**, no un segundo tenant. |
-| **ADR-002** | Conflicto señalado; enmienda a cargo del arquitecto (no reescrita aquí). |
+| **ADR-002 / ADR-007** | Enmienda aceptada: Workspace personal + SplitGroup; authz por miembro. |
 
 ## 12. Orden de implementación
 
@@ -381,7 +381,7 @@ Flujo de repo: spec (este doc + SPEC-10) → TDD dominio → services → action
 | Paso | Quién | Qué |
 |------|-------|-----|
 | 0 | PM (hecho) | Este brief / spec. Linear KRI-29 = fuente de intención. |
-| 1 | `business-logic-architect` | Enmienda ADR-002 (propuesta); invariantes SplitGroup/Member/Share; Given/When/Then de dominio (ghost, memberId, tenancy cruzada del split vs tx); errores tipados; frontera Prisma. Reusar `allocateEqual` / remainder. |
+| 1 | `business-logic-architect` | **Hecho.** [ADR-007](../adr/007-split-group-tenancy.md) + SPEC-10 dominio cerrado (invariantes, errores, T-01…T-20, Prisma). |
 | 2 | `software-engineer` | **Kill + migración** group WS y SPEC-14 (tests viejos de `NotAGroupWorkspace` / contribution se eliminan o se reemplazan). Usuario queda solo con personal. Cero código muerto. |
 | 3 | SE + TDD | Domain SplitGroup: create, add ghost, invite/join, balances con `memberId`. Tests primero. |
 | 4 | SE | Prisma + services + actions (`getSession`, Zod, authz: owner del grupo **o** user-miembro; público = token). |
@@ -395,7 +395,7 @@ No UI de splits sin tests de dominio verdes. No reintroducir switcher “por las
 
 ## 13. Comandos y consultas (borrador de producto)
 
-Nombres en inglés para código. El arquitecto puede renombrar; no son contratos de Prisma.
+Nombres en inglés para código. Contratos de dominio y Prisma: SPEC-10 §9 y §12.
 
 | Tipo | Nombre | Notas |
 |------|--------|-------|
@@ -424,7 +424,7 @@ Nombres en inglés para código. El arquitecto puede renombrar; no son contratos
 
 | Riesgo | Mitigación de producto |
 |--------|------------------------|
-| ADR-002 / authz “todo es membership de workspace” | Excepción explícita: acceso por `SplitGroupMember`; el arquitecto la documenta |
+| ADR-002 / authz “todo es membership de workspace” | Cerrado en ADR-007: acceso por `SplitGroupMember`; ledger sigue por membership del **propio** personal |
 | FK split (tenant Ana) → tx (tenant Bob) | v1 puede **limitar** a “solo el creador registra gastos” si el cruce es demasiado; **preferencia: cualquier user-miembro registra en su ledger**. Si se corta: Must = solo owner paga, Should = los demás. Decisión por defecto: **cualquier user-miembro paga desde su form** |
 | Link público filtra montos | Token largo; `noindex`; sin PII más que nombres elegidos; rotar token = later |
 | Usuarios con group WS en prod | Breaking; comunicar; hard-delete. Si hubiera datos reales, backup fuera de este epic |
@@ -441,10 +441,9 @@ Nombres en inglés para código. El arquitecto puede renombrar; no son contratos
 
 ## 17. Hand-off
 
-- → **`business-logic-architect`:** modelo `memberId`, ghosts, join, proyección pública, invariantes de shares, authz sin membership de workspace ajeno, enmienda ADR-002, escenarios TDD (incl. equal 100/3). Completar § reglas profundas de SPEC-10.
-- → **`ui-ux-developer`:** empty H1, sheet “Un grupo nuevo”, add member (dos caminos), form de gasto (toggle + preview + custom), detail de grupo, página pública. Mobile-first. No tokens/hex.
-- → **`software-engineer`:** kill list → dominio TDD → services/actions → UI. Tras specs de dominio listas. Testear el flujo completo (no dejar dead code).
+- → **`software-engineer`:** SPEC-10 + ADR-007 cerrados. Kill list → TDD dominio T-01…T-20 → Prisma §12 → services/actions → UI. Tras domain verde. Testear el flujo completo (no dejar dead code).
+- → **`ui-ux-developer`:** empty H1, sheet “Un grupo nuevo”, add member (dos caminos), form de gasto (toggle + preview + custom), detail de grupo, página pública. Mobile-first. No tokens/hex. Preview usa cents de `previewEqualSplit` (no otra regla).
 
 ## 18. Dependencias de docs a actualizar en el mismo epic (ingeniería)
 
-Además de esta spec y SPEC-10: `domain-model.md`, `glossary.md`, `roadmap.md`, `vision.md` (principio hogar), `guides/workspaces-and-invites.md`, banners en SPEC-02 y SPEC-14, menciones SPEC-05/12/13/15.
+Además de esta spec, SPEC-10 y ADR-007 (hechos en el diseño de dominio): `glossary.md`, `roadmap.md`, `vision.md` (principio hogar), `guides/workspaces-and-invites.md`, banners en SPEC-02 y SPEC-14, menciones SPEC-05/12/13/15 — el SE las alinea al matar código.
