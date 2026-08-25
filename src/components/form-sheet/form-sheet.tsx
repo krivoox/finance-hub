@@ -12,6 +12,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
+import { useIsMdUp } from "@/hooks/use-mobile";
+import { useKeyboardInset } from "@/hooks/use-keyboard-inset";
 import { cn } from "@/lib/utils";
 import { XIcon } from "lucide-react";
 
@@ -27,13 +29,23 @@ type FormSheetProps = {
   className?: string;
 };
 
+function scrollFocusedFieldIntoView(event: React.FocusEvent<HTMLDivElement>) {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+  if (!target.matches("input, textarea, select, [contenteditable='true']")) {
+    return;
+  }
+  window.requestAnimationFrame(() => {
+    target.scrollIntoView({ block: "center", behavior: "smooth" });
+  });
+}
+
 /**
- * Create/edit overlay: full-bleed from the right on mobile, fixed-width
- * drawer on desktop. Prefer this over a centered modal for multi-field forms.
+ * Create/edit overlay.
  *
- * Scroll contract (mobile): Sheet is viewport-capped (`h-dvh` + overflow-hidden);
- * only the body scrolls. Without that, flex-1 grows with form content and
- * División / footer stay unreachable.
+ * Mobile: bottom sheet (~92dvh, rounded top). Keyboard lifts the sheet
+ * (`visualViewport`) and the body scrolls so focused fields stay visible.
+ * Desktop (`md+`): right drawer, unchanged.
  */
 export function FormSheet({
   open,
@@ -45,21 +57,40 @@ export function FormSheet({
   children,
   className,
 }: FormSheetProps) {
+  const isMdUp = useIsMdUp();
+  const keyboardInset = useKeyboardInset();
+  const side = isMdUp ? "right" : "bottom";
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       {trigger ? <SheetTrigger asChild>{trigger}</SheetTrigger> : null}
       <SheetContent
-        side="right"
+        side={side}
         showCloseButton={false}
+        style={
+          isMdUp
+            ? undefined
+            : {
+                bottom: keyboardInset,
+                height: `min(92dvh, calc(100dvh - ${keyboardInset}px))`,
+                maxHeight: `min(92dvh, calc(100dvh - ${keyboardInset}px))`,
+              }
+        }
         className={cn(
-          // Full-bleed on mobile; capped drawer from sm+. Use data-[side=…]
-          // so we win over SheetContent’s side-specific width/border defaults.
-          "gap-0 overflow-hidden p-0",
-          "h-dvh max-h-dvh w-full data-[side=right]:h-dvh data-[side=right]:max-h-dvh data-[side=right]:w-full",
-          "data-[side=right]:border-l-0 sm:data-[side=right]:border-l",
-          "pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]",
-          size === "md" && "sm:max-w-md data-[side=right]:sm:max-w-md",
-          size === "lg" && "sm:max-w-lg data-[side=right]:sm:max-w-lg",
+          "z-[60] gap-0 overflow-hidden p-0",
+          isMdUp
+            ? [
+                "h-dvh max-h-dvh w-full data-[side=right]:h-dvh data-[side=right]:max-h-dvh data-[side=right]:w-full",
+                "data-[side=right]:border-l-0 sm:data-[side=right]:border-l",
+                "pt-[env(safe-area-inset-top)] pb-[env(safe-area-inset-bottom)]",
+                size === "md" && "sm:max-w-md data-[side=right]:sm:max-w-md",
+                size === "lg" && "sm:max-w-lg data-[side=right]:sm:max-w-lg",
+              ]
+            : [
+                "rounded-t-2xl border-t data-[side=bottom]:rounded-t-2xl",
+                "data-[side=bottom]:inset-x-0 data-[side=bottom]:border-t",
+                "pb-[env(safe-area-inset-bottom)]",
+              ],
           className,
         )}
       >
@@ -86,7 +117,10 @@ export function FormSheet({
             </Button>
           </SheetClose>
         </SheetHeader>
-        <div className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-y-contain px-4 py-4 pb-8 sm:px-5 sm:py-5 sm:pb-6">
+        <div
+          className="min-h-0 flex-1 touch-pan-y overflow-y-auto overscroll-y-contain px-4 py-4 pb-8 sm:px-5 sm:py-5 sm:pb-6"
+          onFocusCapture={scrollFocusedFieldIntoView}
+        >
           {children}
         </div>
       </SheetContent>

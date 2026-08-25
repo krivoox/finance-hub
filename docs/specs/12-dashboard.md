@@ -100,10 +100,12 @@ Pantalla principal: visión clara del estado financiero del workspace activo (pe
 - Snapshot con acentos `income`/`expense` sutiles; Sankey con tabs *Ingresos → gastos* y *Cuentas → gastos*
 - No meter analytics densos adicionales en el primer viewport; deep-dive en SPEC-11
 - Cotizaciones (SPEC-19): preferir mini-card en sidebar + caption/CTA liviano aquí; no un segundo widget denso de FX en el primer viewport. Distinguir copy “Cotización” vs “TC de consolidación”.
-- **Móvil (~390px):** las cards no empujan el viewport (`scrollWidth === clientWidth`). Grids de listado (próximas recurrentes, cuentas, actividad, objetivos): 1 columna en base, 2 desde `md` (no desde `sm`). Filas de dinero: identidad `min-w-0 truncate`; monto acotado. Patrimonio: `text-2xl sm:text-3xl md:text-4xl` + `break-words`. Overflow del shell: [DESIGN.md](../../DESIGN.md) §3.1.
+- **Móvil (~390px):** home del Panel = barras de gasto mensual + card de categorías (donut). Las cards no empujan el viewport (`scrollWidth === clientWidth`). Filas de dinero: identidad `min-w-0 truncate`; monto acotado. Overflow del shell: [DESIGN.md](../../DESIGN.md) §3.1.
 
 ## 10. Notas de implementación
 
 - `GetDashboard` reutiliza services existentes (`listAccounts`, `listTransactions`, `listBudgetsWithStatus`, `listGoals`, balances de grupo).
 - En el mismo request RSC, auth/tenancy y el snapshot de presupuestos están memoizados por request (`React.cache`) para no triplicar SQL al combinar layout (badge), `GetDashboard` y analytics — [architecture.md §7.1](../architecture.md).
+- El home móvil del Panel usa `getAnalyticsHome` (serie mensual + gastos por categoría por mes) y no espera `GetDashboard` ni insights.
+- Cookie `fh-shell` (`compact` | `full`): la escribe el AppShell con `matchMedia(md)`, no User-Agent. Sin cookie → compact. En compact el servidor **no** arranca `GetDashboard`/`getAnalytics`. Primer load desktop o resize: `router.refresh()` tras alinear la cookie. No es cache de saldos (SPEC-20).
 - No hay cache cross-request del read model: tras mutaciones, `revalidatePath` vuelve a cargar datos frescos.

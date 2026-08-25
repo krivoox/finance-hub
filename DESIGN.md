@@ -78,7 +78,7 @@ Rail navy flush a la izquierda (`Sidebar` `variant="sidebar"`) — **no** inset 
 | Presupuestos | `/budgets` | Planificación; badge at-risk si aplica |
 | Más | sheet bottom | Cuentas, Objetivos, Grupos, Recurrentes, Ajustes, workspace, tema, salir |
 
-**Craft:** barra full-width, no pill flotante. Activo = `bg-info-muted` + `text-info-muted-foreground` + label; inactivos = icono (`sr-only` + `aria-label`). Clearance: `pb-[calc(4.25rem+env(safe-area-inset-bottom))]`.
+**Craft:** barra full-width, no pill flotante. Cada tab muestra **icono + label debajo** (activo = `bg-info-muted` + `text-info-muted-foreground`). Clearance: `pb-[calc(4.75rem+env(safe-area-inset-bottom))]`.
 
 **Montaje (obligatorio):** `MobileTabBar` y `NewTransactionSheet` viven **fuera** del flex de `SidebarProvider`. Si la `<nav>` es hermana flex de `SidebarInset`, ensancha la página, aparece scroll lateral y la barra sale del viewport. Contrato: `position: fixed; left: 0; bottom: 0; width: 100%; max-width: 100%; z-50`. No usar `100vw` / `100dvw` (incluyen el gutter del scrollbar).
 
@@ -86,16 +86,16 @@ Rail navy flush a la izquierda (`Sidebar` `variant="sidebar"`) — **no** inset 
 
 ### 3.2 Create flows — FormSheet (no forms en la lista)
 
-Los formularios de carga (movimientos, cuentas, presupuestos, objetivos) **no viven en la página de lista**. Se abren en un **sheet lateral derecho** (`FormSheet`).
+Los formularios de carga (movimientos, cuentas, presupuestos, objetivos) **no viven en la página de lista**. Se abren en un **FormSheet**.
 
 | Viewport | Comportamiento |
 |----------|----------------|
-| Móvil | Sheet a **pantalla completa** (`w-full` / `h-dvh`, sin borde lateral) |
-| `sm+` | Drawer fijo (`sm:max-w-md` / `lg` para movimientos) — la lista queda visible detrás |
+| Móvil | **Bottom sheet** (~92dvh, esquinas superiores redondeadas). El teclado **empuja** el sheet (`interactive-widget: resizes-content` + `visualViewport`) y el cuerpo scrollea para que el campo con foco no quede tapado. |
+| `md+` | Drawer fijo a la **derecha** (`sm:max-w-md` / `lg` para movimientos) — la lista queda visible detrás |
 
 **Cerrar:** botón X en el header del sheet — `outline`, `rounded-full`, target táctil ≥40px en móvil (`size-10`). Neutro; no usar `destructive` (reservado a egresos y acciones destructivas).
 
-**Por qué no modal centrado:** los forms tienen muchos campos y secciones condicionales (splits, categorías). El sheet escala mejor mobile → desktop.
+**Por qué no modal centrado en desktop:** los forms tienen muchos campos y secciones condicionales (splits, categorías). El sheet escala mejor mobile (bottom) → desktop (drawer).
 
 ### 3.3 Onboarding first-run (excepción)
 
@@ -135,7 +135,7 @@ Componentes: `src/components/form-sheet/*`
 |-------|-------|--------------------|
 | (base) | &lt; 640px | Diseño por defecto: 1 columna, tab bar docked, tablas con columnas esenciales |
 | `sm` | ≥ 640px | Grids de formularios 2–3 cols; más padding |
-| `md` | ≥ 768px | Sidebar navy fijo / colapsable a iconos |
+| `md` | ≥ 768px | Sidebar navy fijo / colapsable a iconos; Panel: composición desktop (`fh-shell=full`) |
 | `lg` | ≥ 1024px | Dashboard: columna principal + rail |
 | `xl` | ≥ 1280px | Dashboard 2 col (`1fr` + 340px) cuando aplique |
 
@@ -352,12 +352,12 @@ Luego alinear variantes a este documento (nunca dejar colores de demo).
 
 Orden de lectura fijo. Chrome = `ContentPanel` (H1 “Resumen” + workspace · mes + CTA) sobre canvas. Bloques = `SurfaceSection` / `KpiTile`.
 
-**Móvil (liviano):**
+**Móvil (liviano — app de gasto):**
 
-1. **Patrimonio** — card hero: eyebrow `PATRIMONIO`, número Nunito extrabold, chips de moneda, sparkline de balance.
-2. **3 KPIs** (Ingresos / Gastos / Flujo) en cards propias.
-3. **Actividad reciente** — lista (icono + descripción + categoría/fecha + monto).
-4. Objetivos / Atención below-the-fold. Sankey y donut en `md+`.
+1. **Barras de gasto mensual** (últimos 6 meses). El mes activo usa `bg-cta`. Transferencias y `fx_*` **no** suman.
+2. **Gastos por categoría** — donut con total “Gastado”, barras vs. período anterior, lista. Tocá un mes para filtrar.
+
+Patrimonio, KPIs, actividad, Sankey y cuentas quedan en **`md+`**.
 
 **Desktop (`md+` / `lg:`):**
 

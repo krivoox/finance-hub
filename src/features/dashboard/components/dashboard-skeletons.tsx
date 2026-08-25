@@ -68,7 +68,7 @@ export function DashboardSpendingBarSkeleton() {
     <SurfaceSection aria-label="Cargando gastos del mes" className="md:hidden">
       <SurfaceHeaderSkeleton />
       <Skeleton className="mt-1 h-2.5 w-full rounded-full" />
-      <ul className="mt-3 space-y-2">
+      <ul className="mt-3 flex flex-col gap-2">
         {Array.from({ length: 3 }).map((_, i) => (
           <li key={i} className="flex items-center gap-2.5">
             <Skeleton className="size-2 shrink-0 rounded-full" />
@@ -78,6 +78,34 @@ export function DashboardSpendingBarSkeleton() {
         ))}
       </ul>
     </SurfaceSection>
+  );
+}
+
+export function DashboardMobileHomeSkeleton() {
+  return (
+    <div className="flex flex-col gap-5" aria-label="Cargando resumen de gastos">
+      <SurfaceSection>
+        <Skeleton className="h-3 w-28" />
+        <div className="mt-3 flex h-36 items-end gap-1">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton
+              key={i}
+              className="w-full rounded-t-md"
+              style={{ height: `${40 + ((i * 17) % 50)}%` }}
+            />
+          ))}
+        </div>
+      </SurfaceSection>
+      <SurfaceSection>
+        <Skeleton className="h-3 w-40" />
+        <Skeleton className="mx-auto mt-4 size-44 rounded-full" />
+        <div className="mt-6 flex flex-col gap-3">
+          <Skeleton className="h-3 w-36" />
+          <Skeleton className="h-2 w-full rounded-full" />
+          <Skeleton className="h-2 w-4/5 rounded-full" />
+        </div>
+      </SurfaceSection>
+    </div>
   );
 }
 
@@ -188,5 +216,27 @@ export function DashboardAccountsSkeleton() {
       <ListRowsSkeleton rows={4} />
       <Skeleton className={cn("mt-4 h-10 w-full rounded-xl")} />
     </SurfaceSection>
+  );
+}
+
+/** Shown at `md+` while `fh-shell` is still compact (first desktop paint / resize). */
+export function DashboardDesktopFallback() {
+  return (
+    <>
+      <div className="grid min-w-0 gap-5 lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)] lg:items-stretch lg:gap-6">
+        <DashboardBalanceSkeleton />
+        <DashboardRecentSkeleton />
+      </div>
+      <div className="grid min-w-0 gap-5 sm:gap-6 lg:grid-cols-2 lg:items-stretch">
+        <DashboardGoalsSkeleton />
+        <DashboardAttentionSkeleton />
+      </div>
+      <DashboardFlowChartsSkeleton />
+      <DashboardRecurringSkeleton />
+      <div className="grid min-w-0 gap-5 sm:gap-6 lg:grid-cols-2 lg:items-stretch">
+        <DashboardSpendingSkeleton />
+        <DashboardAccountsSkeleton />
+      </div>
+    </>
   );
 }

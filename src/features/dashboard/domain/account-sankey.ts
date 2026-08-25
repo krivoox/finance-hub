@@ -1,4 +1,8 @@
-import type { AnalyticsTransaction } from "./analytics-types";
+import {
+  UNCATEGORIZED_CATEGORY_ID,
+  UNCATEGORIZED_CATEGORY_NAME,
+  type AnalyticsTransaction,
+} from "./analytics-types";
 import type { CashflowSankey, CashflowSankeyLink, CashflowSankeyNode } from "./cashflow-sankey";
 
 export type SpendingFlow = {
@@ -31,8 +35,8 @@ export function aggregateSpendingFlows(
 
     const accountId = tx.accountId ?? "_unknown";
     const accountName = tx.accountName?.trim() || "Sin cuenta";
-    const categoryId = tx.categoryId ?? "_uncategorized";
-    const categoryName = tx.categoryName?.trim() || "Sin categoría";
+    const categoryId = tx.categoryId ?? UNCATEGORIZED_CATEGORY_ID;
+    const categoryName = tx.categoryName?.trim() || UNCATEGORIZED_CATEGORY_NAME;
     const key = `${accountId}::${categoryId}`;
 
     const existing = map.get(key);

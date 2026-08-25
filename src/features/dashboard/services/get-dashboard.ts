@@ -76,6 +76,38 @@ export type GetDashboardResult = {
 
 const DEFAULT_RECENT_LIMIT = 10;
 
+async function loadGroupMemberBalances(
+  userId: string,
+  workspaceId: string,
+): Promise<MemberBalanceItem[] | null> {
+  try {
+    const [balances, members] = await Promise.all([
+      getMemberBalances({ userId, workspaceId }),
+      prisma.membership.findMany({
+        where: { workspaceId },
+        include: {
+          user: {
+            select: { id: true, name: true, displayName: true, email: true },
+          },
+        },
+      }),
+    ]);
+    const nameById = new Map(
+      members.map((m) => [
+        m.userId,
+        m.user.displayName?.trim() || m.user.name || m.user.email,
+      ]),
+    );
+    return balances.map((b) => ({
+      ...b,
+      displayName: nameById.get(b.userId),
+    }));
+  } catch (err) {
+    if (!(err instanceof NotAGroupWorkspaceError)) throw err;
+    return null;
+  }
+}
+
 /**
  * SPEC-12 GetDashboard — full read model: balance, cashflow, recent txs,
  * budgets at risk, active goals, and member balances for group workspaces.
@@ -85,16 +117,23 @@ export async function getDashboard(
 ): Promise<GetDashboardResult> {
   await requireMembership(input.userId, input.workspaceId);
 
-  const workspace = await prisma.workspace.findUniqueOrThrow({
-    where: { id: input.workspaceId },
-    select: { type: true },
-  });
-
   const now = input.now ?? new Date();
   const period = getCurrentMonthPeriod(now, input.timezone);
   const recentLimit = input.recentLimit ?? DEFAULT_RECENT_LIMIT;
 
+  const workspaceP = prisma.workspace.findUniqueOrThrow({
+    where: { id: input.workspaceId },
+    select: { type: true },
+  });
+  // Group splits start as soon as `type` is known — not after accounts/goals/FX.
+  const memberBalancesP = workspaceP.then((workspace) =>
+    workspace.type === "group"
+      ? loadGroupMemberBalances(input.userId, input.workspaceId)
+      : Promise.resolve(null),
+  );
+
   const [
+    workspace,
     accounts,
     monthTransactions,
     recentResult,
@@ -102,7 +141,9 @@ export async function getDashboard(
     goals,
     upcomingRecurring,
     rateRow,
+    memberBalances,
   ] = await Promise.all([
+    workspaceP,
     listAccounts({
       userId: input.userId,
       workspaceId: input.workspaceId,
@@ -136,38 +177,8 @@ export async function getDashboard(
         quoteCurrency: true,
       },
     }),
+    memberBalancesP,
   ]);
-
-  let memberBalances: MemberBalanceItem[] | null = null;
-  if (workspace.type === "group") {
-    try {
-      const balances = await getMemberBalances({
-        userId: input.userId,
-        workspaceId: input.workspaceId,
-      });
-      const members = await prisma.membership.findMany({
-        where: { workspaceId: input.workspaceId },
-        include: {
-          user: {
-            select: { id: true, name: true, displayName: true, email: true },
-          },
-        },
-      });
-      const nameById = new Map(
-        members.map((m) => [
-          m.userId,
-          m.user.displayName?.trim() || m.user.name || m.user.email,
-        ]),
-      );
-      memberBalances = balances.map((b) => ({
-        ...b,
-        displayName: nameById.get(b.userId),
-      }));
-    } catch (err) {
-      if (!(err instanceof NotAGroupWorkspaceError)) throw err;
-      memberBalances = null;
-    }
-  }
 
   const balancesMap = computeBalancesByCurrency(accounts);
   const balancesByCurrency = balancesByCurrencyEntries(balancesMap);

@@ -63,7 +63,7 @@ export function MobileTabBar({
         className="fixed bottom-0 left-0 z-50 w-full max-w-full overflow-x-hidden border-t border-border bg-card/95 backdrop-blur-sm md:hidden"
       >
         <div
-          className="grid grid-cols-5 items-center gap-0.5 px-1.5 pt-1.5"
+          className="grid grid-cols-5 items-end gap-0.5 px-1.5 pt-1.5"
           style={{
             paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))",
           }}
@@ -71,7 +71,7 @@ export function MobileTabBar({
           {mobileTabItems.map((item) => {
             if (item.kind === "action") {
               return (
-                <div key={item.id} className="flex h-11 items-center justify-center">
+                <div key={item.id} className="flex h-12 items-center justify-center">
                   {canRegister ? (
                     <button
                       type="button"
@@ -169,8 +169,8 @@ type TabSlotProps = {
 function TabSlot({ active, label, icon, href, onClick, badge }: TabSlotProps) {
   const router = useRouter();
   const className = cn(
-    "relative flex h-11 w-full min-w-0 flex-col items-center justify-center gap-0.5 overflow-hidden rounded-xl px-1",
-    "text-[10px] font-medium leading-none transition-[background-color,color] duration-200 ease-out",
+    "relative flex h-12 w-full min-w-0 flex-col items-center justify-center gap-0.5 overflow-hidden rounded-xl px-0.5",
+    "text-[9px] font-medium leading-tight transition-[background-color,color] duration-200 ease-out",
     "focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
     "motion-reduce:transition-none",
     active
@@ -184,7 +184,7 @@ function TabSlot({ active, label, icon, href, onClick, badge }: TabSlotProps) {
         {icon}
         {badge}
       </span>
-      <span className={cn("min-w-0 truncate", !active && "sr-only")}>
+      <span className="min-w-0 max-w-full truncate text-center">
         {label}
       </span>
     </>
