@@ -57,14 +57,12 @@ function SidebarProvider({
   defaultOpen = true,
   open: openProp,
   onOpenChange: setOpenProp,
-  className,
-  style,
   children,
-  ...props
-}: React.ComponentProps<"div"> & {
+}: {
   defaultOpen?: boolean
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  children?: React.ReactNode
 }) {
   const isMobile = useIsMobile()
   const pathname = usePathname()
@@ -134,24 +132,40 @@ function SidebarProvider({
 
   return (
     <SidebarContext.Provider value={contextValue}>
-      <div
-        data-slot="sidebar-wrapper"
-        style={
-          {
-            "--sidebar-width": SIDEBAR_WIDTH,
-            "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
-            ...style,
-          } as React.CSSProperties
-        }
-        className={cn(
-          "group/sidebar-wrapper flex min-h-svh w-full min-w-0 max-w-full has-data-[variant=inset]:bg-sidebar",
-          className
-        )}
-        {...props}
-      >
-        {children}
-      </div>
+      {children}
     </SidebarContext.Provider>
+  )
+}
+
+/**
+ * Flex frame for sidebar + inset only.
+ * Keep MobileTabBar / overlays as siblings of this frame (not flex children)
+ * so they cannot widen the page. CSS vars still live here for the rail.
+ */
+function SidebarFrame({
+  className,
+  style,
+  children,
+  ...props
+}: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="sidebar-wrapper"
+      style={
+        {
+          "--sidebar-width": SIDEBAR_WIDTH,
+          "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
+          ...style,
+        } as React.CSSProperties
+      }
+      className={cn(
+        "group/sidebar-wrapper flex min-h-svh w-full min-w-0 max-w-full has-data-[variant=inset]:bg-sidebar",
+        className
+      )}
+      {...props}
+    >
+      {children}
+    </div>
   )
 }
 
@@ -687,6 +701,7 @@ export {
   Sidebar,
   SidebarContent,
   SidebarFooter,
+  SidebarFrame,
   SidebarGroup,
   SidebarGroupAction,
   SidebarGroupContent,

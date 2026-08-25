@@ -80,7 +80,7 @@ Rail navy flush a la izquierda (`Sidebar` `variant="sidebar"`) — **no** inset 
 
 **Craft:** barra full-width, no pill flotante. Cada tab muestra **icono + label debajo** (activo = `bg-info-muted` + `text-info-muted-foreground`). Clearance: `pb-[calc(4.75rem+env(safe-area-inset-bottom))]`.
 
-**Montaje (obligatorio):** `MobileTabBar` y `NewTransactionSheet` viven **fuera** del flex de `SidebarProvider`. Si la `<nav>` es hermana flex de `SidebarInset`, ensancha la página, aparece scroll lateral y la barra sale del viewport. Contrato: `position: fixed; left: 0; bottom: 0; width: 100%; max-width: 100%; z-50`. No usar `100vw` / `100dvw` (incluyen el gutter del scrollbar).
+**Montaje (obligatorio):** `SidebarProvider` (contexto) envuelve el shell entero, incluido el tab bar — el sheet “Más” usa `useSidebar`. `MobileTabBar` y `NewTransactionSheet` viven **fuera** del flex (`SidebarFrame`: solo sidebar + inset). Si la `<nav>` es hermana flex de `SidebarInset`, ensancha la página, aparece scroll lateral y la barra sale del viewport. Contrato: `position: fixed; left: 0; bottom: 0; width: 100%; max-width: 100%; z-50`. No usar `100vw` / `100dvw` (incluyen el gutter del scrollbar).
 
 **Desktop (`md+`):** sidebar navy intacto; tab bar `md:hidden`.
 
@@ -435,7 +435,7 @@ Card centrada, icono muted, título Nunito, copy “Esta sección estará dispon
 - [ ] Variantes CVA en lugar de className one-off repetido
 - [ ] Focus visible y estados vacíos/loading cubiertos
 - [ ] Montos con `.tabular`
-- [ ] Shell: sidebar navy flush + canvas slate + cards; tab bar docked **fuera** del flex de `SidebarProvider`
+- [ ] Shell: sidebar navy flush + canvas slate + cards; tab bar docked **fuera** del flex (`SidebarFrame`), **dentro** del contexto `SidebarProvider`
 - [ ] Mobile-first: layout base usable &lt; 640px; **sin scroll horizontal** (`scrollWidth === clientWidth`)
 - [ ] Skip link + contraste de `muted-foreground` + targets ≥40px en móvil
 - [ ] Sin reglas de negocio en la UI

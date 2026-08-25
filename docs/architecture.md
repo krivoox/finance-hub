@@ -210,7 +210,7 @@ Las páginas autenticadas son **RSC** (Prisma en servidor). El feedback al naveg
 | `experimental.staleTimes.static: 180` | Reuso de loading boundaries / prefetch completo en segmentos estáticos |
 | `src/lib/navigation.ts` | Helpers client post-mutación (`refreshAfterMutation`, `navigateAndRefresh`, `replaceAndRefresh`) |
 
-**Layout del shell (`AppShell`):** `SkipLink` → `#main-content` (`SidebarInset`). `SidebarProvider` envuelve **solo** sidebar + inset. `MobileTabBar` y `NewTransactionSheet` se montan **fuera** de ese flex (`position: fixed` abajo, `width: 100%`, sin `100vw`/`100dvw`). Si la tab bar es hermana flex de `SidebarInset`, aparece overflow horizontal y la barra sale del viewport visual. Cadena flex: `min-w-0 max-w-full` en provider/inset/`ContentPanel`; `html`/`body`: `overflow-x-hidden`. Craft y a11y: [DESIGN.md](../DESIGN.md) §3.1 / §3.4.
+**Layout del shell (`AppShell`):** `SkipLink` → `#main-content` (`SidebarInset`). `SidebarProvider` (contexto) envuelve **todo** el shell, incluido `MobileTabBar` / “Más” (`WorkspaceSwitcher` y `ThemeToggle` llaman `useSidebar`). El flex (`SidebarFrame`) envuelve **solo** sidebar + inset. `MobileTabBar` y `NewTransactionSheet` se montan **fuera** de ese flex (`position: fixed` abajo, `width: 100%`, sin `100vw`/`100dvw`). Si la tab bar es hermana flex de `SidebarInset`, aparece overflow horizontal y la barra sale del viewport visual. Cadena flex: `min-w-0 max-w-full` en frame/inset/`ContentPanel`; `html`/`body`: `overflow-x-hidden`. Craft y a11y: [DESIGN.md](../DESIGN.md) §3.1 / §3.4.
 
 **Contrato post-mutación (Client Components):**
 

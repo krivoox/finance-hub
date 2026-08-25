@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  SidebarFrame,
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
@@ -43,58 +44,64 @@ export function AppShell({
     <>
       <ShellLayoutSync />
       <SkipLink />
-      <SidebarProvider className="min-h-svh max-w-full overflow-x-hidden md:h-svh md:overflow-hidden">
-        <AppSidebar
+      <SidebarProvider>
+        {/*
+          Context wraps the whole shell so “Más” (WorkspaceSwitcher / ThemeToggle)
+          can call useSidebar. The flex frame is only sidebar + inset — if the
+          tab bar is a flex sibling of SidebarInset it widens the page and the
+          dock leaves the viewport.
+        */}
+        <SidebarFrame className="min-h-svh max-w-full overflow-x-hidden md:h-svh md:overflow-hidden">
+          <AppSidebar
+            user={user}
+            workspaces={workspaces}
+            activeWorkspace={activeWorkspace}
+            navBadges={navBadges}
+            usdQuotes={usdQuotes}
+            cafecitoUrl={cafecitoUrl}
+          />
+          {/*
+            Mobile: document/body scrolls (no nested overflow trap).
+            md+: capped viewport + nested scroll inside ContentPanel.
+            Canvas is always `bg-background` (slate paper / navy night).
+          */}
+          <SidebarInset
+            id="main-content"
+            tabIndex={-1}
+            className="flex min-h-svh min-w-0 max-w-full flex-col bg-background outline-none md:h-svh md:max-h-svh md:overflow-hidden"
+          >
+            <OfflineBanner />
+            {/*
+              Desktop: collapse trigger only — page title lives in ContentPanel.
+              Mobile: tab bar is primary nav; ContentPanel owns the H1.
+            */}
+            <header className="hidden h-11 shrink-0 items-center gap-2 px-3 md:flex">
+              <SidebarTrigger className="-ml-1 size-9" />
+            </header>
+            <div
+              className={`flex min-w-0 flex-1 flex-col overflow-x-hidden p-0 pt-[env(safe-area-inset-top)] md:min-h-0 md:overflow-hidden ${MOBILE_TAB_BAR_CLEARANCE}`}
+            >
+              {children}
+            </div>
+            <InstallPrompt />
+            <CafecitoDonationDialog donationUrl={cafecitoUrl} />
+          </SidebarInset>
+        </SidebarFrame>
+
+        <MobileTabBar
           user={user}
           workspaces={workspaces}
           activeWorkspace={activeWorkspace}
           navBadges={navBadges}
-          usdQuotes={usdQuotes}
+          canRegister={Boolean(activeWorkspace) && canMutate}
           cafecitoUrl={cafecitoUrl}
         />
-        {/*
-          Mobile: document/body scrolls (no nested overflow trap).
-          md+: capped viewport + nested scroll inside ContentPanel.
-          Canvas is always `bg-background` (slate paper / navy night).
-          Tab bar lives *outside* this flex row so it cannot widen the page
-          or become a third column (that hid the dock and caused lateral scroll).
-        */}
-        <SidebarInset
-          id="main-content"
-          tabIndex={-1}
-          className="flex min-h-svh min-w-0 max-w-full flex-col bg-background outline-none md:h-svh md:max-h-svh md:overflow-hidden"
-        >
-          <OfflineBanner />
-          {/*
-            Desktop: collapse trigger only — page title lives in ContentPanel.
-            Mobile: tab bar is primary nav; ContentPanel owns the H1.
-          */}
-          <header className="hidden h-11 shrink-0 items-center gap-2 px-3 md:flex">
-            <SidebarTrigger className="-ml-1 size-9" />
-          </header>
-          <div
-            className={`flex min-w-0 flex-1 flex-col overflow-x-hidden p-0 pt-[env(safe-area-inset-top)] md:min-h-0 md:overflow-hidden ${MOBILE_TAB_BAR_CLEARANCE}`}
-          >
-            {children}
-          </div>
-          <InstallPrompt />
-          <CafecitoDonationDialog donationUrl={cafecitoUrl} />
-        </SidebarInset>
+
+        <NewTransactionSheet
+          enabled={Boolean(activeWorkspace) && canMutate}
+          workspaceId={activeWorkspace?.id ?? null}
+        />
       </SidebarProvider>
-
-      <MobileTabBar
-        user={user}
-        workspaces={workspaces}
-        activeWorkspace={activeWorkspace}
-        navBadges={navBadges}
-        canRegister={Boolean(activeWorkspace) && canMutate}
-        cafecitoUrl={cafecitoUrl}
-      />
-
-      <NewTransactionSheet
-        enabled={Boolean(activeWorkspace) && canMutate}
-        workspaceId={activeWorkspace?.id ?? null}
-      />
     </>
   );
 }

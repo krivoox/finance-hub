@@ -59,7 +59,7 @@ Reutilizar el sheet existente cuando aplique:
 2. **Offline honesto** — sin red en Panel/Cuentas → `/offline` o mensaje claro; nunca patrimonio stale.
 3. **Acción frecuente primero** — registrar gasto/ingreso es el happy path móvil (acceso &lt;2 taps / shortcut OS).
 4. Auth sigue **Better Auth**; hosting **Vercel**. No PocketBase, no Caddy self-host, no Workbox “offline app” genérico.
-5. **Tab bar en el viewport visual** — `MobileTabBar` y `NewTransactionSheet` se montan **fuera** del flex de `SidebarProvider` (`position: fixed; left: 0; bottom: 0; width: 100%`). Overflow horizontal del canvas saca la barra `fixed` del área visible; contrato `min-w-0` + `overflow-x-hidden` ([DESIGN.md](../../DESIGN.md) §3.1.1, [architecture §7.2](../architecture.md)). No `100vw`/`100dvw` en la nav (incluyen el gutter del scrollbar).
+5. **Tab bar en el viewport visual** — `MobileTabBar` y `NewTransactionSheet` se montan **fuera** del flex (`SidebarFrame`: solo sidebar + inset) y **dentro** del contexto `SidebarProvider` (`position: fixed; left: 0; bottom: 0; width: 100%`). Overflow horizontal del canvas saca la barra `fixed` del área visible; contrato `min-w-0` + `overflow-x-hidden` ([DESIGN.md](../../DESIGN.md) §3.1.1, [architecture §7.2](../architecture.md)). No `100vw`/`100dvw` en la nav (incluyen el gutter del scrollbar).
 
 ## 5. Criterios de aceptación
 
