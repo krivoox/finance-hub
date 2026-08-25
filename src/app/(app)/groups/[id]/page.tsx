@@ -4,7 +4,7 @@ import { ChevronLeft } from "lucide-react";
 
 import { ContentPanel } from "@/components/app-shell/content-panel";
 import { getSession } from "@/lib/session";
-import { env } from "@/lib/env";
+import { getRequestOrigin } from "@/lib/request-origin";
 import { getSplitGroup } from "@/features/splits/services";
 import { SplitNotFoundError, NotSplitGroupUserMemberError } from "@/features/splits/domain";
 import { SplitGroupDetail } from "@/features/splits/components/split-group-detail";
@@ -34,7 +34,8 @@ export default async function SplitGroupDetailPage({
     throw err;
   }
 
-  const shareUrl = `${env.BETTER_AUTH_URL}/s/${group.publicShareToken}`;
+  const origin = await getRequestOrigin();
+  const shareUrl = `${origin}/s/${group.publicShareToken}`;
 
   return (
     <ContentPanel

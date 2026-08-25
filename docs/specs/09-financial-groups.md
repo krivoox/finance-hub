@@ -171,8 +171,8 @@ Riesgo principal de C: usuarios que ya usaban el workspace grupal como ledger de
 |----|-----------|
 | FR-01 | `/groups` lista los SplitGroups del usuario (creador o user-miembro). Empty: copy del asado + CTA “Crear un grupo”. **No** hay form de carga de gasto aquí. Footer/nota: los gastos divididos se cargan al registrar un gasto. |
 | FR-02 | Crear grupo: título “Un grupo nuevo”; nombre (placeholder “Casa, Asado del sábado…”); tipo “Qué es”: *Algo que sigue (casa, viaje largo)* = `ongoing`; *Algo de una vez (asado, salida)* = `one_time`. |
-| FR-03 | Agregar miembro: (a) “Tiene Plata: mandarle un enlace”; (b) “Sólo el nombre” (ghost). |
-| FR-04 | Link público copiable; página sin auth con proyección limitada (FR-05). |
+| FR-03 | Agregar miembro: (a) enlace de invitación **visible** en el detalle (URL a la vista + copiar + WhatsApp); (b) “Sólo el nombre” (ghost). |
+| FR-04 | Link público copiable; la URL se muestra en el detalle (no solo clipboard). Página sin auth con proyección limitada (FR-05). El origin del enlace es el host de la request (alias de preview / prod), no un hostname efímero. |
 | FR-05 | Proyección pública: nombre del grupo, miembros (solo `displayName`), net balances, actividad de splits (descripcion/monto/quién pagó). Sin cuentas, categorías internas, ni patrimonio. |
 | FR-06 | Alta de expense: si el usuario tiene ≥1 grupo, toggle “Dividirlo con alguien”. Selector de grupo. Default iguales entre miembros del grupo. Preview en lenguaje natural. Link “Repartirlo de otra forma” (H9). |
 | FR-07 | Sin grupos: el toggle no aparece o lleva a crear grupo (no callejón sin salida). |
@@ -223,7 +223,11 @@ Agrupados por historia. Verificables en pantalla o por test de dominio (montos).
 
 ### H4 Invite usuario
 
-- **Given** grupo + enlace “Tiene Plata”  
+- **Given** grupo “Casa”  
+- **When** abre el detalle  
+- **Then** ve el enlace `/s/{token}` a la vista (input de solo lectura), puede copiarlo y mandarlo por WhatsApp; no depende de que el clipboard funcione
+
+- **Given** grupo + enlace de invitación  
 - **When** un usuario logueado (distinto del owner) acepta  
 - **Then** es user-miembro; ve el grupo en **su** `/groups`; **no** entra al workspace personal de Ana; **no** ve las cuentas de Ana
 

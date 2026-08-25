@@ -42,7 +42,7 @@ export function AddMemberForm({
       await navigator.clipboard.writeText(shareUrl);
       toast.success("Enlace copiado. Mandalo por WhatsApp.");
     } catch {
-      toast.error("No se pudo copiar el enlace");
+      toast.error("No se pudo copiar. Seleccioná el enlace a mano.");
     }
   };
 
@@ -51,44 +51,65 @@ export function AddMemberForm({
   )}`;
 
   return (
-    <div className="space-y-4">
-      <FormField label="Cómo se llama" htmlFor="ghost-name">
-        <Input
-          id="ghost-name"
-          value={name}
-          onChange={(event) => setName(event.target.value)}
-          placeholder="Ana"
-        />
-      </FormField>
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <Button
-          type="button"
-          className="h-11 rounded-xl"
-          onClick={handleCopyLink}
+    <div className="space-y-6">
+      <div className="space-y-3">
+        <FormField
+          label="Cómo se llama"
+          htmlFor="ghost-name"
+          hint="Si no tiene la app, alcanza con el nombre."
         >
-          Tiene la app: mandarle un enlace
-        </Button>
+          <Input
+            id="ghost-name"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder="Ana"
+          />
+        </FormField>
         <Button
           type="button"
           variant="outline"
-          className="h-11 rounded-xl"
+          className="h-11 w-full rounded-xl sm:w-auto"
           disabled={isPending || name.trim().length === 0}
           onClick={handleGhost}
         >
           Sólo el nombre
         </Button>
       </div>
-      <p className="text-xs text-muted-foreground">
-        El enlace también se puede abrir sin la app.{" "}
-        <a
-          href={whatsappHref}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="underline underline-offset-2"
+
+      <div className="space-y-3">
+        <FormField
+          label="Enlace para invitar"
+          htmlFor="split-share-url"
+          hint="Quien lo abre ve quién debe, tenga o no la app. Si tiene cuenta, puede sumarse."
         >
-          Mandar por WhatsApp
-        </a>
-      </p>
+          <Input
+            id="split-share-url"
+            value={shareUrl}
+            readOnly
+            onFocus={(event) => event.currentTarget.select()}
+            className="font-mono text-xs"
+          />
+        </FormField>
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <Button
+            type="button"
+            className="h-11 rounded-xl"
+            onClick={handleCopyLink}
+          >
+            Copiar enlace
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            className="h-11 rounded-xl"
+            asChild
+          >
+            <a href={whatsappHref} target="_blank" rel="noopener noreferrer">
+              Mandar por WhatsApp
+            </a>
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }
