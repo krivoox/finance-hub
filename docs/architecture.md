@@ -170,7 +170,7 @@ export default async function AccountsPage() {
 ## 7. Datos
 
 - Schema Prisma = fuente de verdad relacional
-- Runtime: `DATABASE_URL`; migraciones CLI: `DIRECT_URL`
+- Runtime: `DATABASE_URL`; migraciones CLI: `DIRECT_URL`. Preview/prod: `npm run db:deploy` corre **antes** de `next build` en Vercel.
 - Multi-tenant: todo **ledger** con `workspaceId`; verificar membership del **propio** personal en cada action/service de dinero. **Excepción (ADR-007):** `SplitGroup` se autoriza por `SplitGroupMember` `kind=user` (o `publicShareToken` en lectura). El `ExpenseSplit` puede FK-referenciar una `Transaction` de **otro** workspace personal (IOU ≠ ledger compartido).
 - RLS en Postgres como defensa en profundidad **deny-all** para `anon` / `authenticated` (KRI-18). No sustituye membership en servidor. Prisma (`DATABASE_URL`) bypasea RLS. Data API no debe exponer `public` (schema `postgrest_locked` o Data API off). Tras un `CREATE TABLE` nuevo en `public`, ejecutar `SELECT public.apply_rls_lockdown_to_public_tables();` (el rol `postgres` de Supabase no puede crear event triggers). Detalle: [security-audit.md](./security-audit.md) §1.
 - Logs SQL de Prisma: por defecto **no** se imprimen `query` en desarrollo. Activar solo con `PRISMA_LOG_QUERIES=1` (o `true`) vía `src/lib/env.ts` — ver [stack.md](./stack.md)
