@@ -103,9 +103,10 @@ export function Select({
           className={cn(
             // FormSheet (Radix Dialog) sets pointer-events: none on the rest of
             // the document; portaled menus must opt back in.
-            "pointer-events-auto z-[60] max-h-(--radix-select-content-available-height) w-(--radix-select-trigger-width) min-w-32 origin-(--radix-select-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10",
-            "duration-100 data-[side=bottom]:translate-y-1 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:-translate-x-1 data-[side=left]:slide-in-from-right-2 data-[side=right]:translate-x-1 data-[side=right]:slide-in-from-left-2 data-[side=top]:-translate-y-1 data-[side=top]:slide-in-from-bottom-2",
-            "data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+            "pointer-events-auto z-[60] max-h-(--radix-select-content-available-height) w-(--radix-select-trigger-width) min-w-32 overflow-x-hidden overflow-y-auto rounded-lg bg-popover text-popover-foreground shadow-md ring-1 ring-foreground/10",
+            // No zoom/translate on the menu: transforms offset hit-testing on
+            // iOS so the tapped option is not the one that receives the event.
+            "duration-100 data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
           )}
         >
           <SelectPrimitive.Viewport className="p-1">

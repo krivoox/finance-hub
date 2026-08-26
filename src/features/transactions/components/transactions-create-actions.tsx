@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { NewCurrencyExchangeForm } from "@/features/currency-exchange/components/new-currency-exchange-form";
 import { replaceAndRefresh } from "@/lib/navigation";
 
+import { formOptionsIntentPrefetchHandlers } from "../stores/new-transaction-form-options-store";
 import { useNewTransactionSheetStore } from "../stores/new-transaction-sheet-store";
 
 type AccountOption = {
@@ -75,6 +76,7 @@ export function TransactionsCreateActions({
         type="button"
         className="w-full gap-1.5 sm:w-auto"
         onClick={() => openNewTransaction()}
+        {...formOptionsIntentPrefetchHandlers()}
       >
         <Plus className="size-4" strokeWidth={1.75} />
         Nueva transacción

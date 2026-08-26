@@ -6,6 +6,7 @@ import { useState } from "react";
 import { AlertTriangle } from "lucide-react";
 
 import { useNewTransactionSheetStore } from "@/features/transactions/stores/new-transaction-sheet-store";
+import { formOptionsIntentPrefetchHandlers } from "@/features/transactions/stores/new-transaction-form-options-store";
 import { cn } from "@/lib/utils";
 
 import type { SidebarUser } from "./app-sidebar";
@@ -72,6 +73,7 @@ export function MobileTabBar({
                       type="button"
                       onClick={() => openNewTransaction()}
                       aria-label={item.title}
+                      {...formOptionsIntentPrefetchHandlers()}
                       className={cn(
                         "flex size-11 items-center justify-center rounded-xl bg-cta text-primary-foreground shadow-card",
                         "transition-transform duration-200 ease-out active:scale-95",

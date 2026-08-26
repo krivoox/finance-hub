@@ -43,7 +43,7 @@ flowchart TB
   subgraph client [Cliente]
     Pages[app/ pages]
     CC[Client Components]
-    RQ[React Query]
+    Z[Zustand UI + catálogos del form]
   end
   subgraph server [Next.js servidor]
     RSC[Server Components]
@@ -63,7 +63,7 @@ flowchart TB
   end
   Pages --> RSC
   Pages --> CC
-  CC --> RQ
+  CC --> Z
   RSC --> SVC
   SA --> SVC
   SVC --> DOM
@@ -227,6 +227,7 @@ El `refresh` se difiere con `setTimeout(0)` para que corra **después** del `pus
 
 - Destinos de `mainNavItems` / `mobileTabItems` / `mobileMoreNavItems` (`src/components/app-shell/nav-config.ts`) deben poder prefetcharse (idle tras pintar el shell; opcional intent en hover/focus/touchstart).
 - Prefetch calienta el shell RSC; **no** relaja `staleTimes.dynamic: 0` ni habilita TTL cross-request de saldos (§7.1).
+- Catálogos del sheet “Registrar” (cuentas, categorías, grupos de split — **nombres/ids, no saldos**): prefetch al montar el shell + cache de sesión en Zustand. Al abrir se revalida en background. No React Query.
 - Coverage objetivo (SPEC-20): ≥90 % de taps del nav principal llegan a prefetch hit o in-flight.
 - Al agregar un link de menú, incluirlo en la estrategia de prefetch.
 

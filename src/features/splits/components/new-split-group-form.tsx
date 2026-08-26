@@ -15,6 +15,7 @@ import { FormActions, FormField, FormStack } from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { navigateAndRefresh } from "@/lib/navigation";
+import { invalidateNewTransactionFormOptions } from "@/features/transactions/stores/new-transaction-form-options-store";
 
 type NewSplitGroupFormProps = {
   onSuccess?: () => void;
@@ -41,6 +42,7 @@ export function NewSplitGroupForm({ onSuccess }: NewSplitGroupFormProps) {
         return;
       }
       toast.success("Grupo creado");
+      invalidateNewTransactionFormOptions();
       reset({ name: "" });
       onSuccess?.();
       navigateAndRefresh(router, `/groups/${result.data.id}`);

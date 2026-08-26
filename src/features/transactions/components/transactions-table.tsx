@@ -21,6 +21,8 @@ import {
   AbmCell,
   AbmGlyph,
   AbmMoney,
+  AbmRowHitLink,
+  ABM_STRETCH_LINK_CLASS,
 } from "@/components/abm-table";
 import {
   BulkActionsBar,
@@ -322,7 +324,7 @@ export function TransactionsTable({
               return (
                 <TableRow
                   key={tx.id}
-                  className="relative border-border/60"
+                  className="border-border/60"
                   data-state={
                     selection.isSelected(tx.id) ? "selected" : undefined
                   }
@@ -343,7 +345,10 @@ export function TransactionsTable({
                         <div className="flex min-w-0 items-center gap-1.5">
                           <Link
                             href={`/transactions/${tx.id}`}
-                            className="min-w-0 truncate font-semibold text-foreground after:absolute after:inset-0 hover:underline"
+                            className={cn(
+                              "min-w-0 truncate font-semibold text-foreground",
+                              ABM_STRETCH_LINK_CLASS,
+                            )}
                             {...navIntentPrefetchHandlers(
                               router,
                               `/transactions/${tx.id}`,
@@ -407,6 +412,7 @@ export function TransactionsTable({
                     {formatDateOnly(tx.occurredOn)}
                   </AbmCell>
                   <AbmCell slot="amount">
+                    <AbmRowHitLink href={`/transactions/${tx.id}`} />
                     <AbmMoney
                       cents={signedAmountCents(tx.type, tx.amountCents)}
                       currency={tx.currency}
