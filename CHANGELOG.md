@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Replace group workspaces with SplitGroups
 
+- Drop group kind and add group and member ABM
+
+- Show split-group spending by category
+
 ### Fixed
 
 - **ui:** Keep the mobile tab bar in view and avoid stale JS in next dev
@@ -42,6 +46,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **nav:** Add inline theme control for modal sheets
 
 - **nav:** Drop duplicate account header in Más sheet
+
+- Keep the post-expense splash visible and lift dimmed numbers
+
+- Advance goal progress bars on small contributions
+
+- Keep recurring confirm actions inside the table
+
+- Hide the unused currency-exchange create button
 
 [Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.16.0...HEAD
 
