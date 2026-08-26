@@ -11,9 +11,14 @@ import {
   FormStack,
   SegmentedControl,
 } from "@/components/form-sheet";
+import { AmountInput } from "@/components/amount-input";
 import { DateField } from "@/components/date-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  formatCentsAsAmountInput,
+  parseAmountCents,
+} from "@/domain/money/parse-amount";
 import { Textarea } from "@/components/ui/textarea";
 import { nativeSelectClassName } from "@/components/ui/native-select";
 import { CategoryPicker } from "@/features/categories/components/category-picker";
@@ -112,10 +117,6 @@ export type RecurringFormMode =
 
 type RecurringFormProps = CommonProps & { mode: RecurringFormMode };
 
-function centsToUnits(cents: number): string {
-  return (cents / 100).toFixed(2);
-}
-
 export function RecurringForm({
   mode,
   workspaceId,
@@ -140,7 +141,7 @@ export function RecurringForm({
     defaultValues: {
       name: initial?.name ?? "",
       type: initial?.type ?? "expense",
-      amountUnits: initial ? centsToUnits(initial.amountCents) : "",
+      amountUnits: initial ? formatCentsAsAmountInput(initial.amountCents) : "",
       accountId: initial?.accountId ?? "",
       counterpartyAccountId: initial?.counterpartyAccountId ?? "",
       categoryId: initial?.categoryId ?? "",
@@ -195,13 +196,8 @@ export function RecurringForm({
   }, [frequency, startDate, endDate]);
 
   const onSubmit = handleSubmit((values) => {
-    const parsedUnits = Number(values.amountUnits.replace(",", "."));
-    if (!Number.isFinite(parsedUnits) || parsedUnits <= 0) {
-      toast.error("Monto inválido");
-      return;
-    }
-    const amountCents = Math.round(parsedUnits * 100);
-    if (!Number.isInteger(amountCents) || amountCents <= 0) {
+    const amountCents = parseAmountCents(values.amountUnits);
+    if (amountCents === null) {
       toast.error("Monto inválido");
       return;
     }
@@ -324,14 +320,8 @@ export function RecurringForm({
           hint={`En ${currency}`}
           error={errors.amountUnits?.message}
         >
-          <Input
+          <AmountInput
             id="rec-amount"
-            type="number"
-            inputMode="decimal"
-            min={0}
-            step="0.01"
-            placeholder="0,00"
-            className="tabular-nums"
             aria-invalid={Boolean(errors.amountUnits)}
             {...register("amountUnits", { required: true })}
           />
@@ -501,7 +491,7 @@ export function RecurringForm({
           <Button
             type="button"
             variant="outline"
-            className="h-10 w-full sm:h-8 sm:w-auto"
+            className="w-full sm:w-auto"
             disabled={isBusy}
             onClick={onCancel}
           >
@@ -510,7 +500,7 @@ export function RecurringForm({
         ) : null}
         <Button
           type="submit"
-          className="h-10 w-full sm:h-8 sm:w-auto"
+          className="w-full sm:w-auto"
           disabled={isBusy}
         >
           {isBusy

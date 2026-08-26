@@ -1,6 +1,6 @@
 # Finance Hub — Design System
 
-> Referencia visual: [Dub](https://dub.co/) (producto + brand kit).  
+> Referencia visual: prototipo Figma Make ([ledger navy](https://snail-alter-01697042.figma.site/)).  
 > Stack UI: **shadcn/ui** (Radix) + Tailwind CSS v4 + tokens semánticos en `src/app/globals.css`.  
 > Fuente de verdad de producto: `docs/`. Este archivo es la fuente de verdad de **UI/UX**.
 
@@ -12,56 +12,61 @@
 |----------|-----------|
 | **Quién** | Persona o pareja que abre la app entre tareas del día para registrar un gasto, mirar saldos o revisar el presupuesto. |
 | **Qué debe lograr** | Entender el estado del dinero en segundos y actuar (registrar, transferir, ajustar presupuesto). |
-| **Cómo debe sentirse** | Calmado, preciso, premium — escritorio financiero en blanco/gris neutro, con color solo donde comunica (ingresos, egresos, foco). |
+| **Cómo debe sentirse** | Preciso y calmado, con un escritorio financiero de **navy + slate**: rail oscuro a la izquierda, papel slate claro, color solo donde comunica (azul de acción, verde ingreso, rosa egreso). |
 
 **Dominio (metáforas):** ledger, saldos, flujo de caja, presupuestos, objetivos, splits compartidos.  
-**Mundo de color:** blanco y grises neutros (sin croma azul en superficies), tinta, verde ingreso, rojo egreso, azul solo como acento de acción (`info`). Dark: charcoal neutro en escalera.  
-**Firma:** sidebar (desktop) + tab bar flotante (móvil) + panel de contenido; Sankey de flujo en el dashboard (md+).  
-**Defaults que rechazamos:** cards genéricas en grid 3×N, purple-indigo SaaS, cream+serif terracotta, papel azulado / cool wash, dark-mode-first sin toggle, canvas beige cálido como default, CTA lime/yellow, hex sueltos en componentes.
+**Mundo de color:** navy (`#0f1629`) del rail, papel slate-50, cards blancas, azul CTA, emerald ingreso, rose egreso, indigo transferencia.  
+**Firma:** sidebar **siempre navy** (también en tema claro) + canvas slate con **cards blancas independientes** (no un panel único envolvente) + CTA en degradé azul.  
+**Defaults que rechazamos:** sidebar clara tipo Dub, canvas achromático / cream+serif, purple-indigo SaaS, CTA ink/negro, un único content-panel con radio que envuelve toda la página, Geist como UI face, hex sueltos en componentes.
 
 ---
 
 ## 2. Principios
 
-1. **Tokens primero.** Todo color pasa por variables CSS semánticas. Cero hex / `zinc-*` / `blue-*` en UI de producto.
+1. **Tokens primero.** Todo color pasa por variables CSS semánticas. Cero hex / `zinc-*` / `slate-*` / `blue-*` en UI de producto.
 2. **Variantes, no overrides.** Estilos repetidos viven en CVA (`variant` / `size`) del componente shadcn o de un wrapper de producto.
-3. **Un acento interactivo.** El azul `info` comunica selección y foco. El negro `primary` comunica acción primaria (CTA).
-4. **Jerarquía por peso y color, no solo por tamaño.** Labels muted + valores en `foreground` + montos con `tabular-nums`.
-5. **Profundidad quieta.** Bordes hairline + sombra suave. Sin drop-shadows dramáticos.
+3. **Azul = acción.** El degradé `bg-cta` (y el token `primary` / `info`) comunica CTA, foco y nav activa. No usar tinta negra como botón primario.
+4. **Jerarquía por peso, color y familia.** Títulos en Nunito extrabold; labels muted + tracking-widest; montos con `.tabular` (Nunito + `tabular-nums`).
+5. **Profundidad quieta.** Cards: borde hairline slate + `shadow-card`. Sin drop-shadows dramáticos.
 6. **shadcn antes que inventar.** Buscar en `src/components/ui/*` antes de crear un control nuevo.
 7. **La UI no contiene reglas de negocio.** Solo presenta datos ya resueltos por domain/application.
-8. **Mobile-first.** El layout base es el teléfono. `sm:` / `md:` / `lg:` solo enriquecen; nunca al revés (`max-md:` como regla general está prohibido salvo excepciones puntuales).
+8. **Mobile-first.** El layout base es el teléfono. `sm:` / `md:` / `lg:` solo enriquecen.
 
 ---
 
 ## 3. App shell (layout firma)
 
-Sidebar único estilo dashboard (shadcn inset) — **sin** rail de iconos oscuro.
+Rail navy flush a la izquierda (`Sidebar` `variant="sidebar"`) — **no** inset flotante, **no** rail de iconos aparte.
 
 ```
-┌────────────────────┬──────────────────────────────────────────┐
-│ Sidebar            │  Header (trigger + título de página)     │
-│ · workspace        ├──────────────────────────────────────────┤
-│ · Registrar + CTA  │  Content panel (card)                    │
-│ · nav principal    │  título · filtros · tabla / vista        │
-│ · grupos           │                                          │
-│ · user / ajustes   │                                          │
-└────────────────────┴──────────────────────────────────────────┘
+┌──────────────┬─────────────────────────────────────────────┐
+│ Sidebar navy │  (md+) trigger de colapso                   │
+│ 220px        ├─────────────────────────────────────────────┤
+│ · workspace  │  Canvas slate                                │
+│ · CTA azul   │  H1 Nunito + subtítulo + acciones            │
+│ · nav        │  Cards blancas (patrimonio, KPIs, listas…)  │
+│ · grupos     │  max-w 1400px, padding 16/24/32              │
+│ · dólar      │                                              │
+│ · user       │                                              │
+└──────────────┴─────────────────────────────────────────────┘
 ```
 
 | Zona | Token / clase | Notas |
 |------|---------------|--------|
-| Sidebar | `bg-sidebar` | Un solo panel; collapsible a iconos |
-| Workspace header | logo + nombre + chevron | Arriba del todo |
-| CTA rápida | `Button` pill “Registrar” + icon button | Fila bajo el workspace |
-| Item nav idle | `SidebarMenuButton` | Icono stroke + label |
-| Item nav active | `data-active` → `bg-sidebar-accent` | Highlight neutro (no azul) |
-| Grupos | `SidebarGroupLabel` | Ej. Planificación, Compartido |
-| Header app | `SidebarTrigger` + título | Solo `md+` (barra superior del inset) |
+| Sidebar | `bg-sidebar` (`--sidebar`) | Navy **en claro y oscuro**. Ancho 220px (`13.75rem`) |
+| Workspace | avatar `bg-sidebar-primary` + nombre `text-sidebar-primary-foreground` | Arriba del todo |
+| CTA rápida | `Button` `bg-cta` rounded-xl h-10 font-bold | “Registrar” / “+ Nueva transacción” |
+| Item nav idle | `SidebarMenuButton` h-11 rounded-xl | `text-sidebar-foreground`. Icono = emoji colorido (`NavGlyph`, prototipo Figma); el label nombra el destino |
+| Item nav active | `data-active` → `bg-sidebar-accent` + `text-sidebar-accent-foreground` | Azul translúcido, no gris. El glifo no hereda color (sigue colorido) |
+| Grupos | `SidebarGroupLabel` | Uppercase, tracking-widest, 10px (PLANIFICACIÓN, COMPARTIDO) |
+| Cotización | `UsdQuotesCard` | Tokens `sidebar-*` (vive sobre navy) |
 | Tema | `ThemeToggle` en footer | Claro / Oscuro / Sistema |
-| Content panel | `bg-card` · `rounded-2xl` · `border` | Dentro de `SidebarInset`; CTAs de header en pill; H1 de página aquí |
+| Canvas | `bg-background` | Slate-50 en claro; navy night en oscuro |
+| Cards | `SurfaceSection` / `bg-card` | `rounded-2xl` + `shadow-card`. `min-w-0 max-w-full`. No `overflow-hidden` salvo `flush` (cliparía la sombra). |
 
-**Mobile:** navegación primaria = **tab bar flotante** (pill) anclado abajo con `safe-area-inset-bottom`. Sin header sticky de título (el H1 vive en `ContentPanel`); `safe-area-inset-top` en el wrapper de contenido. El hamburger/`SidebarTrigger` queda para `md+`. El content panel es edge-to-edge sin radio; `md+` añade inset, borde y `rounded-xl`.
+**ContentPanel** ya **no** es un card envolvente. Es chrome de página (H1 + description + actions) sobre el canvas. Cada bloque de contenido es una card propia.
+
+**Mobile:** navegación primaria = **tab bar docked** (borde superior, `bg-card/95`, blur) anclado abajo con `safe-area-inset-bottom`. Sin header sticky de título. El hamburger/`SidebarTrigger` queda para `md+`.
 
 #### 3.1.1 Mobile tab bar
 
@@ -69,65 +74,86 @@ Sidebar único estilo dashboard (shadcn inset) — **sin** rail de iconos oscuro
 |------|---------|--------|
 | Panel | `/dashboard` | Home |
 | Transacciones | `/transactions` | Actividad diaria |
-| **+ Registrar** | acción (no ruta) | Abre `NewTransactionSheet` vía store; CTA ink elevado |
+| **+ Registrar** | acción (no ruta) | Abre `NewTransactionSheet`; CTA `bg-cta` rounded-xl |
 | Presupuestos | `/budgets` | Planificación; badge at-risk si aplica |
-| Más | sheet bottom | Cuentas, Objetivos, Grupos, Recurrentes, Ajustes, workspace, tema, salir |
+| Más | sheet bottom | Cuentas, Objetivos, Grupos, Recurrentes, Ajustes; tema inline (segmented); identidad + salir una vez al pie |
 
-**Craft:** contenedor `bg-card` / `border-border` / `rounded-full` / `shadow-md` (no lime, no glass púrpura). Activo = pill `bg-secondary` + icono + label; inactivos = solo icono (`sr-only` label). CTA central ink elevado. Clearance del contenido: `pb-[calc(4.75rem+env(safe-area-inset-bottom))]`. En móvil el canvas del inset (y un underlay fijo detrás del pill) usa `bg-card` — el mismo token que el content panel edge-to-edge — para que clearance/safe-area no muestren el `bg-background` casi negro del dark mode.
+**Craft:** barra full-width, no pill flotante. Cada tab muestra **icono + label debajo** (activo = `bg-info-muted` + `text-info-muted-foreground`). Clearance: `pb-[calc(4.75rem+env(safe-area-inset-bottom))]`.
 
-**Desktop (`md+`):** sidebar inset intacto; tab bar `md:hidden`.
+**Montaje (obligatorio):** `SidebarProvider` (contexto) envuelve el shell entero, incluido el tab bar. `MobileTabBar` y `NewTransactionSheet` viven **fuera** del flex (`SidebarFrame`: solo sidebar + inset). Si la `<nav>` es hermana flex de `SidebarInset`, ensancha la página, aparece scroll lateral y la barra sale del viewport. Contrato: `position: fixed; left: 0; bottom: 0; width: 100%; max-width: 100%; z-50`. No usar `100vw` / `100dvw` (incluyen el gutter del scrollbar).
+
+**Desktop (`md+`):** sidebar navy intacto; tab bar `md:hidden`.
 
 ### 3.2 Create flows — FormSheet (no forms en la lista)
 
-Los formularios de carga (movimientos, cuentas, presupuestos, objetivos) **no viven en la página de lista**. Se abren en un **sheet lateral derecho** (`FormSheet`).
+Los formularios de carga (movimientos, cuentas, presupuestos, objetivos) **no viven en la página de lista**. Se abren en un **FormSheet**.
 
 | Viewport | Comportamiento |
 |----------|----------------|
-| Móvil | Sheet a **pantalla completa** (`w-full` / `h-dvh`, sin borde lateral) |
-| `sm+` | Drawer fijo (`sm:max-w-md` / `lg` para movimientos) — la lista queda visible detrás |
+| Móvil | **Bottom sheet** (~92dvh, esquinas superiores redondeadas). El teclado **empuja** el sheet (`interactive-widget: resizes-content` + `visualViewport`) y el cuerpo scrollea para que el campo con foco no quede tapado. |
+| `md+` | Drawer fijo a la **derecha** (`sm:max-w-md` / `lg` para movimientos) — la lista queda visible detrás |
 
-**Cerrar:** botón X en el header del sheet — `outline`, `rounded-full`, target táctil ≥40px en móvil (`size-10`). Neutro (alineado al chrome del panel); no usar `destructive` (reservado a egresos y acciones destructivas).
+**Cerrar:** botón X en el header del sheet — `outline`, `rounded-full`, target táctil ≥40px en móvil (`size-10`). Neutro; no usar `destructive` (reservado a egresos y acciones destructivas). En sheets de alta/filtros **no** hay botón Cancelar: el pie es solo el CTA primario.
 
-**Por qué no modal centrado:** los forms tienen muchos campos y secciones condicionales (splits, categorías). Un modal estrecho scrollería mal y competiría visualmente. El sheet escala mejor mobile → desktop y es el patrón de Dub / Linear / Stripe.
+**Pie anclado:** `FormSheet layout="fill"` + `FormSheetBody` (campos scrolleables) + `FormActions sticky`. Registrar / Aplicar quedan fijos al borde inferior; el contenido de fondo no scrollea mientras el sheet está abierto.
+
+**Por qué no modal centrado en desktop:** los forms tienen muchos campos y secciones condicionales (splits, categorías). El sheet escala mejor mobile (bottom) → desktop (drawer).
 
 ### 3.3 Onboarding first-run (excepción)
 
-El setup inicial del workspace (`/onboarding`, SPEC-15) **no** usa AppShell ni FormSheet: es un **modal full-viewport** sobre canvas soft, sin sidebar (para no escapar por el menú). Progreso = línea hairline superior. Detalle: `docs/specs/15-workspace-onboarding.md`.
+El setup inicial del workspace (`/onboarding`, SPEC-15) **no** usa AppShell ni FormSheet: es un **modal full-viewport** sobre canvas soft, sin sidebar. Progreso = línea hairline superior. Detalle: `docs/specs/15-workspace-onboarding.md`.
 
 **Patrón FormSheet (resto de creates):**
 - CTA en `ContentPanel.actions` (y sidebar “Registrar” → abre el FormSheet global al instante)
 - Deep-link opcional: `/transactions?new=1` abre el mismo sheet
 - Lista limpia: tablas / progreso sin formulario encima
 - Formulario: 1 columna, secciones tipadas, `SegmentedControl` para ≤4 opciones
-- Cerrar al éxito / Cancelar
+- Cerrar al éxito / X en el header (sin Cancelar en el sheet)
+- Campos requeridos: asterisco en `FormField`; opcionales llevan la etiqueta “opcional”
+- Selector de categorías: no autofocus al buscador (el teclado no debe abrirse solo)
 
 Componentes: `src/components/form-sheet/*`
 
 **Ajustes:** tabs por query (`?tab=perfil|workspace|categorias`). Gestión de categorías en `?tab=categorias`.
 
+### 3.4 Accesibilidad (WCAG 2.2 AA — lo implementado)
+
+| Pieza | Contrato |
+|-------|----------|
+| Skip link | `SkipLink` → `#main-content` (`SidebarInset`). Primer foco del documento. |
+| Landmarkas | `<main id="main-content">` + tab bar `aria-label="Navegación principal"`. |
+| Contraste | `--muted-foreground` en claro `oklch(0.445 …)` (labels 12px sobre card blanca). No aclarar sin re-chequear 4.5:1. |
+| Foco no tapado | `scroll-padding-bottom` / `scroll-margin-bottom` = altura del tab bar + safe area (`md:` 0). |
+| Motion | `prefers-reduced-motion: reduce` en `globals.css` (animación/transición ~0). |
+| Nombres | Icon-only: `aria-label` (Registrar, Más, tabs inactivas). |
+
 ---
 
 ## 3.1 Responsive — mobile first
+
+**El teléfono es la superficie primaria.** Los usuarios usan Finance Hub desde el celular; desktop enriquece, no define el layout.
 
 **Breakpoints (Tailwind default):**
 
 | Token | Ancho | Rol en Finance Hub |
 |-------|-------|--------------------|
-| (base) | &lt; 640px | Diseño por defecto: 1 columna, nav sheet, tablas con columnas esenciales |
+| (base) | &lt; 640px | Diseño por defecto: 1 columna, tab bar docked, tablas con columnas esenciales |
 | `sm` | ≥ 640px | Grids de formularios 2–3 cols; más padding |
-| `md` | ≥ 768px | Sidebar fijo / colapsable a iconos; content panel con inset |
-| `lg` | ≥ 1024px | Dashboard: columna principal + rail (gastos/cuentas) |
+| `md` | ≥ 768px | Sidebar navy fijo / colapsable a iconos; Panel: composición desktop (`fh-shell=full`) |
+| `lg` | ≥ 1024px | Dashboard: columna principal + rail |
+| `xl` | ≥ 1280px | Dashboard 2 col (`1fr` + 340px) cuando aplique |
 
 **Reglas:**
 
 1. Escribir clases **sin** breakpoint primero (móvil). Ampliar con `sm:` / `md:` / `lg:`.
-2. **Shell:** en móvil **tab bar flotante** (sin barra de título duplicada); destinos extra en sheet “Más”. Sidebar + header de título desde `md`.
-3. **Tablas densas:** en base mostrar 2–3 columnas (identidad + monto). Columnas secundarias con `hidden sm:table-cell` / `md:table-cell`. El wrapper `Table` ya permite scroll horizontal como fallback.
-4. **Forms:** create flows en `FormSheet` (1 columna). No grids multi-columna densos en sheets.
-5. **Tipografía hero:** `text-3xl sm:text-4xl` en patrimonio / cifras clave.
-6. **Touch:** controles críticos ≥ 40px de alto en móvil (`h-10` / padding); no depender solo de hover.
-7. **Tabs / section nav:** scroll horizontal o labels cortos en móvil; descripciones largas `hidden sm:block`.
-8. **Nunca** bloquear el viewport con `overflow-hidden` en el body mobile sin sheet/scroll interno claro.
+2. **Shell:** en móvil **tab bar docked**; destinos extra en sheet “Más”. Sidebar navy desde `md`.
+3. **Tablas densas (sin scroll lateral en móvil):** en base **solo identidad + monto**. Checkbox, estado y acciones se ocultan (`hidden sm:table-cell` / `slot="action"`). Identidad: `min-w-0 truncate`. Monto: `whitespace-nowrap` + `max-w-[38%]`. El wrapper de `Table` usa `overflow-x-hidden` (nunca `overflow-x-auto` en producto). Columnas secundarias con `hideBelow`.
+4. **Forms:** create flows en `FormSheet` (1 columna).
+5. **Tipografía hero:** `font-heading` + `text-2xl sm:text-3xl md:text-4xl` en patrimonio (cabe en 390px con montos ARS largos).
+6. **Touch:** controles críticos ≥ 40px de alto en móvil. `Button` `size="sm"` / `icon-sm` = `h-10` / `size-10` en base, `sm:h-8` / `sm:size-8` desde 640px.
+7. **Tabs / section nav:** scroll horizontal o labels cortos en móvil.
+8. **Overflow-x, no overflow total:** `overflow-x-hidden` en `html`/`body` y `min-w-0` en `SidebarInset`, `ContentPanel` y `SurfaceSection`. **Nunca** `overflow-hidden` en ambos ejes sobre el body mobile (traba el scroll vertical). No usar `overflow-x-clip`: este Tailwind no emite esa utilidad.
+9. **Filas de dinero:** identidad `min-w-0 truncate`; monto acotado (`max-w-[42%]` aprox.) para que la card no empuje el viewport. Grids de listado en dashboard: 1 col en base, 2 cols desde `md` (no desde `sm`).
 
 ---
 
@@ -139,56 +165,58 @@ Definidos en `:root` / `.dark` de `src/app/globals.css` y expuestos a Tailwind v
 
 | Token | Uso |
 |-------|-----|
-| `background` | Canvas del shell |
-| `card` / `popover` | Paneles, diálogos, menús |
-| `muted` / `secondary` / `accent` | Fondos sutiles, hover neutro |
-| `sidebar` | Nav secundaria |
-| `sidebar-rail` | Rail de iconos |
+| `background` | Canvas del shell (slate paper / navy night) |
+| `card` / `popover` | Cards, diálogos, menús — blanco en claro |
+| `muted` / `secondary` / `accent` | Fondos sutiles, hover neutro en canvas |
+| `sidebar` | Rail navy |
+| `sidebar-hover` | Hover de items sobre el rail (`white/5`) |
 
 ### Texto
 
 | Token | Uso |
 |-------|-----|
-| `foreground` | Títulos, valores principales |
-| `muted-foreground` | Labels, meta, placeholders |
-| `sidebar-foreground` | Items de nav |
-| `primary-foreground` | Texto sobre CTA negro |
+| `foreground` | Títulos, valores principales en canvas |
+| `muted-foreground` | Labels, meta, placeholders en canvas. Claro: `oklch(0.445)` (AA 12px sobre blanco). Oscuro: `oklch(0.78)`. |
+| `sidebar-foreground` | Nav idle + meta sobre navy |
+| `sidebar-primary-foreground` | Nombre, valores fuertes sobre navy |
+| `sidebar-accent-foreground` | Item de nav **activo** (azul claro) |
+| `primary-foreground` | Texto sobre CTA azul |
 
 ### Acción e interacción
 
 | Token | Uso |
 |-------|-----|
-| `primary` | CTA principal (tinta / ink) |
-| `info` / `info-muted` | Foco, links de acción, nav activa |
-| `ring` | Focus ring (alineado al azul info) |
-| `destructive` | Borrar, errores de formulario |
+| `primary` | Azul sólido (badges, rings, fills) |
+| `bg-cta` | Degradé 135° `cta-from` → `cta-to` — **únicos botones primarios** |
+| `info` / `info-muted` | Foco, links de acción, tab activa en móvil |
+| `ring` | Focus ring (azul) |
+| `destructive` | Borrar, errores de formulario (alineado a rose/expense) |
 
 ### Semántica financiera (obligatoria en montos / tipos)
 
-| Token | Significado |
-|-------|-------------|
-| `income` / `income-muted` | Ingresos |
-| `expense` / `expense-muted` | Gastos |
-| `transfer` / `transfer-muted` | Transferencias |
-| `success` / `warning` | Estados de presupuesto / objetivos |
+| Token | Significado | Origen |
+|-------|-------------|--------|
+| `income` / `income-muted` | Ingresos | emerald `#10b981` |
+| `expense` / `expense-muted` | Gastos | rose `#f43f5e` |
+| `transfer` / `transfer-muted` | Transferencias | indigo `#6366f1` |
+| `success` / `warning` | Estados de presupuesto / objetivos | |
 
 ### Charts
 
-`chart-1` … `chart-5` — series de analytics. No inventar paletas ad-hoc en componentes de gráfico.
+`chart-1` … `chart-5` — blue · emerald · amber · indigo · rose. No inventar paletas ad-hoc.
 
-**Sankey (flujo del mes):** diagrama de flujo ingresos → hub → categorías / disponible. Colores vía `income` / `expense` / `foreground`. Dominio: `buildCashflowSankey`; UI: `DashboardCashflowSankey`.
+**Sankey (flujo del mes):** colores vía `income` / `expense` / `foreground`. Dominio: `buildCashflowSankey`; UI: `DashboardCashflowSankey`.
 
 ### Tema claro / oscuro
 
-- Provider: `@teispace/next-themes` (fork compatible React 19 / Next 16) en `app/layout.tsx`.
-- Anti-FOUC: `ThemeProvider` inyecta el script vía `useServerInsertedHTML` (path por defecto; evita el warning de React 19 con `<script>` en el árbol).
-- Opciones compartidas: `src/lib/theme.ts`. Toggle en sidebar (`ThemeToggle`): Claro / Oscuro / Sistema.
-- Tokens en `:root` y `.dark` de `globals.css` — superficies **acromáticas** (blanco / gris / charcoal); color solo en acentos semánticos.
-- Sin atmósfera radial en `body` (nada de wash azul/verde sobre el canvas).
-- **Default = light** (blanco neutro). Dark es de primera calidad, no la identidad de marca.
-- **Dark craft:** escala de grises charcoal neutra: `background` → `sidebar` → `card` (panel) → `secondary`/`muted` (widgets). Separación por escalón de gris, no por borders duros. Income/success = mint. CTA = ink invertido — **nunca** yellow/lime.
-- **Cómo verlo (dark):** ThemeToggle → **Oscuro**.
-- **Referencias externas:** dashboards tipo “Zarss” sirven como craft de elevación en dark, no como paleta de marca ni como default light. No adoptar canvas beige cálido ni dark-first sin toggle.
+- Provider: `@teispace/next-themes` en `app/layout.tsx`.
+- Anti-FOUC: `ThemeProvider` inyecta el script vía `useServerInsertedHTML`.
+- Opciones: `src/lib/theme.ts`. Toggle en sidebar: Claro / Oscuro / Sistema. En el sheet “Más” móvil: `ThemeToggle variant="inline"` (segmented, sin dropdown).
+- **El rail navy no se invierte** — es la firma en ambos temas.
+- Claro: canvas slate-50, cards blancas.
+- Oscuro: canvas navy night, cards un escalón más claras que el rail.
+- **Default = light.** Dark es de primera calidad.
+- CTA = degradé azul — **nunca** ink, yellow ni lime.
 
 ---
 
@@ -196,15 +224,17 @@ Definidos en `:root` / `.dark` de `src/app/globals.css` y expuestos a Tailwind v
 
 | Rol | Spec |
 |-----|------|
-| Familia UI | Geist Sans → `--font-sans` |
+| Familia UI | Plus Jakarta Sans → `--font-sans` (400–700) |
+| Display / H1 / H2 / montos | Nunito → `--font-heading` (hasta **800**) |
 | Mono / código | Geist Mono → `--font-geist-mono` |
-| Display / page title | 24px · semibold · tracking-tight |
-| Section | 18px · semibold |
-| Body | 14px · regular · leading-5/6 |
+| Page title | 18px · extrabold 800 · Nunito (`font-heading`) |
+| Section | 14px · extrabold Nunito |
+| Body | 14px · regular Plus Jakarta · leading-5/6 |
 | Label / caption | 12px · medium · `text-muted-foreground` |
-| Montos | mismo size que el contexto + `tabular-nums` (clase `.tabular` o `tabular-nums`) |
+| Eyebrow (PATRIMONIO, TOTALES) | 10–11px · semibold · `uppercase tracking-widest` |
+| Montos | Nunito + `tabular-nums` (clase `.tabular`) |
 
-Peso máximo habitual: **600**. Evitar 700+ salvo excepciones documentadas.
+Peso máximo: **800 en Nunito (títulos y cifras hero)**. Plus Jakarta no pasa de **700**.
 
 ---
 
@@ -213,12 +243,11 @@ Peso máximo habitual: **600**. Evitar 700+ salvo excepciones documentadas.
 | Sistema | Valor |
 |---------|--------|
 | Base | 4px |
-| Densidad producto | media-compacta (Dub): padding de filas ~12–16px, gaps de sección 24–32px |
-| `--radius` | `0.75rem` (12px) — base shadcn |
-| Inputs / botones | `rounded-lg` |
-| Content panel / modales | `rounded-2xl` |
-| Pills / badges | `rounded-full` |
-| Elevación | Level 0 flat · Level 1 `border` · Level 2 `border + shadow-sm` · Level 3 popover/modal `shadow-md` |
+| Densidad producto | media: padding de cards 20–24px, gaps de sección 16–24px, filas ~12–16px |
+| `--radius` | `0.75rem` (12px) — botones, nav, inputs |
+| Cards / `rounded-2xl` | `1rem` (16px) |
+| Pills / badges / avatares | `rounded-full` |
+| Elevación | Level 0 canvas · Level 1 card `border + shadow-card` · Level 2 hover `shadow-card-hover` · Level 3 popover `shadow-md` |
 
 Profundidad: **bordes + sombra suave**. No mezclar con sombras Material pesadas.
 
@@ -230,7 +259,7 @@ Profundidad: **bordes + sombra suave**. No mezclar con sombras Material pesadas.
 
 1. ¿Existe en `src/components/ui/`? → usarlo.
 2. ¿Se puede extender con `variant` CVA? → extender.
-3. ¿Es composición de producto (shell, money row)? → `src/components/` (no `ui/`).
+3. ¿Es composición de producto (shell, money row, card de sección)? → `src/components/` (no `ui/`).
 4. Solo entonces crear un primitivo nuevo (y documentarlo aquí).
 
 ### Variantes (patrón obligatorio)
@@ -238,42 +267,44 @@ Profundidad: **bordes + sombra suave**. No mezclar con sombras Material pesadas.
 ```tsx
 // ✅ Correcto — variante semántica
 <Badge variant="income">+$1.200</Badge>
-<Button variant="default">Guardar</Button>
+<Button>Guardar</Button>           // default = bg-cta
 <Button variant="destructive">Eliminar</Button>
 
 // ❌ Incorrecto — color hardcodeado
 <span className="bg-green-100 text-green-700">+$1.200</span>
 <span className="bg-[#dbeafe] text-[#2563eb]">Activo</span>
+<button className="bg-blue-600">Registrar</button>
 ```
 
 ### Clases Tailwind permitidas vs prohibidas
 
 | Permitido | Prohibido en UI de producto |
 |-----------|------------------------------|
-| `bg-background`, `bg-card`, `bg-muted`, `bg-primary`, `bg-info-muted` | `bg-white`, `bg-zinc-50`, `bg-blue-50` |
-| `text-foreground`, `text-muted-foreground`, `text-income` | `text-black`, `text-gray-500`, `text-[#171717]` |
-| `border-border`, `ring-ring` | `border-gray-200`, `ring-blue-500` |
-| `rounded-lg`, `rounded-2xl`, `shadow-sm` | radios/sombras one-off sin escala |
+| `bg-background`, `bg-card`, `bg-muted`, `bg-cta`, `bg-primary`, `bg-info-muted` | `bg-white`, `bg-zinc-50`, `bg-slate-50`, `bg-blue-50` |
+| `text-foreground`, `text-muted-foreground`, `text-income`, `text-sidebar-foreground` | `text-black`, `text-gray-500`, `text-slate-400`, `text-[#171717]` |
+| `border-border`, `ring-ring`, `shadow-card` | `border-gray-200`, `ring-blue-500` |
+| `rounded-xl`, `rounded-2xl`, `font-heading` | radios/sombras one-off sin escala |
 
-Excepción: assets SVG/marketing fuera del app shell pueden usar valores literales si están aislados.
+Excepción: `globals.css` (tokens) y assets SVG/marketing aislados.
 
 ### Money / datos
 
-- Montos siempre `tabular-nums`.
-- Signo y color vía variante (`income` / `expense`), no concatenando strings de color en el JSX.
+- Montos siempre `.tabular` (o `tabular-nums` + `font-heading`).
+- Signo y color vía variante (`income` / `expense` / `transfer`).
 - Fechas: formato consistente; no inventar layouts de fecha por pantalla.
-- **Elegir fecha:** siempre `DateField` (trigger tipo input con `DD/MM/YYYY` + popover con `Calendar`). Prohibido `<input type="date">` nativo: rompe tokens, idioma y densidad. El valor interno sigue siendo `DateOnly` (`YYYY-MM-DD`); campos opcionales usan `clearable`.
+- **Elegir fecha:** siempre `DateField`. Prohibido `<input type="date">` nativo.
+- **Campos de monto (KRI-33):** usar `AmountInput` (`src/components/amount-input.tsx`). `type="text"` + `inputMode="decimal"` para abrir teclado numérico en mobile. Separador decimal canónico: **coma**. El punto se normaliza a coma al tipear para que iOS (coma) y Android/US (punto) validen igual. Prohibido `<input type="number">` en importes: el teclado iOS no ofrece punto y el valor con coma queda inválido.
 
 ### Barras de progreso (`ProgressBar`)
 
-Usar `src/components/progress-bar.tsx`. **Rojo (`tone="alert"` / `bg-expense`) solo para alerta real** (presupuesto excedido).
+Usar `src/components/progress-bar.tsx`. **Rosa (`tone="alert"` / `bg-expense`) solo para alerta real** (presupuesto excedido).
 
 | Contexto | Tonos |
 |----------|--------|
 | Objetivos (`goalProgressTone`) | `<40%` info · `40–79%` progress (`chart-5`) · `≥80%` success |
 | Presupuestos (`budgetProgressTone`) | `on_track` info · `warning` caution · `exceeded` **alert** |
 | Badge nav Presupuestos | Número = at-risk; `text-warning` si solo warning; **`text-expense` + icono** solo si hay ≥1 exceeded |
-| Ranking de gastos (`spendingRankTone`) | `chart-1` / `chart-2` / `chart-3` (cicla; nunca rojo) |
+| Ranking de gastos (`spendingRankTone`) | `chart-1` / `chart-2` / `chart-3` (cicla; nunca rosa por ranking) |
 | Pills de categoría (`categoryPillTone`) | hash estable → `chart-1`…`chart-5`; transferencia/FX → `transfer` |
 
 ### Estados obligatorios
@@ -287,25 +318,28 @@ Toda vista de datos: loading (`Skeleton`) · empty · error.
 - Solo `transform` / `opacity`.
 - Respetar `prefers-reduced-motion`.
 - Acciones de alta frecuencia (atajos, command palette): sin animación.
+- CTA: `hover:opacity-90`; press `scale(0.97)` en el `+` móvil.
 
 ---
 
-## 8. Catálogo shadcn instalado
+## 8. Catálogo shadcn / producto
 
 | Componente | Path | Notas |
 |------------|------|--------|
-| Button | `ui/button` | `default` = ink CTA; `outline` / `ghost` secundarios |
+| Button | `ui/button` | `default` = `bg-cta` font-bold; `outline` / `ghost` secundarios |
 | Badge | `ui/badge` | Incluye `info`, `success`, `warning`, `income`, `expense`, `transfer` |
-| UsageTip | `components/usage-tip` | Tip contextual dismissible (`fh:tips:v1`); nota al margen + CTA opcional |
-| CategoryPill | `features/categories/components/category-pill` | Pill en tablas: tono estable `chart-1`…`chart-5` vía hash de `categoryId` (`categoryPillTone`); transferencia/FX → `transfer`; sin pill si es `—` |
+| UsageTip | `components/usage-tip` | Tip contextual dismissible |
+| CategoryPill | `features/categories/components/category-pill` | Tono estable `chart-1`…`chart-5` |
 | Input | `ui/input` | Fondos/bordes vía tokens |
-| Calendar | `ui/calendar` | react-day-picker con tokens: selección `info`, hoy `info-muted`, locale `es` (semana Lu–Do), celdas 40px en móvil / 36px `sm+` |
-| DateField | `components/date-field` | Campo de fecha (trigger + popover `Calendar`), atajo “Hoy”, `clearable` en fechas opcionales |
-| Table | `ui/table` | Filas con `border-border`; headers muted |
-| Data table | `components/data-table` | Selección: `useRowSelection`, checkbox header/fila, `BulkActionsBar` |
-| Sidebar | `ui/sidebar` | Base para nav; componer rail + secundaria encima |
+| Calendar | `ui/calendar` | selección `info`, locale `es` |
+| DateField | `components/date-field` | Trigger + popover `Calendar` |
+| Table | `ui/table` | Filas con `border-border`; headers muted uppercase tracking |
+| Data table | `components/data-table` | Selección + `BulkActionsBar` |
+| Sidebar | `ui/sidebar` | `variant="sidebar"`; tokens navy |
+| SurfaceSection | `components/surface-section` | Card de producto (16px, `shadow-card`) |
+| KpiTile | `components/kpi-tile` | Eyebrow uppercase; montos Nunito |
+| ProgressBar | `components/progress-bar` | Tonos semánticos; rosa solo en `alert` |
 | Avatar, Dropdown, Tooltip, Separator, Sheet, Skeleton | `ui/*` | Primitivos estándar |
-| ProgressBar | `components/progress-bar` | Tonos semánticos; rojo solo en `alert` |
 
 Añadir más con:
 
@@ -321,54 +355,61 @@ Luego alinear variantes a este documento (nunca dejar colores de demo).
 
 ### Panel / Dashboard (pantallazo en 3 segundos)
 
-Orden de lectura fijo — no aplanar todo al mismo peso. Chrome = `SurfaceSection` / `KpiTile` (mismo radio y borde que la landing). Base = una columna apilada; el grid de 2 columnas entra en `lg:`.
+Orden de lectura fijo. Chrome = `ContentPanel` (H1 “Resumen” + workspace · mes + CTA) sobre canvas. Bloques = `SurfaceSection` / `KpiTile`.
 
-**Móvil (liviano):**
+**Móvil (liviano — app de gasto):**
 
-1. **Patrimonio** — número hero + 3 KPIs (Ingresos / Gastos / Flujo). Sin serie `MonthlyNetBars` (queda en `md+`).
-2. **Barra segmentada de gastos** (`DashboardSpendingBar`) — top categorías del mes + “Ver todo”.
-3. **Actividad reciente** — 4 filas + “Ver todo”.
-4. Objetivos / Atención / Recurrentes / Cuentas below-the-fold. Sankey y donut completo en `md+`.
+1. **Barras de gasto mensual** (últimos 6 meses). El mes activo usa `bg-cta`. Transferencias y `fx_*` **no** suman.
+2. **Gastos por categoría** — donut con total “Gastado”, barras vs. período anterior, lista. Tocá un mes para filtrar.
+
+Patrimonio, KPIs, actividad, Sankey y cuentas quedan en **`md+`**.
 
 **Desktop (`md+` / `lg:`):**
 
-1. **Hero + actividad** (`lg:` 1.5fr | 1fr):
-   - `DashboardBalance` — patrimonio (`text-3xl sm:text-4xl`, `≈` si es consolidado), badges multi-moneda, **serie mensual** (`MonthlyNetBars` con modos Balance / Ingresos / Gastos: en Balance, barras divergentes income↑ / expense↓ sobre baseline punteada; tooltip al hover/foco), delta `±% flujo vs. mes anterior` cuando hay mes comparable, y pie con 3 stats `KpiTile variant="plain"`: Ingresos · Gastos · Flujo del mes.
-   - `DashboardRecent` — últimos movimientos como **lista** (icono de tipo + descripción + categoría/fecha + monto firmado). Sin tabla: en el rail y en móvil las columnas secundarias no aportan. Cada tx en **su** moneda.
-2. **Objetivos | Atención** — progreso de metas (con ahorrado / objetivo) y alertas de presupuesto / insights / balances de grupo.
-3. **Flujo del mes** — Sankey a ancho completo (tabs *Cuentas → gastos* / *Ingresos → gastos*).
-4. **Próximas recurrentes** — preview read-only (SPEC-18): chip de día + mes a la izquierda (`hoy` resaltado con `info`), grid de 2 columnas en `sm:`.
-5. **Distribución de gastos | Cuentas** — donut por categoría (paleta `chart-1…5`, cola agrupada en “Otras” con gris neutro) + leyenda con monto y %; lista de cuentas con icono por tipo y convención credit card (`− monto` en `expense` cuando hay deuda).
+1. **Hero patrimonio** a ancho de columna + sparkline Balance.
+2. **Tres KPIs** en fila (Ingresos · Gastos · Flujo).
+3. **Objetivos | Actividad | Atención** — cards. Empty de objetivos: icono + copy + CTA `outline`.
+4. **Flujo del mes** — Sankey a ancho completo cuando hay datos.
+5. **Próximas recurrentes / Distribución / Cuentas** below-fold.
 
-**Reglas de honestidad numérica:** el número grande es patrimonio; la tendencia y el delta describen **flujo neto mensual** y se etiquetan como tales. Todo cálculo (neto por mes, shares por categoría) vive en `features/dashboard/domain` con tests (`buildNetTrend`, `buildCategoryShares`) — la UI solo formatea.
+**Reglas de honestidad numérica:** el número grande es patrimonio; la tendencia y el delta describen **flujo neto mensual**. Cálculo en `features/dashboard/domain`.
 
-Componentes en `src/features/dashboard/components/`. La page solo compone el DTO. Superficies compartidas: `src/components/surface-section.tsx`, `src/components/kpi-tile.tsx` (`variant="plain"` para stats dentro de una superficie existente — nunca card-in-card).
-
-**Pendiente (gap de datos):** widget de “racha” tipo heatmap — requiere una serie diaria de actividad que hoy no existe en el DTO de SPEC-12. No inventarlo con datos derivados en UI.
+Componentes en `src/features/dashboard/components/`. Superficies: `src/components/surface-section.tsx`, `src/components/kpi-tile.tsx` (`variant="plain"` dentro de una superficie existente — nunca card-in-card).
 
 ### Lista / tabla (ej. transacciones)
 
-1. Título de página en el content panel.
-2. Search / filtros debajo (`Input` + chips con `Badge`).
-3. `Table` full-width con **checkbox de selección en la primera columna** (header = seleccionar todo). Primitivas: `src/components/data-table.tsx` (`useRowSelection`, `SelectAllHead`, `SelectRowCell`, `BulkActionsBar`).
-4. Menú `⋯` por fila cuando hay acciones de fila (pausar, editar, etc.).
-5. Sin cards por fila.
-6. Columnas alineadas: identidad · categoría · cuenta · monto · meta (fecha / frecuencia / estado). En móvil solo esenciales (`hidden sm|md|lg:table-cell`).
-7. Fechas de tabla con `formatDateOnly` (`DD/MM/YYYY`).
-8. **Meta de origen:** txs materializadas desde una recurrente (SPEC-18) muestran un indicador muted `Repeat` / 🔄 junto a la descripción (no badge de color — es meta, no jerarquía). Tooltip: “Generada por: {nombre}”. Mismo patrón que el badge de aporte a objetivo (SPEC-08).
-9. **Recurrentes — confirmar:** el botón Confirmar solo aparece si `scheduledOn ≤ hoy + 1` (`canMaterializeOn`). Ocurrencias futuras muestran “Desde {fecha}” sin CTA.
-10. **Totales del filtrado (SPEC-05 §4.6):** strip sticky bajo filtros en móvil + fila de pie “Suma / Totales” bajo la columna Monto en `sm+`. Montos `tabular-nums` con tokens `income` / `expense` / `transfer`; nunca mezclar monedas. Headers de tabla muted (`text-xs font-normal text-muted-foreground`); pills de tipo/categoría donde aporten.
+1. H1 + subtítulo (“Movimientos del mes · {workspace}”) + CTA `bg-cta`.
+2. Filtros: chips de periodo (`Este mes` / `Esta semana` / `Todo`) + `Filtros`.
+3. Strip **TOTALES · N MOVIMIENTOS** — KPIs por moneda (nunca mezclar). Eyebrow uppercase.
+4. Tabla en **una** `AbmTable` (`src/components/abm-table`): `SurfaceSection` flush + `BulkActionsBar`. Columnas DESCRIPCIÓN · CUENTA · CATEGORÍA · TIPO · FECHA · MONTO. Headers `AbmHead` (`text-[10px] uppercase tracking-widest`). Celdas `AbmCell`; monto `AbmMoney`; glifo `AbmGlyph`.
+5. Filas: icono de tipo/categoría a la izquierda; monto `.tabular` con token de tipo.
+6. Checkbox de selección + `BulkActionsBar` cuando aplique.
+7. En móvil solo identidad + monto (sin scroll lateral). Checkbox, estado y acciones desde `sm`.
+8. Fechas con `formatDateOnly` (`DD/MM/YYYY`).
+9. Txs materializadas desde recurrente: indicador muted `Repeat` junto a la descripción.
+10. **Recurrentes — confirmar:** CTA solo si `scheduledOn ≤ hoy + 1`.
+
+### Grupos
+
+1. H1 + CTA “+ Nuevo grupo”.
+2. Dos KPIs (Total que debés / Total a tu favor) en cards.
+3. Lista **Mis grupos**: card por grupo (emoji/icono, última actividad, saldo firmado, avatares, recuento).
+4. Empty/CTA al pie: “Crear nuevo grupo” dashed o outline.
 
 ### Formulario
 
 - Labels `text-sm text-muted-foreground`.
-- Inputs altura consistente (shadcn default).
-- Error: `text-destructive` + `aria-invalid` (el primitivo ya cablea ring).
+- Inputs altura consistente (shadcn).
+- Error: `text-destructive` + `aria-invalid`.
 
 ### Empty state
 
-- Mensaje corto + un CTA `Button`.
+- Mensaje corto + un CTA `Button` (primario o `outline` según jerarquía).
 - Sin ilustraciones genéricas de stock si no aportan.
+
+### Placeholder de sección (si una vista aún no está)
+
+Card centrada, icono muted, título Nunito, copy “Esta sección estará disponible próximamente.” — no dejar la página en blanco.
 
 ---
 
@@ -378,27 +419,30 @@ Componentes en `src/features/dashboard/components/`. La page solo compone el DTO
 
 - Cambiar la paleta solo en `globals.css`.
 - Usar `cn()` + CVA para variantes.
-- Componer el shell con tokens `sidebar*` / `sidebar-rail*`.
+- Componer el shell con tokens `sidebar*`. El rail es navy siempre.
+- Poner cada bloque de dashboard/lista en `SurfaceSection`, no envolver la página entera.
 - Revisar `DESIGN.md` antes de una pantalla nueva.
 
 ### Don't
 
-- Pegar hex o escalas Tailwind de color (`zinc-500`, `blue-600`) en JSX de producto.
-- Crear un segundo sistema de botones “porque este es especial”.
-- Usar cards decorativas donde basta tipografía + whitespace.
+- Pegar hex o escalas Tailwind de color (`slate-500`, `blue-600`, `zinc-50`) en JSX de producto.
+- Usar `Button` ink/negro como primario, o `rounded-full` en CTAs de página (el prototipo es `rounded-xl`).
+- Crear un segundo sistema de botones.
+- Volver al content-panel-card envolvente o al sidebar claro tipo Dub.
 - Meter lógica de saldos/splits en componentes React.
 
 ---
 
 ## 11. Checklist antes de mergear UI
 
-- [ ] Sin hex / `bg-zinc-*` / `text-blue-*` en archivos de producto
+- [ ] Sin hex / `bg-zinc-*` / `bg-slate-*` / `text-blue-*` en archivos de producto
 - [ ] Colores nuevos (si hacen falta) añadidos como token + clase `@theme`
 - [ ] Variantes CVA en lugar de className one-off repetido
 - [ ] Focus visible y estados vacíos/loading cubiertos
-- [ ] Montos con `tabular-nums`
-- [ ] Shell: sidebar inset (sheet en móvil) + content panel
-- [ ] Mobile-first: layout base usable &lt; 640px; tablas/forms sin desborde
+- [ ] Montos con `.tabular`
+- [ ] Shell: sidebar navy flush + canvas slate + cards; tab bar docked **fuera** del flex (`SidebarFrame`), **dentro** del contexto `SidebarProvider`
+- [ ] Mobile-first: layout base usable &lt; 640px; **sin scroll horizontal** (`scrollWidth === clientWidth`)
+- [ ] Skip link + contraste de `muted-foreground` + targets ≥40px en móvil
 - [ ] Sin reglas de negocio en la UI
 
 ---
@@ -407,10 +451,11 @@ Componentes en `src/features/dashboard/components/`. La page solo compone el DTO
 
 ```txt
 Canvas          bg-background
-Sidebar         bg-sidebar · active: bg-sidebar-accent
-Panel           bg-card border-border rounded-xl
-Texto           text-foreground | text-muted-foreground
-CTA             bg-primary text-primary-foreground
+Sidebar         bg-sidebar · idle: text-sidebar-foreground
+                active: bg-sidebar-accent text-sidebar-accent-foreground
+Card            bg-card border-border rounded-2xl shadow-card
+Texto           text-foreground | text-muted-foreground | font-heading
+CTA             bg-cta text-primary-foreground font-bold rounded-xl
 Ingreso         text-income | bg-income-muted
 Gasto           text-expense | bg-expense-muted
 Transferencia   text-transfer | bg-transfer-muted

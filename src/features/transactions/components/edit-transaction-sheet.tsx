@@ -57,7 +57,7 @@ export function EditTransactionSheet({
       trigger={
         <Button
           variant="outline"
-          className="h-10 w-full gap-1.5 sm:h-8 sm:w-auto"
+          className="w-full gap-1.5 sm:w-auto"
         >
           <Pencil className="size-4" strokeWidth={1.75} />
           Editar

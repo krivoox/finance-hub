@@ -12,12 +12,16 @@ import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
-  TableCell,
-  TableFooter,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AbmTable,
+  AbmHead,
+  AbmCell,
+  AbmGlyph,
+  AbmMoney,
+} from "@/components/abm-table";
 import {
   BulkActionsBar,
   SelectAllHead,
@@ -25,22 +29,19 @@ import {
   useRowSelection,
 } from "@/components/data-table";
 import { CategoryPill } from "@/features/categories/components/category-pill";
+import {
+  categoryPillTone,
+  type CategoryPillTone,
+} from "@/features/categories/domain/category-pill-tone";
+import { splitLeadingEmoji } from "@/features/categories/domain/split-leading-emoji";
 import { deleteTransactionAction } from "@/features/transactions/actions";
-import type {
-  CurrencyListTotals,
-  ListTypeFilter,
-  TransactionType,
-} from "@/features/transactions/domain";
+import type { TransactionType } from "@/features/transactions/domain";
 import { formatDateOnly } from "@/lib/format-date";
-import { formatSignedMoney } from "@/lib/format-money";
 import { navigateAndRefresh, refreshAfterMutation } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
+import { navIntentPrefetchHandlers } from "@/components/app-shell/use-nav-prefetch";
 
 import { EditTransactionForm } from "./edit-transaction-form";
-import {
-  hasListTotalsToShow,
-  TransactionsListTotals,
-} from "./transactions-list-totals";
 import { TRANSACTION_TYPE_LABEL_ES } from "./transaction-type-labels";
 
 type AccountOption = { id: string; name: string; currency: string };
@@ -61,8 +62,6 @@ type TableTransaction = {
   counterpartyAccountId: string | null;
   counterpartyAccountName: string | null;
   createdByDisplayName: string;
-  isExternalToWorkspace: boolean;
-  registrationWorkspaceName: string | null;
   goalContribution: {
     contributionId: string;
     goalId: string;
@@ -85,10 +84,43 @@ function amountVariant(
   return "transfer";
 }
 
-function typeBadgeVariant(
-  type: TransactionType,
-): "income" | "expense" | "transfer" {
-  return amountVariant(type);
+function typeToneClass(type: TransactionType): string {
+  const variant = amountVariant(type);
+  if (variant === "income") return "text-income";
+  if (variant === "expense") return "text-expense";
+  return "text-transfer";
+}
+
+const CHART_TONE_GLYPH: Record<CategoryPillTone, string> = {
+  "chart-1": "bg-chart-1/15",
+  "chart-2": "bg-chart-2/15",
+  "chart-3": "bg-chart-3/15",
+  "chart-4": "bg-chart-4/15",
+  "chart-5": "bg-chart-5/15",
+};
+
+const FALLBACK_GLYPH: Record<"income" | "expense" | "transfer", string> = {
+  income: "💰",
+  expense: "🧾",
+  transfer: "🔄",
+};
+
+function rowGlyph(tx: TableTransaction): { emoji: string; toneClass: string } {
+  const variant = amountVariant(tx.type);
+  if (tx.categoryName) {
+    const { emoji } = splitLeadingEmoji(tx.categoryName);
+    if (emoji) {
+      const tone = categoryPillTone(tx.categoryId ?? tx.categoryName);
+      return { emoji, toneClass: CHART_TONE_GLYPH[tone] };
+    }
+  }
+  if (variant === "income") {
+    return { emoji: FALLBACK_GLYPH.income, toneClass: "bg-income-muted" };
+  }
+  if (variant === "expense") {
+    return { emoji: FALLBACK_GLYPH.expense, toneClass: "bg-expense-muted" };
+  }
+  return { emoji: FALLBACK_GLYPH.transfer, toneClass: "bg-transfer-muted" };
 }
 
 function signedAmountCents(
@@ -105,14 +137,9 @@ function occurredOnIso(value: Date | string): string {
   return value.toISOString().slice(0, 10);
 }
 
-const headClass =
-  "h-9 px-3 text-xs font-normal tracking-normal text-muted-foreground";
-
 type TransactionsTableProps = {
   items: readonly TableTransaction[];
   workspaceId: string;
-  totals: readonly CurrencyListTotals[];
-  typeFilter: ListTypeFilter;
   canMutate: boolean;
   accounts: readonly AccountOption[];
   categories: readonly CategoryOption[];
@@ -120,9 +147,6 @@ type TransactionsTableProps = {
 
 export function TransactionsTable({
   items,
-  workspaceId,
-  totals,
-  typeFilter,
   canMutate,
   accounts,
   categories,
@@ -136,8 +160,6 @@ export function TransactionsTable({
     [items, canMutate],
   );
   const selection = useRowSelection(selectableIds);
-  const showTotalsFooter = hasListTotalsToShow(totals, typeFilter);
-  const leadingColSpan = canMutate ? 7 : 6;
 
   const selectedItems = useMemo(
     () => items.filter((tx) => selection.selectedIds.includes(tx.id)),
@@ -208,220 +230,195 @@ export function TransactionsTable({
   }
 
   return (
-    <div className="flex flex-col gap-3">
-      <BulkActionsBar
-        selection={selection}
-        singular="transacción seleccionada"
-        plural="transacciones seleccionadas"
-      >
-        {singleSelected ? (
-          <>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="h-8"
-              disabled={isPending}
-              onClick={() =>
-                navigateAndRefresh(router, `/transactions/${singleSelected.id}`)
-              }
-            >
-              Abrir
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              className="h-8 gap-1.5"
-              disabled={isPending}
-              onClick={() => setEditOpen(true)}
-            >
-              <Pencil className="size-3.5" strokeWidth={1.75} aria-hidden />
-              Editar
-            </Button>
-          </>
-        ) : null}
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="h-8 gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
-          disabled={isPending}
-          onClick={() => deleteSelected(selection.selectedIds)}
-        >
-          <Trash2 className="size-3.5" strokeWidth={1.75} aria-hidden />
-          Eliminar
-        </Button>
-      </BulkActionsBar>
-
-      <Table>
-        <TableHeader>
-          <TableRow className="border-border/70 hover:bg-transparent">
-            {canMutate ? (
-              <SelectAllHead
-                selection={selection}
-                label="Seleccionar todas las transacciones"
-              />
+    <>
+      <AbmTable
+        bulk={
+          <BulkActionsBar
+            selection={selection}
+            singular="transacción seleccionada"
+            plural="transacciones seleccionadas"
+          >
+            {singleSelected ? (
+              <>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isPending}
+                  onClick={() =>
+                    navigateAndRefresh(
+                      router,
+                      `/transactions/${singleSelected.id}`,
+                    )
+                  }
+                >
+                  Abrir
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={isPending}
+                  onClick={() => setEditOpen(true)}
+                >
+                  <Pencil className="size-3.5" strokeWidth={1.75} aria-hidden />
+                  Editar
+                </Button>
+              </>
             ) : null}
-            <TableHead className={headClass}>Descripción</TableHead>
-            <TableHead className={cn(headClass, "hidden sm:table-cell")}>
-              Cuenta
-            </TableHead>
-            <TableHead className={cn(headClass, "hidden md:table-cell")}>
-              Categoría
-            </TableHead>
-            <TableHead className={cn(headClass, "hidden lg:table-cell")}>
-              Tipo
-            </TableHead>
-            <TableHead className={cn(headClass, "hidden lg:table-cell")}>
-              Registró
-            </TableHead>
-            <TableHead className={cn(headClass, "hidden sm:table-cell")}>
-              Fecha
-            </TableHead>
-            <TableHead className={cn(headClass, "text-right")}>Monto</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {items.map((tx) => {
-            const accountLabel =
-              tx.type === "transfer" && tx.counterpartyAccountName
-                ? `${tx.accountName} → ${tx.counterpartyAccountName}`
-                : tx.isExternalToWorkspace && tx.registrationWorkspaceName
-                  ? `${tx.registrationWorkspaceName} · ${tx.accountName}`
-                  : tx.accountName;
-            const categoryLabel =
-              tx.type === "transfer"
-                ? "Transferencia"
-                : tx.type === "fx_debit" || tx.type === "fx_credit"
-                  ? "Cambio de moneda"
-                  : (tx.categoryName ?? "—");
-            const description =
-              tx.description ??
-              (tx.type === "transfer"
-                ? "Transferencia"
-                : tx.type === "fx_debit" || tx.type === "fx_credit"
-                  ? "Cambio de moneda"
-                  : (tx.categoryName ?? "Transacción"));
-            const descriptionWithChip = tx.isExternalToWorkspace
-              ? `${tx.registrationWorkspaceName ?? "Otro espacio"} · ${description}`
-              : description;
-
-            return (
-              <TableRow
-                key={tx.id}
-                className="relative border-border/60"
-                data-state={
-                  selection.isSelected(tx.id) ? "selected" : undefined
-                }
-              >
-                {canMutate ? (
-                  <SelectRowCell
-                    selection={selection}
-                    id={tx.id}
-                    label={`Seleccionar ${descriptionWithChip}`}
-                  />
-                ) : null}
-                <TableCell className="px-3 py-2.5">
-                  <div className="flex min-w-0 flex-col gap-0.5">
-                    <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-                      <Link
-                        href={`/transactions/${tx.id}`}
-                        className="font-medium text-foreground after:absolute after:inset-0 hover:underline"
-                      >
-                        {descriptionWithChip}
-                      </Link>
-                      {tx.recurring ? (
-                        <span
-                          className="relative z-10 inline-flex size-4 shrink-0 items-center justify-center text-muted-foreground"
-                          title={`Generada por: ${tx.recurring.ruleName}`}
-                          aria-label={`Generada por la recurrente ${tx.recurring.ruleName}`}
-                        >
-                          <Repeat
-                            className="size-3.5"
-                            strokeWidth={1.75}
-                            aria-hidden
-                          />
-                        </span>
-                      ) : null}
-                      {tx.goalContribution ? (
-                        <Badge variant="info" className="relative z-10">
-                          {tx.goalContribution.goalKind === "debt_payoff"
-                            ? "Pago de deuda"
-                            : "Aporte a objetivo"}
-                        </Badge>
-                      ) : null}
-                    </div>
-                    <span className="text-xs text-muted-foreground sm:hidden">
-                      {accountLabel}
-                      {" · "}
-                      {formatDateOnly(tx.occurredOn)}
-                    </span>
-                    {tx.accountWorkspaceId !== workspaceId &&
-                    !tx.isExternalToWorkspace ? (
-                      <span className="text-xs text-muted-foreground">
-                        Pagado desde otro espacio
-                      </span>
-                    ) : null}
-                  </div>
-                </TableCell>
-                <TableCell className="hidden px-3 py-2.5 text-muted-foreground sm:table-cell">
-                  {accountLabel}
-                </TableCell>
-                <TableCell className="hidden px-3 py-2.5 md:table-cell">
-                  <CategoryPill
-                    label={categoryLabel}
-                    toneSeed={tx.categoryId}
-                  />
-                </TableCell>
-                <TableCell className="hidden px-3 py-2.5 lg:table-cell">
-                  <Badge
-                    variant={typeBadgeVariant(tx.type)}
-                    className="font-normal"
-                  >
-                    {TRANSACTION_TYPE_LABEL_ES[tx.type]}
-                  </Badge>
-                </TableCell>
-                <TableCell className="hidden px-3 py-2.5 text-muted-foreground lg:table-cell">
-                  {tx.createdByDisplayName}
-                </TableCell>
-                <TableCell className="hidden px-3 py-2.5 tabular-nums text-muted-foreground sm:table-cell">
-                  {formatDateOnly(tx.occurredOn)}
-                </TableCell>
-                <TableCell className="px-3 py-2.5 text-right">
-                  <span
-                    className={cn(
-                      "tabular-nums text-sm font-medium",
-                      amountVariant(tx.type) === "income" && "text-income",
-                      amountVariant(tx.type) === "expense" && "text-expense",
-                      amountVariant(tx.type) === "transfer" && "text-transfer",
-                    )}
-                  >
-                    {formatSignedMoney(
-                      signedAmountCents(tx.type, tx.amountCents),
-                      tx.currency,
-                    )}
-                  </span>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-        {showTotalsFooter ? (
-          <TableFooter className="hidden border-t border-border bg-muted/30 sm:table-footer-group">
-            <TableRow className="hover:bg-transparent">
-              <TableCell colSpan={leadingColSpan} className="px-3 py-3" />
-              <TableCell className="px-3 py-3">
-                <TransactionsListTotals
-                  buckets={totals}
-                  typeFilter={typeFilter}
-                  variant="footer"
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+              disabled={isPending}
+              onClick={() => deleteSelected(selection.selectedIds)}
+            >
+              <Trash2 className="size-3.5" strokeWidth={1.75} aria-hidden />
+              Eliminar
+            </Button>
+          </BulkActionsBar>
+        }
+      >
+        <Table>
+          <TableHeader>
+            <TableRow className="border-border/70 hover:bg-transparent">
+              {canMutate ? (
+                <SelectAllHead
+                  selection={selection}
+                  label="Seleccionar todas las transacciones"
                 />
-              </TableCell>
+              ) : null}
+              <AbmHead slot="identity">Descripción</AbmHead>
+              <AbmHead hideBelow="sm">Cuenta</AbmHead>
+              <AbmHead hideBelow="md">Categoría</AbmHead>
+              <AbmHead hideBelow="lg">Tipo</AbmHead>
+              <AbmHead hideBelow="sm">Fecha</AbmHead>
+              <AbmHead slot="amount">Monto</AbmHead>
             </TableRow>
-          </TableFooter>
-        ) : null}
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {items.map((tx) => {
+              const accountLabel =
+                tx.type === "transfer" && tx.counterpartyAccountName
+                  ? `${tx.accountName} → ${tx.counterpartyAccountName}`
+                  : tx.accountName;
+              const categoryLabel =
+                tx.type === "transfer"
+                  ? "Transferencia"
+                  : tx.type === "fx_debit" || tx.type === "fx_credit"
+                    ? "Cambio de moneda"
+                    : (tx.categoryName ?? "Sin categoría");
+              const description =
+                tx.description ??
+                (tx.type === "transfer"
+                  ? "Transferencia"
+                  : tx.type === "fx_debit" || tx.type === "fx_credit"
+                    ? "Cambio de moneda"
+                    : (splitLeadingEmoji(tx.categoryName ?? "").label ||
+                      "Transacción"));
+              const glyph = rowGlyph(tx);
+
+              return (
+                <TableRow
+                  key={tx.id}
+                  className="relative border-border/60"
+                  data-state={
+                    selection.isSelected(tx.id) ? "selected" : undefined
+                  }
+                >
+                  {canMutate ? (
+                    <SelectRowCell
+                      selection={selection}
+                      id={tx.id}
+                      label={`Seleccionar ${description}`}
+                    />
+                  ) : null}
+                  <AbmCell slot="identity">
+                    <div className="flex min-w-0 items-start gap-2.5 sm:gap-3">
+                      <AbmGlyph className={glyph.toneClass}>
+                        {glyph.emoji}
+                      </AbmGlyph>
+                      <div className="flex min-w-0 flex-col gap-0.5">
+                        <div className="flex min-w-0 items-center gap-1.5">
+                          <Link
+                            href={`/transactions/${tx.id}`}
+                            className="min-w-0 truncate font-semibold text-foreground after:absolute after:inset-0 hover:underline"
+                            {...navIntentPrefetchHandlers(
+                              router,
+                              `/transactions/${tx.id}`,
+                            )}
+                          >
+                            {description}
+                          </Link>
+                          {tx.recurring ? (
+                            <span
+                              className="relative z-10 inline-flex size-4 shrink-0 items-center justify-center text-muted-foreground"
+                              title={`Generada por: ${tx.recurring.ruleName}`}
+                              aria-label={`Generada por la recurrente ${tx.recurring.ruleName}`}
+                            >
+                              <Repeat
+                                className="size-3.5"
+                                strokeWidth={1.75}
+                                aria-hidden
+                              />
+                            </span>
+                          ) : null}
+                          {tx.goalContribution ? (
+                            <Badge
+                              variant="info"
+                              className="relative z-10 hidden sm:inline-flex"
+                            >
+                              {tx.goalContribution.goalKind === "debt_payoff"
+                                ? "Pago de deuda"
+                                : "Aporte a objetivo"}
+                            </Badge>
+                          ) : null}
+                        </div>
+                        <span className="text-xs text-muted-foreground sm:hidden">
+                          {accountLabel}
+                          {" · "}
+                          {formatDateOnly(tx.occurredOn)}
+                        </span>
+                      </div>
+                    </div>
+                  </AbmCell>
+                  <AbmCell hideBelow="sm" muted>
+                    {accountLabel}
+                  </AbmCell>
+                  <AbmCell hideBelow="md">
+                    <CategoryPill
+                      variant="text"
+                      label={categoryLabel}
+                      toneSeed={tx.categoryId ?? categoryLabel}
+                    />
+                  </AbmCell>
+                  <AbmCell hideBelow="lg">
+                    <span
+                      className={cn(
+                        "text-sm font-medium",
+                        typeToneClass(tx.type),
+                      )}
+                    >
+                      {TRANSACTION_TYPE_LABEL_ES[tx.type]}
+                    </span>
+                  </AbmCell>
+                  <AbmCell hideBelow="sm" className="tabular-nums" muted>
+                    {formatDateOnly(tx.occurredOn)}
+                  </AbmCell>
+                  <AbmCell slot="amount">
+                    <AbmMoney
+                      cents={signedAmountCents(tx.type, tx.amountCents)}
+                      currency={tx.currency}
+                      tone={amountVariant(tx.type)}
+                    />
+                  </AbmCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </AbmTable>
 
       {singleSelected ? (
         <FormSheet
@@ -457,6 +454,6 @@ export function TransactionsTable({
           />
         </FormSheet>
       ) : null}
-    </div>
+    </>
   );
 }

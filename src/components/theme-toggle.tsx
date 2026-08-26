@@ -2,8 +2,9 @@
 
 import { Monitor, Moon, Sun } from "lucide-react";
 import { useTheme } from "@teispace/next-themes";
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
+import { SegmentedControl } from "@/components/form-sheet/segmented-control";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -25,14 +26,44 @@ const THEME_OPTIONS = [
   { value: "system", label: "Sistema", icon: Monitor },
 ] as const;
 
-export function ThemeToggle({ className }: { className?: string }) {
+type ThemeValue = (typeof THEME_OPTIONS)[number]["value"];
+
+const THEME_SEGMENT_OPTIONS: readonly { value: ThemeValue; label: string }[] =
+  THEME_OPTIONS.map((option) => ({
+    value: option.value,
+    label: option.label,
+  }));
+
+const emptySubscribe = () => () => {};
+
+/** True after hydration — avoids SSR/client theme icon mismatch. */
+function useIsClient() {
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
+}
+
+export function ThemeToggle({
+  className,
+  variant = "menu",
+}: {
+  className?: string;
+  /** `inline` for sheets — no dropdown (nested modal would swallow taps). */
+  variant?: "menu" | "inline";
+}) {
+  if (variant === "inline") {
+    return <ThemeToggleInline className={className} />;
+  }
+
+  return <ThemeToggleMenu className={className} />;
+}
+
+function ThemeToggleMenu({ className }: { className?: string }) {
   const { theme, setTheme, resolvedTheme } = useTheme();
   const { isMobile, setOpenMobile } = useSidebar();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useIsClient();
 
   const current =
     THEME_OPTIONS.find((o) => o.value === theme) ?? THEME_OPTIONS[2];
@@ -59,7 +90,7 @@ export function ThemeToggle({ className }: { className?: string }) {
             >
               <CurrentIcon strokeWidth={1.75} />
               <span>Tema</span>
-              <span className="ml-auto text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
+              <span className="ml-auto text-xs text-sidebar-foreground group-data-[collapsible=icon]:hidden">
                 {mounted ? current.label : "…"}
               </span>
             </SidebarMenuButton>
@@ -100,14 +131,34 @@ export function ThemeToggle({ className }: { className?: string }) {
   );
 }
 
+/** Segmented control for the mobile “Más” sheet — tappable inside a modal. */
+function ThemeToggleInline({ className }: { className?: string }) {
+  const { theme, setTheme } = useTheme();
+  const mounted = useIsClient();
+
+  const value: ThemeValue =
+    mounted && THEME_OPTIONS.some((o) => o.value === theme)
+      ? (theme as ThemeValue)
+      : "system";
+
+  return (
+    <div className={cn("flex flex-col gap-2", className)}>
+      <p className="text-sm font-medium text-foreground">Tema</p>
+      <SegmentedControl
+        value={value}
+        options={THEME_SEGMENT_OPTIONS}
+        onChange={(next) => setTheme(next)}
+        ariaLabel="Tema de la interfaz"
+        disabled={!mounted}
+      />
+    </div>
+  );
+}
+
 /** Compact icon control for headers / non-sidebar surfaces. */
 export function ThemeToggleButton({ className }: { className?: string }) {
   const { setTheme, resolvedTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = useIsClient();
 
   // Stable placeholder until mount to avoid SSR/client icon mismatch.
   const isDark = mounted && resolvedTheme === "dark";

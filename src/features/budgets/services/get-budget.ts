@@ -1,8 +1,11 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import { assertCanReadBudgets } from "@/features/budgets/domain";
-import type { BudgetLike } from "@/features/budgets/domain";
-import { computeBudgetProgress } from "@/features/budgets/domain";
+import {
+  assertCanReadBudgets,
+  computeBudgetProgress,
+  getBudgetPeriodBounds,
+  type BudgetLike,
+} from "@/features/budgets/domain";
 import { CONTRIBUTION_CATEGORY_NAMES } from "@/features/categories/domain";
 import { requireBudgetMembership } from "./require-budget-membership";
 import type { BudgetWithProgress } from "./list-budgets-with-status";
@@ -39,11 +42,14 @@ export async function getBudget({
     isArchived: budget.isArchived,
   };
 
+  const periodBounds = getBudgetPeriodBounds(like, referenceDate);
+
   const [rows, contributionCats] = await Promise.all([
     prisma.transaction.findMany({
       where: {
         workspaceId: budget.workspaceId,
         type: "expense",
+        occurredOn: { gte: periodBounds.start, lte: periodBounds.end },
       },
       select: {
         type: true,

@@ -1,61 +1,65 @@
 ---
-description: Design system Finance Hub — tokens, variantes, mobile-first. Sin hex sueltos.
+description: Design system Finance Hub — ledger navy, tokens, variantes, mobile-first. Sin hex sueltos.
 globs: src/app/**/*.{tsx,css},src/components/**/*.{tsx,css},src/features/**/*.tsx
 alwaysApply: false
 ---
 
 # UI — Finance Hub
 
-Fuente de verdad: `DESIGN.md`. Theme: `src/app/globals.css`.
+Fuente de verdad: `DESIGN.md`. Theme: `src/app/globals.css`. Dirección craft: `.interface-design/system.md`.
 
 ## Antes de escribir UI
 
-1. Leer `DESIGN.md` (shell, tokens, mobile-first, do/don't).
+1. Leer `DESIGN.md` (shell navy, tokens, mobile-first, do/don't).
 2. Reutilizar `src/components/ui/*` (shadcn). Extender con CVA `variant` / `size`.
-3. No inventar reglas de negocio en React.
+3. Cards de producto = `SurfaceSection`. Chrome de página = `ContentPanel` (no un card envolvente).
+4. No inventar reglas de negocio en React.
 
 ## Mobile-first (obligatorio)
 
-- Estilos base = móvil (&lt; 640px). Enriquecer con `sm:` / `md:` / `lg:`.
+- Estilos base = móvil (< 640px). Ampliar con `sm:` / `md:` / `lg:`. El teléfono es la superficie primaria.
 - No diseñar primero desktop y “arreglar” con `max-md:` salvo excepción puntual.
-- Sidebar: sheet en móvil; inset + collapsible desde `md`.
-- Tablas: en base solo columnas esenciales (identidad + monto); el resto `hidden sm:table-cell`.
+- Sidebar navy: sheet en móvil; flush + collapsible desde `md`.
+- Tab bar docked (borde superior, no pill flotante). Label visible bajo **cada** icono.
+- Tablas: en base **solo identidad + monto**, sin scroll lateral. Checkbox/estado/acciones `hidden sm:table-cell`. Identidad `min-w-0 truncate`; monto `whitespace-nowrap`. `Table` con `overflow-x-hidden`.
 - Forms: 1 columna en base; grids desde `sm:`.
-- Heroes numéricos: `text-3xl sm:text-4xl`.
-- Tabs: labels cortos; descripciones auxiliares `hidden sm:block`.
+- Heroes numéricos: `font-heading font-extrabold` + `text-3xl sm:text-4xl`.
 - Touch: CTAs/controles principales ≥ ~40px de alto en móvil.
 
 ## Colores — obligatorio
 
-- Usar solo clases semánticas: `bg-background`, `bg-card`, `text-foreground`, `text-muted-foreground`, `bg-primary`, `bg-info-muted`, `text-income`, `border-border`, `ring-ring`, tokens `sidebar-*`.
-- **Prohibido** en UI de producto: hex, RGB sueltos, escalas Tailwind de color (`bg-zinc-50`, `text-blue-600`).
+- Usar solo clases semánticas: `bg-background`, `bg-card`, `bg-cta`, `text-foreground`, `text-muted-foreground`, `bg-primary`, `bg-info-muted`, `text-income`, `border-border`, `ring-ring`, `shadow-card`, tokens `sidebar-*`.
+- **Prohibido** en UI de producto: hex, RGB sueltos, escalas Tailwind (`bg-zinc-50`, `bg-slate-50`, `text-blue-600`, `bg-white`).
 - Colores nuevos → token en `:root` / `.dark` + `@theme inline`.
+- El rail navy **no se invierte** en tema claro.
 
 ## Variantes
 
 ```tsx
 // ✅
 <Badge variant="expense">- $42.00</Badge>
+<Button>Registrar</Button>              // default = bg-cta
 <Button variant="outline">Cancelar</Button>
 
 // ❌
 <span className="text-red-600 bg-red-50">- $42.00</span>
+<button className="bg-blue-600 rounded-full">Registrar</button>
 ```
 
 Si un estilo se repite 2+ veces, extraer variante CVA o componente en `src/components/`.
 
 ## Shell
 
-- Un solo `Sidebar` shadcn (`variant="inset"`, collapsible)
-- Workspace arriba · CTA “Registrar” · nav · footer user
-- Active: `bg-sidebar-accent` (neutro). Sin rail oscuro
-- Contenido en `SidebarInset` + `ContentPanel`
+- `Sidebar` shadcn `variant="sidebar"` (flush, 220px, navy)
+- Workspace arriba · CTA `bg-cta` “Registrar” · nav · cotización · footer user
+- Active: `bg-sidebar-accent` + `text-sidebar-accent-foreground` (azul, no gris)
+- Canvas `bg-background`; contenido en `ContentPanel` + `SurfaceSection`
 
 ## Datos financieros
 
-- Montos con `tabular-nums`
+- Montos con `.tabular` (Nunito + tabular-nums)
 - Tipo de movimiento → `income` | `expense` | `transfer`
-- Barras: `ProgressBar`; rojo (`alert`) solo alerta real
+- Barras: `ProgressBar`; rosa (`alert`) solo alerta real
 
 ## Motion / a11y
 

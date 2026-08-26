@@ -7,7 +7,7 @@ Documento técnico obligatorio. Stack fijado en [stack.md](./stack.md) (plantill
 | Documento | Gana en |
 |-----------|---------|
 | **AGENTS.md** + **docs/specs/** | Alcance de producto / MVP / reglas de negocio |
-| **docs/architecture.md** (este) + **docs/stack.md** | Decisiones técnicas, carpetas, auth, datos |
+| **docs/architecture.md** (este) + **docs/stack.md** | Decisiones técnicas, carpetas, auth, datos, shell autenticado |
 | **DESIGN.md** | UI / tokens / craft visual |
 | **docs/tdd-workflow.md** | Cómo testear lógica de negocio |
 
@@ -26,13 +26,13 @@ Documento técnico obligatorio. Stack fijado en [stack.md](./stack.md) (plantill
 2. **Better Auth** para login; **no** Supabase Auth para usuarios del producto.
 3. **Prisma** en servidor para datos relacionales; schema en `prisma/schema.prisma`.
 4. **Supabase** = Postgres (+ Storage/Realtime/RLS cuando aplique); no reemplaza Prisma ni Better Auth.
-5. **Server Actions:** `getSession()` + Zod **dentro** de cada action; authz por `workspaceId` + membership.
+5. **Server Actions:** `getSession()` + Zod **dentro** de cada action; authz de **ledger** por `workspaceId` + membership del personal. Authz de `SplitGroup` por `SplitGroupMember` (ADR-007) — no exigir membership en el tenant del creador.
 6. **Validación doble:** Zod en cliente (RHF) y servidor.
 7. **Env** solo en `src/lib/env.ts`.
 8. **TypeScript strict** — sin `any`.
 9. **Zustand** solo estado de UI.
 10. **TDD** en lógica de negocio; **no** tests de UI ([tdd-workflow.md](./tdd-workflow.md), ADR-003).
-11. **Dinero** en centavos enteros (ADR-001); tenancy por **Workspace** (ADR-002).
+11. **Dinero** en centavos enteros (ADR-001); tenancy de ledger por **Workspace personal** (ADR-002 enmendado por ADR-007). Círculos de splits = `SplitGroup`, no un segundo tenant.
 12. **Git Flow:** no commitear en `develop` ni `main` (excepto bot de CI para changelog/release); ramas `feat/`, `fix/`, `chore/`; borrar ramas al mergear. Detalle: [guides/git-flow.md](./guides/git-flow.md).
 13. **Changelog / SemVer:** Keep a Changelog + Conventional Commits + git-cliff; Unreleased en `develop`, release en `main`. Detalle: [guides/changelog.md](./guides/changelog.md), ADR-005.
 
@@ -84,10 +84,10 @@ Detalle y versiones → [stack.md](./stack.md).
 | Prisma + pg | ORM; client en `src/generated/prisma` vía `@/lib/prisma` |
 | Postgres (Supabase) | DB; `DATABASE_URL` / `DIRECT_URL` |
 | Zod + RHF | Forms y validación de actions |
-| TanStack Query | Datos en cliente |
-| Zustand | UI efímera |
+| Zustand | UI efímera (sheets, splash post-mutación) |
 | Vitest | Tests de `domain` / servicios puros |
 | shadcn + Tailwind 4 | UI; tokens en `DESIGN.md` / `globals.css` |
+| Resend | Email transaccional (reset) y marketing (contacts/broadcasts) |
 
 ## 5. Estructura de carpetas
 
@@ -114,15 +114,15 @@ Detalle y versiones → [stack.md](./stack.md).
     │   ├── budgets/
     │   ├── goals/
     │   ├── splits/
-    │   └── dashboard/
-    │       ├── components/
-    │       ├── actions/       # Server Actions
-    │       ├── services/      # Orquestación + Prisma
-    │       ├── domain/        # Reglas puras del feature — TDD
-    │       ├── schemas/       # Zod
-    │       └── types/
+    │   ├── dashboard/
+    │   └── email/             # Resend: reset + marketing (SPEC-21)
+    │       ├── components/    # (layout típico de feature)
+    │       ├── actions/
+    │       ├── services/
+    │       ├── domain/
+    │       └── schemas/
     ├── hooks/
-    ├── lib/                   # env, auth, prisma, session, supabase, utils
+    ├── lib/                   # env, auth, prisma, session, supabase, resend, utils
     ├── services/              # Transversal entre features
     ├── schemas/
     ├── types/
@@ -160,7 +160,7 @@ export default async function AccountsPage() {
 - Tras registro: crear Workspace `personal` + Membership `owner` (SPEC-01) en servicio de aplicación, no en el Client Component
 - Post-registro / sesión en forms de auth: navegar a `/onboarding` (SPEC-15) si el espacio aún no está listo
 - Middleware: cookie prefijo `better-auth*`; proteger rutas autenticadas; forms `/login`, `/registro` redirigen a `/onboarding` si hay sesión
-- Cookies de producto: `fh-workspace-id` (activo), `fh-setup-dismissed` (omitió onboarding con 0 cuentas), `fh-invite-token` (invite pendiente)
+- Cookies de producto: `fh-workspace-id` (activo), `fh-setup-dismissed` (omitió onboarding con 0 cuentas), `fh-invite-token` (invite pendiente), `fh-shell` (`compact` | `full`, breakpoint `md` vía matchMedia — no User-Agent; elige el árbol RSC del Panel, **no** cachea saldos)
 
 ### 6.1 Onboarding (fuera del shell)
 
@@ -171,8 +171,8 @@ export default async function AccountsPage() {
 ## 7. Datos
 
 - Schema Prisma = fuente de verdad relacional
-- Runtime: `DATABASE_URL`; migraciones CLI: `DIRECT_URL`
-- Multi-tenant: todo modelo de negocio con `workspaceId`; verificar membership en cada action/service
+- Runtime: `DATABASE_URL`; migraciones CLI: `DIRECT_URL`. Preview/prod: `npm run db:deploy` corre **antes** de `next build` en Vercel.
+- Multi-tenant: todo **ledger** con `workspaceId`; verificar membership del **propio** personal en cada action/service de dinero. **Excepción (ADR-007):** `SplitGroup` se autoriza por `SplitGroupMember` `kind=user` (o `publicShareToken` en lectura). El `ExpenseSplit` puede FK-referenciar una `Transaction` de **otro** workspace personal (IOU ≠ ledger compartido).
 - RLS en Postgres como defensa en profundidad **deny-all** para `anon` / `authenticated` (KRI-18). No sustituye membership en servidor. Prisma (`DATABASE_URL`) bypasea RLS. Data API no debe exponer `public` (schema `postgrest_locked` o Data API off). Tras un `CREATE TABLE` nuevo en `public`, ejecutar `SELECT public.apply_rls_lockdown_to_public_tables();` (el rol `postgres` de Supabase no puede crear event triggers). Detalle: [security-audit.md](./security-audit.md) §1.
 - Logs SQL de Prisma: por defecto **no** se imprimen `query` en desarrollo. Activar solo con `PRISMA_LOG_QUERIES=1` (o `true`) vía `src/lib/env.ts` — ver [stack.md](./stack.md)
 
@@ -184,7 +184,7 @@ El layout `(app)` y las páginas suelen resolver **sesión, usuario, workspace a
 
 **Presupuestos:** `listBudgetsWithStatus` carga un snapshot request-scoped (`budgets` + expenses) y calcula `progress` por call. Los expenses se filtran a la **unión de periodos activos** (`unionBudgetPeriodBounds`), no al ledger completo. El badge de nav usa `summarizeBudgetsAtRisk` / `summarizeBudgetNavSignal` sobre ese snapshot (`atRisk` + `exceeded` en una pasada). Layout badge, `/budgets` y `GetDashboard` comparten la misma carga SQL en el request.
 
-Mutaciones que afectan el badge (gastos, update/archive budget, etc.) llaman `revalidatePath("/", "layout")` para refrescar el shell.
+Mutaciones de **ledger** (crear/editar/borrar movimiento) invalidan páginas de dinero (`revalidateMoneyPaths`: `/transactions`, `/accounts`, `/dashboard`, `/budgets`, y grupos/objetivos si aplica). **No** llaman `revalidatePath("/", "layout")`: eso vacía el Client Router Cache del shell. El badge de presupuestos en riesgo se actualiza en el próximo render de layout. Mutaciones que sí cambian el chrome (workspace, cuentas, categorías, setup) siguen revalidando el layout.
 
 **Args:** `React.cache` usa igualdad superficial (`Object.is`). Preferir parámetros **primitivos** (`userId`, `workspaceId`, `includeArchived`) en las funciones cacheadas; no pasar objetos inline como única clave.
 
@@ -192,11 +192,11 @@ Mutaciones que afectan el badge (gastos, update/archive budget, etc.) llaman `re
 
 | No cachear así | Motivo |
 |----------------|--------|
-| Saldos / ledger / listados de txs entre requests (`unstable_cache`, LRU TTL) | Mutaciones frecuentes; UI de dinero incorrecta |
+| Saldos / ledger / listados de txs entre requests (`unstable_cache`, LRU TTL, `"use cache"` sin tag) | Mutaciones frecuentes; UI de dinero incorrecta |
 | Membership / roles con TTL cross-request | Authz stale tras expulsión o cambio de rol |
-| Dashboard / analytics “congelados” sin tags de invalidación por mutación | Hoy solo hay `revalidatePath`; no hay tag matrix |
+| Dashboard / analytics “congelados” sin tags de invalidación por mutación | Hoy `revalidatePath` por ruta; Cache Components + `cacheTag` es el siguiente paso (SPEC-20 §10) |
 
-Tras mutaciones se sigue invalidando con `revalidatePath` (página + layout cuando el shell debe refrescar). Eso **re-ejecuta** el request; el `React.cache` no evita trabajo entre navegaciones.
+Tras mutaciones se sigue invalidando con `revalidatePath` de las **páginas de dinero**, no del layout salvo que el shell cambie. Eso **re-ejecuta** el request; el `React.cache` no evita trabajo entre navegaciones.
 
 ### 7.2 Navegación inmediata y Client Router Cache
 
@@ -210,11 +210,14 @@ Las páginas autenticadas son **RSC** (Prisma en servidor). El feedback al naveg
 | `experimental.staleTimes.static: 180` | Reuso de loading boundaries / prefetch completo en segmentos estáticos |
 | `src/lib/navigation.ts` | Helpers client post-mutación (`refreshAfterMutation`, `navigateAndRefresh`, `replaceAndRefresh`) |
 
+**Layout del shell (`AppShell`):** `SkipLink` → `#main-content` (`SidebarInset`). `SidebarProvider` (contexto) envuelve **todo** el shell, incluido `MobileTabBar` / “Más”. El flex (`SidebarFrame`) envuelve **solo** sidebar + inset. `MobileTabBar` y `NewTransactionSheet` se montan **fuera** de ese flex (`position: fixed` abajo, `width: 100%`, sin `100vw`/`100dvw`). Si la tab bar es hermana flex de `SidebarInset`, aparece overflow horizontal y la barra sale del viewport visual. Cadena flex: `min-w-0 max-w-full` en frame/inset/`ContentPanel`; `html`/`body`: `overflow-x-hidden`. Craft y a11y: [DESIGN.md](../DESIGN.md) §3.1 / §3.4. El sheet “Más” usa `ThemeToggle variant="inline"` (segmented, sin dropdown anidado en el modal) y una sola identidad al pie.
+
 **Contrato post-mutación (Client Components):**
 
-1. Server Action llama `revalidatePath` (y `revalidatePath("/", "layout")` si el shell cambia).
-2. En el cliente: `onSuccess?.()` primero (cerrar sheet, limpiar UI local).
+1. Server Action llama `revalidatePath` de las páginas de dinero (`revalidateMoneyPaths`). `revalidatePath("/", "layout")` **solo** si el chrome del shell cambia (workspace, setup, categorías).
+2. En el cliente: splash del monto + `onSuccess?.()` (cerrar sheet) en el mismo tick.
 3. Luego `refreshAfterMutation(router)` si permanece en la misma ruta, o `navigateAndRefresh` / `replaceAndRefresh` si hay soft-nav.
+4. Mientras llega el RSC, el patrimonio se **atenúa** (`MoneyFreshnessFrame`) — no se reemplaza con un saldo calculado en el cliente.
 
 El `refresh` se difiere con `setTimeout(0)` para que corra **después** del `push`/`replace` y no pierda la carrera contra el Client Router Cache.
 
@@ -240,7 +243,7 @@ Producto: [SPEC-20](./specs/20-performance-pwa.md). Manifest: `src/app/manifest.
 
 **Filosofía:** saldos viejos sin avisar son **peores** que offline. El SW (si existe) es **custom** y de alcance deliberadamente chico — no un precache de la app entera.
 
-Headers / CDN (Vercel): estáticos `/_next/static` con cache largo; HTML de `(app)` dinámico (`private, no-store` / equivalente) — no “arreglar” TTFB cacheando paneles.
+Headers / CDN (Vercel): estáticos `/_next/static` con cache largo **solo en producción** (`immutable`; filenames hasheados). En `next dev` se envía `Cache-Control: no-store` y, en HTML, `Clear-Site-Data: "cache"` para evictar entradas `immutable` viejas (Turbopack reusa URLs de chunk). HTML de `(app)` dinámico (`private, no-store`) — no “arreglar” TTFB cacheando paneles.
 
 ## 8. Flujo de una mutación
 
@@ -274,6 +277,7 @@ UI (RHF + Zod)
 | `splits` + overview grupo | [09](./specs/09-financial-groups.md) + [10](./specs/10-expense-splitting.md) |
 | analytics | [11-analytics](./specs/11-analytics.md) |
 | `dashboard` | [12-dashboard](./specs/12-dashboard.md) |
+| `email` | [21-email-resend](./specs/21-email-resend.md) |
 | shell / PWA / nav | [20-performance-pwa](./specs/20-performance-pwa.md) |
 
 ## 11. Qué no hacer

@@ -27,6 +27,7 @@ export {
   assertValidGoalName,
   assertValidTargetAmount,
   normalizeGoalName,
+  progressFillPercent,
   progressPercent,
   reverseContribution,
 } from "./guards";

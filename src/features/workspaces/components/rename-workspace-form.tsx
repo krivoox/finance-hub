@@ -7,6 +7,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 
+import {
+  FormActions,
+  FormField,
+  FormStack,
+} from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { renameWorkspaceAction } from "@/features/workspaces/actions";
@@ -46,7 +51,7 @@ export function RenameWorkspaceForm({
       <div className="space-y-1">
         <p className="text-sm font-medium text-foreground">{initialName}</p>
         <p className="text-xs text-muted-foreground">
-          Solo owner o admin pueden renombrar el grupo.
+          Solo owner o admin pueden cambiar este nombre.
         </p>
       </div>
     );
@@ -72,27 +77,29 @@ export function RenameWorkspaceForm({
   }
 
   return (
-    <form
-      onSubmit={form.handleSubmit(onSubmit)}
-      className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end"
-    >
-      <label className="grid gap-1 text-sm">
-        <span className="text-muted-foreground">Nombre del grupo</span>
-        <Input {...form.register("name")} autoComplete="off" />
-        {form.formState.errors.name ? (
-          <span className="text-xs text-destructive">
-            {form.formState.errors.name.message}
-          </span>
-        ) : null}
-      </label>
-      <Button
-        type="submit"
-        variant="secondary"
-        className="h-10 w-full sm:h-9 sm:w-auto"
-        disabled={pending}
-      >
-        {pending ? "Guardando…" : "Renombrar"}
-      </Button>
+    <form onSubmit={form.handleSubmit(onSubmit)} className="flex flex-col gap-4">
+      <FormStack>
+        <FormField
+          label="Nombre"
+          htmlFor="workspace-rename"
+          error={form.formState.errors.name?.message}
+        >
+          <Input
+            id="workspace-rename"
+            autoComplete="off"
+            {...form.register("name")}
+          />
+        </FormField>
+      </FormStack>
+      <FormActions>
+        <Button
+          type="submit"
+          className="w-full sm:w-auto"
+          disabled={pending}
+        >
+          {pending ? "Guardando…" : "Renombrar"}
+        </Button>
+      </FormActions>
     </form>
   );
 }

@@ -2,22 +2,73 @@ export {
   allocateEqual,
   allocatePercentage,
   allocateExact,
-  type SplitShare,
 } from "./allocate";
 export {
-  assertGroupWorkspace,
   assertValidSettlement,
-  assertCanMutateSplits,
   computeMemberBalances,
-  type SplitForBalance,
-  type SettlementForBalance,
-  type MemberBalance,
 } from "./balances";
 export {
+  normalizeSplitGroupName,
+  normalizeGhostDisplayName,
+  ghostDisplayNameKey,
+  assertGhostNameAvailable,
+  assertUserIdAvailableInGroup,
+  assertMemberCanPay,
+  assertActorIsUserMember,
+  assertCanRenameSplitGroup,
+  assertCanDeleteSplitGroup,
+  assertCanRenameMember,
+  assertCanRemoveMember,
+  canRenameMember,
+  canRemoveMember,
+  memberHasLedgerHistory,
+} from "./members";
+export {
+  assertShareParticipants,
+  assertCanCreateExpenseSplit,
+} from "./planning";
+export { previewEqualSplit } from "./preview";
+export {
+  projectPublicSplitGroup,
+  assertPublicShareToken,
+} from "./public";
+export { aggregateSplitSpendingByCategory } from "./spending-by-category";
+export {
   SplitDomainError,
-  NotAGroupWorkspaceError,
   SplitSumMismatchError,
   InvalidPercentageError,
   InvalidSettlementError,
   InvalidSplitInputError,
+  InvalidSplitGroupNameError,
+  InvalidGhostNameError,
+  DuplicateGhostNameError,
+  AlreadySplitGroupMemberError,
+  GhostCannotPayError,
+  NotSplitGroupUserMemberError,
+  ForbiddenSplitGroupActionError,
+  SplitGroupTooSmallError,
+  SplitMemberNotInGroupError,
+  SplitCurrencyMismatchError,
+  InvalidPublicShareTokenError,
+  SplitNotFoundError,
+  CannotRemoveGroupCreatorError,
+  MemberHasSplitHistoryError,
 } from "./errors";
+export type {
+  SplitShare,
+  SplitGroupMemberRef,
+  SplitForBalance,
+  SettlementForBalance,
+  MemberBalance,
+  EqualSplitPreview,
+  PublicSplitActivityItem,
+  PublicSplitGroupProjection,
+  SplitMethod,
+  SplitExpenseForCategory,
+  SplitCategorySpendingRow,
+} from "./types";
+export {
+  SPLIT_NAME_MAX_LENGTH,
+  SPLIT_UNCATEGORIZED_CATEGORY_ID,
+  SPLIT_UNCATEGORIZED_CATEGORY_NAME,
+} from "./types";

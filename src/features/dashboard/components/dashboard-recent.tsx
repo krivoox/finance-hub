@@ -1,11 +1,13 @@
 import Link from "next/link";
-import { ArrowDownLeft, ArrowUpRight, ArrowLeftRight } from "lucide-react";
 
+import { AbmGlyph } from "@/components/abm-table";
 import { Button } from "@/components/ui/button";
 import {
   SurfaceHeader,
   SurfaceSection,
 } from "@/components/surface-section";
+import { categoryPillTone } from "@/features/categories/domain/category-pill-tone";
+import { splitLeadingEmoji } from "@/features/categories/domain/split-leading-emoji";
 import type { ListedTransaction } from "@/features/transactions/services";
 import { cn } from "@/lib/utils";
 
@@ -17,23 +19,37 @@ type DashboardRecentProps = {
   limit?: number;
 };
 
-const TYPE_CHROME = {
-  income: {
-    icon: ArrowDownLeft,
-    badge: "bg-income-muted text-income",
-    amount: "text-income",
-  },
-  expense: {
-    icon: ArrowUpRight,
-    badge: "bg-expense-muted text-expense",
-    amount: "text-expense",
-  },
-  transfer: {
-    icon: ArrowLeftRight,
-    badge: "bg-transfer-muted text-transfer",
-    amount: "text-foreground",
-  },
+const TYPE_AMOUNT = {
+  income: "text-income",
+  expense: "text-expense",
+  transfer: "text-foreground",
 } as const;
+
+const CHART_TONE_GLYPH = {
+  "chart-1": "bg-chart-1/15",
+  "chart-2": "bg-chart-2/15",
+  "chart-3": "bg-chart-3/15",
+  "chart-4": "bg-chart-4/15",
+  "chart-5": "bg-chart-5/15",
+} as const;
+
+const FALLBACK_GLYPH = {
+  income: { emoji: "💰", toneClass: "bg-income-muted" },
+  expense: { emoji: "🧾", toneClass: "bg-expense-muted" },
+  transfer: { emoji: "🔄", toneClass: "bg-transfer-muted" },
+} as const;
+
+function rowGlyph(tx: ListedTransaction): { emoji: string; toneClass: string } {
+  const variant = amountVariant(tx.type);
+  if (tx.categoryName) {
+    const { emoji } = splitLeadingEmoji(tx.categoryName);
+    if (emoji) {
+      const tone = categoryPillTone(tx.categoryId ?? tx.categoryName);
+      return { emoji, toneClass: CHART_TONE_GLYPH[tone] };
+    }
+  }
+  return FALLBACK_GLYPH[variant];
+}
 
 /**
  * Actividad reciente en formato lista (rail del Panel): identidad + categoría
@@ -50,7 +66,7 @@ export function DashboardRecent({
         title="Actividad reciente"
         description="Últimos movimientos del workspace"
         action={
-          <Button variant="ghost" size="sm" className="h-8 rounded-full" asChild>
+          <Button variant="ghost" size="sm" asChild>
             <Link href="/transactions">Ver todo</Link>
           </Button>
         }
@@ -61,46 +77,40 @@ export function DashboardRecent({
           <p className="text-sm text-muted-foreground text-pretty">
             Todavía no registraste movimientos en este workspace.
           </p>
-          <Button variant="outline" size="sm" className="h-9 rounded-full" asChild>
+          <Button variant="outline" asChild>
             <Link href="/transactions/new">Registrar el primero</Link>
           </Button>
         </div>
       ) : (
-        <ul className="-mx-2 divide-y divide-border">
+        <ul className="-mx-2 min-w-0 divide-y divide-border">
           {transactions.slice(0, limit).map((tx) => {
-            const chrome = TYPE_CHROME[amountVariant(tx.type)];
-            const Icon = chrome.icon;
+            const glyph = rowGlyph(tx);
+            const amountClass = TYPE_AMOUNT[amountVariant(tx.type)];
+            const categoryLabel = tx.categoryName
+              ? splitLeadingEmoji(tx.categoryName).label
+              : "Sin categoría";
 
             return (
-              <li key={tx.id} className="relative">
+              <li key={tx.id} className="relative min-w-0">
                 <Link
                   href={`/transactions/${tx.id}`}
-                  className="flex items-center gap-3 rounded-xl px-2 py-2.5 transition-colors hover:bg-background/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none dark:hover:bg-background/40"
+                  className="flex min-w-0 items-center gap-3 rounded-xl px-2 py-2.5 transition-colors hover:bg-background/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none dark:hover:bg-background/40"
                 >
-                  <span
-                    className={cn(
-                      "flex size-8 shrink-0 items-center justify-center rounded-full",
-                      chrome.badge,
-                    )}
-                    aria-hidden
-                  >
-                    <Icon className="size-4" strokeWidth={2} />
-                  </span>
+                  <AbmGlyph className={glyph.toneClass}>{glyph.emoji}</AbmGlyph>
 
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-sm font-medium text-foreground">
                       {tx.description ?? "Sin descripción"}
                     </span>
                     <span className="block truncate text-xs text-muted-foreground">
-                      {tx.categoryName ?? "Sin categoría"} ·{" "}
-                      {formatShortDate(tx.occurredOn)}
+                      {categoryLabel} · {formatShortDate(tx.occurredOn)}
                     </span>
                   </span>
 
                   <span
                     className={cn(
-                      "shrink-0 text-sm font-medium tabular-nums",
-                      chrome.amount,
+                      "max-w-[42%] shrink-0 text-right text-xs tabular sm:text-sm",
+                      amountClass,
                     )}
                   >
                     {formatSignedAmount(tx.type, tx.amountCents, tx.currency)}

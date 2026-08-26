@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/session";
 import {
   createExpenseSchema,
@@ -8,6 +7,7 @@ import {
 } from "@/features/transactions/schemas";
 import { createExpense as createExpenseService } from "@/features/transactions/services";
 import { transactionErrorToMessage, type ActionResult } from "./errors";
+import { revalidateMoneyPaths } from "./revalidate-money-paths";
 
 export async function createExpenseAction(
   input: CreateExpenseInput,
@@ -34,11 +34,7 @@ export async function createExpenseAction(
       description: parsed.data.description ?? null,
       currency: parsed.data.currency,
     });
-    revalidatePath("/transactions");
-    revalidatePath("/accounts");
-    revalidatePath("/dashboard");
-    revalidatePath("/groups");
-    revalidatePath("/", "layout");
+    revalidateMoneyPaths({ groups: true });
     return { ok: true, data: { transactionId: tx.id } };
   } catch (err) {
     return { ok: false, error: transactionErrorToMessage(err) };

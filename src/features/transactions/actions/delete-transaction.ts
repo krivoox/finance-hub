@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/session";
 import {
   deleteTransactionSchema,
@@ -8,6 +7,7 @@ import {
 } from "@/features/transactions/schemas";
 import { deleteTransaction as deleteTransactionService } from "@/features/transactions/services";
 import { transactionErrorToMessage, type ActionResult } from "./errors";
+import { revalidateMoneyPaths } from "./revalidate-money-paths";
 
 export async function deleteTransactionAction(
   input: DeleteTransactionInput,
@@ -28,11 +28,7 @@ export async function deleteTransactionAction(
       userId: session.user.id,
       transactionId: parsed.data.transactionId,
     });
-    revalidatePath("/transactions");
-    revalidatePath("/accounts");
-    revalidatePath("/dashboard");
-    revalidatePath("/goals");
-    revalidatePath("/", "layout");
+    revalidateMoneyPaths({ goals: true });
     return { ok: true, data: { transactionId: result.id } };
   } catch (err) {
     return { ok: false, error: transactionErrorToMessage(err) };

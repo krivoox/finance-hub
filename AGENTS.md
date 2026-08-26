@@ -53,7 +53,7 @@ Mismo que Siturn — detalle en `docs/stack.md`:
 - Next.js 16 App Router, React 19, TypeScript strict, Tailwind 4, shadcn
 - **Better Auth** (no Supabase Auth)
 - **Prisma** + Postgres (Supabase)
-- Zod + RHF, TanStack Query, Zustand (solo UI)
+- Zod + RHF, Zustand (solo UI)
 - Vitest para TDD de negocio
 - Performance / PWA: [SPEC-20](./docs/specs/20-performance-pwa.md) + [architecture §7.2–7.3](./docs/architecture.md) (soft-nav, prefetch, SW static-only)
 
@@ -80,8 +80,9 @@ src/
 
 - Domain no importa Next/React/Prisma.
 - UI no contiene reglas de negocio.
-- Theme: tokens semánticos en `globals.css`; sin hex sueltos ni `zinc-*`/`blue-*` en UI.
+- Theme: tokens semánticos en `globals.css`; sin hex sueltos ni `zinc-*`/`slate-*`/`blue-*` en UI.
 - UI **mobile-first** (base = teléfono; ver `DESIGN.md` §3.1).
+- Firma visual: sidebar navy + canvas slate + cards + CTA `bg-cta` (`DESIGN.md`).
 
 ## Convenciones
 
@@ -118,6 +119,7 @@ Reglas:
 - [ ] Sin `process.env` fuera de `src/lib/env.ts`
 - [ ] Soft-nav + loading skeleton en rutas `(app)` tocadas
 - [ ] Prefetch de destinos de nav si se agregan links de menú (`nav-config.ts`)
+- [ ] UI: tokens + `DESIGN.md` (navy sidebar, `bg-cta`, `SurfaceSection`, mobile-first)
 - [ ] Sin cache cross-request / SW de saldos o HTML de panel (`staleTimes.dynamic: 0`)
 - [ ] PWA: si toca manifest/SW, respetar SPEC-20 / architecture §7.3
 - [ ] Git Flow: rama `feat|fix|chore` desde `develop`; PR → `develop`

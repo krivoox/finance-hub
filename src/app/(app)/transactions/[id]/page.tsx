@@ -1,11 +1,17 @@
 import Link from "next/link";
+import { Suspense } from "react";
 import { redirect, notFound } from "next/navigation";
 
 import { ContentPanel } from "@/components/app-shell/content-panel";
+import { PageSkeleton } from "@/components/app-shell/page-skeleton";
+import {
+  SurfaceHeader,
+  SurfaceSection,
+} from "@/components/surface-section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatSignedMoney, formatMoney } from "@/lib/format-money";
-import { prisma } from "@/lib/prisma";
+import { formatDateOnly } from "@/lib/format-date";
 import { getSession } from "@/lib/session";
 import { listAccounts } from "@/features/accounts/services";
 import { listCategories } from "@/features/categories/services";
@@ -13,7 +19,6 @@ import { getTransactionDetail } from "@/features/transactions/services";
 import { EditTransactionSheet } from "@/features/transactions/components/edit-transaction-sheet";
 import { TRANSACTION_TYPE_LABEL_ES } from "@/features/transactions/components/transaction-type-labels";
 import {
-  formatPaymentAccountLabel,
   TransactionNotFoundError,
   type TransactionType,
 } from "@/features/transactions/domain";
@@ -51,53 +56,39 @@ export default async function TransactionDetailPage({ params }: PageProps) {
   }
 
   const { id } = await params;
-  const userId = session.user.id;
 
+  return (
+    <Suspense fallback={<PageSkeleton variant="detail" />}>
+      <TransactionDetailBody userId={session.user.id} transactionId={id} />
+    </Suspense>
+  );
+}
+
+async function TransactionDetailBody({
+  userId,
+  transactionId,
+}: {
+  userId: string;
+  transactionId: string;
+}) {
   let detail;
   try {
-    detail = await getTransactionDetail({ userId, transactionId: id });
+    detail = await getTransactionDetail({ userId, transactionId });
   } catch (err) {
     if (err instanceof TransactionNotFoundError) notFound();
     if (err instanceof ForbiddenError) redirect("/transactions");
     throw err;
   }
 
-  const [accounts, categories, membership, personalOwner] = await Promise.all([
+  const [accounts, categories, membership] = await Promise.all([
     listAccounts({ userId, workspaceId: detail.workspaceId }),
     listCategories({ userId, workspaceId: detail.workspaceId }),
     requireMembership(userId, detail.workspaceId),
-    detail.accountWorkspaceType === "personal"
-      ? prisma.membership.findFirst({
-          where: {
-            workspaceId: detail.accountWorkspaceId,
-            role: "owner",
-          },
-          select: {
-            userId: true,
-            user: {
-              select: { displayName: true, name: true, email: true },
-            },
-          },
-        })
-      : Promise.resolve(null),
   ]);
 
   const canMutate = membership.role !== "viewer";
 
-  const accountLabel = formatPaymentAccountLabel({
-    viewerUserId: userId,
-    accountName: detail.accountName,
-    accountWorkspaceId: detail.accountWorkspaceId,
-    registrationWorkspaceId: detail.workspaceId,
-    accountWorkspaceName: detail.accountWorkspaceName,
-    accountWorkspaceType: detail.accountWorkspaceType,
-    personalOwnerUserId: personalOwner?.userId ?? null,
-    personalOwnerDisplayName:
-      personalOwner?.user.displayName?.trim() ||
-      personalOwner?.user.name ||
-      personalOwner?.user.email ||
-      null,
-  });
+  const accountLabel = detail.accountName;
 
   const transferLabel =
     detail.type === "transfer" && detail.counterpartyAccountName
@@ -108,17 +99,6 @@ export default async function TransactionDetailPage({ params }: PageProps) {
     .filter((a) => !a.isArchived)
     .map((a) => ({ id: a.id, name: a.name, currency: a.currency }));
 
-  if (
-    detail.isExternallyFunded &&
-    !accountOptions.some((a) => a.id === detail.accountId)
-  ) {
-    accountOptions.unshift({
-      id: detail.accountId,
-      name: `${detail.accountWorkspaceName} · ${detail.accountName}`,
-      currency: detail.currency,
-    });
-  }
-
   const title =
     detail.description ??
     detail.categoryName ??
@@ -127,7 +107,7 @@ export default async function TransactionDetailPage({ params }: PageProps) {
   return (
     <ContentPanel
       title={title}
-      description={`${detail.workspaceName} · ${formatOccurredOn(detail.occurredOn)}`}
+      description={`${detail.workspaceName} · ${formatDateOnly(detail.occurredOn)}`}
       actions={
         canMutate ? (
           <EditTransactionSheet
@@ -153,14 +133,14 @@ export default async function TransactionDetailPage({ params }: PageProps) {
         ) : undefined
       }
     >
-      <div className="mb-6">
-        <Button variant="ghost" size="sm" className="-ml-2" asChild>
-          <Link href="/transactions">← Volver a movimientos</Link>
-        </Button>
-      </div>
+      <div className="flex flex-col gap-5 sm:gap-6">
+        <div>
+          <Button variant="ghost" size="sm" className="-ml-2" asChild>
+            <Link href="/transactions">← Volver a movimientos</Link>
+          </Button>
+        </div>
 
-      <div className="space-y-8">
-        <header className="space-y-2">
+        <SurfaceSection>
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant={badgeVariantForType(detail.type)}>
               {TRANSACTION_TYPE_LABEL_ES[detail.type]}
@@ -173,115 +153,98 @@ export default async function TransactionDetailPage({ params }: PageProps) {
               </Badge>
             ) : null}
           </div>
-          <p className="text-3xl font-semibold tabular-nums tracking-tight text-foreground sm:text-4xl">
+          <p className="mt-4 font-heading text-3xl font-extrabold tabular tracking-tight text-foreground sm:text-4xl">
             {formatSignedMoney(
               signedAmountCents(detail.type, detail.amountCents),
               detail.currency,
             )}
           </p>
-        </header>
 
-        <dl className="grid gap-4 text-sm sm:grid-cols-2">
-          <div className="space-y-1">
-            <dt className="text-muted-foreground">Fecha</dt>
-            <dd className="tabular-nums text-foreground">
-              {formatOccurredOn(detail.occurredOn)}
-            </dd>
-          </div>
-          <div className="space-y-1">
-            <dt className="text-muted-foreground">
-              {detail.type === "income" || detail.type === "fx_credit"
-                ? "Se acredita en"
-                : detail.type === "expense" || detail.type === "fx_debit"
-                  ? "Se descuenta de"
-                  : "Cuentas"}
-            </dt>
-            <dd className="text-foreground">{transferLabel}</dd>
-          </div>
-          {detail.type !== "transfer" ? (
+          <dl className="mt-5 grid gap-4 text-sm sm:grid-cols-2">
             <div className="space-y-1">
-              <dt className="text-muted-foreground">Categoría</dt>
-              <dd className="text-foreground">{detail.categoryName ?? "—"}</dd>
-            </div>
-          ) : null}
-          <div className="space-y-1">
-            <dt className="text-muted-foreground">Se registra en</dt>
-            <dd className="text-foreground">{detail.workspaceName}</dd>
-          </div>
-          <div className="space-y-1">
-            <dt className="text-muted-foreground">Registró</dt>
-            <dd className="text-foreground">{detail.createdByDisplayName}</dd>
-          </div>
-          {detail.isExternallyFunded ? (
-            <div className="space-y-1 sm:col-span-2">
-              <dt className="text-muted-foreground">Origen del dinero</dt>
-              <dd className="text-foreground">
-                Cuenta de {detail.accountWorkspaceName} (otro espacio)
+              <dt className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
+                Fecha
+              </dt>
+              <dd className="tabular text-foreground">
+                {formatDateOnly(detail.occurredOn)}
               </dd>
             </div>
-          ) : null}
-        </dl>
+            <div className="space-y-1">
+              <dt className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
+                {detail.type === "income" || detail.type === "fx_credit"
+                  ? "Se acredita en"
+                  : detail.type === "expense" || detail.type === "fx_debit"
+                    ? "Se descuenta de"
+                    : "Cuentas"}
+              </dt>
+              <dd className="text-foreground">{transferLabel}</dd>
+            </div>
+            {detail.type !== "transfer" ? (
+              <div className="space-y-1">
+                <dt className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
+                  Categoría
+                </dt>
+                <dd className="text-foreground">{detail.categoryName ?? "—"}</dd>
+              </div>
+            ) : null}
+            <div className="space-y-1">
+              <dt className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
+                Se registra en
+              </dt>
+              <dd className="text-foreground">{detail.workspaceName}</dd>
+            </div>
+            <div className="space-y-1">
+              <dt className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
+                Registró
+              </dt>
+              <dd className="text-foreground">{detail.createdByDisplayName}</dd>
+            </div>
+          </dl>
+        </SurfaceSection>
 
         {detail.goalContribution ? (
-          <section className="space-y-3 border-t border-border pt-6">
-            <h2 className="text-sm font-semibold text-foreground">
-              {detail.goalContribution.goalKind === "debt_payoff"
-                ? "Pago de deuda"
-                : "Aporte a objetivo"}
-            </h2>
+          <SurfaceSection>
+            <SurfaceHeader
+              title={
+                detail.goalContribution.goalKind === "debt_payoff"
+                  ? "Pago de deuda"
+                  : "Aporte a objetivo"
+              }
+            />
             <p className="text-sm text-muted-foreground">
               {detail.goalContribution.goalName}
             </p>
-            <Button variant="outline" size="sm" asChild>
+            <Button variant="outline" className="mt-3" asChild>
               <Link href="/goals">Ver objetivos</Link>
             </Button>
-          </section>
+          </SurfaceSection>
         ) : null}
 
         {detail.split ? (
-          <section className="space-y-3 border-t border-border pt-6">
-            <h2 className="text-sm font-semibold text-foreground">Reparto</h2>
-            <p className="text-sm text-muted-foreground">
-              Pagó {detail.split.paidByDisplayName} · método{" "}
-              {detail.split.method}
+          <SurfaceSection>
+            <SurfaceHeader title={`Reparto en «${detail.split.splitGroupName}»`} />
+            <p className="mb-3 text-sm text-muted-foreground">
+              Pagó {detail.split.paidByDisplayName}
             </p>
-            <ul className="divide-y divide-border rounded-lg border border-border">
+            <ul className="-mx-2 divide-y divide-border">
               {detail.split.shares.map((s) => (
                 <li
-                  key={s.userId}
-                  className="flex items-center justify-between gap-3 px-3 py-2.5 text-sm"
+                  key={s.memberId}
+                  className="flex items-center justify-between gap-3 px-2 py-2.5 text-sm"
                 >
                   <span className="text-foreground">{s.displayName}</span>
-                  <span className="tabular-nums text-muted-foreground">
+                  <span className="tabular text-muted-foreground">
                     {formatMoney(s.shareCents, detail.currency)}
                   </span>
                 </li>
               ))}
             </ul>
-          </section>
-        ) : null}
-
-        {detail.crossWorkspaceLink ? (
-          <section className="space-y-3 border-t border-border pt-6">
-            <h2 className="text-sm font-semibold text-foreground">
-              {detail.crossWorkspaceLink.kind === "contribution"
-                ? "Aporte vinculado"
-                : "Transacción vinculada"}
-            </h2>
-            <p className="text-sm text-muted-foreground">
-              {detail.crossWorkspaceLink.role === "source"
-                ? "Entra en"
-                : "Sale de"}{" "}
-              {detail.crossWorkspaceLink.twinWorkspaceName}
-            </p>
-            <Button variant="outline" size="sm" asChild>
-              <Link
-                href={`/transactions/${detail.crossWorkspaceLink.twinTransactionId}`}
-              >
-                Ver movimiento vinculado
+            <Button variant="outline" className="mt-3" asChild>
+              <Link href={`/groups/${detail.split.splitGroupId}`}>
+                Ver grupo
               </Link>
             </Button>
-          </section>
+          </SurfaceSection>
         ) : null}
       </div>
     </ContentPanel>

@@ -3,7 +3,6 @@ export { createExpenseAction } from "./create-expense";
 export { createTransferAction } from "./create-transfer";
 export { updateTransactionAction } from "./update-transaction";
 export { deleteTransactionAction } from "./delete-transaction";
-export { createCrossWorkspaceContributionAction } from "./create-cross-workspace-contribution";
 export { listTransactionsPageAction } from "./list-transactions-page";
 export type {
   ListedTransactionPageItem,
@@ -13,8 +12,7 @@ export { getNewTransactionFormOptionsAction } from "./get-new-transaction-form-o
 export type {
   NewTransactionFormOptions,
   NewTransactionFormAccountOption,
-  NewTransactionFormPaymentGroup,
   NewTransactionFormCategoryOption,
-  NewTransactionFormMemberOption,
+  NewTransactionFormSplitGroupOption,
 } from "./get-new-transaction-form-options";
 export type { ActionResult } from "./errors";

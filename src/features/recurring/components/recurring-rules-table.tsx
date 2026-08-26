@@ -11,6 +11,12 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+import {
+  AbmTable,
+  AbmHead,
+  AbmCell,
+  AbmMoney,
+} from "@/components/abm-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,8 +29,6 @@ import {
 import {
   Table,
   TableBody,
-  TableCell,
-  TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
@@ -36,7 +40,6 @@ import {
 } from "@/components/data-table";
 import { CategoryPill } from "@/features/categories/components/category-pill";
 import { formatDateOnly } from "@/lib/format-date";
-import { formatMoney } from "@/lib/format-money";
 import { refreshAfterMutation } from "@/lib/navigation";
 import {
   endRecurringRuleAction,
@@ -65,6 +68,14 @@ function amountVariant(
   if (type === "income") return "income";
   if (type === "expense") return "expense";
   return "transfer";
+}
+
+function signedAmountCents(
+  type: RecurringRuleListItem["type"],
+  amountCents: number,
+): number {
+  if (type === "income") return amountCents;
+  return -amountCents;
 }
 
 function statusVariant(
@@ -185,85 +196,84 @@ export function RecurringRulesTable({
   );
 
   return (
-    <div className="flex flex-col gap-3">
-      <BulkActionsBar
-        selection={selection}
-        singular="plantilla seleccionada"
-        plural="plantillas seleccionadas"
-      >
-        {selectedActive.length > 0 ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="h-8 gap-1.5"
-            disabled={isPending}
-            onClick={() => runBulk("pause", selectedActive)}
-          >
-            <Pause className="size-3.5" strokeWidth={1.75} aria-hidden />
-            Pausar
-          </Button>
-        ) : null}
-        {selectedPaused.length > 0 ? (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            className="h-8 gap-1.5"
-            disabled={isPending}
-            onClick={() => runBulk("resume", selectedPaused)}
-          >
-            <Play className="size-3.5" strokeWidth={1.75} aria-hidden />
-            Reanudar
-          </Button>
-        ) : null}
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          className="h-8 gap-1.5 text-destructive hover:bg-destructive/10 hover:text-destructive"
-          disabled={isPending}
-          onClick={() => runBulk("end", selection.selectedIds)}
+    <AbmTable
+      bulk={
+        <BulkActionsBar
+          selection={selection}
+          singular="plantilla seleccionada"
+          plural="plantillas seleccionadas"
         >
-          <StopCircle className="size-3.5" strokeWidth={1.75} aria-hidden />
-          Finalizar
-        </Button>
-      </BulkActionsBar>
-
+          {selectedActive.length > 0 ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isPending}
+              onClick={() => runBulk("pause", selectedActive)}
+            >
+              <Pause className="size-3.5" strokeWidth={1.75} aria-hidden />
+              Pausar
+            </Button>
+          ) : null}
+          {selectedPaused.length > 0 ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isPending}
+              onClick={() => runBulk("resume", selectedPaused)}
+            >
+              <Play className="size-3.5" strokeWidth={1.75} aria-hidden />
+              Reanudar
+            </Button>
+          ) : null}
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+            disabled={isPending}
+            onClick={() => runBulk("end", selection.selectedIds)}
+          >
+            <StopCircle className="size-3.5" strokeWidth={1.75} aria-hidden />
+            Finalizar
+          </Button>
+        </BulkActionsBar>
+      }
+    >
       <Table>
         <TableHeader>
-          <TableRow>
+          <TableRow className="border-border/70 hover:bg-transparent">
             {canMutate ? (
               <SelectAllHead
                 selection={selection}
                 label="Seleccionar todas las plantillas"
               />
             ) : null}
-            <TableHead>Descripción</TableHead>
-            <TableHead className="hidden md:table-cell">Categoría</TableHead>
-            <TableHead className="hidden lg:table-cell">Cuenta</TableHead>
-            <TableHead className="text-right">Monto</TableHead>
-            <TableHead className="hidden sm:table-cell">Frecuencia</TableHead>
-            <TableHead className="hidden sm:table-cell">
-              Fecha de cobro
-            </TableHead>
-            <TableHead className="hidden md:table-cell">Ejecutada</TableHead>
-            <TableHead>Estado</TableHead>
-            <TableHead className="w-10 text-right">
+            <AbmHead slot="identity">Descripción</AbmHead>
+            <AbmHead hideBelow="md">Categoría</AbmHead>
+            <AbmHead hideBelow="lg">Cuenta</AbmHead>
+            <AbmHead slot="amount">Monto</AbmHead>
+            <AbmHead hideBelow="sm">Frecuencia</AbmHead>
+            <AbmHead hideBelow="sm">Fecha de cobro</AbmHead>
+            <AbmHead hideBelow="md">Ejecutada</AbmHead>
+            <AbmHead hideBelow="sm">Estado</AbmHead>
+            <AbmHead slot="action">
               <span className="sr-only">Acciones</span>
-            </TableHead>
+            </AbmHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {rules.map((rule) => {
             const selectable = canMutate && rule.status !== "ended";
+            const tone = amountVariant(rule.type);
             return (
               <TableRow
                 key={rule.id}
                 data-state={
                   selection.isSelected(rule.id) ? "selected" : undefined
                 }
-                className="relative"
+                className="relative border-border/60"
               >
                 {canMutate ? (
                   <SelectRowCell
@@ -273,47 +283,48 @@ export function RecurringRulesTable({
                     label={`Seleccionar ${rule.name}`}
                   />
                 ) : null}
-                <TableCell>
+                <AbmCell slot="identity">
                   <div className="flex min-w-0 flex-col gap-0.5">
                     <Link
                       href={`/transactions/recurring/${rule.id}`}
-                      className="font-medium text-foreground after:absolute after:inset-0 hover:underline"
+                      className="min-w-0 truncate font-medium text-foreground after:absolute after:inset-0 hover:underline"
                     >
                       {rule.name}
                     </Link>
-                    <span className="text-xs text-muted-foreground sm:hidden">
+                    <span className="truncate text-xs text-muted-foreground sm:hidden">
+                      {RECURRING_STATUS_LABEL_ES[rule.status]}
+                      {" · "}
                       {RECURRING_FREQUENCY_LABEL_ES[rule.frequency]}
                       {rule.nextOccurrence
                         ? ` · ${formatDateOnly(rule.nextOccurrence)}`
                         : ""}
                     </span>
-                    <span className="text-xs text-muted-foreground md:hidden">
+                    <span className="hidden truncate text-xs text-muted-foreground sm:block md:hidden">
                       {RECURRING_TYPE_LABEL_ES[rule.type]} ·{" "}
                       {accountLabel(rule)}
                     </span>
                   </div>
-                </TableCell>
-                <TableCell className="hidden md:table-cell">
+                </AbmCell>
+                <AbmCell hideBelow="md">
                   <CategoryPill
                     label={categoryLabel(rule)}
                     toneSeed={rule.categoryId}
                   />
-                </TableCell>
-                <TableCell className="hidden text-muted-foreground lg:table-cell">
+                </AbmCell>
+                <AbmCell hideBelow="lg" muted>
                   {accountLabel(rule)}
-                </TableCell>
-                <TableCell className="text-right">
-                  <Badge
-                    variant={amountVariant(rule.type)}
-                    className="tabular-nums"
-                  >
-                    {formatMoney(rule.amountCents, rule.currency)}
-                  </Badge>
-                </TableCell>
-                <TableCell className="hidden text-muted-foreground sm:table-cell">
+                </AbmCell>
+                <AbmCell slot="amount">
+                  <AbmMoney
+                    cents={signedAmountCents(rule.type, rule.amountCents)}
+                    currency={rule.currency}
+                    tone={tone}
+                  />
+                </AbmCell>
+                <AbmCell hideBelow="sm" muted>
                   {RECURRING_FREQUENCY_LABEL_ES[rule.frequency]}
-                </TableCell>
-                <TableCell className="hidden sm:table-cell">
+                </AbmCell>
+                <AbmCell hideBelow="sm">
                   {rule.nextOccurrence ? (
                     <Badge variant="success" className="tabular-nums font-normal">
                       {formatDateOnly(rule.nextOccurrence)}
@@ -321,11 +332,11 @@ export function RecurringRulesTable({
                   ) : (
                     <span className="text-muted-foreground">—</span>
                   )}
-                </TableCell>
-                <TableCell className="hidden text-muted-foreground md:table-cell">
+                </AbmCell>
+                <AbmCell hideBelow="md" muted>
                   {executedLabel(rule.materializedCount)}
-                </TableCell>
-                <TableCell>
+                </AbmCell>
+                <AbmCell hideBelow="sm">
                   <div className="flex flex-col items-start gap-1">
                     <Badge variant={statusVariant(rule.status)}>
                       {RECURRING_STATUS_LABEL_ES[rule.status]}
@@ -336,8 +347,8 @@ export function RecurringRulesTable({
                       </span>
                     ) : null}
                   </div>
-                </TableCell>
-                <TableCell className="relative z-10 text-right">
+                </AbmCell>
+                <AbmCell slot="action">
                   {canMutate && rule.status !== "ended" ? (
                     <RowMenu
                       ruleId={rule.id}
@@ -348,13 +359,13 @@ export function RecurringRulesTable({
                       onEnd={() => runBulk("end", [rule.id])}
                     />
                   ) : null}
-                </TableCell>
+                </AbmCell>
               </TableRow>
             );
           })}
         </TableBody>
       </Table>
-    </div>
+    </AbmTable>
   );
 }
 
@@ -379,8 +390,7 @@ function RowMenu({
         <Button
           type="button"
           variant="ghost"
-          size="icon"
-          className="size-8"
+          size="icon-sm"
           disabled={disabled}
           aria-label="Acciones de la recurrente"
         >

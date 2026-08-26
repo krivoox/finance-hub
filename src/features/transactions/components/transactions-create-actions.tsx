@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ArrowLeftRight, Plus, RefreshCw } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import { FormSheet } from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
@@ -10,25 +10,16 @@ import { NewCurrencyExchangeForm } from "@/features/currency-exchange/components
 import { replaceAndRefresh } from "@/lib/navigation";
 
 import { useNewTransactionSheetStore } from "../stores/new-transaction-sheet-store";
-import {
-  ContributeCrossWorkspaceForm,
-  type ContributionAccountOption,
-} from "./contribute-cross-workspace-form";
 
 type AccountOption = {
   id: string;
   name: string;
   currency: string;
-  workspaceId?: string;
-  workspaceName?: string;
-  workspaceType?: "personal" | "group";
 };
 
 type TransactionsCreateActionsProps = {
   workspaceId: string;
-  workspaceCurrency: string;
   accounts: readonly AccountOption[];
-  contributionAccounts?: readonly ContributionAccountOption[];
 };
 
 function clearCreateQuery(
@@ -50,14 +41,12 @@ function clearCreateQuery(
 }
 
 /**
- * Page-local create CTAs for FX / cross-workspace. “Nueva transacción” opens
- * the global new-transaction sheet (mounted in AppShell).
+ * Header CTA for new ledger entries. “Nueva transacción” opens the global
+ * new-transaction sheet (mounted in AppShell).
  */
 export function TransactionsCreateActions({
   workspaceId,
-  workspaceCurrency,
   accounts,
-  contributionAccounts = [],
 }: TransactionsCreateActionsProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -66,14 +55,10 @@ export function TransactionsCreateActions({
   const openNewTransaction = useNewTransactionSheetStore((s) => s.openSheet);
 
   const [fxOpen, setFxOpen] = useState(false);
-  const [crossOpen, setCrossOpen] = useState(false);
 
   useEffect(() => {
     if (newParam === "fx" || newParam === "exchange") {
       setFxOpen(true);
-    }
-    if (newParam === "cross") {
-      setCrossOpen(true);
     }
   }, [newParam]);
 
@@ -82,82 +67,63 @@ export function TransactionsCreateActions({
     if (!open) clearCreateQuery(pathname, searchParams, router, opts);
   }
 
-  function handleCrossOpenChange(open: boolean, opts?: { refresh?: boolean }) {
-    setCrossOpen(open);
-    if (!open) clearCreateQuery(pathname, searchParams, router, opts);
-  }
-
   const canFx = accounts.length >= 2;
-  const canCross = contributionAccounts.length >= 2;
 
   return (
     <>
-      <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
-        <Button
-          type="button"
-          className="h-10 w-full gap-1.5 sm:h-8 sm:w-auto"
-          onClick={() => openNewTransaction()}
+      <Button
+        type="button"
+        className="w-full gap-1.5 sm:w-auto"
+        onClick={() => openNewTransaction()}
+      >
+        <Plus className="size-4" strokeWidth={1.75} />
+        Nueva transacción
+      </Button>
+
+      {/*
+        TODO(fx-create-entry): el trigger “Cambio” (SheetTrigger outline +
+        ArrowUpDown) se quitó del header de Transacciones. Cuando se retire
+        el flujo de crear cambio de moneda, borrar también:
+        - Este FormSheet + estado `fxOpen` / `?new=fx|exchange` en este archivo
+        - `NewCurrencyExchangeForm`
+          (`src/features/currency-exchange/components/new-currency-exchange-form.tsx`)
+        - `createCurrencyExchangeAction` / `deleteCurrencyExchangeAction`
+          (`src/features/currency-exchange/actions/create-currency-exchange.ts`
+          y re-export en `actions/index.ts`)
+        - `createCurrencyExchange` / `deleteCurrencyExchange`
+          (`src/features/currency-exchange/services/create-currency-exchange.ts`
+          y re-export en `services/index.ts`)
+        - `createCurrencyExchangeSchema` / `deleteCurrencyExchangeSchema`
+          (`src/features/currency-exchange/schemas/index.ts`)
+        - Dominio de create: `assertValidCurrencyExchange`, errores de exchange
+          (`src/features/currency-exchange/domain/{guards,errors}.ts`
+          + `guards.test.ts`)
+        - Comentario `fx`/`exchange`/`cross` en
+          `src/features/transactions/lib/list-search-params.ts`
+        No tocar cotización del sidebar (`consolidation-rate*`, “Convertir”).
+        Labels de ledger (`fx_debit` / `fx_credit`) quedan hasta que se decida
+        el destino de los movimientos ya registrados.
+      */}
+      {canFx ? (
+        <FormSheet
+          open={fxOpen}
+          onOpenChange={handleFxOpenChange}
+          title="Cambio de moneda"
+          description="Canjeá entre cuentas ARS y USD del mismo workspace."
+          size="md"
         >
-          <Plus className="size-4" strokeWidth={1.75} />
-          Nueva transacción
-        </Button>
-
-        {canFx ? (
-          <FormSheet
-            open={fxOpen}
-            onOpenChange={handleFxOpenChange}
-            title="Cambio de moneda"
-            description="Canjeá entre cuentas ARS y USD del mismo workspace."
-            size="md"
-            trigger={
-              <Button
-                variant="outline"
-                className="h-10 w-full gap-1.5 sm:h-8 sm:w-auto"
-              >
-                <RefreshCw className="size-4" strokeWidth={1.75} />
-                Cambio
-              </Button>
-            }
-          >
-            <NewCurrencyExchangeForm
-              workspaceId={workspaceId}
-              accounts={accounts.map((a) => ({
-                id: a.id,
-                name: a.name,
-                currency: a.currency,
-              }))}
-              onSuccess={() => handleFxOpenChange(false, { refresh: true })}
-              onCancel={() => handleFxOpenChange(false)}
-            />
-          </FormSheet>
-        ) : null}
-
-        {canCross ? (
-          <FormSheet
-            open={crossOpen}
-            onOpenChange={handleCrossOpenChange}
-            title="Aportar a otro espacio"
-            description="Mové fondos entre tus workspaces."
-            size="md"
-            trigger={
-              <Button
-                variant="outline"
-                className="h-10 w-full gap-1.5 sm:h-8 sm:w-auto"
-              >
-                <ArrowLeftRight className="size-4" strokeWidth={1.75} />
-                Entre espacios
-              </Button>
-            }
-          >
-            <ContributeCrossWorkspaceForm
-              accounts={contributionAccounts}
-              currencyHint={workspaceCurrency}
-              onSuccess={() => handleCrossOpenChange(false, { refresh: true })}
-              onCancel={() => handleCrossOpenChange(false)}
-            />
-          </FormSheet>
-        ) : null}
-      </div>
+          <NewCurrencyExchangeForm
+            workspaceId={workspaceId}
+            accounts={accounts.map((a) => ({
+              id: a.id,
+              name: a.name,
+              currency: a.currency,
+            }))}
+            onSuccess={() => handleFxOpenChange(false, { refresh: true })}
+            onCancel={() => handleFxOpenChange(false)}
+          />
+        </FormSheet>
+      ) : null}
     </>
   );
 }

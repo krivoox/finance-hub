@@ -16,9 +16,11 @@ import {
   FormField,
   FormStack,
 } from "@/components/form-sheet";
+import { AmountInput } from "@/components/amount-input";
 import { Button } from "@/components/ui/button";
 import { refreshAfterMutation } from "@/lib/navigation";
 import { Input } from "@/components/ui/input";
+import { parseAmountCents } from "@/domain/money/parse-amount";
 import { nativeSelectClassName } from "@/components/ui/native-select";
 import { ACCOUNT_TYPE_LABEL_ES } from "./account-type-labels";
 
@@ -74,8 +76,10 @@ export function NewAccountForm({
 
   const onSubmit = handleSubmit((values) => {
     const submittingCreditCard = values.type === "credit_card";
-    const parsedUnits = Number(values.initialBalanceUnits.replace(",", "."));
-    if (!Number.isFinite(parsedUnits) || parsedUnits < 0) {
+    const initialBalanceCents = parseAmountCents(values.initialBalanceUnits, {
+      allowZero: true,
+    });
+    if (initialBalanceCents === null) {
       toast.error(
         submittingCreditCard
           ? "Deuda inicial inválida"
@@ -83,8 +87,6 @@ export function NewAccountForm({
       );
       return;
     }
-
-    const initialBalanceCents = Math.round(parsedUnits * 100);
 
     const input: CreateAccountInput = {
       workspaceId,
@@ -95,13 +97,8 @@ export function NewAccountForm({
     };
 
     if (values.type === "credit_card" && values.creditLimitUnits.trim() !== "") {
-      const parsedLimit = Number(values.creditLimitUnits.replace(",", "."));
-      if (!Number.isFinite(parsedLimit) || parsedLimit <= 0) {
-        toast.error("Límite de crédito inválido");
-        return;
-      }
-      const creditLimitCents = Math.round(parsedLimit * 100);
-      if (creditLimitCents <= 0) {
+      const creditLimitCents = parseAmountCents(values.creditLimitUnits);
+      if (creditLimitCents === null) {
         toast.error("Límite de crédito inválido");
         return;
       }
@@ -207,13 +204,8 @@ export function NewAccountForm({
               : `En ${currencyLabel(selectedCurrency ?? "ARS")}`
           }
         >
-          <Input
+          <AmountInput
             id="account-initial-balance"
-            type="number"
-            inputMode="decimal"
-            min={0}
-            step="0.01"
-            className="tabular-nums"
             {...register("initialBalanceUnits", { required: true })}
           />
         </FormField>
@@ -225,14 +217,9 @@ export function NewAccountForm({
             optional
             hint={`Opcional. En ${currencyLabel(selectedCurrency ?? "ARS")}, misma moneda que la cuenta.`}
           >
-            <Input
+            <AmountInput
               id="account-credit-limit"
-              type="number"
-              inputMode="decimal"
-              min={0}
-              step="0.01"
               placeholder="Sin límite"
-              className="tabular-nums"
               {...register("creditLimitUnits")}
             />
           </FormField>
@@ -244,7 +231,7 @@ export function NewAccountForm({
           <Button
             type="button"
             variant="outline"
-            className="h-10 w-full sm:h-8 sm:w-auto"
+            className="w-full sm:w-auto"
             disabled={isBusy}
             onClick={onCancel}
           >
@@ -253,7 +240,7 @@ export function NewAccountForm({
         ) : null}
         <Button
           type="submit"
-          className="h-10 w-full sm:h-8 sm:w-auto"
+          className="w-full sm:w-auto"
           disabled={isBusy}
         >
           {isBusy ? "Creando..." : "Crear cuenta"}

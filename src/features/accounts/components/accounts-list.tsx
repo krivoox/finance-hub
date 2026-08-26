@@ -2,11 +2,23 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { MoreHorizontal } from "lucide-react";
+import {
+  Banknote,
+  CreditCard,
+  Landmark,
+  MoreHorizontal,
+  PiggyBank,
+  Wallet,
+  WalletMinimal,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { UsageTip } from "@/components/usage-tip";
 import { FormSheet } from "@/components/form-sheet";
+import {
+  SurfaceHeader,
+  SurfaceSection,
+} from "@/components/surface-section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,14 +28,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import {
   ArchiveAccountDialog,
   DeleteAccountDialog,
@@ -39,6 +43,7 @@ import type { AccountType } from "@/features/accounts/domain";
 import { TIP_IDS } from "@/lib/tips-storage";
 import { formatMoney } from "@/lib/format-money";
 import { refreshAfterMutation } from "@/lib/navigation";
+import { cn } from "@/lib/utils";
 
 export type AccountsListItem = {
   id: string;
@@ -54,6 +59,15 @@ type AccountsListProps = {
   workspaceId: string;
   canMutate: boolean;
   accounts: readonly AccountsListItem[];
+};
+
+const ACCOUNT_ICON: Record<AccountType, typeof Wallet> = {
+  checking: Landmark,
+  savings: PiggyBank,
+  cash: Banknote,
+  credit_card: CreditCard,
+  virtual_wallet: WalletMinimal,
+  other: Wallet,
 };
 
 function groupByCurrency(
@@ -76,6 +90,12 @@ function groupByCurrency(
         ...items.filter((a) => a.isArchived),
       ],
     }));
+}
+
+function currencyGroupLabel(currency: string): string {
+  if (currency === "USD") return "Dólares";
+  if (currency === "ARS") return "Pesos";
+  return currency;
 }
 
 type AccountActionTarget = {
@@ -158,7 +178,7 @@ export function AccountsList({
   }
 
   return (
-    <div className="flex flex-col gap-6 sm:gap-8">
+    <div className="flex flex-col gap-5 sm:gap-6">
       {showTip ? (
         <UsageTip
           tipId={TIP_IDS.creditCardPay}
@@ -174,23 +194,22 @@ export function AccountsList({
       ) : null}
 
       {groups.map((group) => (
-        <section key={group.currency} aria-label={`Cuentas ${group.currency}`}>
-          <div className="mb-3 flex items-center gap-2">
-            <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-              {group.currency === "USD"
-                ? "Dólares"
-                : group.currency === "ARS"
-                  ? "Pesos"
-                  : group.currency}
-            </p>
-            <Badge
-              variant={group.currency === "USD" ? "info" : "outline"}
-              className="h-5 px-1.5 text-xs"
-            >
-              {group.currency}
-            </Badge>
-          </div>
-          <AccountTable
+        <SurfaceSection
+          key={group.currency}
+          aria-label={`Cuentas ${group.currency}`}
+        >
+          <SurfaceHeader
+            title={currencyGroupLabel(group.currency)}
+            action={
+              <Badge
+                variant={group.currency === "USD" ? "info" : "outline"}
+                className="h-5 px-1.5 text-xs"
+              >
+                {group.currency}
+              </Badge>
+            }
+          />
+          <AccountGroupList
             accounts={group.accounts}
             canMutate={canMutate}
             isUnarchiving={isUnarchiving}
@@ -200,7 +219,7 @@ export function AccountsList({
             onDelete={setDeleteTarget}
             onUnarchive={unarchive}
           />
-        </section>
+        </SurfaceSection>
       ))}
 
       <FormSheet
@@ -277,7 +296,7 @@ export function AccountsList({
   );
 }
 
-type AccountTableProps = {
+type AccountGroupListProps = {
   accounts: readonly AccountsListItem[];
   canMutate: boolean;
   isUnarchiving: boolean;
@@ -288,7 +307,7 @@ type AccountTableProps = {
   onUnarchive: (accountId: string) => void;
 };
 
-function AccountTable({
+function AccountGroupList({
   accounts,
   canMutate,
   isUnarchiving,
@@ -297,163 +316,147 @@ function AccountTable({
   onArchive,
   onDelete,
   onUnarchive,
-}: AccountTableProps) {
+}: AccountGroupListProps) {
   return (
-    <Table>
-      <TableHeader>
-        <TableRow>
-          <TableHead>Cuenta</TableHead>
-          <TableHead className="hidden sm:table-cell">Tipo</TableHead>
-          <TableHead className="text-right">Saldo</TableHead>
-          {canMutate ? (
-            <TableHead className="w-[1%] text-right">
-              <span className="sr-only">Acciones</span>
-            </TableHead>
-          ) : null}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {accounts.map((account) => {
-          const isCreditDebt =
-            !account.isArchived &&
-            account.type === "credit_card" &&
-            account.balanceCents > 0;
-          const isNegative = account.balanceCents < 0;
-          const showPay = canMutate && isCreditDebt;
-          const target: AccountActionTarget = {
-            id: account.id,
-            name: account.name,
-            type: account.type,
-            creditLimitCents: account.creditLimitCents,
-          };
+    <ul className="-mx-2 divide-y divide-border">
+      {accounts.map((account) => {
+        const Icon = ACCOUNT_ICON[account.type];
+        const isCreditDebt =
+          !account.isArchived &&
+          account.type === "credit_card" &&
+          account.balanceCents > 0;
+        const isNegative = account.balanceCents < 0;
+        const showPay = canMutate && isCreditDebt;
+        const target: AccountActionTarget = {
+          id: account.id,
+          name: account.name,
+          type: account.type,
+          creditLimitCents: account.creditLimitCents,
+        };
 
-          return (
-            <TableRow
-              key={account.id}
-              className={
-                account.isArchived
-                  ? "bg-muted/20 text-muted-foreground"
-                  : undefined
-              }
+        return (
+          <li key={account.id} className="min-w-0">
+            <div
+              className={cn(
+                "flex min-w-0 items-center gap-3 rounded-xl px-2 py-2.5",
+                account.isArchived && "opacity-70",
+              )}
             >
-              <TableCell>
-                <div className="flex min-w-0 flex-col gap-1">
-                  <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-                    <span
-                      className={
-                        account.isArchived
-                          ? "font-medium text-muted-foreground"
-                          : "font-medium text-foreground"
-                      }
-                    >
-                      {account.name}
-                    </span>
-                    {account.isArchived ? (
-                      <Badge variant="warning" className="font-normal">
-                        Archivada
-                      </Badge>
-                    ) : null}
-                  </div>
-                  <span className="text-xs text-muted-foreground sm:hidden">
-                    {ACCOUNT_TYPE_LABEL_ES[account.type]}
-                    {isCreditDebt ? " · Deuda" : ""}
-                  </span>
-                </div>
-              </TableCell>
-              <TableCell className="hidden sm:table-cell">
-                <div className="flex flex-wrap items-center gap-1.5">
-                  <Badge
-                    variant="secondary"
-                    className={
-                      account.isArchived ? "opacity-70" : undefined
-                    }
+              <span
+                className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground"
+                aria-hidden
+              >
+                <Icon className="size-4" strokeWidth={1.75} />
+              </span>
+
+              <div className="min-w-0 flex-1">
+                <div className="flex min-w-0 flex-wrap items-center gap-1.5">
+                  <p
+                    className={cn(
+                      "truncate text-sm font-medium",
+                      account.isArchived
+                        ? "text-muted-foreground"
+                        : "text-foreground",
+                    )}
                   >
-                    {ACCOUNT_TYPE_LABEL_ES[account.type]}
-                  </Badge>
+                    {account.name}
+                  </p>
+                  {account.isArchived ? (
+                    <Badge variant="warning" className="font-normal">
+                      Archivada
+                    </Badge>
+                  ) : null}
                   {isCreditDebt ? (
                     <Badge variant="expense" className="font-normal">
                       Deuda
                     </Badge>
                   ) : null}
                 </div>
-              </TableCell>
-              <TableCell
-                className={`text-right font-medium tabular-nums ${
+                <p className="truncate text-xs text-muted-foreground">
+                  {ACCOUNT_TYPE_LABEL_ES[account.type]}
+                </p>
+              </div>
+
+              <p
+                className={cn(
+                  "min-w-0 max-w-[42%] shrink-0 truncate text-right text-xs tabular sm:text-sm",
                   account.isArchived
                     ? "text-muted-foreground"
                     : isNegative || isCreditDebt
                       ? "text-expense"
-                      : "text-foreground"
-                }`}
+                      : "text-foreground",
+                )}
               >
                 {isCreditDebt
                   ? `− ${formatMoney(account.balanceCents, account.currency)}`
                   : formatMoney(account.balanceCents, account.currency)}
-              </TableCell>
+              </p>
+
               {canMutate ? (
-                <TableCell className="text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    {showPay ? (
+                <div className="flex shrink-0 items-center gap-1">
+                  {showPay ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="hidden sm:inline-flex"
+                      onClick={() => onPay(account.id)}
+                    >
+                      Pagar
+                    </Button>
+                  ) : null}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
                       <Button
                         type="button"
-                        variant="outline"
-                        size="sm"
-                        className="h-10 sm:h-8"
-                        onClick={() => onPay(account.id)}
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label={`Acciones de ${account.name}`}
                       >
-                        Pagar
+                        <MoreHorizontal className="size-4" />
                       </Button>
-                    ) : null}
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-10 w-10 sm:h-8 sm:w-8"
-                          aria-label={`Acciones de ${account.name}`}
-                        >
-                          <MoreHorizontal className="size-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="min-w-44">
-                        {!account.isArchived ? (
-                          <>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="min-w-44">
+                      {!account.isArchived ? (
+                        <>
+                          {showPay ? (
                             <DropdownMenuItem
-                              onSelect={() => onEdit(target)}
+                              className="sm:hidden"
+                              onSelect={() => onPay(account.id)}
                             >
-                              Editar
+                              Pagar
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onSelect={() => onArchive(target)}
-                            >
-                              Archivar
-                            </DropdownMenuItem>
-                          </>
-                        ) : (
-                          <DropdownMenuItem
-                            disabled={isUnarchiving}
-                            onSelect={() => onUnarchive(account.id)}
-                          >
-                            Desarchivar
+                          ) : null}
+                          <DropdownMenuItem onSelect={() => onEdit(target)}>
+                            Editar
                           </DropdownMenuItem>
-                        )}
-                        <DropdownMenuSeparator />
+                          <DropdownMenuItem onSelect={() => onArchive(target)}>
+                            Archivar
+                          </DropdownMenuItem>
+                        </>
+                      ) : (
                         <DropdownMenuItem
-                          variant="destructive"
-                          onSelect={() => onDelete(target)}
+                          disabled={isUnarchiving}
+                          onSelect={() => onUnarchive(account.id)}
                         >
-                          Eliminar permanentemente
+                          Desarchivar
                         </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </TableCell>
+                      )}
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onSelect={() => onDelete(target)}
+                      >
+                        Eliminar permanentemente
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               ) : null}
-            </TableRow>
-          );
-        })}
-      </TableBody>
-    </Table>
+            </div>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

@@ -9,6 +9,7 @@ import {
   requestPasswordResetSchema,
   type RequestPasswordResetInput,
 } from "@/features/auth/schemas";
+import { FormField } from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -23,12 +24,17 @@ export function ForgotPasswordForm() {
     defaultValues: { email: "" },
   });
 
-  const onSubmit = handleSubmit(async (values) => {
-    // Always show a generic success (SPEC-01 §5: no email enumeration).
-    await authClient.requestPasswordReset({
-      email: values.email,
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
+  const onSubmit = handleSubmit((values) => {
+    // SPEC-01 §5: always show a generic success (no email enumeration).
+    // Fire-and-forget so a slow/failing mailer or DB does not trap the UI.
+    void authClient
+      .requestPasswordReset({
+        email: values.email,
+        redirectTo: `${window.location.origin}/reset-password`,
+      })
+      .catch(() => {
+        // Swallow: the public surface stays generic.
+      });
     setSubmitted(true);
   });
 
@@ -48,11 +54,8 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <form className="space-y-4" onSubmit={onSubmit} noValidate>
-      <div className="space-y-1">
-        <label htmlFor="email" className="text-xs font-medium text-foreground">
-          Email
-        </label>
+    <form className="space-y-4" onSubmit={onSubmit} noValidate method="post">
+      <FormField label="Email" htmlFor="email" error={errors.email?.message}>
         <Input
           id="email"
           type="email"
@@ -60,10 +63,7 @@ export function ForgotPasswordForm() {
           aria-invalid={Boolean(errors.email)}
           {...register("email")}
         />
-        {errors.email ? (
-          <p className="text-xs text-destructive">{errors.email.message}</p>
-        ) : null}
-      </div>
+      </FormField>
 
       <Button type="submit" className="w-full" disabled={isSubmitting}>
         {isSubmitting ? "Enviando..." : "Enviar enlace"}

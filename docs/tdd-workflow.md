@@ -29,18 +29,18 @@ No se escriben tests de UI (componentes React, estilos, snapshots), salvo petici
 Escenarios Given / When / Then en `docs/specs/` → tests Vitest.
 
 ```ts
-// src/features/splits/domain/equal-split.test.ts
+// src/features/splits/domain/allocate.test.ts
 import { describe, expect, it } from 'vitest'
-import { splitEqually } from './equal-split'
+import { allocateEqual } from './allocate'
 
-describe('splitEqually', () => {
-  it('distributes remainder cents to first members', () => {
-    const shares = splitEqually(100, ['a', 'b', 'c'])
+describe('allocateEqual', () => {
+  it('distributes remainder cents to first members by memberId', () => {
+    const shares = allocateEqual(100, ['c', 'a', 'b'])
     expect(shares.map((s) => s.shareCents).reduce((a, b) => a + b, 0)).toBe(100)
     expect(shares).toEqual([
-      { userId: 'a', shareCents: 34 },
-      { userId: 'b', shareCents: 33 },
-      { userId: 'c', shareCents: 33 },
+      { memberId: 'a', shareCents: 34 },
+      { memberId: 'b', shareCents: 33 },
+      { memberId: 'c', shareCents: 33 },
     ])
   })
 })

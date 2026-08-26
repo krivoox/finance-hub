@@ -225,6 +225,7 @@ export type UserWhereInput = {
   sessions?: Prisma.SessionListRelationFilter
   accounts?: Prisma.AccountListRelationFilter
   memberships?: Prisma.MembershipListRelationFilter
+  splitGroupMembers?: Prisma.SplitGroupMemberListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -241,6 +242,7 @@ export type UserOrderByWithRelationInput = {
   sessions?: Prisma.SessionOrderByRelationAggregateInput
   accounts?: Prisma.AccountOrderByRelationAggregateInput
   memberships?: Prisma.MembershipOrderByRelationAggregateInput
+  splitGroupMembers?: Prisma.SplitGroupMemberOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -260,6 +262,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   sessions?: Prisma.SessionListRelationFilter
   accounts?: Prisma.AccountListRelationFilter
   memberships?: Prisma.MembershipListRelationFilter
+  splitGroupMembers?: Prisma.SplitGroupMemberListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -308,6 +311,7 @@ export type UserCreateInput = {
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+  splitGroupMembers?: Prisma.SplitGroupMemberCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -324,6 +328,7 @@ export type UserUncheckedCreateInput = {
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
+  splitGroupMembers?: Prisma.SplitGroupMemberUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -340,6 +345,7 @@ export type UserUpdateInput = {
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+  splitGroupMembers?: Prisma.SplitGroupMemberUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -356,6 +362,7 @@ export type UserUncheckedUpdateInput = {
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
+  splitGroupMembers?: Prisma.SplitGroupMemberUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -441,6 +448,11 @@ export type UserScalarRelationFilter = {
   isNot?: Prisma.UserWhereInput
 }
 
+export type UserNullableScalarRelationFilter = {
+  is?: Prisma.UserWhereInput | null
+  isNot?: Prisma.UserWhereInput | null
+}
+
 export type StringFieldUpdateOperationsInput = {
   set?: string
 }
@@ -499,6 +511,22 @@ export type UserUpdateOneRequiredWithoutMembershipsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutMembershipsInput, Prisma.UserUpdateWithoutMembershipsInput>, Prisma.UserUncheckedUpdateWithoutMembershipsInput>
 }
 
+export type UserCreateNestedOneWithoutSplitGroupMembersInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSplitGroupMembersInput, Prisma.UserUncheckedCreateWithoutSplitGroupMembersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSplitGroupMembersInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutSplitGroupMembersNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSplitGroupMembersInput, Prisma.UserUncheckedCreateWithoutSplitGroupMembersInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSplitGroupMembersInput
+  upsert?: Prisma.UserUpsertWithoutSplitGroupMembersInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSplitGroupMembersInput, Prisma.UserUpdateWithoutSplitGroupMembersInput>, Prisma.UserUncheckedUpdateWithoutSplitGroupMembersInput>
+}
+
 export type UserCreateWithoutSessionsInput = {
   id: string
   name: string
@@ -512,6 +540,7 @@ export type UserCreateWithoutSessionsInput = {
   timezone?: string
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+  splitGroupMembers?: Prisma.SplitGroupMemberCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -527,6 +556,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   timezone?: string
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
+  splitGroupMembers?: Prisma.SplitGroupMemberUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -558,6 +588,7 @@ export type UserUpdateWithoutSessionsInput = {
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+  splitGroupMembers?: Prisma.SplitGroupMemberUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -573,6 +604,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
+  splitGroupMembers?: Prisma.SplitGroupMemberUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAccountsInput = {
@@ -588,6 +620,7 @@ export type UserCreateWithoutAccountsInput = {
   timezone?: string
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+  splitGroupMembers?: Prisma.SplitGroupMemberCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -603,6 +636,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   timezone?: string
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
+  splitGroupMembers?: Prisma.SplitGroupMemberUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -634,6 +668,7 @@ export type UserUpdateWithoutAccountsInput = {
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+  splitGroupMembers?: Prisma.SplitGroupMemberUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -649,6 +684,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
+  splitGroupMembers?: Prisma.SplitGroupMemberUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutMembershipsInput = {
@@ -664,6 +700,7 @@ export type UserCreateWithoutMembershipsInput = {
   timezone?: string
   sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  splitGroupMembers?: Prisma.SplitGroupMemberCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutMembershipsInput = {
@@ -679,6 +716,7 @@ export type UserUncheckedCreateWithoutMembershipsInput = {
   timezone?: string
   sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  splitGroupMembers?: Prisma.SplitGroupMemberUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutMembershipsInput = {
@@ -710,6 +748,7 @@ export type UserUpdateWithoutMembershipsInput = {
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  splitGroupMembers?: Prisma.SplitGroupMemberUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMembershipsInput = {
@@ -725,6 +764,87 @@ export type UserUncheckedUpdateWithoutMembershipsInput = {
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
   sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  splitGroupMembers?: Prisma.SplitGroupMemberUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutSplitGroupMembersInput = {
+  id: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  displayName?: string | null
+  preferredCurrency?: string
+  timezone?: string
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutSplitGroupMembersInput = {
+  id: string
+  name: string
+  email: string
+  emailVerified?: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  displayName?: string | null
+  preferredCurrency?: string
+  timezone?: string
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutSplitGroupMembersInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSplitGroupMembersInput, Prisma.UserUncheckedCreateWithoutSplitGroupMembersInput>
+}
+
+export type UserUpsertWithoutSplitGroupMembersInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSplitGroupMembersInput, Prisma.UserUncheckedUpdateWithoutSplitGroupMembersInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSplitGroupMembersInput, Prisma.UserUncheckedCreateWithoutSplitGroupMembersInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSplitGroupMembersInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSplitGroupMembersInput, Prisma.UserUncheckedUpdateWithoutSplitGroupMembersInput>
+}
+
+export type UserUpdateWithoutSplitGroupMembersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSplitGroupMembersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  displayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredCurrency?: Prisma.StringFieldUpdateOperationsInput | string
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -736,12 +856,14 @@ export type UserCountOutputType = {
   sessions: number
   accounts: number
   memberships: number
+  splitGroupMembers: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sessions?: boolean | UserCountOutputTypeCountSessionsArgs
   accounts?: boolean | UserCountOutputTypeCountAccountsArgs
   memberships?: boolean | UserCountOutputTypeCountMembershipsArgs
+  splitGroupMembers?: boolean | UserCountOutputTypeCountSplitGroupMembersArgs
 }
 
 /**
@@ -775,6 +897,13 @@ export type UserCountOutputTypeCountMembershipsArgs<ExtArgs extends runtime.Type
   where?: Prisma.MembershipWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSplitGroupMembersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SplitGroupMemberWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -790,6 +919,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   memberships?: boolean | Prisma.User$membershipsArgs<ExtArgs>
+  splitGroupMembers?: boolean | Prisma.User$splitGroupMembersArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -837,6 +967,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   sessions?: boolean | Prisma.User$sessionsArgs<ExtArgs>
   accounts?: boolean | Prisma.User$accountsArgs<ExtArgs>
   memberships?: boolean | Prisma.User$membershipsArgs<ExtArgs>
+  splitGroupMembers?: boolean | Prisma.User$splitGroupMembersArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -848,6 +979,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     sessions: Prisma.$SessionPayload<ExtArgs>[]
     accounts: Prisma.$AccountPayload<ExtArgs>[]
     memberships: Prisma.$MembershipPayload<ExtArgs>[]
+    splitGroupMembers: Prisma.$SplitGroupMemberPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1257,6 +1389,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   sessions<T extends Prisma.User$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   accounts<T extends Prisma.User$accountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$accountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   memberships<T extends Prisma.User$membershipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$membershipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MembershipPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  splitGroupMembers<T extends Prisma.User$splitGroupMembersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$splitGroupMembersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SplitGroupMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1758,6 +1891,30 @@ export type User$membershipsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.MembershipScalarFieldEnum | Prisma.MembershipScalarFieldEnum[]
+}
+
+/**
+ * User.splitGroupMembers
+ */
+export type User$splitGroupMembersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SplitGroupMember
+   */
+  select?: Prisma.SplitGroupMemberSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SplitGroupMember
+   */
+  omit?: Prisma.SplitGroupMemberOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SplitGroupMemberInclude<ExtArgs> | null
+  where?: Prisma.SplitGroupMemberWhereInput
+  orderBy?: Prisma.SplitGroupMemberOrderByWithRelationInput | Prisma.SplitGroupMemberOrderByWithRelationInput[]
+  cursor?: Prisma.SplitGroupMemberWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SplitGroupMemberScalarFieldEnum | Prisma.SplitGroupMemberScalarFieldEnum[]
 }
 
 /**

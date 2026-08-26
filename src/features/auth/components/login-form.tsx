@@ -7,24 +7,22 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { signIn } from "@/lib/auth-client";
 import { loginSchema, type LoginInput } from "@/features/auth/schemas";
-import { acceptInvitationAction } from "@/features/workspaces/actions";
 import {
   AuthMethodDivider,
   GoogleSignInButton,
 } from "@/features/auth/components/google-sign-in-button";
+import { FormField } from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { navigateAndRefresh } from "@/lib/navigation";
 
 export function LoginForm({
   callbackUrl,
-  inviteToken,
   prefillEmail,
   googleEnabled = false,
   googleClientId,
 }: {
   callbackUrl?: string;
-  inviteToken?: string;
   prefillEmail?: string;
   googleEnabled?: boolean;
   googleClientId?: string;
@@ -58,17 +56,6 @@ export function LoginForm({
       return;
     }
 
-    if (inviteToken) {
-      const accepted = await acceptInvitationAction({ token: inviteToken });
-      if (!accepted.ok) {
-        toast.message("Sesión iniciada", {
-          description: accepted.error,
-        });
-      } else {
-        toast.success("Te uniste al workspace");
-      }
-    }
-
     setIsSubmitting(false);
     navigateAndRefresh(router, callbackUrl ?? "/dashboard");
   };
@@ -79,7 +66,6 @@ export function LoginForm({
         <>
           <GoogleSignInButton
             mode="login"
-            inviteToken={inviteToken}
             callbackUrl={callbackUrl}
             googleClientId={googleClientId}
           />
@@ -88,10 +74,11 @@ export function LoginForm({
       ) : null}
 
       <form className="space-y-4" onSubmit={handleSubmit(onSubmit)} noValidate>
-        <div className="space-y-1">
-          <label htmlFor="email" className="text-xs font-medium text-foreground">
-            Email
-          </label>
+        <FormField
+          label="Email"
+          htmlFor="email"
+          error={errors.email?.message}
+        >
           <Input
             id="email"
             type="email"
@@ -99,18 +86,13 @@ export function LoginForm({
             aria-invalid={Boolean(errors.email)}
             {...register("email")}
           />
-          {errors.email ? (
-            <p className="text-xs text-destructive">{errors.email.message}</p>
-          ) : null}
-        </div>
+        </FormField>
 
-        <div className="space-y-1">
-          <label
-            htmlFor="password"
-            className="text-xs font-medium text-foreground"
-          >
-            Contraseña
-          </label>
+        <FormField
+          label="Contraseña"
+          htmlFor="password"
+          error={errors.password?.message}
+        >
           <Input
             id="password"
             type="password"
@@ -118,14 +100,9 @@ export function LoginForm({
             aria-invalid={Boolean(errors.password)}
             {...register("password")}
           />
-          {errors.password ? (
-            <p className="text-xs text-destructive">
-              {errors.password.message}
-            </p>
-          ) : null}
-        </div>
+        </FormField>
 
-        <Button type="submit" className="h-10 w-full" disabled={isSubmitting}>
+        <Button type="submit" className="w-full" disabled={isSubmitting}>
           {isSubmitting ? "Iniciando sesión..." : "Iniciar sesión"}
         </Button>
       </form>

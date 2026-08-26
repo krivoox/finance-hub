@@ -48,7 +48,7 @@ export function NewRecurringSheet({
       size="lg"
       trigger={
         showTrigger ? (
-          <Button className="h-10 w-full gap-1.5 sm:h-8 sm:w-auto">
+          <Button className="w-full gap-1.5 sm:w-auto">
             <Plus className="size-4" strokeWidth={1.75} />
             Nueva recurrente
           </Button>

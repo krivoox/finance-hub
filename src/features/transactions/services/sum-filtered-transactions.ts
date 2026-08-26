@@ -27,14 +27,7 @@ export async function sumFilteredTransactions(
   const { role } = await requireMembership(input.userId, input.workspaceId);
   assertCanReadTransactions(role);
 
-  const localAccountIds = (
-    await prisma.financeAccount.findMany({
-      where: { workspaceId: input.workspaceId },
-      select: { id: true },
-    })
-  ).map((a) => a.id);
-
-  const where = buildListTransactionsWhere(input, localAccountIds);
+  const where = buildListTransactionsWhere(input);
 
   const groups = await prisma.transaction.groupBy({
     by: ["currency", "type"],

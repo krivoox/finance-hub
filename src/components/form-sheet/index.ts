@@ -1,4 +1,4 @@
-export { FormSheet } from "./form-sheet";
+export { FormSheet, FormSheetBody } from "./form-sheet";
 export {
   FormActions,
   FormField,

@@ -12,7 +12,6 @@ export const metadata = {
 
 type SearchParams = {
   callbackUrl?: string;
-  invite?: string;
   email?: string;
   error?: string;
 };
@@ -36,7 +35,7 @@ export default async function LoginPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const { callbackUrl: rawCallbackUrl, invite, email, error } =
+  const { callbackUrl: rawCallbackUrl, email, error } =
     await searchParams;
   const callbackUrl = safeCallbackUrl(rawCallbackUrl);
 
@@ -49,19 +48,16 @@ export default async function LoginPage({
     <div className="space-y-6">
       <OAuthErrorToast error={error} />
       <div className="space-y-1">
-        <h1 className="text-lg font-semibold text-foreground">
+        <h1 className="font-heading text-xl font-extrabold tracking-tight text-foreground">
           Iniciá sesión
         </h1>
         <p className="text-xs text-muted-foreground">
-          {invite
-            ? "Después de iniciar sesión te unís al workspace invitado."
-            : "Accedé con tu cuenta de Finance Hub."}
+          Accedé con tu cuenta de Finance Hub.
         </p>
       </div>
 
       <LoginForm
         callbackUrl={callbackUrl}
-        inviteToken={invite}
         prefillEmail={email}
         googleEnabled={isGoogleOAuthEnabled}
         googleClientId={env.GOOGLE_CLIENT_ID}
@@ -79,11 +75,7 @@ export default async function LoginPage({
         <p>
           ¿No tenés cuenta?{" "}
           <Link
-            href={
-              invite
-                ? `/registro?invite=${encodeURIComponent(invite)}${email ? `&email=${encodeURIComponent(email)}` : ""}`
-                : "/registro"
-            }
+            href="/registro"
             className="font-medium text-foreground underline-offset-4 hover:underline"
           >
             Registrate

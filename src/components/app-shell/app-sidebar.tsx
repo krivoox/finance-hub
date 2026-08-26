@@ -57,6 +57,7 @@ import {
   type NavBadges,
   type NavItem,
 } from "./nav-config";
+import { NavGlyph } from "./nav-glyph";
 import { navIntentPrefetchHandlers } from "./use-nav-prefetch";
 
 export type SidebarUser = {
@@ -117,17 +118,19 @@ function SidebarUserMenu({
               disabled={isPending}
             >
               <Avatar size="sm" className="size-8">
-                <AvatarFallback className="bg-muted text-xs">
+                <AvatarFallback className="bg-sidebar-primary text-xs text-sidebar-primary-foreground">
                   {user.initials}
                 </AvatarFallback>
               </Avatar>
               <div className="grid min-w-0 flex-1 text-left text-sm leading-tight group-data-[collapsible=icon]:hidden">
-                <span className="truncate font-medium">{user.displayName}</span>
-                <span className="truncate text-xs text-muted-foreground">
+                <span className="truncate font-medium text-sidebar-primary-foreground">
+                  {user.displayName}
+                </span>
+                <span className="truncate text-xs text-sidebar-foreground">
                   {user.email}
                 </span>
               </div>
-              <ChevronsUpDown className="ml-auto size-4 text-muted-foreground group-data-[collapsible=icon]:hidden" />
+              <ChevronsUpDown className="ml-auto size-4 text-sidebar-foreground group-data-[collapsible=icon]:hidden" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -188,7 +191,6 @@ function NavMenuItems({ items }: { items: NavItem[] }) {
   return (
     <SidebarMenu className={isPending ? "opacity-70 transition-opacity" : undefined}>
       {items.map((item) => {
-        const Icon = item.icon;
         const children = item.children ?? [];
         const childActive = children.some((child) =>
           isNavItemActive(pathname, child.href),
@@ -203,7 +205,7 @@ function NavMenuItems({ items }: { items: NavItem[] }) {
                 onClick={handleNavigate}
                 {...navIntentPrefetchHandlers(router, item.href)}
               >
-                <Icon strokeWidth={1.75} />
+                <NavGlyph>{item.glyph}</NavGlyph>
                 <span>{item.title}</span>
               </Link>
             </SidebarMenuButton>
@@ -225,7 +227,6 @@ function NavMenuItems({ items }: { items: NavItem[] }) {
             {children.length > 0 ? (
               <SidebarMenuSub>
                 {children.map((child) => {
-                  const ChildIcon = child.icon;
                   return (
                     <SidebarMenuSubItem key={child.href}>
                       <SidebarMenuSubButton
@@ -237,7 +238,7 @@ function NavMenuItems({ items }: { items: NavItem[] }) {
                           onClick={handleNavigate}
                           {...navIntentPrefetchHandlers(router, child.href)}
                         >
-                          <ChildIcon strokeWidth={1.75} />
+                          <NavGlyph>{child.glyph}</NavGlyph>
                           <span>{child.title}</span>
                         </Link>
                       </SidebarMenuSubButton>
@@ -272,18 +273,18 @@ export function AppSidebar({
   const canMutate = activeWorkspace?.role !== "viewer";
 
   return (
-    <Sidebar collapsible="icon" variant="inset">
+    <Sidebar collapsible="icon" variant="sidebar">
       <SidebarHeader className="gap-3">
         <WorkspaceSwitcher
-          active={activeWorkspace}
-          workspaces={workspaces}
+          userName={user.displayName}
+          userInitials={user.initials}
         />
 
         {canMutate ? (
           <div className="px-0.5">
             <Button
               type="button"
-              className="h-10 w-full justify-center gap-2 rounded-full px-3 text-center align-middle md:h-8 group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:w-auto group-data-[collapsible=icon]:rounded-lg group-data-[collapsible=icon]:p-0"
+              className="h-10 w-full justify-center gap-2 rounded-xl px-3 text-sm font-bold group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:w-auto group-data-[collapsible=icon]:rounded-lg group-data-[collapsible=icon]:p-0"
               onClick={() => {
                 if (isMobile) setOpenMobile(false);
                 openNewTransaction();

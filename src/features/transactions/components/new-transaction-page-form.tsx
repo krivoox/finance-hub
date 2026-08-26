@@ -3,22 +3,13 @@
 import { useRouter } from "next/navigation";
 
 import { NewTransactionForm } from "@/features/transactions/components/new-transaction-form";
+import type { ExpenseSplitGroupOption } from "@/features/splits/components/expense-split-fields";
 import { navigateAndRefresh } from "@/lib/navigation";
 
 type AccountOption = {
   id: string;
   name: string;
   currency: string;
-  workspaceId?: string;
-  workspaceName?: string;
-  workspaceType?: "personal" | "group";
-};
-
-type PaymentAccountGroup = {
-  workspaceId: string;
-  workspaceName: string;
-  workspaceType: "personal" | "group";
-  accounts: readonly AccountOption[];
 };
 
 type CategoryOption = {
@@ -27,28 +18,21 @@ type CategoryOption = {
   kind: "income" | "expense";
 };
 
-type MemberOption = {
-  userId: string;
-  displayName: string;
-};
-
 export function NewTransactionPageForm({
   workspaceId,
   workspaceName,
   workspaceCurrency,
   accounts,
-  paymentAccountGroups,
   categories,
-  groupMembers,
+  splitGroups,
   currentUserId,
 }: {
   workspaceId: string;
   workspaceName: string;
   workspaceCurrency: string;
   accounts: readonly AccountOption[];
-  paymentAccountGroups: readonly PaymentAccountGroup[];
   categories: readonly CategoryOption[];
-  groupMembers: readonly MemberOption[];
+  splitGroups: readonly ExpenseSplitGroupOption[];
   currentUserId: string;
 }) {
   const router = useRouter();
@@ -59,9 +43,8 @@ export function NewTransactionPageForm({
       workspaceName={workspaceName}
       workspaceCurrency={workspaceCurrency}
       accounts={accounts}
-      paymentAccountGroups={paymentAccountGroups}
       categories={categories}
-      groupMembers={groupMembers}
+      splitGroups={splitGroups}
       currentUserId={currentUserId}
       onSuccess={() => {
         navigateAndRefresh(router, "/transactions");

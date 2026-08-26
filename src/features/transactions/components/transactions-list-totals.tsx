@@ -1,3 +1,5 @@
+import { KpiTile } from "@/components/kpi-tile";
+import { SurfaceSection } from "@/components/surface-section";
 import { formatMoney, formatSignedMoney } from "@/lib/format-money";
 import { cn } from "@/lib/utils";
 import {
@@ -10,24 +12,64 @@ import {
 type TransactionsListTotalsProps = {
   buckets: readonly CurrencyListTotals[];
   typeFilter: ListTypeFilter;
-  /** Compact strip under filters (sticky on mobile). */
-  variant?: "strip" | "footer";
   className?: string;
 };
 
-function sumLabel(mode: PresentedListTotals["mode"]): string {
-  switch (mode) {
-    case "expense":
-      return "Suma gastos";
-    case "income":
-      return "Suma ingresos";
-    case "transfer":
-      return "Suma transferencias";
-    case "breakdown":
-      return "Totales";
-    default:
-      return "Suma";
+type TotalsCell = {
+  key: string;
+  label: string;
+  value: string;
+  tone: "income" | "expense" | "transfer";
+};
+
+function cellsFromPresented(presented: PresentedListTotals): TotalsCell[] {
+  if (presented.mode === "breakdown") {
+    return presented.byCurrency.flatMap((row) => {
+      const cells: TotalsCell[] = [];
+      if (row.expenseCents > 0) {
+        cells.push({
+          key: `${row.currency}-expense`,
+          label: `Gastos ${row.currency}`,
+          value: formatSignedMoney(-row.expenseCents, row.currency),
+          tone: "expense",
+        });
+      }
+      if (row.incomeCents > 0) {
+        cells.push({
+          key: `${row.currency}-income`,
+          label: `Ingresos ${row.currency}`,
+          value: formatSignedMoney(row.incomeCents, row.currency),
+          tone: "income",
+        });
+      }
+      return cells;
+    });
   }
+
+  const tone: TotalsCell["tone"] =
+    presented.mode === "income"
+      ? "income"
+      : presented.mode === "expense"
+        ? "expense"
+        : "transfer";
+  const prefix =
+    presented.mode === "income"
+      ? "Ingresos"
+      : presented.mode === "expense"
+        ? "Gastos"
+        : "Transferencias";
+
+  return presented.lines.map((line) => ({
+    key: line.currency,
+    label: `${prefix} ${line.currency}`,
+    value:
+      presented.mode === "income"
+        ? formatSignedMoney(line.amountCents, line.currency)
+        : presented.mode === "expense"
+          ? formatSignedMoney(-line.amountCents, line.currency)
+          : formatMoney(line.amountCents, line.currency),
+    tone,
+  }));
 }
 
 function hasPresentableTotals(presented: PresentedListTotals): boolean {
@@ -40,122 +82,52 @@ function hasPresentableTotals(presented: PresentedListTotals): boolean {
 export function TransactionsListTotals({
   buckets,
   typeFilter,
-  variant = "strip",
   className,
 }: TransactionsListTotalsProps) {
   const presented = presentListTotals(buckets, typeFilter);
   if (!hasPresentableTotals(presented)) return null;
 
   const totalCount = buckets.reduce((n, b) => n + b.count, 0);
-  const label = sumLabel(presented.mode);
-
-  if (variant === "footer") {
-    return (
-      <div
-        className={cn(
-          "flex flex-col items-end gap-1 text-right",
-          className,
-        )}
-      >
-        <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-          {presented.mode === "breakdown" ? "Totales" : "Suma"}
-        </span>
-        <TotalsAmounts presented={presented} align="end" />
-      </div>
-    );
-  }
+  const cells = cellsFromPresented(presented);
+  const countLabel =
+    totalCount === 1 ? "1 movimiento" : `${totalCount} movimientos`;
 
   return (
-    <div
-      className={cn(
-        "flex items-start justify-between gap-3 py-2.5",
-        className,
-      )}
+    <SurfaceSection
+      className={cn("py-4 md:py-5", className)}
       role="status"
-      aria-label={`${label} del listado filtrado`}
+      aria-label={`Totales del listado filtrado · ${countLabel}`}
     >
-      <div className="min-w-0">
-        <p className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
-          {label}
-        </p>
-        {totalCount > 0 ? (
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            {totalCount === 1
-              ? "1 movimiento"
-              : `${totalCount} movimientos`}
-          </p>
-        ) : null}
+      <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+        Totales · {countLabel}
+      </p>
+      <div
+        className={cn(
+          "mt-4 grid gap-4",
+          cells.length >= 4
+            ? "grid-cols-2 md:grid-cols-4"
+            : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4",
+        )}
+      >
+        {cells.map((cell) => (
+          <KpiTile
+            key={cell.key}
+            variant="plain"
+            size="sm"
+            label={cell.label}
+            tone={cell.tone}
+            value={cell.value}
+          />
+        ))}
       </div>
-      <TotalsAmounts presented={presented} align="end" />
-    </div>
+    </SurfaceSection>
   );
 }
 
-/** True when the strip/footer would render something meaningful. */
+/** True when the totals card would render something meaningful. */
 export function hasListTotalsToShow(
   buckets: readonly CurrencyListTotals[],
   typeFilter: ListTypeFilter,
 ): boolean {
   return hasPresentableTotals(presentListTotals(buckets, typeFilter));
-}
-
-function TotalsAmounts({
-  presented,
-  align,
-}: {
-  presented: PresentedListTotals;
-  align: "end" | "start";
-}) {
-  const alignClass = align === "end" ? "items-end text-right" : "items-start";
-
-  if (presented.mode === "breakdown") {
-    return (
-      <div className={cn("flex flex-col gap-1", alignClass)}>
-        {presented.byCurrency.map((row) => (
-          <div key={row.currency} className="flex flex-col gap-0.5">
-            {row.expenseCents > 0 ? (
-              <span className="tabular-nums text-sm font-medium text-expense">
-                {formatSignedMoney(-row.expenseCents, row.currency)}
-                <span className="ml-1.5 text-[11px] font-normal text-muted-foreground">
-                  gastos
-                </span>
-              </span>
-            ) : null}
-            {row.incomeCents > 0 ? (
-              <span className="tabular-nums text-sm font-medium text-income">
-                {formatSignedMoney(row.incomeCents, row.currency)}
-                <span className="ml-1.5 text-[11px] font-normal text-muted-foreground">
-                  ingresos
-                </span>
-              </span>
-            ) : null}
-          </div>
-        ))}
-      </div>
-    );
-  }
-
-  const tone =
-    presented.mode === "income"
-      ? "text-income"
-      : presented.mode === "expense"
-        ? "text-expense"
-        : "text-transfer";
-
-  return (
-    <div className={cn("flex flex-col gap-0.5", alignClass)}>
-      {presented.lines.map((line) => (
-        <span
-          key={line.currency}
-          className={cn("tabular-nums text-sm font-semibold", tone)}
-        >
-          {presented.mode === "income"
-            ? formatSignedMoney(line.amountCents, line.currency)
-            : presented.mode === "expense"
-              ? formatSignedMoney(-line.amountCents, line.currency)
-              : formatMoney(line.amountCents, line.currency)}
-        </span>
-      ))}
-    </div>
-  );
 }

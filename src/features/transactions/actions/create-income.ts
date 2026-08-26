@@ -1,6 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/session";
 import {
   createIncomeSchema,
@@ -8,6 +7,7 @@ import {
 } from "@/features/transactions/schemas";
 import { createIncome as createIncomeService } from "@/features/transactions/services";
 import { transactionErrorToMessage, type ActionResult } from "./errors";
+import { revalidateMoneyPaths } from "./revalidate-money-paths";
 
 export async function createIncomeAction(
   input: CreateIncomeInput,
@@ -34,9 +34,7 @@ export async function createIncomeAction(
       description: parsed.data.description ?? null,
       currency: parsed.data.currency,
     });
-    revalidatePath("/transactions");
-    revalidatePath("/accounts");
-    revalidatePath("/dashboard");
+    revalidateMoneyPaths();
     return { ok: true, data: { transactionId: tx.id } };
   } catch (err) {
     return { ok: false, error: transactionErrorToMessage(err) };

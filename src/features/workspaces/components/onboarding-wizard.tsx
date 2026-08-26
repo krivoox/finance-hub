@@ -15,8 +15,10 @@ import {
   completeWorkspaceSetupAction,
   dismissWorkspaceSetupAction,
 } from "@/features/workspaces/actions";
+import { AmountInput } from "@/components/amount-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { parseAmountCents } from "@/domain/money/parse-amount";
 import { nativeSelectClassName } from "@/components/ui/native-select";
 import { navigateAndRefresh } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
@@ -222,8 +224,8 @@ export function OnboardingWizard({
         <p className="mb-6 text-sm font-semibold tracking-tight text-foreground">
           Finance Hub
         </p>
-        <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-md sm:p-8">
-          <h1 className="text-lg font-semibold tracking-tight text-foreground">
+        <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-card sm:p-8">
+          <h1 className="font-heading text-lg font-extrabold tracking-tight text-foreground">
             Configuración del espacio
           </h1>
           <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
@@ -249,8 +251,10 @@ export function OnboardingWizard({
 
   const submitFirstAccount = accountForm.handleSubmit((values) => {
     const submittingCreditCard = values.type === "credit_card";
-    const parsedUnits = Number(values.initialBalanceUnits.replace(",", "."));
-    if (!Number.isFinite(parsedUnits) || parsedUnits < 0) {
+    const initialBalanceCents = parseAmountCents(values.initialBalanceUnits, {
+      allowZero: true,
+    });
+    if (initialBalanceCents === null) {
       toast.error(
         submittingCreditCard
           ? "Deuda inicial inválida"
@@ -258,20 +262,15 @@ export function OnboardingWizard({
       );
       return;
     }
-    const initialBalanceCents = Math.round(parsedUnits * 100);
 
     let creditLimitCents: number | undefined;
     if (submittingCreditCard && values.creditLimitUnits.trim() !== "") {
-      const parsedLimit = Number(values.creditLimitUnits.replace(",", "."));
-      if (!Number.isFinite(parsedLimit) || parsedLimit <= 0) {
+      const parsedLimit = parseAmountCents(values.creditLimitUnits);
+      if (parsedLimit === null) {
         toast.error("Límite de crédito inválido");
         return;
       }
-      creditLimitCents = Math.round(parsedLimit * 100);
-      if (creditLimitCents <= 0) {
-        toast.error("Límite de crédito inválido");
-        return;
-      }
+      creditLimitCents = parsedLimit;
     }
 
     const input = {
@@ -324,7 +323,7 @@ export function OnboardingWizard({
 
       <div
         className={cn(
-          "relative w-full max-w-3xl overflow-hidden rounded-2xl border border-border bg-card shadow-md",
+          "relative w-full max-w-3xl overflow-hidden rounded-2xl border border-border bg-card shadow-card",
           "motion-safe:animate-in motion-safe:fade-in motion-safe:duration-300",
         )}
         role="dialog"
@@ -352,7 +351,7 @@ export function OnboardingWizard({
                 <div>
                   <h1
                     id="onboarding-title"
-                    className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl"
+                    className="font-heading text-xl font-extrabold tracking-tight text-foreground sm:text-2xl"
                   >
                     Tu espacio está casi listo
                   </h1>
@@ -403,7 +402,7 @@ export function OnboardingWizard({
             {step === "createAccount" ? (
               <div className="mt-4 flex-1 space-y-6">
                 <div>
-                  <h1 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+                  <h1 className="font-heading text-xl font-extrabold tracking-tight text-foreground sm:text-2xl">
                     Creá tu primera cuenta
                   </h1>
                   <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
@@ -489,13 +488,9 @@ export function OnboardingWizard({
                       {isCreditCard ? "Deuda inicial" : "Saldo inicial"}{" "}
                       ({previewCurrency})
                     </label>
-                    <Input
+                    <AmountInput
                       id="account-balance"
-                      className="h-11 tabular-nums"
-                      type="number"
-                      inputMode="decimal"
-                      min={0}
-                      step="0.01"
+                      className="h-11"
                       {...accountForm.register("initialBalanceUnits")}
                     />
                     <p className="text-xs text-muted-foreground">
@@ -514,13 +509,9 @@ export function OnboardingWizard({
                         Límite de crédito{" "}
                         <span className="font-normal">(opcional)</span>
                       </label>
-                      <Input
+                      <AmountInput
                         id="account-credit-limit"
-                        className="h-11 tabular-nums"
-                        type="number"
-                        inputMode="decimal"
-                        min={0}
-                        step="0.01"
+                        className="h-11"
                         placeholder="Sin límite"
                         {...accountForm.register("creditLimitUnits")}
                       />

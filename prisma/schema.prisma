@@ -27,9 +27,10 @@ model User {
   preferredCurrency  String  @default("ARS")
   timezone           String  @default("America/Argentina/Buenos_Aires")
 
-  sessions    Session[]
-  accounts    Account[]
-  memberships Membership[]
+  sessions           Session[]
+  accounts           Account[]
+  memberships        Membership[]
+  splitGroupMembers  SplitGroupMember[]
 
   @@map("user")
 }
@@ -86,6 +87,8 @@ model Verification {
 
 enum WorkspaceType {
   personal
+  /// Unused leftover of group tenants (KRI-29). Never persist. Kept so Prisma
+  /// can decode preview/prod rows until migrate deploy deletes those workspaces.
   group
 }
 
@@ -94,13 +97,6 @@ enum MembershipRole {
   admin
   member
   viewer
-}
-
-enum InvitationStatus {
-  pending
-  accepted
-  rejected
-  expired
 }
 
 enum CategoryKind {
@@ -148,9 +144,14 @@ enum SplitMethod {
   exact
 }
 
-enum CrossWorkspaceLinkKind {
-  contribution
-  externally_funded_expense
+enum SplitGroupKind {
+  ongoing
+  one_time
+}
+
+enum SplitMemberKind {
+  user
+  ghost
 }
 
 enum RecurringFrequency {
@@ -174,20 +175,18 @@ enum RecurringPausedReason {
 model Workspace {
   id           String        @id @default(cuid())
   name         String
-  type         WorkspaceType
+  type         WorkspaceType @default(personal)
   baseCurrency String        @default("ARS")
   createdAt    DateTime      @default(now())
   updatedAt    DateTime      @updatedAt
 
   memberships          Membership[]
-  invitations          Invitation[]
   categories           Category[]
   financeAccounts      FinanceAccount[]
   transactions         Transaction[]
   budgets              Budget[]
   goals                Goal[]
-  expenseSplits        ExpenseSplit[]
-  settlements          Settlement[]
+  splitGroups          SplitGroup[]
   currencyExchanges    CurrencyExchange[]
   consolidationRate    WorkspaceConsolidationRate?
   recurringRules       RecurringRule[]
@@ -208,25 +207,6 @@ model Membership {
   @@unique([workspaceId, userId])
   @@index([userId])
   @@map("membership")
-}
-
-model Invitation {
-  id              String           @id @default(cuid())
-  workspaceId     String
-  email           String
-  role            MembershipRole   @default(member)
-  token           String           @unique
-  status          InvitationStatus @default(pending)
-  expiresAt       DateTime
-  invitedByUserId String
-  createdAt       DateTime         @default(now())
-  updatedAt       DateTime         @updatedAt
-
-  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-
-  @@index([workspaceId])
-  @@index([email])
-  @@map("invitation")
 }
 
 // SPEC-04 — Categories classify incomes/expenses within a workspace.
@@ -314,15 +294,13 @@ model Transaction {
   counterpartyAccount FinanceAccount? @relation("TxCounterparty", fields: [counterpartyAccountId], references: [id], onDelete: Restrict)
   recurringRule              RecurringRule?      @relation(fields: [recurringRuleId], references: [id], onDelete: Restrict)
   expenseSplit               ExpenseSplit?
-  crossWorkspaceLinkAsSource CrossWorkspaceLink? @relation("CrossWsLinkSource")
-  crossWorkspaceLinkAsTarget CrossWorkspaceLink? @relation("CrossWsLinkTarget")
   currencyExchangeAsFrom     CurrencyExchange?   @relation("ExchangeFromTx")
   currencyExchangeAsTo       CurrencyExchange?   @relation("ExchangeToTx")
   goalContribution           GoalContribution?
 
   @@unique([recurringRuleId, scheduledOn])
-  @@index([workspaceId, occurredOn])
-  @@index([workspaceId, type, occurredOn])
+  @@index([workspaceId, occurredOn, createdAt])
+  @@index([workspaceId, type, occurredOn, createdAt])
   @@index([accountId])
   @@index([counterpartyAccountId])
   @@index([categoryId])
@@ -444,20 +422,6 @@ model UsdQuoteLine {
   @@map("usd_quote_line")
 }
 
-// SPEC-14 — Linked pair across workspaces (contribution: expense+income).
-model CrossWorkspaceLink {
-  id                  String                 @id @default(cuid())
-  kind                CrossWorkspaceLinkKind
-  sourceTransactionId String                 @unique
-  targetTransactionId String                 @unique
-  createdAt           DateTime               @default(now())
-
-  sourceTransaction Transaction @relation("CrossWsLinkSource", fields: [sourceTransactionId], references: [id], onDelete: Cascade)
-  targetTransaction Transaction @relation("CrossWsLinkTarget", fields: [targetTransactionId], references: [id], onDelete: Cascade)
-
-  @@map("cross_workspace_link")
-}
-
 // SPEC-07 — Budgets cap spending on one or more expense categories within a
 // period. `spent` is derived from Transactions and computed at read time.
 //
@@ -556,52 +520,102 @@ model GoalContribution {
   @@map("goal_contribution")
 }
 
-// SPEC-09 / SPEC-10 — Expense split among group workspace members.
-// Cascade-deletes when the linked expense Transaction is deleted.
-model ExpenseSplit {
-  id                    String      @id @default(cuid())
-  workspaceId           String
-  expenseTransactionId  String      @unique
-  paidByUserId          String
-  method                SplitMethod
-  createdAt             DateTime    @default(now())
-  updatedAt             DateTime    @updatedAt
+// SPEC-09 / SPEC-10 — SplitGroup is a circle of IOUs on a personal workspace.
+// The linked expense Transaction may live in another member's personal tenant.
+model SplitGroup {
+  id               String         @id @default(cuid())
+  workspaceId      String
+  name             String
+  kind             SplitGroupKind
+  currency         String
+  publicShareToken String         @unique
+  createdByUserId  String
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 
-  workspace Workspace           @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  expense   Transaction         @relation(fields: [expenseTransactionId], references: [id], onDelete: Cascade)
-  shares    ExpenseSplitShare[]
+  workspace   Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  members     SplitGroupMember[]
+  splits      ExpenseSplit[]
+  settlements Settlement[]
 
   @@index([workspaceId])
+  @@index([createdByUserId])
+  @@map("split_group")
+}
+
+model SplitGroupMember {
+  id             String          @id @default(cuid())
+  splitGroupId   String
+  kind           SplitMemberKind
+  userId         String?
+  displayName    String
+  /// lower(trim(displayName)); only ghosts (users stay null so UNIQUE allows many NULLs)
+  displayNameKey String?
+  createdAt      DateTime        @default(now())
+
+  splitGroup SplitGroup @relation(fields: [splitGroupId], references: [id], onDelete: Cascade)
+  user       User?      @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  paidSplits      ExpenseSplit[]      @relation("SplitPaidBy")
+  shares          ExpenseSplitShare[]
+  settlementsFrom Settlement[]        @relation("SettlementFrom")
+  settlementsTo   Settlement[]        @relation("SettlementTo")
+
+  @@unique([splitGroupId, userId])
+  @@unique([splitGroupId, displayNameKey])
+  @@index([userId])
+  @@map("split_group_member")
+}
+
+model ExpenseSplit {
+  id                   String      @id @default(cuid())
+  splitGroupId         String
+  expenseTransactionId String      @unique
+  paidByMemberId       String
+  method               SplitMethod
+  createdAt            DateTime    @default(now())
+  updatedAt            DateTime    @updatedAt
+
+  splitGroup SplitGroup         @relation(fields: [splitGroupId], references: [id], onDelete: Cascade)
+  expense    Transaction        @relation(fields: [expenseTransactionId], references: [id], onDelete: Cascade)
+  paidBy     SplitGroupMember   @relation("SplitPaidBy", fields: [paidByMemberId], references: [id], onDelete: Restrict)
+  shares     ExpenseSplitShare[]
+
+  @@index([splitGroupId])
+  @@index([paidByMemberId])
   @@map("expense_split")
 }
 
 model ExpenseSplitShare {
   id         String @id @default(cuid())
   splitId    String
-  userId     String
+  memberId   String
   shareCents Int
 
-  split ExpenseSplit @relation(fields: [splitId], references: [id], onDelete: Cascade)
+  split  ExpenseSplit     @relation(fields: [splitId], references: [id], onDelete: Cascade)
+  member SplitGroupMember @relation(fields: [memberId], references: [id], onDelete: Restrict)
 
-  @@unique([splitId, userId])
-  @@index([userId])
+  @@unique([splitId, memberId])
+  @@index([memberId])
   @@map("expense_split_share")
 }
 
-// SPEC-10 — Settlement between two members reduces net interpersonal debt.
+// SPEC-10 — Settlement between two SplitGroup members reduces net IOU.
 model Settlement {
   id              String   @id @default(cuid())
-  workspaceId     String
-  fromUserId      String
-  toUserId        String
+  splitGroupId    String
+  fromMemberId    String
+  toMemberId      String
   amountCents     Int
   occurredOn      DateTime @db.Date
   note            String?
   createdByUserId String
   createdAt       DateTime @default(now())
 
-  workspace Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  splitGroup SplitGroup       @relation(fields: [splitGroupId], references: [id], onDelete: Cascade)
+  fromMember SplitGroupMember @relation("SettlementFrom", fields: [fromMemberId], references: [id], onDelete: Restrict)
+  toMember   SplitGroupMember @relation("SettlementTo", fields: [toMemberId], references: [id], onDelete: Restrict)
 
-  @@index([workspaceId, occurredOn])
+  @@index([splitGroupId, occurredOn])
   @@map("settlement")
 }

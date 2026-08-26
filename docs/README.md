@@ -16,16 +16,17 @@
 | [vision.md](./vision.md) | Visión, objetivos, usuarios y principios |
 | [stack.md](./stack.md) | Stack tecnológico fijado (Siturn / template) |
 | [domain-model.md](./domain-model.md) | Entidades, value objects, invariantes |
-| [architecture.md](./architecture.md) | Capas, carpetas, auth, datos, memoización, soft-nav, PWA/SW |
+| [architecture.md](./architecture.md) | Capas, carpetas, auth, datos, memoización, shell autenticado, soft-nav, PWA/SW |
 | [tdd-workflow.md](./tdd-workflow.md) | Cómo aplicar TDD en este repo |
 | [roadmap.md](./roadmap.md) | Orden de implementación sugerido |
 | [glossary.md](./glossary.md) | Glosario de términos de negocio |
-| [guides/workspaces-and-invites.md](./guides/workspaces-and-invites.md) | Workspaces, roles, invitaciones y first-run (onboarding) |
+| [guides/workspaces-and-invites.md](./guides/workspaces-and-invites.md) | Workspace personal, onboarding y grupos de splits (KRI-29) |
 | [guides/git-flow.md](./guides/git-flow.md) | Git Flow: `main`/`develop`, PRs, borrado de ramas, Vercel |
 | [guides/changelog.md](./guides/changelog.md) | Changelog, Conventional Commits, SemVer y releases |
 | [guides/maestro-mcp.md](./guides/maestro-mcp.md) | Maestro MCP: smoke UI web (Chromium) desde Cursor |
+| [guides/email-resend.md](./guides/email-resend.md) | Resend: reset password, marketing, MCP vs SDK (KRI-17) |
 | [security-audit.md](./security-audit.md) | Auditoría de seguridad (KRI-16): Supabase/RLS, authz, headers, plan |
-| [DESIGN.md](../DESIGN.md) | Design system UI/UX (tokens, shell Dub-like, variantes) |
+| [DESIGN.md](../DESIGN.md) | Design system UI/UX (ledger navy, tokens, shell, variantes) |
 
 ## Specs (Spec-Driven Development)
 
@@ -39,29 +40,32 @@
 | 06 | [Transferencias](./specs/06-transfers.md) | P0 |
 | 07 | [Presupuestos](./specs/07-budgets.md) | P1 |
 | 08 | [Objetivos financieros](./specs/08-goals.md) | P1 |
-| 09 | [Grupos y gastos compartidos](./specs/09-financial-groups.md) | P1 |
+| 09 | [Grupos de splits (SplitGroup) — KRI-29](./specs/09-financial-groups.md) | P1 |
 | 10 | [Distribución de gastos (splits)](./specs/10-expense-splitting.md) | P1 |
 | 11 | [Analytics e insights](./specs/11-analytics.md) | P2 |
 | 12 | [Dashboard](./specs/12-dashboard.md) | P1 |
 | 13 | [Detalle de movimiento](./specs/13-transaction-detail.md) | P1 |
-| 14 | [Dinero cross-workspace](./specs/14-cross-workspace-money.md) | P1 |
+| 14 | [Dinero cross-workspace](./specs/14-cross-workspace-money.md) | **Retirada (KRI-29)** |
 | 15 | [Onboarding de workspace](./specs/15-workspace-onboarding.md) | P0 |
 | 16 | [Canje de moneda (FX)](./specs/16-currency-exchange.md) | P1 |
 | 17 | [Landing de marketing](./specs/17-marketing-landing.md) | P0 |
 | 18 | [Transacciones recurrentes](./specs/18-recurring-transactions.md) | P1 |
 | 19 | [Cotizaciones USD (DolarApi)](./specs/19-usd-quotes-dolarapi.md) | P1 |
 | 20 | [Performance, navegación y PWA](./specs/20-performance-pwa.md) | P0 |
+| 21 | [Email transaccional y marketing (Resend)](./specs/21-email-resend.md) | P0 |
 
 ## Decisiones de arquitectura (ADR)
 
 | ADR | Tema |
 |-----|------|
 | [001](./adr/001-money-as-integer-cents.md) | Dinero como enteros (centavos) |
-| [002](./adr/002-workspace-tenancy.md) | Workspace como unidad de tenancy |
+| [002](./adr/002-workspace-tenancy.md) | Workspace como unidad de tenancy (histórico; enmendado) |
 | [003](./adr/003-tdd-domain-only.md) | TDD solo en lógica de negocio |
 | [004](./adr/004-stack-siturn.md) | Stack Siturn (template) |
 | [005](./adr/005-changelog-semver.md) | Changelog automatizado y SemVer |
 | [006](./adr/006-multi-currency-ars-usd.md) | Multi-moneda ARS + USD |
+| [007](./adr/007-split-group-tenancy.md) | Workspace personal + SplitGroup (KRI-29; enmienda ADR-002) |
+| [008](./adr/008-resend-email.md) | Email con Resend (SDK servidor) |
 
 ## Formato de una spec
 

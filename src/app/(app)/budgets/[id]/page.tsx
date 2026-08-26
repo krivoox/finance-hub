@@ -7,10 +7,15 @@ import {
   ProgressBar,
   budgetProgressTone,
 } from "@/components/progress-bar";
+import {
+  SurfaceHeader,
+  SurfaceSection,
+} from "@/components/surface-section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { formatMoney } from "@/lib/format-money";
+import { formatDateOnly } from "@/lib/format-date";
 import { getSession } from "@/lib/session";
 import { BudgetNotFoundError } from "@/features/budgets/domain";
 import { BudgetDetailActions } from "@/features/budgets/components/budget-detail-actions";
@@ -27,22 +32,6 @@ type PageProps = {
 type BudgetDetail = Awaited<ReturnType<typeof getBudgetDetail>>;
 type CategoriesResult = Awaited<ReturnType<typeof listCategories>>;
 type MembershipResult = Awaited<ReturnType<typeof requireMembership>>;
-
-function formatDateEs(date: Date): string {
-  return date.toLocaleDateString("es-AR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
-
-function formatOccurredOn(date: Date): string {
-  const y = date.getUTCFullYear();
-  const m = String(date.getUTCMonth() + 1).padStart(2, "0");
-  const d = String(date.getUTCDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
 
 function statusLabel(status: "on_track" | "warning" | "exceeded"): string {
   if (status === "warning") return "Al límite";
@@ -95,7 +84,7 @@ export default async function BudgetDetailPage({ params }: PageProps) {
   return (
     <ContentPanel
       title={detail.name}
-      description={`${BUDGET_PERIOD_LABEL_ES[detail.period]} · ${formatDateEs(detail.progress.periodStart)} – ${formatDateEs(detail.progress.periodEnd)}`}
+      description={`${BUDGET_PERIOD_LABEL_ES[detail.period]} · ${formatDateOnly(detail.progress.periodStart)} – ${formatDateOnly(detail.progress.periodEnd)}`}
       actions={
         <Suspense fallback={<BudgetActionsSkeleton />}>
           <BudgetActionsSection
@@ -106,14 +95,14 @@ export default async function BudgetDetailPage({ params }: PageProps) {
         </Suspense>
       }
     >
-      <div className="mb-6">
-        <Button variant="ghost" size="sm" className="-ml-2" asChild>
-          <Link href="/budgets">← Volver a presupuestos</Link>
-        </Button>
-      </div>
+      <div className="flex flex-col gap-5 sm:gap-6">
+        <div>
+          <Button variant="ghost" size="sm" className="-ml-2" asChild>
+            <Link href="/budgets">← Volver a presupuestos</Link>
+          </Button>
+        </div>
 
-      <div className="space-y-8">
-        <header className="space-y-3">
+        <SurfaceSection>
           <div className="flex flex-wrap items-center gap-2">
             <Badge variant="secondary">
               {BUDGET_PERIOD_LABEL_ES[detail.period]}
@@ -134,7 +123,7 @@ export default async function BudgetDetailPage({ params }: PageProps) {
             ) : null}
           </div>
 
-          <p className="text-3xl font-semibold tabular-nums tracking-tight text-foreground sm:text-4xl">
+          <p className="mt-4 font-heading text-3xl font-extrabold tabular tracking-tight text-foreground sm:text-4xl">
             {formatMoney(detail.progress.spentCents, detail.currency)}
             <span className="ml-2 text-lg font-medium text-muted-foreground sm:text-xl">
               de {formatMoney(detail.limitCents, detail.currency)}
@@ -142,18 +131,20 @@ export default async function BudgetDetailPage({ params }: PageProps) {
           </p>
 
           <ProgressBar
-            className="max-w-md"
+            className="mt-3 max-w-md"
             size="lg"
             value={pct}
             tone={budgetProgressTone(detail.progress.status)}
             aria-label={`${detail.name}: ${pct}%`}
           />
 
-          <dl className="grid gap-3 text-sm sm:grid-cols-2">
+          <dl className="mt-5 grid gap-3 text-sm sm:grid-cols-2">
             <div className="space-y-1">
-              <dt className="text-muted-foreground">Restante</dt>
+              <dt className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
+                Restante
+              </dt>
               <dd
-                className={`tabular-nums ${
+                className={`tabular ${
                   detail.progress.remainingCents < 0
                     ? "text-expense"
                     : "text-foreground"
@@ -163,26 +154,30 @@ export default async function BudgetDetailPage({ params }: PageProps) {
               </dd>
             </div>
             <div className="space-y-1">
-              <dt className="text-muted-foreground">Avance</dt>
-              <dd className="tabular-nums text-foreground">{pct}%</dd>
+              <dt className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
+                Avance
+              </dt>
+              <dd className="tabular text-foreground">{pct}%</dd>
             </div>
             <div className="space-y-1 sm:col-span-2">
-              <dt className="text-muted-foreground">Categorías</dt>
+              <dt className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
+                Categorías
+              </dt>
               <dd className="text-foreground text-pretty">{categoriesLabel}</dd>
             </div>
           </dl>
-        </header>
+        </SurfaceSection>
 
-        <section className="space-y-3 border-t border-border pt-6">
-          <header className="flex items-baseline justify-between gap-3">
-            <h2 className="text-sm font-semibold text-foreground">
-              Movimientos del periodo
-            </h2>
-            <p className="text-xs tabular-nums text-muted-foreground">
-              {detail.transactions.length}{" "}
-              {detail.transactions.length === 1 ? "gasto" : "gastos"}
-            </p>
-          </header>
+        <SurfaceSection>
+          <SurfaceHeader
+            title="Movimientos del periodo"
+            action={
+              <p className="text-xs tabular text-muted-foreground">
+                {detail.transactions.length}{" "}
+                {detail.transactions.length === 1 ? "gasto" : "gastos"}
+              </p>
+            }
+          />
 
           {detail.transactions.length === 0 ? (
             <p className="text-sm text-muted-foreground">
@@ -190,12 +185,12 @@ export default async function BudgetDetailPage({ params }: PageProps) {
               actual.
             </p>
           ) : (
-            <ul className="divide-y divide-border">
+            <ul className="-mx-2 divide-y divide-border">
               {detail.transactions.map((tx) => (
-                <li key={tx.id} className="first:pt-0 last:pb-0">
+                <li key={tx.id}>
                   <Link
                     href={`/transactions/${tx.id}`}
-                    className="flex items-start justify-between gap-3 py-3 hover:bg-muted/40"
+                    className="flex items-start justify-between gap-3 rounded-xl px-2 py-2.5 hover:bg-background/60 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none dark:hover:bg-background/40"
                   >
                     <div className="min-w-0">
                       <p className="truncate font-medium text-foreground">
@@ -206,12 +201,12 @@ export default async function BudgetDetailPage({ params }: PageProps) {
                         {" · "}
                         {tx.accountName}
                         {" · "}
-                        <span className="tabular-nums">
-                          {formatOccurredOn(tx.occurredOn)}
+                        <span className="tabular">
+                          {formatDateOnly(tx.occurredOn)}
                         </span>
                       </p>
                     </div>
-                    <Badge variant="expense" className="shrink-0 tabular-nums">
+                    <Badge variant="expense" className="shrink-0 tabular">
                       {formatMoney(tx.amountCents, tx.currency)}
                     </Badge>
                   </Link>
@@ -219,7 +214,7 @@ export default async function BudgetDetailPage({ params }: PageProps) {
               ))}
             </ul>
           )}
-        </section>
+        </SurfaceSection>
       </div>
     </ContentPanel>
   );
@@ -273,5 +268,5 @@ async function BudgetActionsSection({
 }
 
 function BudgetActionsSkeleton() {
-  return <Skeleton className="h-10 w-full rounded-full sm:h-8 sm:w-28" />;
+  return <Skeleton className="h-10 w-full rounded-xl sm:w-28" />;
 }

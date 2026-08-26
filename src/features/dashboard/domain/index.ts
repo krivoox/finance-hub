@@ -33,13 +33,14 @@ export {
   selectActiveGoalsProgress,
   type BudgetAtRiskItem,
   type GoalProgressItem,
-  type MemberBalanceItem,
 } from "./enrichment";
 export {
   aggregateSpendingByCategory,
+  aggregateSpendingByCategoryByMonth,
   summarizeCashflow,
   buildMonthlySeries,
   computeInsights,
+  yearMonthUtc,
 } from "./analytics";
 export type {
   AnalyticsTransaction,
@@ -47,6 +48,10 @@ export type {
   Insight,
   MonthlySeriesPoint,
   SpendingByCategoryRow,
+} from "./analytics-types";
+export {
+  UNCATEGORIZED_CATEGORY_ID,
+  UNCATEGORIZED_CATEGORY_NAME,
 } from "./analytics-types";
 
 export { buildNetTrend } from "./net-trend";

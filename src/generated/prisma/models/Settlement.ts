@@ -36,9 +36,9 @@ export type SettlementSumAggregateOutputType = {
 
 export type SettlementMinAggregateOutputType = {
   id: string | null
-  workspaceId: string | null
-  fromUserId: string | null
-  toUserId: string | null
+  splitGroupId: string | null
+  fromMemberId: string | null
+  toMemberId: string | null
   amountCents: number | null
   occurredOn: Date | null
   note: string | null
@@ -48,9 +48,9 @@ export type SettlementMinAggregateOutputType = {
 
 export type SettlementMaxAggregateOutputType = {
   id: string | null
-  workspaceId: string | null
-  fromUserId: string | null
-  toUserId: string | null
+  splitGroupId: string | null
+  fromMemberId: string | null
+  toMemberId: string | null
   amountCents: number | null
   occurredOn: Date | null
   note: string | null
@@ -60,9 +60,9 @@ export type SettlementMaxAggregateOutputType = {
 
 export type SettlementCountAggregateOutputType = {
   id: number
-  workspaceId: number
-  fromUserId: number
-  toUserId: number
+  splitGroupId: number
+  fromMemberId: number
+  toMemberId: number
   amountCents: number
   occurredOn: number
   note: number
@@ -82,9 +82,9 @@ export type SettlementSumAggregateInputType = {
 
 export type SettlementMinAggregateInputType = {
   id?: true
-  workspaceId?: true
-  fromUserId?: true
-  toUserId?: true
+  splitGroupId?: true
+  fromMemberId?: true
+  toMemberId?: true
   amountCents?: true
   occurredOn?: true
   note?: true
@@ -94,9 +94,9 @@ export type SettlementMinAggregateInputType = {
 
 export type SettlementMaxAggregateInputType = {
   id?: true
-  workspaceId?: true
-  fromUserId?: true
-  toUserId?: true
+  splitGroupId?: true
+  fromMemberId?: true
+  toMemberId?: true
   amountCents?: true
   occurredOn?: true
   note?: true
@@ -106,9 +106,9 @@ export type SettlementMaxAggregateInputType = {
 
 export type SettlementCountAggregateInputType = {
   id?: true
-  workspaceId?: true
-  fromUserId?: true
-  toUserId?: true
+  splitGroupId?: true
+  fromMemberId?: true
+  toMemberId?: true
   amountCents?: true
   occurredOn?: true
   note?: true
@@ -205,9 +205,9 @@ export type SettlementGroupByArgs<ExtArgs extends runtime.Types.Extensions.Inter
 
 export type SettlementGroupByOutputType = {
   id: string
-  workspaceId: string
-  fromUserId: string
-  toUserId: string
+  splitGroupId: string
+  fromMemberId: string
+  toMemberId: string
   amountCents: number
   occurredOn: Date
   note: string | null
@@ -240,28 +240,32 @@ export type SettlementWhereInput = {
   OR?: Prisma.SettlementWhereInput[]
   NOT?: Prisma.SettlementWhereInput | Prisma.SettlementWhereInput[]
   id?: Prisma.StringFilter<"Settlement"> | string
-  workspaceId?: Prisma.StringFilter<"Settlement"> | string
-  fromUserId?: Prisma.StringFilter<"Settlement"> | string
-  toUserId?: Prisma.StringFilter<"Settlement"> | string
+  splitGroupId?: Prisma.StringFilter<"Settlement"> | string
+  fromMemberId?: Prisma.StringFilter<"Settlement"> | string
+  toMemberId?: Prisma.StringFilter<"Settlement"> | string
   amountCents?: Prisma.IntFilter<"Settlement"> | number
   occurredOn?: Prisma.DateTimeFilter<"Settlement"> | Date | string
   note?: Prisma.StringNullableFilter<"Settlement"> | string | null
   createdByUserId?: Prisma.StringFilter<"Settlement"> | string
   createdAt?: Prisma.DateTimeFilter<"Settlement"> | Date | string
-  workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  splitGroup?: Prisma.XOR<Prisma.SplitGroupScalarRelationFilter, Prisma.SplitGroupWhereInput>
+  fromMember?: Prisma.XOR<Prisma.SplitGroupMemberScalarRelationFilter, Prisma.SplitGroupMemberWhereInput>
+  toMember?: Prisma.XOR<Prisma.SplitGroupMemberScalarRelationFilter, Prisma.SplitGroupMemberWhereInput>
 }
 
 export type SettlementOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  workspaceId?: Prisma.SortOrder
-  fromUserId?: Prisma.SortOrder
-  toUserId?: Prisma.SortOrder
+  splitGroupId?: Prisma.SortOrder
+  fromMemberId?: Prisma.SortOrder
+  toMemberId?: Prisma.SortOrder
   amountCents?: Prisma.SortOrder
   occurredOn?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  workspace?: Prisma.WorkspaceOrderByWithRelationInput
+  splitGroup?: Prisma.SplitGroupOrderByWithRelationInput
+  fromMember?: Prisma.SplitGroupMemberOrderByWithRelationInput
+  toMember?: Prisma.SplitGroupMemberOrderByWithRelationInput
 }
 
 export type SettlementWhereUniqueInput = Prisma.AtLeast<{
@@ -269,22 +273,24 @@ export type SettlementWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.SettlementWhereInput | Prisma.SettlementWhereInput[]
   OR?: Prisma.SettlementWhereInput[]
   NOT?: Prisma.SettlementWhereInput | Prisma.SettlementWhereInput[]
-  workspaceId?: Prisma.StringFilter<"Settlement"> | string
-  fromUserId?: Prisma.StringFilter<"Settlement"> | string
-  toUserId?: Prisma.StringFilter<"Settlement"> | string
+  splitGroupId?: Prisma.StringFilter<"Settlement"> | string
+  fromMemberId?: Prisma.StringFilter<"Settlement"> | string
+  toMemberId?: Prisma.StringFilter<"Settlement"> | string
   amountCents?: Prisma.IntFilter<"Settlement"> | number
   occurredOn?: Prisma.DateTimeFilter<"Settlement"> | Date | string
   note?: Prisma.StringNullableFilter<"Settlement"> | string | null
   createdByUserId?: Prisma.StringFilter<"Settlement"> | string
   createdAt?: Prisma.DateTimeFilter<"Settlement"> | Date | string
-  workspace?: Prisma.XOR<Prisma.WorkspaceScalarRelationFilter, Prisma.WorkspaceWhereInput>
+  splitGroup?: Prisma.XOR<Prisma.SplitGroupScalarRelationFilter, Prisma.SplitGroupWhereInput>
+  fromMember?: Prisma.XOR<Prisma.SplitGroupMemberScalarRelationFilter, Prisma.SplitGroupMemberWhereInput>
+  toMember?: Prisma.XOR<Prisma.SplitGroupMemberScalarRelationFilter, Prisma.SplitGroupMemberWhereInput>
 }, "id">
 
 export type SettlementOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  workspaceId?: Prisma.SortOrder
-  fromUserId?: Prisma.SortOrder
-  toUserId?: Prisma.SortOrder
+  splitGroupId?: Prisma.SortOrder
+  fromMemberId?: Prisma.SortOrder
+  toMemberId?: Prisma.SortOrder
   amountCents?: Prisma.SortOrder
   occurredOn?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -302,9 +308,9 @@ export type SettlementScalarWhereWithAggregatesInput = {
   OR?: Prisma.SettlementScalarWhereWithAggregatesInput[]
   NOT?: Prisma.SettlementScalarWhereWithAggregatesInput | Prisma.SettlementScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Settlement"> | string
-  workspaceId?: Prisma.StringWithAggregatesFilter<"Settlement"> | string
-  fromUserId?: Prisma.StringWithAggregatesFilter<"Settlement"> | string
-  toUserId?: Prisma.StringWithAggregatesFilter<"Settlement"> | string
+  splitGroupId?: Prisma.StringWithAggregatesFilter<"Settlement"> | string
+  fromMemberId?: Prisma.StringWithAggregatesFilter<"Settlement"> | string
+  toMemberId?: Prisma.StringWithAggregatesFilter<"Settlement"> | string
   amountCents?: Prisma.IntWithAggregatesFilter<"Settlement"> | number
   occurredOn?: Prisma.DateTimeWithAggregatesFilter<"Settlement"> | Date | string
   note?: Prisma.StringNullableWithAggregatesFilter<"Settlement"> | string | null
@@ -314,21 +320,21 @@ export type SettlementScalarWhereWithAggregatesInput = {
 
 export type SettlementCreateInput = {
   id?: string
-  fromUserId: string
-  toUserId: string
   amountCents: number
   occurredOn: Date | string
   note?: string | null
   createdByUserId: string
   createdAt?: Date | string
-  workspace: Prisma.WorkspaceCreateNestedOneWithoutSettlementsInput
+  splitGroup: Prisma.SplitGroupCreateNestedOneWithoutSettlementsInput
+  fromMember: Prisma.SplitGroupMemberCreateNestedOneWithoutSettlementsFromInput
+  toMember: Prisma.SplitGroupMemberCreateNestedOneWithoutSettlementsToInput
 }
 
 export type SettlementUncheckedCreateInput = {
   id?: string
-  workspaceId: string
-  fromUserId: string
-  toUserId: string
+  splitGroupId: string
+  fromMemberId: string
+  toMemberId: string
   amountCents: number
   occurredOn: Date | string
   note?: string | null
@@ -338,21 +344,21 @@ export type SettlementUncheckedCreateInput = {
 
 export type SettlementUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  fromUserId?: Prisma.StringFieldUpdateOperationsInput | string
-  toUserId?: Prisma.StringFieldUpdateOperationsInput | string
   amountCents?: Prisma.IntFieldUpdateOperationsInput | number
   occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  workspace?: Prisma.WorkspaceUpdateOneRequiredWithoutSettlementsNestedInput
+  splitGroup?: Prisma.SplitGroupUpdateOneRequiredWithoutSettlementsNestedInput
+  fromMember?: Prisma.SplitGroupMemberUpdateOneRequiredWithoutSettlementsFromNestedInput
+  toMember?: Prisma.SplitGroupMemberUpdateOneRequiredWithoutSettlementsToNestedInput
 }
 
 export type SettlementUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
-  fromUserId?: Prisma.StringFieldUpdateOperationsInput | string
-  toUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  splitGroupId?: Prisma.StringFieldUpdateOperationsInput | string
+  fromMemberId?: Prisma.StringFieldUpdateOperationsInput | string
+  toMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   amountCents?: Prisma.IntFieldUpdateOperationsInput | number
   occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -362,9 +368,9 @@ export type SettlementUncheckedUpdateInput = {
 
 export type SettlementCreateManyInput = {
   id?: string
-  workspaceId: string
-  fromUserId: string
-  toUserId: string
+  splitGroupId: string
+  fromMemberId: string
+  toMemberId: string
   amountCents: number
   occurredOn: Date | string
   note?: string | null
@@ -374,8 +380,6 @@ export type SettlementCreateManyInput = {
 
 export type SettlementUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  fromUserId?: Prisma.StringFieldUpdateOperationsInput | string
-  toUserId?: Prisma.StringFieldUpdateOperationsInput | string
   amountCents?: Prisma.IntFieldUpdateOperationsInput | number
   occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -385,9 +389,9 @@ export type SettlementUpdateManyMutationInput = {
 
 export type SettlementUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  workspaceId?: Prisma.StringFieldUpdateOperationsInput | string
-  fromUserId?: Prisma.StringFieldUpdateOperationsInput | string
-  toUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  splitGroupId?: Prisma.StringFieldUpdateOperationsInput | string
+  fromMemberId?: Prisma.StringFieldUpdateOperationsInput | string
+  toMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   amountCents?: Prisma.IntFieldUpdateOperationsInput | number
   occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -407,9 +411,9 @@ export type SettlementOrderByRelationAggregateInput = {
 
 export type SettlementCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  workspaceId?: Prisma.SortOrder
-  fromUserId?: Prisma.SortOrder
-  toUserId?: Prisma.SortOrder
+  splitGroupId?: Prisma.SortOrder
+  fromMemberId?: Prisma.SortOrder
+  toMemberId?: Prisma.SortOrder
   amountCents?: Prisma.SortOrder
   occurredOn?: Prisma.SortOrder
   note?: Prisma.SortOrder
@@ -423,9 +427,9 @@ export type SettlementAvgOrderByAggregateInput = {
 
 export type SettlementMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  workspaceId?: Prisma.SortOrder
-  fromUserId?: Prisma.SortOrder
-  toUserId?: Prisma.SortOrder
+  splitGroupId?: Prisma.SortOrder
+  fromMemberId?: Prisma.SortOrder
+  toMemberId?: Prisma.SortOrder
   amountCents?: Prisma.SortOrder
   occurredOn?: Prisma.SortOrder
   note?: Prisma.SortOrder
@@ -435,9 +439,9 @@ export type SettlementMaxOrderByAggregateInput = {
 
 export type SettlementMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  workspaceId?: Prisma.SortOrder
-  fromUserId?: Prisma.SortOrder
-  toUserId?: Prisma.SortOrder
+  splitGroupId?: Prisma.SortOrder
+  fromMemberId?: Prisma.SortOrder
+  toMemberId?: Prisma.SortOrder
   amountCents?: Prisma.SortOrder
   occurredOn?: Prisma.SortOrder
   note?: Prisma.SortOrder
@@ -449,52 +453,147 @@ export type SettlementSumOrderByAggregateInput = {
   amountCents?: Prisma.SortOrder
 }
 
-export type SettlementCreateNestedManyWithoutWorkspaceInput = {
-  create?: Prisma.XOR<Prisma.SettlementCreateWithoutWorkspaceInput, Prisma.SettlementUncheckedCreateWithoutWorkspaceInput> | Prisma.SettlementCreateWithoutWorkspaceInput[] | Prisma.SettlementUncheckedCreateWithoutWorkspaceInput[]
-  connectOrCreate?: Prisma.SettlementCreateOrConnectWithoutWorkspaceInput | Prisma.SettlementCreateOrConnectWithoutWorkspaceInput[]
-  createMany?: Prisma.SettlementCreateManyWorkspaceInputEnvelope
+export type SettlementCreateNestedManyWithoutSplitGroupInput = {
+  create?: Prisma.XOR<Prisma.SettlementCreateWithoutSplitGroupInput, Prisma.SettlementUncheckedCreateWithoutSplitGroupInput> | Prisma.SettlementCreateWithoutSplitGroupInput[] | Prisma.SettlementUncheckedCreateWithoutSplitGroupInput[]
+  connectOrCreate?: Prisma.SettlementCreateOrConnectWithoutSplitGroupInput | Prisma.SettlementCreateOrConnectWithoutSplitGroupInput[]
+  createMany?: Prisma.SettlementCreateManySplitGroupInputEnvelope
   connect?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
 }
 
-export type SettlementUncheckedCreateNestedManyWithoutWorkspaceInput = {
-  create?: Prisma.XOR<Prisma.SettlementCreateWithoutWorkspaceInput, Prisma.SettlementUncheckedCreateWithoutWorkspaceInput> | Prisma.SettlementCreateWithoutWorkspaceInput[] | Prisma.SettlementUncheckedCreateWithoutWorkspaceInput[]
-  connectOrCreate?: Prisma.SettlementCreateOrConnectWithoutWorkspaceInput | Prisma.SettlementCreateOrConnectWithoutWorkspaceInput[]
-  createMany?: Prisma.SettlementCreateManyWorkspaceInputEnvelope
+export type SettlementUncheckedCreateNestedManyWithoutSplitGroupInput = {
+  create?: Prisma.XOR<Prisma.SettlementCreateWithoutSplitGroupInput, Prisma.SettlementUncheckedCreateWithoutSplitGroupInput> | Prisma.SettlementCreateWithoutSplitGroupInput[] | Prisma.SettlementUncheckedCreateWithoutSplitGroupInput[]
+  connectOrCreate?: Prisma.SettlementCreateOrConnectWithoutSplitGroupInput | Prisma.SettlementCreateOrConnectWithoutSplitGroupInput[]
+  createMany?: Prisma.SettlementCreateManySplitGroupInputEnvelope
   connect?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
 }
 
-export type SettlementUpdateManyWithoutWorkspaceNestedInput = {
-  create?: Prisma.XOR<Prisma.SettlementCreateWithoutWorkspaceInput, Prisma.SettlementUncheckedCreateWithoutWorkspaceInput> | Prisma.SettlementCreateWithoutWorkspaceInput[] | Prisma.SettlementUncheckedCreateWithoutWorkspaceInput[]
-  connectOrCreate?: Prisma.SettlementCreateOrConnectWithoutWorkspaceInput | Prisma.SettlementCreateOrConnectWithoutWorkspaceInput[]
-  upsert?: Prisma.SettlementUpsertWithWhereUniqueWithoutWorkspaceInput | Prisma.SettlementUpsertWithWhereUniqueWithoutWorkspaceInput[]
-  createMany?: Prisma.SettlementCreateManyWorkspaceInputEnvelope
+export type SettlementUpdateManyWithoutSplitGroupNestedInput = {
+  create?: Prisma.XOR<Prisma.SettlementCreateWithoutSplitGroupInput, Prisma.SettlementUncheckedCreateWithoutSplitGroupInput> | Prisma.SettlementCreateWithoutSplitGroupInput[] | Prisma.SettlementUncheckedCreateWithoutSplitGroupInput[]
+  connectOrCreate?: Prisma.SettlementCreateOrConnectWithoutSplitGroupInput | Prisma.SettlementCreateOrConnectWithoutSplitGroupInput[]
+  upsert?: Prisma.SettlementUpsertWithWhereUniqueWithoutSplitGroupInput | Prisma.SettlementUpsertWithWhereUniqueWithoutSplitGroupInput[]
+  createMany?: Prisma.SettlementCreateManySplitGroupInputEnvelope
   set?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
   disconnect?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
   delete?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
   connect?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
-  update?: Prisma.SettlementUpdateWithWhereUniqueWithoutWorkspaceInput | Prisma.SettlementUpdateWithWhereUniqueWithoutWorkspaceInput[]
-  updateMany?: Prisma.SettlementUpdateManyWithWhereWithoutWorkspaceInput | Prisma.SettlementUpdateManyWithWhereWithoutWorkspaceInput[]
+  update?: Prisma.SettlementUpdateWithWhereUniqueWithoutSplitGroupInput | Prisma.SettlementUpdateWithWhereUniqueWithoutSplitGroupInput[]
+  updateMany?: Prisma.SettlementUpdateManyWithWhereWithoutSplitGroupInput | Prisma.SettlementUpdateManyWithWhereWithoutSplitGroupInput[]
   deleteMany?: Prisma.SettlementScalarWhereInput | Prisma.SettlementScalarWhereInput[]
 }
 
-export type SettlementUncheckedUpdateManyWithoutWorkspaceNestedInput = {
-  create?: Prisma.XOR<Prisma.SettlementCreateWithoutWorkspaceInput, Prisma.SettlementUncheckedCreateWithoutWorkspaceInput> | Prisma.SettlementCreateWithoutWorkspaceInput[] | Prisma.SettlementUncheckedCreateWithoutWorkspaceInput[]
-  connectOrCreate?: Prisma.SettlementCreateOrConnectWithoutWorkspaceInput | Prisma.SettlementCreateOrConnectWithoutWorkspaceInput[]
-  upsert?: Prisma.SettlementUpsertWithWhereUniqueWithoutWorkspaceInput | Prisma.SettlementUpsertWithWhereUniqueWithoutWorkspaceInput[]
-  createMany?: Prisma.SettlementCreateManyWorkspaceInputEnvelope
+export type SettlementUncheckedUpdateManyWithoutSplitGroupNestedInput = {
+  create?: Prisma.XOR<Prisma.SettlementCreateWithoutSplitGroupInput, Prisma.SettlementUncheckedCreateWithoutSplitGroupInput> | Prisma.SettlementCreateWithoutSplitGroupInput[] | Prisma.SettlementUncheckedCreateWithoutSplitGroupInput[]
+  connectOrCreate?: Prisma.SettlementCreateOrConnectWithoutSplitGroupInput | Prisma.SettlementCreateOrConnectWithoutSplitGroupInput[]
+  upsert?: Prisma.SettlementUpsertWithWhereUniqueWithoutSplitGroupInput | Prisma.SettlementUpsertWithWhereUniqueWithoutSplitGroupInput[]
+  createMany?: Prisma.SettlementCreateManySplitGroupInputEnvelope
   set?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
   disconnect?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
   delete?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
   connect?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
-  update?: Prisma.SettlementUpdateWithWhereUniqueWithoutWorkspaceInput | Prisma.SettlementUpdateWithWhereUniqueWithoutWorkspaceInput[]
-  updateMany?: Prisma.SettlementUpdateManyWithWhereWithoutWorkspaceInput | Prisma.SettlementUpdateManyWithWhereWithoutWorkspaceInput[]
+  update?: Prisma.SettlementUpdateWithWhereUniqueWithoutSplitGroupInput | Prisma.SettlementUpdateWithWhereUniqueWithoutSplitGroupInput[]
+  updateMany?: Prisma.SettlementUpdateManyWithWhereWithoutSplitGroupInput | Prisma.SettlementUpdateManyWithWhereWithoutSplitGroupInput[]
   deleteMany?: Prisma.SettlementScalarWhereInput | Prisma.SettlementScalarWhereInput[]
 }
 
-export type SettlementCreateWithoutWorkspaceInput = {
+export type SettlementCreateNestedManyWithoutFromMemberInput = {
+  create?: Prisma.XOR<Prisma.SettlementCreateWithoutFromMemberInput, Prisma.SettlementUncheckedCreateWithoutFromMemberInput> | Prisma.SettlementCreateWithoutFromMemberInput[] | Prisma.SettlementUncheckedCreateWithoutFromMemberInput[]
+  connectOrCreate?: Prisma.SettlementCreateOrConnectWithoutFromMemberInput | Prisma.SettlementCreateOrConnectWithoutFromMemberInput[]
+  createMany?: Prisma.SettlementCreateManyFromMemberInputEnvelope
+  connect?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
+}
+
+export type SettlementCreateNestedManyWithoutToMemberInput = {
+  create?: Prisma.XOR<Prisma.SettlementCreateWithoutToMemberInput, Prisma.SettlementUncheckedCreateWithoutToMemberInput> | Prisma.SettlementCreateWithoutToMemberInput[] | Prisma.SettlementUncheckedCreateWithoutToMemberInput[]
+  connectOrCreate?: Prisma.SettlementCreateOrConnectWithoutToMemberInput | Prisma.SettlementCreateOrConnectWithoutToMemberInput[]
+  createMany?: Prisma.SettlementCreateManyToMemberInputEnvelope
+  connect?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
+}
+
+export type SettlementUncheckedCreateNestedManyWithoutFromMemberInput = {
+  create?: Prisma.XOR<Prisma.SettlementCreateWithoutFromMemberInput, Prisma.SettlementUncheckedCreateWithoutFromMemberInput> | Prisma.SettlementCreateWithoutFromMemberInput[] | Prisma.SettlementUncheckedCreateWithoutFromMemberInput[]
+  connectOrCreate?: Prisma.SettlementCreateOrConnectWithoutFromMemberInput | Prisma.SettlementCreateOrConnectWithoutFromMemberInput[]
+  createMany?: Prisma.SettlementCreateManyFromMemberInputEnvelope
+  connect?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
+}
+
+export type SettlementUncheckedCreateNestedManyWithoutToMemberInput = {
+  create?: Prisma.XOR<Prisma.SettlementCreateWithoutToMemberInput, Prisma.SettlementUncheckedCreateWithoutToMemberInput> | Prisma.SettlementCreateWithoutToMemberInput[] | Prisma.SettlementUncheckedCreateWithoutToMemberInput[]
+  connectOrCreate?: Prisma.SettlementCreateOrConnectWithoutToMemberInput | Prisma.SettlementCreateOrConnectWithoutToMemberInput[]
+  createMany?: Prisma.SettlementCreateManyToMemberInputEnvelope
+  connect?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
+}
+
+export type SettlementUpdateManyWithoutFromMemberNestedInput = {
+  create?: Prisma.XOR<Prisma.SettlementCreateWithoutFromMemberInput, Prisma.SettlementUncheckedCreateWithoutFromMemberInput> | Prisma.SettlementCreateWithoutFromMemberInput[] | Prisma.SettlementUncheckedCreateWithoutFromMemberInput[]
+  connectOrCreate?: Prisma.SettlementCreateOrConnectWithoutFromMemberInput | Prisma.SettlementCreateOrConnectWithoutFromMemberInput[]
+  upsert?: Prisma.SettlementUpsertWithWhereUniqueWithoutFromMemberInput | Prisma.SettlementUpsertWithWhereUniqueWithoutFromMemberInput[]
+  createMany?: Prisma.SettlementCreateManyFromMemberInputEnvelope
+  set?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
+  disconnect?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
+  delete?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
+  connect?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
+  update?: Prisma.SettlementUpdateWithWhereUniqueWithoutFromMemberInput | Prisma.SettlementUpdateWithWhereUniqueWithoutFromMemberInput[]
+  updateMany?: Prisma.SettlementUpdateManyWithWhereWithoutFromMemberInput | Prisma.SettlementUpdateManyWithWhereWithoutFromMemberInput[]
+  deleteMany?: Prisma.SettlementScalarWhereInput | Prisma.SettlementScalarWhereInput[]
+}
+
+export type SettlementUpdateManyWithoutToMemberNestedInput = {
+  create?: Prisma.XOR<Prisma.SettlementCreateWithoutToMemberInput, Prisma.SettlementUncheckedCreateWithoutToMemberInput> | Prisma.SettlementCreateWithoutToMemberInput[] | Prisma.SettlementUncheckedCreateWithoutToMemberInput[]
+  connectOrCreate?: Prisma.SettlementCreateOrConnectWithoutToMemberInput | Prisma.SettlementCreateOrConnectWithoutToMemberInput[]
+  upsert?: Prisma.SettlementUpsertWithWhereUniqueWithoutToMemberInput | Prisma.SettlementUpsertWithWhereUniqueWithoutToMemberInput[]
+  createMany?: Prisma.SettlementCreateManyToMemberInputEnvelope
+  set?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
+  disconnect?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
+  delete?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
+  connect?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
+  update?: Prisma.SettlementUpdateWithWhereUniqueWithoutToMemberInput | Prisma.SettlementUpdateWithWhereUniqueWithoutToMemberInput[]
+  updateMany?: Prisma.SettlementUpdateManyWithWhereWithoutToMemberInput | Prisma.SettlementUpdateManyWithWhereWithoutToMemberInput[]
+  deleteMany?: Prisma.SettlementScalarWhereInput | Prisma.SettlementScalarWhereInput[]
+}
+
+export type SettlementUncheckedUpdateManyWithoutFromMemberNestedInput = {
+  create?: Prisma.XOR<Prisma.SettlementCreateWithoutFromMemberInput, Prisma.SettlementUncheckedCreateWithoutFromMemberInput> | Prisma.SettlementCreateWithoutFromMemberInput[] | Prisma.SettlementUncheckedCreateWithoutFromMemberInput[]
+  connectOrCreate?: Prisma.SettlementCreateOrConnectWithoutFromMemberInput | Prisma.SettlementCreateOrConnectWithoutFromMemberInput[]
+  upsert?: Prisma.SettlementUpsertWithWhereUniqueWithoutFromMemberInput | Prisma.SettlementUpsertWithWhereUniqueWithoutFromMemberInput[]
+  createMany?: Prisma.SettlementCreateManyFromMemberInputEnvelope
+  set?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
+  disconnect?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
+  delete?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
+  connect?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
+  update?: Prisma.SettlementUpdateWithWhereUniqueWithoutFromMemberInput | Prisma.SettlementUpdateWithWhereUniqueWithoutFromMemberInput[]
+  updateMany?: Prisma.SettlementUpdateManyWithWhereWithoutFromMemberInput | Prisma.SettlementUpdateManyWithWhereWithoutFromMemberInput[]
+  deleteMany?: Prisma.SettlementScalarWhereInput | Prisma.SettlementScalarWhereInput[]
+}
+
+export type SettlementUncheckedUpdateManyWithoutToMemberNestedInput = {
+  create?: Prisma.XOR<Prisma.SettlementCreateWithoutToMemberInput, Prisma.SettlementUncheckedCreateWithoutToMemberInput> | Prisma.SettlementCreateWithoutToMemberInput[] | Prisma.SettlementUncheckedCreateWithoutToMemberInput[]
+  connectOrCreate?: Prisma.SettlementCreateOrConnectWithoutToMemberInput | Prisma.SettlementCreateOrConnectWithoutToMemberInput[]
+  upsert?: Prisma.SettlementUpsertWithWhereUniqueWithoutToMemberInput | Prisma.SettlementUpsertWithWhereUniqueWithoutToMemberInput[]
+  createMany?: Prisma.SettlementCreateManyToMemberInputEnvelope
+  set?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
+  disconnect?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
+  delete?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
+  connect?: Prisma.SettlementWhereUniqueInput | Prisma.SettlementWhereUniqueInput[]
+  update?: Prisma.SettlementUpdateWithWhereUniqueWithoutToMemberInput | Prisma.SettlementUpdateWithWhereUniqueWithoutToMemberInput[]
+  updateMany?: Prisma.SettlementUpdateManyWithWhereWithoutToMemberInput | Prisma.SettlementUpdateManyWithWhereWithoutToMemberInput[]
+  deleteMany?: Prisma.SettlementScalarWhereInput | Prisma.SettlementScalarWhereInput[]
+}
+
+export type SettlementCreateWithoutSplitGroupInput = {
   id?: string
-  fromUserId: string
-  toUserId: string
+  amountCents: number
+  occurredOn: Date | string
+  note?: string | null
+  createdByUserId: string
+  createdAt?: Date | string
+  fromMember: Prisma.SplitGroupMemberCreateNestedOneWithoutSettlementsFromInput
+  toMember: Prisma.SplitGroupMemberCreateNestedOneWithoutSettlementsToInput
+}
+
+export type SettlementUncheckedCreateWithoutSplitGroupInput = {
+  id?: string
+  fromMemberId: string
+  toMemberId: string
   amountCents: number
   occurredOn: Date | string
   note?: string | null
@@ -502,41 +601,30 @@ export type SettlementCreateWithoutWorkspaceInput = {
   createdAt?: Date | string
 }
 
-export type SettlementUncheckedCreateWithoutWorkspaceInput = {
-  id?: string
-  fromUserId: string
-  toUserId: string
-  amountCents: number
-  occurredOn: Date | string
-  note?: string | null
-  createdByUserId: string
-  createdAt?: Date | string
-}
-
-export type SettlementCreateOrConnectWithoutWorkspaceInput = {
+export type SettlementCreateOrConnectWithoutSplitGroupInput = {
   where: Prisma.SettlementWhereUniqueInput
-  create: Prisma.XOR<Prisma.SettlementCreateWithoutWorkspaceInput, Prisma.SettlementUncheckedCreateWithoutWorkspaceInput>
+  create: Prisma.XOR<Prisma.SettlementCreateWithoutSplitGroupInput, Prisma.SettlementUncheckedCreateWithoutSplitGroupInput>
 }
 
-export type SettlementCreateManyWorkspaceInputEnvelope = {
-  data: Prisma.SettlementCreateManyWorkspaceInput | Prisma.SettlementCreateManyWorkspaceInput[]
+export type SettlementCreateManySplitGroupInputEnvelope = {
+  data: Prisma.SettlementCreateManySplitGroupInput | Prisma.SettlementCreateManySplitGroupInput[]
   skipDuplicates?: boolean
 }
 
-export type SettlementUpsertWithWhereUniqueWithoutWorkspaceInput = {
+export type SettlementUpsertWithWhereUniqueWithoutSplitGroupInput = {
   where: Prisma.SettlementWhereUniqueInput
-  update: Prisma.XOR<Prisma.SettlementUpdateWithoutWorkspaceInput, Prisma.SettlementUncheckedUpdateWithoutWorkspaceInput>
-  create: Prisma.XOR<Prisma.SettlementCreateWithoutWorkspaceInput, Prisma.SettlementUncheckedCreateWithoutWorkspaceInput>
+  update: Prisma.XOR<Prisma.SettlementUpdateWithoutSplitGroupInput, Prisma.SettlementUncheckedUpdateWithoutSplitGroupInput>
+  create: Prisma.XOR<Prisma.SettlementCreateWithoutSplitGroupInput, Prisma.SettlementUncheckedCreateWithoutSplitGroupInput>
 }
 
-export type SettlementUpdateWithWhereUniqueWithoutWorkspaceInput = {
+export type SettlementUpdateWithWhereUniqueWithoutSplitGroupInput = {
   where: Prisma.SettlementWhereUniqueInput
-  data: Prisma.XOR<Prisma.SettlementUpdateWithoutWorkspaceInput, Prisma.SettlementUncheckedUpdateWithoutWorkspaceInput>
+  data: Prisma.XOR<Prisma.SettlementUpdateWithoutSplitGroupInput, Prisma.SettlementUncheckedUpdateWithoutSplitGroupInput>
 }
 
-export type SettlementUpdateManyWithWhereWithoutWorkspaceInput = {
+export type SettlementUpdateManyWithWhereWithoutSplitGroupInput = {
   where: Prisma.SettlementScalarWhereInput
-  data: Prisma.XOR<Prisma.SettlementUpdateManyMutationInput, Prisma.SettlementUncheckedUpdateManyWithoutWorkspaceInput>
+  data: Prisma.XOR<Prisma.SettlementUpdateManyMutationInput, Prisma.SettlementUncheckedUpdateManyWithoutSplitGroupInput>
 }
 
 export type SettlementScalarWhereInput = {
@@ -544,9 +632,9 @@ export type SettlementScalarWhereInput = {
   OR?: Prisma.SettlementScalarWhereInput[]
   NOT?: Prisma.SettlementScalarWhereInput | Prisma.SettlementScalarWhereInput[]
   id?: Prisma.StringFilter<"Settlement"> | string
-  workspaceId?: Prisma.StringFilter<"Settlement"> | string
-  fromUserId?: Prisma.StringFilter<"Settlement"> | string
-  toUserId?: Prisma.StringFilter<"Settlement"> | string
+  splitGroupId?: Prisma.StringFilter<"Settlement"> | string
+  fromMemberId?: Prisma.StringFilter<"Settlement"> | string
+  toMemberId?: Prisma.StringFilter<"Settlement"> | string
   amountCents?: Prisma.IntFilter<"Settlement"> | number
   occurredOn?: Prisma.DateTimeFilter<"Settlement"> | Date | string
   note?: Prisma.StringNullableFilter<"Settlement"> | string | null
@@ -554,10 +642,21 @@ export type SettlementScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Settlement"> | Date | string
 }
 
-export type SettlementCreateManyWorkspaceInput = {
+export type SettlementCreateWithoutFromMemberInput = {
   id?: string
-  fromUserId: string
-  toUserId: string
+  amountCents: number
+  occurredOn: Date | string
+  note?: string | null
+  createdByUserId: string
+  createdAt?: Date | string
+  splitGroup: Prisma.SplitGroupCreateNestedOneWithoutSettlementsInput
+  toMember: Prisma.SplitGroupMemberCreateNestedOneWithoutSettlementsToInput
+}
+
+export type SettlementUncheckedCreateWithoutFromMemberInput = {
+  id?: string
+  splitGroupId: string
+  toMemberId: string
   amountCents: number
   occurredOn: Date | string
   note?: string | null
@@ -565,10 +664,106 @@ export type SettlementCreateManyWorkspaceInput = {
   createdAt?: Date | string
 }
 
-export type SettlementUpdateWithoutWorkspaceInput = {
+export type SettlementCreateOrConnectWithoutFromMemberInput = {
+  where: Prisma.SettlementWhereUniqueInput
+  create: Prisma.XOR<Prisma.SettlementCreateWithoutFromMemberInput, Prisma.SettlementUncheckedCreateWithoutFromMemberInput>
+}
+
+export type SettlementCreateManyFromMemberInputEnvelope = {
+  data: Prisma.SettlementCreateManyFromMemberInput | Prisma.SettlementCreateManyFromMemberInput[]
+  skipDuplicates?: boolean
+}
+
+export type SettlementCreateWithoutToMemberInput = {
+  id?: string
+  amountCents: number
+  occurredOn: Date | string
+  note?: string | null
+  createdByUserId: string
+  createdAt?: Date | string
+  splitGroup: Prisma.SplitGroupCreateNestedOneWithoutSettlementsInput
+  fromMember: Prisma.SplitGroupMemberCreateNestedOneWithoutSettlementsFromInput
+}
+
+export type SettlementUncheckedCreateWithoutToMemberInput = {
+  id?: string
+  splitGroupId: string
+  fromMemberId: string
+  amountCents: number
+  occurredOn: Date | string
+  note?: string | null
+  createdByUserId: string
+  createdAt?: Date | string
+}
+
+export type SettlementCreateOrConnectWithoutToMemberInput = {
+  where: Prisma.SettlementWhereUniqueInput
+  create: Prisma.XOR<Prisma.SettlementCreateWithoutToMemberInput, Prisma.SettlementUncheckedCreateWithoutToMemberInput>
+}
+
+export type SettlementCreateManyToMemberInputEnvelope = {
+  data: Prisma.SettlementCreateManyToMemberInput | Prisma.SettlementCreateManyToMemberInput[]
+  skipDuplicates?: boolean
+}
+
+export type SettlementUpsertWithWhereUniqueWithoutFromMemberInput = {
+  where: Prisma.SettlementWhereUniqueInput
+  update: Prisma.XOR<Prisma.SettlementUpdateWithoutFromMemberInput, Prisma.SettlementUncheckedUpdateWithoutFromMemberInput>
+  create: Prisma.XOR<Prisma.SettlementCreateWithoutFromMemberInput, Prisma.SettlementUncheckedCreateWithoutFromMemberInput>
+}
+
+export type SettlementUpdateWithWhereUniqueWithoutFromMemberInput = {
+  where: Prisma.SettlementWhereUniqueInput
+  data: Prisma.XOR<Prisma.SettlementUpdateWithoutFromMemberInput, Prisma.SettlementUncheckedUpdateWithoutFromMemberInput>
+}
+
+export type SettlementUpdateManyWithWhereWithoutFromMemberInput = {
+  where: Prisma.SettlementScalarWhereInput
+  data: Prisma.XOR<Prisma.SettlementUpdateManyMutationInput, Prisma.SettlementUncheckedUpdateManyWithoutFromMemberInput>
+}
+
+export type SettlementUpsertWithWhereUniqueWithoutToMemberInput = {
+  where: Prisma.SettlementWhereUniqueInput
+  update: Prisma.XOR<Prisma.SettlementUpdateWithoutToMemberInput, Prisma.SettlementUncheckedUpdateWithoutToMemberInput>
+  create: Prisma.XOR<Prisma.SettlementCreateWithoutToMemberInput, Prisma.SettlementUncheckedCreateWithoutToMemberInput>
+}
+
+export type SettlementUpdateWithWhereUniqueWithoutToMemberInput = {
+  where: Prisma.SettlementWhereUniqueInput
+  data: Prisma.XOR<Prisma.SettlementUpdateWithoutToMemberInput, Prisma.SettlementUncheckedUpdateWithoutToMemberInput>
+}
+
+export type SettlementUpdateManyWithWhereWithoutToMemberInput = {
+  where: Prisma.SettlementScalarWhereInput
+  data: Prisma.XOR<Prisma.SettlementUpdateManyMutationInput, Prisma.SettlementUncheckedUpdateManyWithoutToMemberInput>
+}
+
+export type SettlementCreateManySplitGroupInput = {
+  id?: string
+  fromMemberId: string
+  toMemberId: string
+  amountCents: number
+  occurredOn: Date | string
+  note?: string | null
+  createdByUserId: string
+  createdAt?: Date | string
+}
+
+export type SettlementUpdateWithoutSplitGroupInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  fromUserId?: Prisma.StringFieldUpdateOperationsInput | string
-  toUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  amountCents?: Prisma.IntFieldUpdateOperationsInput | number
+  occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  fromMember?: Prisma.SplitGroupMemberUpdateOneRequiredWithoutSettlementsFromNestedInput
+  toMember?: Prisma.SplitGroupMemberUpdateOneRequiredWithoutSettlementsToNestedInput
+}
+
+export type SettlementUncheckedUpdateWithoutSplitGroupInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  fromMemberId?: Prisma.StringFieldUpdateOperationsInput | string
+  toMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   amountCents?: Prisma.IntFieldUpdateOperationsInput | number
   occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -576,10 +771,10 @@ export type SettlementUpdateWithoutWorkspaceInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type SettlementUncheckedUpdateWithoutWorkspaceInput = {
+export type SettlementUncheckedUpdateManyWithoutSplitGroupInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  fromUserId?: Prisma.StringFieldUpdateOperationsInput | string
-  toUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  fromMemberId?: Prisma.StringFieldUpdateOperationsInput | string
+  toMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   amountCents?: Prisma.IntFieldUpdateOperationsInput | number
   occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -587,10 +782,87 @@ export type SettlementUncheckedUpdateWithoutWorkspaceInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type SettlementUncheckedUpdateManyWithoutWorkspaceInput = {
+export type SettlementCreateManyFromMemberInput = {
+  id?: string
+  splitGroupId: string
+  toMemberId: string
+  amountCents: number
+  occurredOn: Date | string
+  note?: string | null
+  createdByUserId: string
+  createdAt?: Date | string
+}
+
+export type SettlementCreateManyToMemberInput = {
+  id?: string
+  splitGroupId: string
+  fromMemberId: string
+  amountCents: number
+  occurredOn: Date | string
+  note?: string | null
+  createdByUserId: string
+  createdAt?: Date | string
+}
+
+export type SettlementUpdateWithoutFromMemberInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  fromUserId?: Prisma.StringFieldUpdateOperationsInput | string
-  toUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  amountCents?: Prisma.IntFieldUpdateOperationsInput | number
+  occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  splitGroup?: Prisma.SplitGroupUpdateOneRequiredWithoutSettlementsNestedInput
+  toMember?: Prisma.SplitGroupMemberUpdateOneRequiredWithoutSettlementsToNestedInput
+}
+
+export type SettlementUncheckedUpdateWithoutFromMemberInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  splitGroupId?: Prisma.StringFieldUpdateOperationsInput | string
+  toMemberId?: Prisma.StringFieldUpdateOperationsInput | string
+  amountCents?: Prisma.IntFieldUpdateOperationsInput | number
+  occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type SettlementUncheckedUpdateManyWithoutFromMemberInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  splitGroupId?: Prisma.StringFieldUpdateOperationsInput | string
+  toMemberId?: Prisma.StringFieldUpdateOperationsInput | string
+  amountCents?: Prisma.IntFieldUpdateOperationsInput | number
+  occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type SettlementUpdateWithoutToMemberInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  amountCents?: Prisma.IntFieldUpdateOperationsInput | number
+  occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  splitGroup?: Prisma.SplitGroupUpdateOneRequiredWithoutSettlementsNestedInput
+  fromMember?: Prisma.SplitGroupMemberUpdateOneRequiredWithoutSettlementsFromNestedInput
+}
+
+export type SettlementUncheckedUpdateWithoutToMemberInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  splitGroupId?: Prisma.StringFieldUpdateOperationsInput | string
+  fromMemberId?: Prisma.StringFieldUpdateOperationsInput | string
+  amountCents?: Prisma.IntFieldUpdateOperationsInput | number
+  occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdByUserId?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type SettlementUncheckedUpdateManyWithoutToMemberInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  splitGroupId?: Prisma.StringFieldUpdateOperationsInput | string
+  fromMemberId?: Prisma.StringFieldUpdateOperationsInput | string
   amountCents?: Prisma.IntFieldUpdateOperationsInput | number
   occurredOn?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -602,48 +874,54 @@ export type SettlementUncheckedUpdateManyWithoutWorkspaceInput = {
 
 export type SettlementSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  workspaceId?: boolean
-  fromUserId?: boolean
-  toUserId?: boolean
+  splitGroupId?: boolean
+  fromMemberId?: boolean
+  toMemberId?: boolean
   amountCents?: boolean
   occurredOn?: boolean
   note?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  splitGroup?: boolean | Prisma.SplitGroupDefaultArgs<ExtArgs>
+  fromMember?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
+  toMember?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["settlement"]>
 
 export type SettlementSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  workspaceId?: boolean
-  fromUserId?: boolean
-  toUserId?: boolean
+  splitGroupId?: boolean
+  fromMemberId?: boolean
+  toMemberId?: boolean
   amountCents?: boolean
   occurredOn?: boolean
   note?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  splitGroup?: boolean | Prisma.SplitGroupDefaultArgs<ExtArgs>
+  fromMember?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
+  toMember?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["settlement"]>
 
 export type SettlementSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  workspaceId?: boolean
-  fromUserId?: boolean
-  toUserId?: boolean
+  splitGroupId?: boolean
+  fromMemberId?: boolean
+  toMemberId?: boolean
   amountCents?: boolean
   occurredOn?: boolean
   note?: boolean
   createdByUserId?: boolean
   createdAt?: boolean
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  splitGroup?: boolean | Prisma.SplitGroupDefaultArgs<ExtArgs>
+  fromMember?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
+  toMember?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["settlement"]>
 
 export type SettlementSelectScalar = {
   id?: boolean
-  workspaceId?: boolean
-  fromUserId?: boolean
-  toUserId?: boolean
+  splitGroupId?: boolean
+  fromMemberId?: boolean
+  toMemberId?: boolean
   amountCents?: boolean
   occurredOn?: boolean
   note?: boolean
@@ -651,27 +929,35 @@ export type SettlementSelectScalar = {
   createdAt?: boolean
 }
 
-export type SettlementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "workspaceId" | "fromUserId" | "toUserId" | "amountCents" | "occurredOn" | "note" | "createdByUserId" | "createdAt", ExtArgs["result"]["settlement"]>
+export type SettlementOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "splitGroupId" | "fromMemberId" | "toMemberId" | "amountCents" | "occurredOn" | "note" | "createdByUserId" | "createdAt", ExtArgs["result"]["settlement"]>
 export type SettlementInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  splitGroup?: boolean | Prisma.SplitGroupDefaultArgs<ExtArgs>
+  fromMember?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
+  toMember?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
 }
 export type SettlementIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  splitGroup?: boolean | Prisma.SplitGroupDefaultArgs<ExtArgs>
+  fromMember?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
+  toMember?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
 }
 export type SettlementIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  workspace?: boolean | Prisma.WorkspaceDefaultArgs<ExtArgs>
+  splitGroup?: boolean | Prisma.SplitGroupDefaultArgs<ExtArgs>
+  fromMember?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
+  toMember?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
 }
 
 export type $SettlementPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Settlement"
   objects: {
-    workspace: Prisma.$WorkspacePayload<ExtArgs>
+    splitGroup: Prisma.$SplitGroupPayload<ExtArgs>
+    fromMember: Prisma.$SplitGroupMemberPayload<ExtArgs>
+    toMember: Prisma.$SplitGroupMemberPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    workspaceId: string
-    fromUserId: string
-    toUserId: string
+    splitGroupId: string
+    fromMemberId: string
+    toMemberId: string
     amountCents: number
     occurredOn: Date
     note: string | null
@@ -1071,7 +1357,9 @@ readonly fields: SettlementFieldRefs;
  */
 export interface Prisma__SettlementClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  workspace<T extends Prisma.WorkspaceDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkspaceDefaultArgs<ExtArgs>>): Prisma.Prisma__WorkspaceClient<runtime.Types.Result.GetResult<Prisma.$WorkspacePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  splitGroup<T extends Prisma.SplitGroupDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SplitGroupDefaultArgs<ExtArgs>>): Prisma.Prisma__SplitGroupClient<runtime.Types.Result.GetResult<Prisma.$SplitGroupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  fromMember<T extends Prisma.SplitGroupMemberDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SplitGroupMemberDefaultArgs<ExtArgs>>): Prisma.Prisma__SplitGroupMemberClient<runtime.Types.Result.GetResult<Prisma.$SplitGroupMemberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  toMember<T extends Prisma.SplitGroupMemberDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SplitGroupMemberDefaultArgs<ExtArgs>>): Prisma.Prisma__SplitGroupMemberClient<runtime.Types.Result.GetResult<Prisma.$SplitGroupMemberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1102,9 +1390,9 @@ export interface Prisma__SettlementClient<T, Null = never, ExtArgs extends runti
  */
 export interface SettlementFieldRefs {
   readonly id: Prisma.FieldRef<"Settlement", 'String'>
-  readonly workspaceId: Prisma.FieldRef<"Settlement", 'String'>
-  readonly fromUserId: Prisma.FieldRef<"Settlement", 'String'>
-  readonly toUserId: Prisma.FieldRef<"Settlement", 'String'>
+  readonly splitGroupId: Prisma.FieldRef<"Settlement", 'String'>
+  readonly fromMemberId: Prisma.FieldRef<"Settlement", 'String'>
+  readonly toMemberId: Prisma.FieldRef<"Settlement", 'String'>
   readonly amountCents: Prisma.FieldRef<"Settlement", 'Int'>
   readonly occurredOn: Prisma.FieldRef<"Settlement", 'DateTime'>
   readonly note: Prisma.FieldRef<"Settlement", 'String'>

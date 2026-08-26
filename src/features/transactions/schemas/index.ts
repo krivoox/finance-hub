@@ -98,14 +98,3 @@ export const listTransactionsSchema = z.object({
   limit: z.number().int().min(1).max(200).optional(),
 });
 export type ListTransactionsInput = z.infer<typeof listTransactionsSchema>;
-
-export const createCrossWorkspaceContributionSchema = z.object({
-  sourceAccountId: accountIdSchema,
-  targetAccountId: accountIdSchema,
-  amountCents: amountCentsSchema,
-  occurredOn: occurredOnSchema,
-  description: descriptionSchema,
-});
-export type CreateCrossWorkspaceContributionInput = z.infer<
-  typeof createCrossWorkspaceContributionSchema
->;

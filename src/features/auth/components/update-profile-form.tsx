@@ -11,8 +11,14 @@ import {
 } from "@/features/auth/schemas";
 import { updateProfile } from "@/features/auth/actions/update-profile";
 import { SUPPORTED_CURRENCIES } from "@/features/auth/domain/profile";
+import {
+  FormActions,
+  FormField,
+  FormStack,
+} from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { nativeSelectClassName } from "@/components/ui/native-select";
 
 export type UpdateProfileFormProps = {
   initialValues: UpdateProfileInput;
@@ -54,96 +60,72 @@ export function UpdateProfileForm({
   const isBusy = isPending || isSubmitting;
 
   return (
-    <form className="max-w-md space-y-5" onSubmit={onSubmit} noValidate>
-      <div className="space-y-2">
-        <label
+    <form className="flex flex-col gap-6" onSubmit={onSubmit} noValidate>
+      <FormStack>
+        <FormField
+          label="Nombre para mostrar"
           htmlFor="displayName"
-          className="text-sm font-medium text-muted-foreground"
+          error={errors.displayName?.message}
         >
-          Nombre para mostrar
-        </label>
-        <Input
-          id="displayName"
-          autoComplete="name"
-          aria-invalid={Boolean(errors.displayName)}
-          {...register("displayName")}
-        />
-        {errors.displayName ? (
-          <p className="text-xs text-destructive">
-            {errors.displayName.message}
-          </p>
-        ) : null}
-      </div>
+          <Input
+            id="displayName"
+            autoComplete="name"
+            aria-invalid={Boolean(errors.displayName)}
+            {...register("displayName")}
+          />
+        </FormField>
 
-      <div className="space-y-2">
-        <label
-          htmlFor="email"
-          className="text-sm font-medium text-muted-foreground"
-        >
-          Email
-        </label>
-        <Input id="email" type="email" value={email} disabled readOnly />
-      </div>
+        <FormField label="Email" htmlFor="email">
+          <Input id="email" type="email" value={email} disabled readOnly />
+        </FormField>
 
-      <div className="space-y-2">
-        <label
+        <FormField
+          label="Moneda preferida"
           htmlFor="preferredCurrency"
-          className="text-sm font-medium text-muted-foreground"
+          error={errors.preferredCurrency?.message}
         >
-          Moneda preferida
-        </label>
-        <select
-          id="preferredCurrency"
-          aria-invalid={Boolean(errors.preferredCurrency)}
-          className="flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-1 text-base shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring sm:h-9 sm:text-sm"
-          {...register("preferredCurrency")}
-        >
-          {SUPPORTED_CURRENCIES.map((code) => (
-            <option key={code} value={code}>
-              {code}
-            </option>
-          ))}
-        </select>
-        {errors.preferredCurrency ? (
-          <p className="text-xs text-destructive">
-            {errors.preferredCurrency.message}
-          </p>
-        ) : null}
-      </div>
+          <select
+            id="preferredCurrency"
+            aria-invalid={Boolean(errors.preferredCurrency)}
+            className={nativeSelectClassName}
+            {...register("preferredCurrency")}
+          >
+            {SUPPORTED_CURRENCIES.map((code) => (
+              <option key={code} value={code}>
+                {code}
+              </option>
+            ))}
+          </select>
+        </FormField>
 
-      <div className="space-y-2">
-        <label
+        <FormField
+          label="Zona horaria"
           htmlFor="timezone"
-          className="text-sm font-medium text-muted-foreground"
+          error={errors.timezone?.message}
+          hint={
+            errors.timezone
+              ? undefined
+              : "Formato IANA (ej. America/Argentina/Buenos_Aires)."
+          }
         >
-          Zona horaria
-        </label>
-        <Input
-          id="timezone"
-          placeholder="America/Argentina/Buenos_Aires"
-          aria-invalid={Boolean(errors.timezone)}
-          {...register("timezone")}
-        />
-        {errors.timezone ? (
-          <p className="text-xs text-destructive">{errors.timezone.message}</p>
-        ) : (
-          <p className="text-[10px] text-muted-foreground">
-            Formato IANA (ej. America/Argentina/Buenos_Aires).
-          </p>
-        )}
-      </div>
+          <Input
+            id="timezone"
+            placeholder="America/Argentina/Buenos_Aires"
+            aria-invalid={Boolean(errors.timezone)}
+            {...register("timezone")}
+          />
+        </FormField>
+      </FormStack>
 
       {serverError ? (
         <p className="text-xs text-destructive">{serverError}</p>
       ) : null}
 
-      <Button
-        type="submit"
-        className="h-10 w-full sm:h-8 sm:w-auto"
-        disabled={isBusy}
-      >
-        {isBusy ? "Guardando..." : "Guardar cambios"}
-      </Button>
+      <FormActions>
+        <Button type="submit" className="w-full sm:w-auto" disabled={isBusy}>
+          {isBusy ? "Guardando..." : "Guardar cambios"}
+        </Button>
+      </FormActions>
     </form>
   );
 }

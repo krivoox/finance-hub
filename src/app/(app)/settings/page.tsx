@@ -2,6 +2,10 @@ import { Suspense } from "react";
 import { redirect } from "next/navigation";
 
 import { ContentPanel } from "@/components/app-shell/content-panel";
+import {
+  SurfaceHeader,
+  SurfaceSection,
+} from "@/components/surface-section";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UpdateProfileForm } from "@/features/auth/components/update-profile-form";
 import {
@@ -22,7 +26,7 @@ import {
   parseSettingsTab,
   SettingsTabsNav,
 } from "@/features/settings/components/settings-tabs-nav";
-import { NewGroupWorkspaceForm } from "@/features/workspaces/components/new-group-workspace-form";
+import { RenameWorkspaceForm } from "@/features/workspaces/components/rename-workspace-form";
 import {
   getActiveWorkspaceForUser,
   type ActiveWorkspaceContext,
@@ -80,18 +84,16 @@ export default async function SettingsPage({ searchParams }: PageProps) {
   return (
     <ContentPanel
       title="Ajustes"
-      description="Preferencias de tu cuenta y del workspace activo."
+      description="Preferencias de tu cuenta."
     >
       <SettingsTabsNav active={activeTab} />
 
       {activeTab === "perfil" ? (
-        <section className="space-y-4">
-          <header>
-            <h2 className="text-sm font-semibold text-foreground">Perfil</h2>
-            <p className="text-xs text-muted-foreground">
-              Nombre, moneda preferida y zona horaria.
-            </p>
-          </header>
+        <SurfaceSection>
+          <SurfaceHeader
+            title="Perfil"
+            description="Nombre, moneda preferida y zona horaria."
+          />
           <UpdateProfileForm
             email={user.email}
             initialValues={{
@@ -100,22 +102,31 @@ export default async function SettingsPage({ searchParams }: PageProps) {
               timezone: user.timezone,
             }}
           />
-        </section>
+        </SurfaceSection>
       ) : null}
 
       {activeTab === "workspace" ? (
-        <div className="space-y-10">
+        <div className="flex flex-col gap-5 sm:gap-6">
           {workspace ? (
-            <section className="space-y-4">
-              <header>
-                <h2 className="text-sm font-semibold text-foreground">
-                  Tasa de consolidación
-                </h2>
-                <p className="text-xs text-muted-foreground">
-                  Usada en el dashboard para estimar el patrimonio ≈ en{" "}
-                  {workspace.baseCurrency} cuando hay saldos ARS y USD.
-                </p>
-              </header>
+            <SurfaceSection>
+              <SurfaceHeader
+                title="Tu cuenta"
+                description="Nombre que ves en la app. Los gastos compartidos viven en Grupos."
+              />
+              <RenameWorkspaceForm
+                workspaceId={workspace.id}
+                initialName={workspace.name}
+                canRename={workspace.role === "owner" || workspace.role === "admin"}
+              />
+            </SurfaceSection>
+          ) : null}
+
+          {workspace ? (
+            <SurfaceSection>
+              <SurfaceHeader
+                title="Tasa de consolidación"
+                description={`Usada en el dashboard para estimar el patrimonio ≈ en ${workspace.baseCurrency} cuando hay saldos ARS y USD.`}
+              />
               <Suspense fallback={<ConsolidationRateSkeleton />}>
                 <ConsolidationRateSection
                   workspace={workspace}
@@ -123,21 +134,8 @@ export default async function SettingsPage({ searchParams }: PageProps) {
                   usdQuotes={usdQuotesPromise}
                 />
               </Suspense>
-            </section>
+            </SurfaceSection>
           ) : null}
-
-          <section className="space-y-4">
-            <header>
-              <h2 className="text-sm font-semibold text-foreground">
-                Nuevo workspace grupal
-              </h2>
-              <p className="text-xs text-muted-foreground">
-                Creá un workspace compartido con miembros y saldos comunes. El
-                workspace personal no se puede eliminar.
-              </p>
-            </header>
-            <NewGroupWorkspaceForm />
-          </section>
         </div>
       ) : null}
 
@@ -151,9 +149,11 @@ export default async function SettingsPage({ searchParams }: PageProps) {
             />
           </Suspense>
         ) : (
-          <p className="text-sm text-muted-foreground">
-            Necesitás un workspace activo para gestionar categorías.
-          </p>
+          <SurfaceSection>
+            <p className="text-sm text-muted-foreground">
+              Necesitás una cuenta para gestionar categorías.
+            </p>
+          </SurfaceSection>
         )
       ) : null}
     </ContentPanel>
@@ -220,24 +220,24 @@ async function CategoriesSettingsSection({
 function ConsolidationRateSkeleton() {
   return (
     <div className="space-y-3" aria-busy aria-label="Cargando tasa">
-      <Skeleton className="h-10 w-full max-w-sm rounded-lg" />
-      <Skeleton className="h-9 w-32 rounded-full" />
+      <Skeleton className="h-10 w-full max-w-sm rounded-xl" />
+      <Skeleton className="h-10 w-32 rounded-xl" />
     </div>
   );
 }
 
 function CategoriesSettingsSkeleton() {
   return (
-    <div className="space-y-3" aria-busy aria-label="Cargando categorías">
-      <Skeleton className="h-9 w-48 rounded-lg" />
-      <ul className="divide-y divide-border rounded-lg border border-border">
+    <SurfaceSection aria-busy aria-label="Cargando categorías">
+      <Skeleton className="mb-4 h-10 w-48 rounded-xl" />
+      <ul className="-mx-2 divide-y divide-border">
         {Array.from({ length: 6 }).map((_, i) => (
-          <li key={i} className="flex items-center justify-between gap-3 px-3 py-3">
+          <li key={i} className="flex items-center justify-between gap-3 px-2 py-3">
             <Skeleton className="h-4 w-40 max-w-full" />
-            <Skeleton className="h-8 w-8 shrink-0 rounded-full" />
+            <Skeleton className="size-10 shrink-0 rounded-xl" />
           </li>
         ))}
       </ul>
-    </div>
+    </SurfaceSection>
   );
 }

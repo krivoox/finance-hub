@@ -76,7 +76,7 @@ export function useRowSelection(
   };
 }
 
-const SELECT_CELL_CLASS = "w-10 pl-3";
+const SELECT_CELL_CLASS = "hidden w-10 pl-3 sm:table-cell";
 
 export function SelectAllHead({
   selection,
@@ -142,7 +142,7 @@ export function BulkActionsBar({
   if (selection.count === 0) return null;
 
   return (
-    <div className="flex flex-wrap items-center gap-2 rounded-lg border border-border bg-muted/40 px-3 py-2">
+    <div className="flex flex-wrap items-center gap-2 rounded-xl border border-border bg-muted/40 px-3 py-2">
       <span className="text-sm text-foreground tabular-nums">
         {selection.count} {selection.count === 1 ? singular : plural}
       </span>
@@ -152,7 +152,7 @@ export function BulkActionsBar({
           type="button"
           variant="ghost"
           size="sm"
-          className="h-8 gap-1.5 text-muted-foreground"
+          className="text-muted-foreground"
           onClick={selection.clear}
         >
           <X className="size-3.5" strokeWidth={1.75} aria-hidden />

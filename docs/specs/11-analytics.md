@@ -29,7 +29,7 @@ Herramientas de análisis para comprender hábitos de consumo, oportunidades de 
 
 ## 4. Reglas de negocio
 
-- Solo type expense/income; transfers excluidas de “gastos”.
+- Solo type expense/income; transfers y `fx_*` excluidas de “gastos”. Los expenses sin categoría se agrupan en “Sin categoría” para que el total coincida con el cashflow.
 - Agregaciones en centavos; porcentajes con redondeo documentado (1 decimal en display, tests sobre base points o ratio racional).
 - Insights MVP (ejemplos):
   - Categoría con mayor gasto del periodo
@@ -82,6 +82,6 @@ Herramientas de análisis para comprender hábitos de consumo, oportunidades de 
 
 ## 9. Notas de implementación
 
-- La pantalla `/dashboard` orquesta `GetDashboard` + analytics (`getAnalytics`) en paralelo con el mismo `now`.
-- `getAnalytics` recibe `budgetsExceededCount` (número o Promise) desde el dashboard para no relistar presupuestos; las queries de txs de analytics arrancan en paralelo.
+- La pantalla `/dashboard` elige el read model según `fh-shell` (`compact` &lt; `md`, `full` ≥ `md`; default compact). Compact arranca solo `getAnalyticsHome`. Full arranca `GetDashboard` + `getAnalytics`. CSS no evita trabajo RSC: no se monta el árbol que no corresponde.
+- Las txs de analytics se cargan una vez por request (`React.cache`); el home móvil solo espera serie mensual + gastos por categoría por mes (no presupuestos ni insights). `getAnalytics` usa `listBudgetsWithStatus` (mismo snapshot cacheado que el dashboard) para el insight `budgetsExceededCount`.
 - El insight `budgetsExceededCount` sigue siendo reglas puras sobre ese conteo (TDD en domain).

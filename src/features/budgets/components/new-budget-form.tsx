@@ -17,10 +17,12 @@ import {
   FormSection,
   FormStack,
 } from "@/components/form-sheet";
+import { AmountInput } from "@/components/amount-input";
 import { DateField } from "@/components/date-field";
 import { Button } from "@/components/ui/button";
 import { refreshAfterMutation } from "@/lib/navigation";
 import { Input } from "@/components/ui/input";
+import { parseAmountCents } from "@/domain/money/parse-amount";
 import { nativeSelectClassName } from "@/components/ui/native-select";
 import { BUDGET_PERIOD_LABEL_ES } from "./period-labels";
 
@@ -97,13 +99,8 @@ export function NewBudgetForm({
   );
 
   const onSubmit = handleSubmit((values) => {
-    const parsedUnits = Number(values.limitUnits.replace(",", "."));
-    if (!Number.isFinite(parsedUnits) || parsedUnits <= 0) {
-      toast.error("El límite debe ser mayor a 0");
-      return;
-    }
-    const limitCents = Math.round(parsedUnits * 100);
-    if (!Number.isInteger(limitCents) || limitCents <= 0) {
+    const limitCents = parseAmountCents(values.limitUnits);
+    if (limitCents === null) {
       toast.error("El límite debe ser mayor a 0");
       return;
     }
@@ -185,14 +182,8 @@ export function NewBudgetForm({
             htmlFor="budget-limit"
             hint="Monto máximo del periodo"
           >
-            <Input
+            <AmountInput
               id="budget-limit"
-              type="number"
-              inputMode="decimal"
-              min={0}
-              step="0.01"
-              placeholder="0,00"
-              className="tabular-nums"
               aria-invalid={Boolean(errors.limitUnits)}
               {...register("limitUnits", { required: true })}
             />
@@ -278,7 +269,7 @@ export function NewBudgetForm({
           <Button
             type="button"
             variant="outline"
-            className="h-10 w-full sm:h-8 sm:w-auto"
+            className="w-full sm:w-auto"
             disabled={isBusy}
             onClick={onCancel}
           >
@@ -287,7 +278,7 @@ export function NewBudgetForm({
         ) : null}
         <Button
           type="submit"
-          className="h-10 w-full sm:h-8 sm:w-auto"
+          className="w-full sm:w-auto"
           disabled={isBusy}
         >
           {isBusy ? "Creando..." : "Crear presupuesto"}

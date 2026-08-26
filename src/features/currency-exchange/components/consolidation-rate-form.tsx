@@ -13,9 +13,14 @@ import {
   FormField,
   FormStack,
 } from "@/components/form-sheet";
+import { AmountInput } from "@/components/amount-input";
 import { DateField } from "@/components/date-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  formatDecimalInput,
+  parseDecimalNumber,
+} from "@/domain/money/parse-amount";
 import { refreshAfterMutation } from "@/lib/navigation";
 
 type FormValues = {
@@ -65,7 +70,9 @@ export function ConsolidationRateForm({
 
   const defaultArs =
     initial != null
-      ? String(rateScaledToArsPerUsd(initial.rateScaled, initial.scale))
+      ? formatDecimalInput(
+          rateScaledToArsPerUsd(initial.rateScaled, initial.scale),
+        )
       : "";
 
   const {
@@ -82,8 +89,8 @@ export function ConsolidationRateForm({
   });
 
   const onSubmit = handleSubmit((values) => {
-    const arsPerUsd = Number(values.arsPerUsd.replace(",", "."));
-    if (!Number.isFinite(arsPerUsd) || arsPerUsd <= 0) {
+    const arsPerUsd = parseDecimalNumber(values.arsPerUsd);
+    if (arsPerUsd === null) {
       toast.error("Indicá cuántos ARS vale 1 USD");
       return;
     }
@@ -127,12 +134,8 @@ export function ConsolidationRateForm({
           htmlFor="fx-rate"
           hint="Tasa manual para estimar el patrimonio consolidado"
         >
-          <Input
+          <AmountInput
             id="fx-rate"
-            type="number"
-            inputMode="decimal"
-            min={0}
-            step="0.01"
             placeholder="1400"
             className="tabular-nums"
             disabled={!canMutate || isBusy}
@@ -174,7 +177,7 @@ export function ConsolidationRateForm({
             <Button
               type="button"
               variant="outline"
-              className="h-10 w-full sm:h-8 sm:w-auto"
+              className="w-full sm:w-auto"
               disabled={isBusy}
               onClick={applyMep}
             >
@@ -187,7 +190,7 @@ export function ConsolidationRateForm({
           ) : null}
           <Button
             type="submit"
-            className="h-10 w-full sm:h-8 sm:w-auto"
+            className="w-full sm:w-auto"
             disabled={isBusy}
           >
             {isBusy ? "Guardando..." : "Guardar tasa"}

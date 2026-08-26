@@ -7,6 +7,8 @@
 | Prioridad | P0 |
 | Dependencias | — |
 
+> **KRI-29.** Las invitaciones a workspace grupal (`inviteToken`, `acceptPendingInvitationsForEmail`, cookie `fh-invite-token`) **se retiraron**. Unirse a un círculo de gastos es `JoinSplitGroup` vía `/s/[token]` ([SPEC-09](./09-financial-groups.md)).
+
 ## 1. Contexto
 
 Los usuarios deben autenticarse para acceder a sus workspaces y datos financieros. El perfil guarda preferencias que afectan periodos y formato (timezone, moneda preferida).
@@ -228,7 +230,7 @@ Además de email/password, el MVP incluye **Continuar con Google** (OAuth) como 
 - Tras **creación** de User (email signUp **o** primer OAuth): hook `user.create.after` → Workspace `personal` + Membership `owner` + `acceptPendingInvitationsForEmail`. El linking a User existente **no** debe disparar ese create.
 - UI MVP: botón en `/login` y `/registro` con RHF + Zod para el path email; sin lógica de negocio en el formulario; sin pantalla de métodos en Ajustes.
 - Invites: preservar `fh-invite-token` / `callbackURL` a través del redirect OAuth (mismo contrato que path email).
-- `getSession` y `getCurrentUser` usan `React.cache` (memo por request RSC): layout y página comparten una sola resolución de sesión/perfil. No hay cache entre navegaciones — ver [architecture.md §7.1](../architecture.md).
+- Reset de password: Better Auth `sendResetPassword` → Resend (SPEC-21). Guía: [email-resend.md](./guides/email-resend.md).
 
 ### Frontera domain vs service / Better Auth
 

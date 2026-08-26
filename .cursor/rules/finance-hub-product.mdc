@@ -28,8 +28,9 @@ Finanzas personales/familiares: cuentas, movimientos, presupuestos, objetivos y 
 
 ## UI
 
-- Fuente: `DESIGN.md` — **mobile-first**
-- Tokens semánticos; shadcn + CVA; sin hex/`zinc-*` en producto
+- Fuente: `DESIGN.md` — **mobile-first**, firma ledger navy
+- Tokens semánticos; shadcn + CVA; sin hex/`zinc-*`/`slate-*`/`blue-*` en producto
+- Shell: sidebar navy + canvas slate + `SurfaceSection`; CTA `bg-cta`
 
 ## Performance / PWA
 

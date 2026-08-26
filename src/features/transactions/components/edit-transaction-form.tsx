@@ -22,8 +22,13 @@ import {
   navigateAndRefresh,
   refreshAfterMutation,
 } from "@/lib/navigation";
+import { AmountInput } from "@/components/amount-input";
 import { DateField } from "@/components/date-field";
 import { Input } from "@/components/ui/input";
+import {
+  formatCentsAsAmountInput,
+  parseAmountCents,
+} from "@/domain/money/parse-amount";
 import { nativeSelectClassName } from "@/components/ui/native-select";
 
 type AccountOption = { id: string; name: string; currency: string };
@@ -56,18 +61,6 @@ type FormValues = {
   counterpartyAccountId: string;
 };
 
-function centsToUnits(cents: number): string {
-  return (cents / 100).toFixed(2);
-}
-
-function parseAmountCents(raw: string): number | null {
-  const parsedUnits = Number(raw.replace(",", "."));
-  if (!Number.isFinite(parsedUnits) || parsedUnits <= 0) return null;
-  const amountCents = Math.round(parsedUnits * 100);
-  if (!Number.isInteger(amountCents) || amountCents <= 0) return null;
-  return amountCents;
-}
-
 export function EditTransactionForm({
   transactionId,
   type,
@@ -94,7 +87,7 @@ export function EditTransactionForm({
 
   const { register, handleSubmit, control } = useForm<FormValues>({
     defaultValues: {
-      amountUnits: centsToUnits(amountCents),
+      amountUnits: formatCentsAsAmountInput(amountCents),
       occurredOn,
       description: description ?? "",
       categoryId: categoryId ?? "",
@@ -173,11 +166,8 @@ export function EditTransactionForm({
               htmlFor="edit-tx-amount"
               hint={`En ${currency}`}
             >
-              <Input
+              <AmountInput
                 id="edit-tx-amount"
-                type="text"
-                inputMode="decimal"
-                className="tabular-nums"
                 disabled={isBusy || linkedToGoal}
                 {...register("amountUnits")}
               />
@@ -275,7 +265,7 @@ export function EditTransactionForm({
             <Button
               type="button"
               variant="outline"
-              className="h-10 w-full sm:h-8 sm:w-auto"
+              className="w-full sm:w-auto"
               disabled={isBusy}
               onClick={onCancel}
             >
@@ -284,7 +274,7 @@ export function EditTransactionForm({
           ) : null}
           <Button
             type="submit"
-            className="h-10 w-full sm:h-8 sm:w-auto"
+            className="w-full sm:w-auto"
             disabled={isBusy}
           >
             {isBusy ? "Guardando…" : "Guardar cambios"}
@@ -317,7 +307,7 @@ export function EditTransactionForm({
               <Button
                 type="button"
                 variant="ghost"
-                className="h-10 w-full sm:h-8 sm:w-auto"
+                className="w-full sm:w-auto"
                 disabled={isBusy}
                 onClick={() => setConfirmDelete(false)}
               >
@@ -326,7 +316,7 @@ export function EditTransactionForm({
               <Button
                 type="button"
                 variant="destructive"
-                className="h-10 w-full sm:h-8 sm:w-auto"
+                className="w-full sm:w-auto"
                 disabled={isBusy}
                 onClick={onDelete}
               >

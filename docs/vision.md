@@ -41,17 +41,17 @@ Convertirse en el **centro de administración financiera del hogar**: informaci�
 1. **Claridad sobre complejidad** — números comprensibles antes que dashboards densos
 2. **Precisión** — saldos y splits deben cuadrar; el dinero no se “pierde” en redondeos opacos
 3. **Tiempo real percibido** — el estado refleja los movimientos registrados sin demora conceptual
-4. **Hogar primero** — el modelo de workspace/grupo es de primera clase, no un add-on
+4. **Hogar primero** — los círculos de gastos compartidos (`SplitGroup`: casa, asado, viaje) son de primera clase; **no** son un segundo workspace/tenant. El ledger del usuario sigue siendo personal.
 5. **Acción** — insights deben sugerir o facilitar una decisión (ahorrar, ajustar presupuesto, saldar deuda)
 6. **Rapidez percibida sin mentir** — soft-nav, prefetch y PWA; nunca saldos offline stale (SPEC-20)
 
 ## Alcance MVP (P0–P1)
 
 - Auth y perfil
-- Workspaces personales y grupales
+- Workspace personal (tenancy); sin workspace grupal como ledger
 - Cuentas, categorías, transacciones y transferencias
 - Presupuestos y objetivos básicos
-- Splits de gastos en grupos
+- Grupos de splits (`SplitGroup`: ghosts, link público, toggle en el gasto)
 - Dashboard consolidado
 
 ## Fuera de visión inicial

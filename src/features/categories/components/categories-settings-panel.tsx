@@ -12,6 +12,10 @@ import {
   FormStack,
   SegmentedControl,
 } from "@/components/form-sheet";
+import {
+  SurfaceHeader,
+  SurfaceSection,
+} from "@/components/surface-section";
 import { Badge } from "@/components/ui/badge";
 import { refreshAfterMutation } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
@@ -72,111 +76,115 @@ export function CategoriesSettingsPanel({
   const archived = categories.filter((c) => c.isArchived && c.kind === kind);
 
   return (
-    <div className="flex flex-col gap-6">
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="min-w-0 space-y-1">
-          <p className="text-sm text-muted-foreground text-pretty">
-            Categorías de <span className="text-foreground">{workspaceName}</span>
-            . Se usan en movimientos, presupuestos y analytics.
+    <div className="flex flex-col gap-5 sm:gap-6">
+      <SurfaceSection>
+        <header className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0 space-y-1">
+            <h2 className="font-heading text-sm font-extrabold tracking-tight text-foreground">
+              Categorías
+            </h2>
+            <p className="text-xs text-muted-foreground text-pretty">
+              De{" "}
+              <span className="text-foreground">{workspaceName}</span>. Se usan
+              en movimientos, presupuestos y analytics.
+            </p>
+          </div>
+          {canMutate ? (
+            <FormSheet
+              open={createOpen}
+              onOpenChange={setCreateOpen}
+              title="Nueva categoría"
+              description={`Tipo: ${kind === "expense" ? "gasto" : "ingreso"}.`}
+              size="md"
+              trigger={
+                <Button className="w-full gap-1.5 sm:w-auto">
+                  <Plus className="size-4" strokeWidth={1.75} />
+                  Nueva
+                </Button>
+              }
+            >
+              <CreateCategoryForm
+                workspaceId={workspaceId}
+                kind={kind}
+                onSuccess={() => {
+                  setCreateOpen(false);
+                  refreshAfterMutation(router);
+                }}
+                onCancel={() => setCreateOpen(false)}
+              />
+            </FormSheet>
+          ) : null}
+        </header>
+
+        <SegmentedControl
+          ariaLabel="Tipo de categoría"
+          value={kind}
+          options={KIND_OPTIONS}
+          onChange={setKind}
+        />
+
+        {active.length === 0 ? (
+          <p className="mt-4 text-sm text-muted-foreground">
+            No hay categorías de {kind === "expense" ? "gasto" : "ingreso"}{" "}
+            activas.
           </p>
-        </div>
-        {canMutate ? (
-          <FormSheet
-            open={createOpen}
-            onOpenChange={setCreateOpen}
-            title="Nueva categoría"
-            description={`Tipo: ${kind === "expense" ? "gasto" : "ingreso"}.`}
-            size="md"
-            trigger={
-              <Button className="h-10 w-full gap-1.5 sm:h-8 sm:w-auto">
-                <Plus className="size-4" strokeWidth={1.75} />
-                Nueva
-              </Button>
-            }
-          >
-            <CreateCategoryForm
-              workspaceId={workspaceId}
-              kind={kind}
-              onSuccess={() => {
-                setCreateOpen(false);
-                refreshAfterMutation(router);
-              }}
-              onCancel={() => setCreateOpen(false)}
-            />
-          </FormSheet>
-        ) : null}
-      </header>
-
-      <SegmentedControl
-        ariaLabel="Tipo de categoría"
-        value={kind}
-        options={KIND_OPTIONS}
-        onChange={setKind}
-      />
-
-      {active.length === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          No hay categorías de {kind === "expense" ? "gasto" : "ingreso"}{" "}
-          activas.
-        </p>
-      ) : (
-        <ul className="divide-y divide-border rounded-lg border border-border">
-          {active.map((category) => {
-            const system = isSystemCategory(category.name, category.kind);
-            return (
-              <li
-                key={category.id}
-                className="flex items-center justify-between gap-3 px-3 py-3"
-              >
-                <div className="flex min-w-0 flex-wrap items-center gap-2">
-                  <span className="truncate font-medium text-foreground">
-                    {category.name}
-                  </span>
-                  {system ? (
-                    <Badge variant="secondary">Sistema</Badge>
-                  ) : null}
-                </div>
-                {canMutate && !system ? (
-                  <div className="flex shrink-0 items-center gap-1">
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="icon-sm"
-                      aria-label={`Renombrar ${category.name}`}
-                      onClick={() => setRenameTarget(category)}
-                    >
-                      <Pencil strokeWidth={1.75} />
-                    </Button>
-                    <ArchiveCategoryButton
-                      workspaceId={workspaceId}
-                      categoryId={category.id}
-                      categoryName={category.name}
-                      onDone={() => refreshAfterMutation(router)}
-                    />
+        ) : (
+          <ul className="-mx-2 mt-4 divide-y divide-border">
+            {active.map((category) => {
+              const system = isSystemCategory(category.name, category.kind);
+              return (
+                <li
+                  key={category.id}
+                  className="flex min-w-0 items-center justify-between gap-3 px-2 py-3"
+                >
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
+                    <span className="truncate font-medium text-foreground">
+                      {category.name}
+                    </span>
+                    {system ? (
+                      <Badge variant="secondary">Sistema</Badge>
+                    ) : null}
                   </div>
-                ) : null}
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                  {canMutate && !system ? (
+                    <div className="flex shrink-0 items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon-sm"
+                        aria-label={`Renombrar ${category.name}`}
+                        onClick={() => setRenameTarget(category)}
+                      >
+                        <Pencil strokeWidth={1.75} />
+                      </Button>
+                      <ArchiveCategoryButton
+                        workspaceId={workspaceId}
+                        categoryId={category.id}
+                        categoryName={category.name}
+                        onDone={() => refreshAfterMutation(router)}
+                      />
+                    </div>
+                  ) : null}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </SurfaceSection>
 
       {archived.length > 0 ? (
-        <section className="space-y-2">
-          <h3 className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">
-            Archivadas
-          </h3>
-          <ul className="divide-y divide-border rounded-lg border border-dashed border-border">
+        <SurfaceSection muted>
+          <SurfaceHeader title="Archivadas" />
+          <ul className="-mx-2 divide-y divide-border">
             {archived.map((category) => (
               <li
                 key={category.id}
-                className="px-3 py-2.5 text-sm text-muted-foreground"
+                className="px-2 py-2.5 text-sm text-muted-foreground"
               >
                 {category.name}
               </li>
             ))}
           </ul>
-        </section>
+        </SurfaceSection>
       ) : null}
 
       {renameTarget ? (
@@ -257,7 +265,7 @@ function CreateCategoryForm({
         <Button
           type="button"
           variant="outline"
-          className="h-10 w-full sm:h-8 sm:w-auto"
+          className="w-full sm:w-auto"
           disabled={isPending}
           onClick={onCancel}
         >
@@ -265,7 +273,7 @@ function CreateCategoryForm({
         </Button>
         <Button
           type="submit"
-          className="h-10 w-full sm:h-8 sm:w-auto"
+          className="w-full sm:w-auto"
           disabled={isPending || !name.trim()}
         >
           {isPending ? "Creando…" : "Crear"}
@@ -325,7 +333,7 @@ function RenameCategoryForm({
         <Button
           type="button"
           variant="outline"
-          className="h-10 w-full sm:h-8 sm:w-auto"
+          className="w-full sm:w-auto"
           disabled={isPending}
           onClick={onCancel}
         >
@@ -333,7 +341,7 @@ function RenameCategoryForm({
         </Button>
         <Button
           type="submit"
-          className="h-10 w-full sm:h-8 sm:w-auto"
+          className="w-full sm:w-auto"
           disabled={isPending || !name.trim()}
         >
           {isPending ? "Guardando…" : "Guardar"}

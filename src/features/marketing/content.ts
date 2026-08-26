@@ -35,8 +35,8 @@ export const LANDING_FEATURE_CARDS = [
     tone: "info" as const,
   },
   {
-    title: "Espacio compartido",
-    body: "Invitá a tu pareja o familia, repartí gastos y saldá balances sin planillas eternas.",
+    title: "Gastos compartidos",
+    body: "Casa o asado: sumá a alguien con el nombre o un enlace de WhatsApp. No hace falta que instale la app.",
     tone: "warning" as const,
   },
   {
@@ -148,16 +148,18 @@ export const LANDING_AUDIENCE = {
     },
     {
       title: "Hogar",
-      body: "Varios miembros, roles, invitaciones y una verdad financiera del grupo.",
+      body: "Gastos de casa o del asado, con nombre o enlace. Quien no tiene la app igual entra en el saldo.",
     },
   ],
-  anti:
-    "No está pensada para trading, contabilidad fiscal de empresa ni para “conectar el banco y olvidarse”.",
+  anti: "No está pensada para trading, contabilidad fiscal de empresa ni para “conectar el banco y olvidarse”.",
 } as const;
 
 export const LANDING_EARLY_ACCESS = {
   h2: "Acceso temprano",
   body: "Finance Hub está en desarrollo activo (beta de producto). Todavía no hay pricing público. Crear cuenta te deja usar el producto mientras validamos el centro financiero del hogar. Cuando haya planes, lo comunicaremos con claridad — sin sorpresas de “gratis para siempre”.",
+  newsletterTitle: "Novedades por email",
+  newsletterBody:
+    "Si todavía no querés crear cuenta, dejá tu email y te avisamos cuando haya avances.",
 } as const;
 
 export const LANDING_FINAL_CTA = {

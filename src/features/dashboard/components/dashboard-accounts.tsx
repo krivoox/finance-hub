@@ -43,7 +43,7 @@ export function DashboardAccounts({ accounts }: DashboardAccountsProps) {
         title="Cuentas"
         description="Saldos del espacio"
         action={
-          <Button variant="ghost" size="sm" className="h-8 rounded-full" asChild>
+          <Button variant="ghost" size="sm" asChild>
             <Link href="/accounts">Ver todas</Link>
           </Button>
         }
@@ -65,7 +65,7 @@ export function DashboardAccounts({ accounts }: DashboardAccountsProps) {
             return (
               <li
                 key={account.id}
-                className="flex items-center gap-3 py-2.5 first:pt-0 last:pb-0"
+                className="flex min-w-0 items-center gap-3 py-2.5 first:pt-0 last:pb-0"
               >
                 <span
                   className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground"
@@ -84,13 +84,13 @@ export function DashboardAccounts({ accounts }: DashboardAccountsProps) {
                   </p>
                 </div>
 
-                <div className="flex shrink-0 items-center gap-2">
-                  <Badge variant="outline" className="h-5 px-1.5 text-[10px]">
+                <div className="flex min-w-0 max-w-[48%] shrink-0 items-center justify-end gap-1.5">
+                  <Badge variant="outline" className="h-5 shrink-0 px-1.5 text-[10px]">
                     {account.currency}
                   </Badge>
                   <p
                     className={cn(
-                      "text-sm font-medium tabular-nums",
+                      "min-w-0 truncate text-right text-xs tabular sm:text-sm",
                       isNegative || isCreditDebt
                         ? "text-expense"
                         : "text-foreground",
@@ -106,12 +106,7 @@ export function DashboardAccounts({ accounts }: DashboardAccountsProps) {
         </ul>
       )}
 
-      <Button
-        variant="outline"
-        size="sm"
-        className="mt-4 h-9 w-full rounded-full"
-        asChild
-      >
+      <Button variant="outline" className="mt-4 w-full" asChild>
         <Link href="/accounts/new">Agregar cuenta</Link>
       </Button>
     </SurfaceSection>

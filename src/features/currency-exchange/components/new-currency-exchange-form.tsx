@@ -14,9 +14,11 @@ import {
   FormSection,
   FormStack,
 } from "@/components/form-sheet";
+import { AmountInput } from "@/components/amount-input";
 import { DateField } from "@/components/date-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { parseAmountCents } from "@/domain/money/parse-amount";
 import { nativeSelectClassName } from "@/components/ui/native-select";
 import { refreshAfterMutation } from "@/lib/navigation";
 
@@ -48,14 +50,6 @@ function todayIsoDate(): string {
   const m = String(now.getMonth() + 1).padStart(2, "0");
   const d = String(now.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
-}
-
-function parseAmountCents(raw: string): number | null {
-  const parsedUnits = Number(raw.replace(",", "."));
-  if (!Number.isFinite(parsedUnits) || parsedUnits <= 0) return null;
-  const amountCents = Math.round(parsedUnits * 100);
-  if (!Number.isInteger(amountCents) || amountCents <= 0) return null;
-  return amountCents;
 }
 
 const SELECT_CLASSES = nativeSelectClassName;
@@ -186,14 +180,8 @@ export function NewCurrencyExchangeForm({
             htmlFor="fx-from-amount"
             hint={fromAccount ? `En ${fromAccount.currency}` : undefined}
           >
-            <Input
+            <AmountInput
               id="fx-from-amount"
-              type="number"
-              inputMode="decimal"
-              min={0}
-              step="0.01"
-              placeholder="0,00"
-              className="tabular-nums"
               {...register("fromAmountUnits", { required: true })}
             />
           </FormField>
@@ -219,14 +207,8 @@ export function NewCurrencyExchangeForm({
             htmlFor="fx-to-amount"
             hint={toAccount ? `En ${toAccount.currency}` : undefined}
           >
-            <Input
+            <AmountInput
               id="fx-to-amount"
-              type="number"
-              inputMode="decimal"
-              min={0}
-              step="0.01"
-              placeholder="0,00"
-              className="tabular-nums"
               {...register("toAmountUnits", { required: true })}
             />
           </FormField>
@@ -274,7 +256,7 @@ export function NewCurrencyExchangeForm({
           <Button
             type="button"
             variant="outline"
-            className="h-10 w-full sm:h-8 sm:w-auto"
+            className="w-full sm:w-auto"
             disabled={isBusy}
             onClick={onCancel}
           >
@@ -283,7 +265,7 @@ export function NewCurrencyExchangeForm({
         ) : null}
         <Button
           type="submit"
-          className="h-10 w-full sm:h-8 sm:w-auto"
+          className="w-full sm:w-auto"
           disabled={isBusy}
         >
           {isBusy ? "Guardando..." : "Registrar canje"}

@@ -14,7 +14,6 @@ import {
   type DashboardPeriod,
   type DashboardTransaction,
   type GoalProgressItem,
-  type MemberBalanceItem,
   type MonthlyCashflow,
   type TotalBalance,
 } from "@/features/dashboard/domain";
@@ -33,8 +32,6 @@ import {
   previewUpcomingForDashboard,
   type UpcomingRecurringItem,
 } from "@/features/recurring/services";
-import { getMemberBalances } from "@/features/splits/services";
-import { NotAGroupWorkspaceError } from "@/features/splits/domain";
 import { requireMembership } from "@/features/workspaces/services";
 
 export type GetDashboardInput = {
@@ -56,7 +53,7 @@ export type DashboardFxRate = {
 
 export type GetDashboardResult = {
   workspaceId: string;
-  workspaceType: "personal" | "group";
+  workspaceType: "personal";
   currency: string;
   period: DashboardPeriod;
   totalBalance: TotalBalance;
@@ -70,7 +67,6 @@ export type GetDashboardResult = {
   /** Non-archived budgets with progress.status === "exceeded". */
   budgetsExceededCount: number;
   goalsProgress: GoalProgressItem[];
-  memberBalances: MemberBalanceItem[] | null;
   upcomingRecurring: UpcomingRecurringItem[];
 };
 
@@ -78,17 +74,12 @@ const DEFAULT_RECENT_LIMIT = 10;
 
 /**
  * SPEC-12 GetDashboard — full read model: balance, cashflow, recent txs,
- * budgets at risk, active goals, and member balances for group workspaces.
+ * budgets at risk, active goals.
  */
 export async function getDashboard(
   input: GetDashboardInput,
 ): Promise<GetDashboardResult> {
   await requireMembership(input.userId, input.workspaceId);
-
-  const workspace = await prisma.workspace.findUniqueOrThrow({
-    where: { id: input.workspaceId },
-    select: { type: true },
-  });
 
   const now = input.now ?? new Date();
   const period = getCurrentMonthPeriod(now, input.timezone);
@@ -138,37 +129,6 @@ export async function getDashboard(
     }),
   ]);
 
-  let memberBalances: MemberBalanceItem[] | null = null;
-  if (workspace.type === "group") {
-    try {
-      const balances = await getMemberBalances({
-        userId: input.userId,
-        workspaceId: input.workspaceId,
-      });
-      const members = await prisma.membership.findMany({
-        where: { workspaceId: input.workspaceId },
-        include: {
-          user: {
-            select: { id: true, name: true, displayName: true, email: true },
-          },
-        },
-      });
-      const nameById = new Map(
-        members.map((m) => [
-          m.userId,
-          m.user.displayName?.trim() || m.user.name || m.user.email,
-        ]),
-      );
-      memberBalances = balances.map((b) => ({
-        ...b,
-        displayName: nameById.get(b.userId),
-      }));
-    } catch (err) {
-      if (!(err instanceof NotAGroupWorkspaceError)) throw err;
-      memberBalances = null;
-    }
-  }
-
   const balancesMap = computeBalancesByCurrency(accounts);
   const balancesByCurrency = balancesByCurrencyEntries(balancesMap);
 
@@ -193,7 +153,7 @@ export async function getDashboard(
 
   return {
     workspaceId: input.workspaceId,
-    workspaceType: workspace.type as "personal" | "group",
+    workspaceType: "personal",
     currency: input.currency,
     period,
     totalBalance: computeTotalBalance(accounts, input.currency),
@@ -216,7 +176,6 @@ export async function getDashboard(
       (b) => !b.isArchived && b.progress.status === "exceeded",
     ).length,
     goalsProgress: selectActiveGoalsProgress(goals),
-    memberBalances,
     upcomingRecurring: upcomingRecurring.slice(0, 5),
   };
 }

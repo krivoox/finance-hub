@@ -19,7 +19,7 @@ Fuente de verdad en [`docs/`](./docs/README.md):
 
 - Next.js 16 · React 19 · TypeScript · Tailwind 4 · shadcn
 - Better Auth · Prisma · PostgreSQL (Supabase)
-- Zod · React Hook Form · TanStack Query · Zustand (UI)
+- Zod · React Hook Form · Zustand (UI)
 - Vitest para TDD de dominio (no UI)
 
 Detalle: [docs/stack.md](./docs/stack.md).

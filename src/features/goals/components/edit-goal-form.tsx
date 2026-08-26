@@ -17,9 +17,14 @@ import {
   FormStack,
   SegmentedControl,
 } from "@/components/form-sheet";
+import { AmountInput } from "@/components/amount-input";
 import { DateField } from "@/components/date-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  formatCentsAsAmountInput,
+  parseAmountCents,
+} from "@/domain/money/parse-amount";
 import { refreshAfterMutation } from "@/lib/navigation";
 import {
   AccountChoiceList,
@@ -56,10 +61,6 @@ const KIND_OPTIONS = GOAL_KINDS.map((value) => ({
   label: GOAL_KIND_LABEL_ES[value],
 }));
 
-function centsToUnits(cents: number): string {
-  return (cents / 100).toFixed(2);
-}
-
 export function EditGoalForm({
   goal,
   accounts,
@@ -78,7 +79,7 @@ export function EditGoalForm({
     defaultValues: {
       name: goal.name,
       kind: goal.kind,
-      targetAmountUnits: centsToUnits(goal.targetAmountCents),
+      targetAmountUnits: formatCentsAsAmountInput(goal.targetAmountCents),
       targetDate: goal.targetDate ?? "",
       linkedAccountId: goal.linkedAccountId ?? "",
     },
@@ -92,13 +93,8 @@ export function EditGoalForm({
   );
 
   const onSubmit = handleSubmit((values) => {
-    const parsedUnits = Number(values.targetAmountUnits.replace(",", "."));
-    if (!Number.isFinite(parsedUnits) || parsedUnits <= 0) {
-      toast.error("Monto objetivo inválido");
-      return;
-    }
-    const targetAmountCents = Math.round(parsedUnits * 100);
-    if (!Number.isInteger(targetAmountCents) || targetAmountCents <= 0) {
+    const targetAmountCents = parseAmountCents(values.targetAmountUnits);
+    if (targetAmountCents === null) {
       toast.error("Monto objetivo inválido");
       return;
     }
@@ -173,13 +169,8 @@ export function EditGoalForm({
           htmlFor="edit-goal-target"
           hint={`En ${goal.currency}. Si el nuevo monto es menor o igual a lo aportado, se marca completado.`}
         >
-          <Input
+          <AmountInput
             id="edit-goal-target"
-            type="number"
-            inputMode="decimal"
-            min={0}
-            step="0.01"
-            className="tabular-nums"
             aria-invalid={Boolean(errors.targetAmountUnits)}
             {...register("targetAmountUnits", { required: true })}
           />
@@ -243,7 +234,7 @@ export function EditGoalForm({
           <Button
             type="button"
             variant="outline"
-            className="h-10 w-full sm:h-8 sm:w-auto"
+            className="w-full sm:w-auto"
             disabled={isBusy}
             onClick={onCancel}
           >
@@ -252,7 +243,7 @@ export function EditGoalForm({
         ) : null}
         <Button
           type="submit"
-          className="h-10 w-full sm:h-8 sm:w-auto"
+          className="w-full sm:w-auto"
           disabled={isBusy}
         >
           {isBusy ? "Guardando..." : "Guardar"}

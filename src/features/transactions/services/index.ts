@@ -34,20 +34,7 @@ export { getTransactionDetail } from "./get-transaction-detail";
 export type {
   TransactionDetail,
   TransactionSplitDetail,
-  CrossWorkspaceLinkDetail,
 } from "./get-transaction-detail";
-
-export { createCrossWorkspaceContribution } from "./create-cross-workspace-contribution";
-export type {
-  CreateCrossWorkspaceContributionInput,
-  CrossWorkspaceContributionResult,
-} from "./create-cross-workspace-contribution";
-
-export { listPaymentAccountsForUser } from "./list-payment-accounts";
-export type {
-  PaymentAccountGroup,
-  PaymentAccountOption,
-} from "./list-payment-accounts";
 
 export {
   loadAccountBalanceEffects,

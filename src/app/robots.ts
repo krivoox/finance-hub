@@ -19,7 +19,7 @@ export default function robots(): MetadataRoute.Robots {
           "/groups",
           "/settings",
           "/onboarding",
-          "/invitaciones",
+          "/s/",
           "/api/",
         ],
       },

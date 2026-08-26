@@ -7,6 +7,70 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **ui:** Apply ledger navy design system and restyle transactions
+
+- **ui:** Roll out ledger navy across the app
+
+- **ui:** Colorful nav glyphs and mobile-first money rows
+
+- **dashboard:** Compact mobile home without desktop read models
+
+- **performance:** Accelerate navigation and money refreshes
+
+- Replace group workspaces with SplitGroups
+
+- Drop group kind and add group and member ABM
+
+- Show split-group spending by category
+
+- **email:** Integrate Resend for password reset and marketing
+
+### Fixed
+
+- **ui:** Keep the mobile tab bar in view and avoid stale JS in next dev
+
+- **nav:** Keep mobile Más sheet inside sidebar context
+
+- Stop app shell 500 on leftover group workspaces
+
+- Keep existing ledgers as the implicit personal account
+
+- Open the ledger that already has accounts, not empty personal
+
+- Show the split-group invite URL on the group page
+
+- Refetch split groups when opening Registrar
+
+- Restyle groups UI to match the ledger
+
+- **nav:** Add inline theme control for modal sheets
+
+- **nav:** Drop duplicate account header in Más sheet
+
+- Keep the post-expense splash visible and lift dimmed numbers
+
+- Advance goal progress bars on small contributions
+
+- Keep recurring confirm actions inside the table
+
+- Hide the unused currency-exchange create button
+
+- **ui:** Pin FormSheet CTAs and lock background scroll
+
+- **categories:** Do not autofocus the category search field
+
+- **money:** Parse amount inputs with a canonical comma decimal
+
+- **forms:** Open a decimal keypad and use comma in amount fields
+
+- **email:** Keep public reset and newsletter forms from hanging
+
+- **auth:** Confirm password reset immediately without waiting
+
+[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.16.0...HEAD
+
 ## [0.16.0] - 2026-08-14
 
 ### Added

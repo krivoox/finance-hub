@@ -14,7 +14,7 @@ import { getUsdQuotes } from "@/features/fx-quotes/services";
 import { env } from "@/lib/env";
 
 /** Routes that live outside this layout but may still set x-pathname while app chrome loads. */
-const SETUP_EXEMPT_PREFIXES = ["/invitaciones"];
+const SETUP_EXEMPT_PREFIXES = ["/s"];
 
 function isSetupExempt(pathname: string): boolean {
   return SETUP_EXEMPT_PREFIXES.some(
@@ -50,18 +50,32 @@ export default async function AppLayout({
         })
       : Promise.resolve({} as NavBadges),
   );
+  const setupStatusPromise = activeWorkspacePromise.then((workspace) =>
+    workspace
+      ? getWorkspaceSetupStatus({
+          userId: session.user.id,
+          workspaceId: workspace.id,
+        })
+      : Promise.resolve(null),
+  );
 
-  const [user, workspaces, activeWorkspace, navBadges, headerList, usdQuotes] =
-    await Promise.all([
-      getCurrentUser(),
-      listMyWorkspaces(session.user.id),
-      activeWorkspacePromise,
-      navBadgesPromise,
-      headers(),
-      env.USD_QUOTES_ENABLED
-        ? getUsdQuotes()
-        : Promise.resolve(null),
-    ]);
+  const [
+    user,
+    workspaces,
+    activeWorkspace,
+    navBadges,
+    headerList,
+    usdQuotes,
+    setup,
+  ] = await Promise.all([
+    getCurrentUser(),
+    listMyWorkspaces(session.user.id),
+    activeWorkspacePromise,
+    navBadgesPromise,
+    headers(),
+    env.USD_QUOTES_ENABLED ? getUsdQuotes() : Promise.resolve(null),
+    setupStatusPromise,
+  ]);
 
   if (!user) {
     redirect("/login");
@@ -69,14 +83,8 @@ export default async function AppLayout({
 
   const pathname = headerList.get("x-pathname") ?? "";
 
-  if (activeWorkspace && !isSetupExempt(pathname)) {
-    const setup = await getWorkspaceSetupStatus({
-      userId: session.user.id,
-      workspaceId: activeWorkspace.id,
-    });
-    if (setup.needsSetup) {
-      redirect("/onboarding");
-    }
+  if (setup && !isSetupExempt(pathname) && setup.needsSetup) {
+    redirect("/onboarding");
   }
 
   const displayName = user.displayName ?? user.name;

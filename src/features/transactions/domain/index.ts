@@ -71,13 +71,9 @@ export {
 export {
   currenciesPresentInAccounts,
   filterAccountsByCurrency,
-  filterPaymentGroupsByCurrency,
   resolveTransactionFormCurrency,
 } from "./currency";
-export type {
-  AccountCurrencyOption,
-  PaymentAccountGroupLike,
-} from "./currency";
+export type { AccountCurrencyOption } from "./currency";
 
 export {
   initialTypeFromCreateParam,
@@ -107,19 +103,3 @@ export {
   assertCanMutateTransactions,
   assertCanReadTransactions,
 } from "./authz";
-
-export {
-  formatPaymentAccountLabel,
-  isExternallyFundedAccount,
-} from "./payment-account-label";
-export type { PaymentAccountLabelInput } from "./payment-account-label";
-
-export {
-  assertCanContribute,
-  assertCanMutateContributionTwin,
-  SameWorkspaceContributionError,
-} from "./contribution";
-export type {
-  ContributionAccountLike,
-  ContributionMembershipLike,
-} from "./contribution";

@@ -1,12 +1,12 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/session";
 import {
   contributeToGoalSchema,
   type ContributeToGoalInput,
 } from "@/features/goals/schemas";
 import { contributeToGoal as contributeToGoalService } from "@/features/goals/services";
+import { revalidateMoneyPaths } from "@/features/transactions/actions/revalidate-money-paths";
 import { goalErrorToMessage, type ActionResult } from "./errors";
 
 export async function contributeToGoalAction(
@@ -39,10 +39,7 @@ export async function contributeToGoalAction(
         contributedOn: parsed.data.contributedOn,
         note: parsed.data.note ?? null,
       });
-    revalidatePath("/goals");
-    revalidatePath("/transactions");
-    revalidatePath("/accounts");
-    revalidatePath("/dashboard");
+    revalidateMoneyPaths({ goals: true });
     return {
       ok: true,
       data: {

@@ -2,12 +2,13 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Filter, X } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 
 import {
   FormActions,
   FormField,
   FormSheet,
+  FormSheetBody,
   FormStack,
   SegmentedControl,
 } from "@/components/form-sheet";
@@ -52,11 +53,11 @@ const TYPE_OPTIONS: { value: ListTypeFilter; label: string }[] = [
 
 function chipClass(active: boolean) {
   return cn(
-    "inline-flex h-9 shrink-0 items-center justify-center rounded-full px-3 text-sm font-medium transition-colors",
+    "inline-flex h-9 shrink-0 items-center justify-center rounded-full px-3.5 text-sm font-medium transition-colors",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
     active
-      ? "bg-info-muted text-info-muted-foreground"
-      : "bg-muted/60 text-muted-foreground hover:bg-muted hover:text-foreground",
+      ? "bg-muted text-foreground"
+      : "text-muted-foreground hover:bg-muted/70 hover:text-foreground",
   );
 }
 
@@ -222,18 +223,17 @@ export function TransactionsListToolbar({
         <Button
           type="button"
           variant="outline"
-          size="sm"
-          className="ml-auto h-9 shrink-0 gap-1.5 rounded-full px-3"
+          className="ml-auto h-9 shrink-0 gap-1.5 rounded-xl px-3"
           disabled={pending}
           onClick={openFiltersSheet}
         >
-          <Filter className="size-3.5" aria-hidden />
           Filtros
           {denseFilterCount > 0 ? (
             <Badge variant="info" className="h-5 min-w-5 px-1.5">
               {denseFilterCount}
             </Badge>
           ) : null}
+          <ChevronDown className="size-3.5" aria-hidden />
         </Button>
       </div>
 
@@ -283,99 +283,99 @@ export function TransactionsListToolbar({
         title="Filtros"
         description="Periodo personalizado, tipo, cuenta y categoría (AND)."
         size="md"
+        layout="fill"
       >
-        <FormStack>
-          <FormField label="Desde" htmlFor="tx-filter-from" optional>
-            <DateField
-              id="tx-filter-from"
-              triggerClassName="h-10 sm:h-9"
-              clearable
-              placeholder="Sin límite"
-              value={draftFrom}
-              invalid={Boolean(rangeError)}
-              max={draftTo || undefined}
-              onChange={(next) => {
-                setDraftFrom(next);
-                setRangeError(null);
-              }}
-            />
-          </FormField>
-          <FormField
-            label="Hasta"
-            htmlFor="tx-filter-to"
-            optional
-            error={rangeError ?? undefined}
-          >
-            <DateField
-              id="tx-filter-to"
-              triggerClassName="h-10 sm:h-9"
-              clearable
-              placeholder="Sin límite"
-              value={draftTo}
-              invalid={Boolean(rangeError)}
-              min={draftFrom || undefined}
-              onChange={(next) => {
-                setDraftTo(next);
-                setRangeError(null);
-              }}
-            />
-          </FormField>
+        <div className="flex min-h-0 flex-1 flex-col">
+          <FormSheetBody>
+            <FormStack>
+              <FormField label="Desde" htmlFor="tx-filter-from" optional>
+                <DateField
+                  id="tx-filter-from"
+                  triggerClassName=""
+                  clearable
+                  placeholder="Sin límite"
+                  value={draftFrom}
+                  invalid={Boolean(rangeError)}
+                  max={draftTo || undefined}
+                  onChange={(next) => {
+                    setDraftFrom(next);
+                    setRangeError(null);
+                  }}
+                />
+              </FormField>
+              <FormField
+                label="Hasta"
+                htmlFor="tx-filter-to"
+                optional
+                error={rangeError ?? undefined}
+              >
+                <DateField
+                  id="tx-filter-to"
+                  triggerClassName=""
+                  clearable
+                  placeholder="Sin límite"
+                  value={draftTo}
+                  invalid={Boolean(rangeError)}
+                  min={draftFrom || undefined}
+                  onChange={(next) => {
+                    setDraftTo(next);
+                    setRangeError(null);
+                  }}
+                />
+              </FormField>
 
-          <FormField label="Tipo" htmlFor="tx-filter-type">
-            <SegmentedControl
-              id="tx-filter-type"
-              ariaLabel="Tipo de movimiento"
-              value={draftType}
-              options={TYPE_OPTIONS}
-              onChange={setDraftType}
-            />
-          </FormField>
+              <FormField label="Tipo" htmlFor="tx-filter-type">
+                <SegmentedControl
+                  id="tx-filter-type"
+                  ariaLabel="Tipo de movimiento"
+                  value={draftType}
+                  options={TYPE_OPTIONS}
+                  onChange={setDraftType}
+                />
+              </FormField>
 
-          <FormField label="Cuenta" htmlFor="tx-filter-account" optional>
-            <select
-              id="tx-filter-account"
-              className={nativeSelectClassName}
-              value={draftAccountId}
-              onChange={(e) => setDraftAccountId(e.target.value)}
-            >
-              <option value="">Todas</option>
-              {accounts.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.name}
-                </option>
-              ))}
-            </select>
-          </FormField>
+              <FormField label="Cuenta" htmlFor="tx-filter-account" optional>
+                <select
+                  id="tx-filter-account"
+                  className={nativeSelectClassName}
+                  value={draftAccountId}
+                  onChange={(e) => setDraftAccountId(e.target.value)}
+                >
+                  <option value="">Todas</option>
+                  {accounts.map((a) => (
+                    <option key={a.id} value={a.id}>
+                      {a.name}
+                    </option>
+                  ))}
+                </select>
+              </FormField>
 
-          <FormField label="Categoría" htmlFor="tx-filter-category" optional>
-            <CategoryPicker
-              mode="single"
-              id="tx-filter-category"
-              categories={categories}
-              value={draftCategoryId || null}
-              onChange={(id) => setDraftCategoryId(id ?? "")}
-              placeholder="Todas"
-            />
-          </FormField>
-
-          <FormActions>
+              <FormField label="Categoría" htmlFor="tx-filter-category" optional>
+                <CategoryPicker
+                  mode="single"
+                  id="tx-filter-category"
+                  categories={categories}
+                  value={draftCategoryId || null}
+                  onChange={(id) => setDraftCategoryId(id ?? "")}
+                  placeholder="Todas"
+                />
+              </FormField>
+            </FormStack>
+          </FormSheetBody>
+          <FormActions sticky>
             <Button
               type="button"
               variant="ghost"
-              className="h-10 w-full sm:h-9 sm:w-auto"
+              className="w-full"
               onClick={clearFilters}
             >
               Limpiar
             </Button>
-            <Button
-              type="button"
-              className="h-10 w-full sm:h-9 sm:w-auto"
-              onClick={applyFilters}
-            >
+            <Button type="button" className="w-full" onClick={applyFilters}>
               Aplicar
             </Button>
           </FormActions>
-        </FormStack>
+        </div>
       </FormSheet>
     </div>
   );

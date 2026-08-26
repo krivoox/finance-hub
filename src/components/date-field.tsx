@@ -104,7 +104,7 @@ export function DateField({
           disabled={disabled}
           aria-invalid={invalid || undefined}
           className={cn(
-            "flex h-8 w-full min-w-0 items-center gap-2 rounded-lg border border-input bg-transparent px-2.5 py-1 text-left text-base transition-colors outline-none",
+            "flex h-10 w-full min-w-0 items-center gap-2 rounded-xl border border-input bg-transparent px-3 py-1 text-left text-base transition-colors outline-none",
             "hover:border-ring/40 focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
             "data-[state=open]:border-ring data-[state=open]:ring-3 data-[state=open]:ring-ring/50",
             "disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50",

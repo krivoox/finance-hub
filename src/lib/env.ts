@@ -26,10 +26,7 @@ const envSchema = z.object({
   /** Vercel system: deployment hostname without protocol. */
   VERCEL_URL: z.string().optional(),
 
-  NEXT_PUBLIC_SUPABASE_URL: z
-    .string()
-    .url()
-    .default("http://127.0.0.1:54321"),
+  NEXT_PUBLIC_SUPABASE_URL: z.string().url().default("http://127.0.0.1:54321"),
   /** Public anon key. Unused until Storage ships with its own RLS (KRI-18). */
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().default(""),
 
@@ -67,6 +64,20 @@ const envSchema = z.object({
 
   /** Bearer for /api/cron/* routes (Vercel Cron). */
   CRON_SECRET: z.string().min(1).optional(),
+
+  /**
+   * Resend (SPEC-21 / KRI-17). Optional so local/CI boot without email.
+   * Production password reset and marketing require this key.
+   */
+  RESEND_API_KEY: z.string().min(1).optional(),
+  /**
+   * Verified sender. Sandbox default only delivers to the Resend account email.
+   * Production: use a domain verified in Resend (SPF/DKIM/DMARC).
+   */
+  EMAIL_FROM: z.string().min(1).default("Finance Hub <onboarding@resend.dev>"),
+  EMAIL_REPLY_TO: z.string().email().optional(),
+  /** Segment of opted-in product-update contacts (broadcasts). */
+  RESEND_MARKETING_SEGMENT_ID: z.string().min(1).optional(),
 });
 
 /**
@@ -125,5 +136,8 @@ export const env = {
 export const isGoogleOAuthEnabled = Boolean(
   env.GOOGLE_CLIENT_ID && env.GOOGLE_CLIENT_SECRET,
 );
+
+/** True when the Resend SDK can send (transactional + marketing). */
+export const isResendEnabled = Boolean(env.RESEND_API_KEY);
 
 export type Env = typeof env;

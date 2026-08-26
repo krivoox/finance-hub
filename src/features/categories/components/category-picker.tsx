@@ -168,6 +168,7 @@ function CategoryPickerPanel({
           onChange={(e) => onQueryChange(e.target.value)}
           placeholder="Buscar…"
           autoComplete="off"
+          autoFocus={false}
           className="h-10 pl-8 sm:h-9"
         />
       </div>
@@ -259,6 +260,10 @@ function CategoryPickerPanel({
       </ul>
     </div>
   );
+}
+
+function preventSearchAutofocus(event: Event) {
+  event.preventDefault();
 }
 
 export function CategoryPicker(props: CategoryPickerProps) {
@@ -396,6 +401,7 @@ export function CategoryPicker(props: CategoryPickerProps) {
             side="bottom"
             className="gap-0 rounded-t-xl p-0"
             showCloseButton
+            onOpenAutoFocus={preventSearchAutofocus}
           >
             <SheetHeader className="border-b border-border px-4 pt-4 pb-3">
               <SheetTitle>
@@ -419,10 +425,7 @@ export function CategoryPicker(props: CategoryPickerProps) {
       <PopoverContent
         align="start"
         className="w-[var(--radix-popover-trigger-width)] min-w-64 p-3"
-        onOpenAutoFocus={(e) => {
-          e.preventDefault();
-          document.getElementById(searchId)?.focus();
-        }}
+        onOpenAutoFocus={preventSearchAutofocus}
       >
         {panel}
       </PopoverContent>

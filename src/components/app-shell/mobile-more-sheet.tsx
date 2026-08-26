@@ -19,10 +19,6 @@ import { useCafecitoDialogStore } from "@/features/cafecito/stores/cafecito-dial
 import { signOut } from "@/lib/auth-client";
 import { navigateAndRefresh } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
-import {
-  WorkspaceSwitcher,
-  type WorkspaceOption,
-} from "@/features/workspaces/components/workspace-switcher";
 
 import {
   applyNavBadges,
@@ -30,6 +26,7 @@ import {
   mobileMoreNavItems,
   type NavBadges,
 } from "./nav-config";
+import { NavGlyph } from "./nav-glyph";
 import type { SidebarUser } from "./app-sidebar";
 import { navIntentPrefetchHandlers } from "./use-nav-prefetch";
 
@@ -37,22 +34,18 @@ type MobileMoreSheetProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   user: SidebarUser;
-  workspaces: readonly WorkspaceOption[];
-  activeWorkspace: WorkspaceOption | null;
   navBadges?: NavBadges;
   cafecitoUrl?: string | null;
 };
 
 /**
  * Overflow menu for mobile tab bar — routes outside the 4 primary tabs,
- * plus workspace, theme, and sign-out.
+ * plus theme and sign-out.
  */
 export function MobileMoreSheet({
   open,
   onOpenChange,
   user,
-  workspaces,
-  activeWorkspace,
   navBadges = {},
   cafecitoUrl = null,
 }: MobileMoreSheetProps) {
@@ -94,15 +87,9 @@ export function MobileMoreSheet({
         </SheetHeader>
 
         <div className="flex flex-col gap-4 px-4 pt-3">
-          <WorkspaceSwitcher
-            active={activeWorkspace}
-            workspaces={workspaces}
-          />
-
           <nav aria-label="Más destinos">
             <ul className="grid gap-0.5">
               {items.map((item) => {
-                const Icon = item.icon;
                 const active = isNavItemActive(pathname, item.href);
                 return (
                   <li key={item.href}>
@@ -118,7 +105,7 @@ export function MobileMoreSheet({
                           : "text-foreground hover:bg-muted/60",
                       )}
                     >
-                      <Icon className="size-4 shrink-0" strokeWidth={1.75} />
+                      <NavGlyph>{item.glyph}</NavGlyph>
                       <span className="min-w-0 flex-1 truncate">
                         {item.title}
                       </span>
@@ -144,7 +131,7 @@ export function MobileMoreSheet({
           </nav>
 
           <div className="border-t border-border pt-3">
-            <ThemeToggle />
+            <ThemeToggle variant="inline" />
           </div>
 
           {cafecitoUrl ? (

@@ -4,7 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { env } from "@/lib/env";
 import { nextCookies } from "@/lib/next-cookies";
 import { createPersonalWorkspaceForUser } from "@/features/workspaces/services/create-personal-workspace";
-import { acceptPendingInvitationsForEmail } from "@/features/workspaces/services/invitations";
+import { sendPasswordResetEmail } from "@/features/email/services/runtime";
+
 const googleClientId = env.GOOGLE_CLIENT_ID;
 const googleClientSecret = env.GOOGLE_CLIENT_SECRET;
 const googleSocialProviders =
@@ -74,11 +75,13 @@ function trustedOrigins(): string[] {
  * `BETTER_AUTH_URL` alone breaks login when Preview reuses Production URL.
  * @see https://www.better-auth.com/docs/guides/dynamic-base-url
  */
-function resolveBaseURL(): string | {
-  allowedHosts: string[];
-  protocol: "http" | "https";
-  fallback: string;
-} {
+function resolveBaseURL():
+  | string
+  | {
+      allowedHosts: string[];
+      protocol: "http" | "https";
+      fallback: string;
+    } {
   const fallback = env.BETTER_AUTH_URL;
   const canonicalHost = hostFromUrl(fallback);
   const allowedHosts = [
@@ -120,19 +123,23 @@ export const auth = betterAuth({
     minPasswordLength: 8,
     autoSignIn: true,
     /**
-     * Reset password (SPEC-01 FR-06).
-     *
-     * No SMTP configured yet. In development we log the URL so devs can copy it
-     * from the terminal; in production the callback stays as a stub until an
-     * email provider is wired. Better Auth still generates the token and
-     * validates it in the DB, so the end-to-end flow works.
+     * Reset password (SPEC-01 FR-06 / SPEC-21).
+     * Sends via Resend when `RESEND_API_KEY` is set. Failures are logged and
+     * swallowed so the public request does not enumerate whether the email exists.
      */
     sendResetPassword: async ({ user, url, token }) => {
-      if (env.NODE_ENV !== "production") {
-        console.info(
-          `[auth] Password reset requested for ${user.email}\n` +
-            `  token: ${token}\n` +
-            `  url:   ${url}`,
+      const result = await sendPasswordResetEmail({
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+        },
+        url,
+        token,
+      });
+      if (!result.ok) {
+        console.error(
+          `[auth] Password reset email failed for user ${user.id}: ${result.error}`,
         );
       }
     },
@@ -206,12 +213,6 @@ export const auth = betterAuth({
           await createPersonalWorkspaceForUser({
             userId: user.id,
             userName: user.name ?? user.email,
-          });
-          // SPEC-02: join every pending group invite for this email
-          // (personal workspace already exists from the call above).
-          await acceptPendingInvitationsForEmail({
-            userId: user.id,
-            email: user.email,
           });
         },
       },

@@ -6,6 +6,7 @@ import { LandingPage } from "@/features/marketing/components/landing-page";
 import { LANDING_META } from "@/features/marketing/content";
 import { getSession } from "@/lib/session";
 import { getSiteUrl } from "@/lib/site-url";
+import { env, isResendEnabled } from "@/lib/env";
 
 const siteUrl = getSiteUrl();
 
@@ -54,7 +55,9 @@ export default async function HomePage() {
   return (
     <>
       <LandingJsonLd />
-      <LandingPage />
+      <LandingPage
+        newsletterEnabled={isResendEnabled || env.NODE_ENV !== "production"}
+      />
     </>
   );
 }

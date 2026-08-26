@@ -41,7 +41,6 @@ Si falta detalle en la spec: **actualizá la spec primero**, luego codificá. No
 | Prisma + Postgres (Supabase) | Datos relacionales |
 | Zod | Validación (cliente + servidor) |
 | React Hook Form | Forms cliente |
-| TanStack Query | Datos cliente cuando corresponda |
 | Zustand | **Solo** estado de UI |
 | Vitest | TDD de dominio / lógica pura |
 | Tailwind 4 + shadcn + CVA | UI |
@@ -161,7 +160,7 @@ No optimices por microbenchmarks sin síntoma. Preferí claridad de capas + meno
 - Authz: nunca confíes solo en layout/middleware; revalidá en cada mutation.
 - Performance: evitá waterfalls; `Promise.all` cuando sea independiente; RSC por defecto (skill React best practices).
 - Prisma: ambos lados de relaciones; índices en campos consultados; migraciones conscientes (coordiná con DevOps si es prod).
-- UI: tokens semánticos; sin hex sueltos ni `zinc-*`/`blue-*` en producto; mobile-first (`DESIGN.md`).
+- UI: tokens semánticos; sin hex sueltos ni `zinc-*`/`slate-*`/`blue-*` en producto; mobile-first (`DESIGN.md`). CTA primario = `bg-cta`. Sidebar navy en ambos temas.
 
 ## Qué NO hacer
 

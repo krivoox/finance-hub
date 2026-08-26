@@ -23,7 +23,6 @@ Versiones de referencia: `turno-app` / Siturn (marzo 2026). Mantener alineadas s
 | Driver SQL | `pg` | `^8.21.x` |
 | Base de datos | PostgreSQL (hosting **Supabase**) | — |
 | Supabase SDK | `@supabase/supabase-js`, `@supabase/ssr` | `^2.78` / `^0.10` |
-| Estado servidor (cliente) | TanStack React Query | `^5` |
 | Estado UI | Zustand | `^5` (**solo UI**) |
 | Fechas | `date-fns`, `@date-fns/tz` | `^4` / `^1.5` |
 | Toasts | Sonner | `^2` |
@@ -33,6 +32,7 @@ Versiones de referencia: `turno-app` / Siturn (marzo 2026). Mantener alineadas s
 | Lint / format | ESLint 9 + `eslint-config-next` + Prettier | según Siturn |
 | CLI local DB | Supabase CLI | `^2.100` (devDependency) |
 | Tests (negocio) | Vitest | a configurar en Fase 0 |
+| Email | **Resend** (SDK Node) | `^6.23` (SPEC-21 / KRI-17) |
 | Smoke UI (opcional) | Maestro CLI + MCP | web Chromium (beta); ver `docs/guides/maestro-mcp.md` |
 
 ## Qué hace cada pieza
@@ -45,9 +45,9 @@ Versiones de referencia: `turno-app` / Siturn (marzo 2026). Mantener alineadas s
 | **Postgres (Supabase)** | Persistencia, constraints, RLS deny-all (KRI-18) |
 | **Supabase SDK** | Server-only; Storage/Realtime futuro — no reemplaza Prisma ni Better Auth |
 | **Zod** | Validación doble: forms (cliente) + Server Actions |
-| **React Query** | Cache/fetch en Client Components (UI islands); listados de dinero siguen en RSC |
-| **Zustand** | Solo UI (modales, sidebar, workspace activo en cliente) |
+| **Zustand** | Solo UI (modales, sidebar, splash post-mutación) |
 | **Vitest** | TDD de lógica de negocio (no UI) |
+| **Resend** | Email transaccional (reset) y marketing (contacts/broadcasts). SDK servidor; no MCP como runtime |
 | **Maestro** | Smoke / exploración UI vía CLI o MCP (web beta); no sustituye Vitest |
 
 ## Prohibido (salvo pedido explícito)
@@ -75,6 +75,12 @@ BETTER_AUTH_URL=http://localhost:3000
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 
+# Resend (opcional en local; reset + marketing — SPEC-21)
+RESEND_API_KEY=
+EMAIL_FROM=Finance Hub <onboarding@resend.dev>
+EMAIL_REPLY_TO=
+RESEND_MARKETING_SEGMENT_ID=
+
 # Opcional (solo desarrollo): loguear cada statement SQL de Prisma
 # PRISMA_LOG_QUERIES=0
 ```
@@ -85,6 +91,7 @@ GOOGLE_CLIENT_SECRET=
 - `BETTER_AUTH_URL`: dominio canónico (fallback). En Vercel **Production** = `https://finance.krivoox.com`. En **Preview** el runtime prioriza `VERCEL_URL` y Better Auth usa Dynamic Base URL con `*.vercel.app` + `*.krivoox.com` (`demo.krivoox.com` en `develop`; ver `src/lib/env.ts` + `src/lib/auth.ts`). Preferible: no setear `BETTER_AUTH_URL` en Environment Preview. Opcional: `BETTER_AUTH_TRUSTED_ORIGINS`
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`: provider social Google en Better Auth (`socialProviders.google`). Sin ellas, email/password sigue funcionando; el botón Google se oculta (feature degradable). Centralizar en `src/lib/env.ts` (opcionales).
 - `NEXT_PUBLIC_CAFECITO_URL`: URL pública del perfil Cafecito (ej. `https://cafecito.app/tu-usuario`). Sin ella, el popup de donación y la entrada de menú quedan ocultos.
+- **Email (Resend, KRI-17 / SPEC-21):** `RESEND_API_KEY` (opcional en local; necesaria para enviar en prod), `EMAIL_FROM` (default sandbox `Finance Hub <onboarding@resend.dev>`), `EMAIL_REPLY_TO` (opcional), `RESEND_MARKETING_SEGMENT_ID` (segmento de novedades). Guía: [guides/email-resend.md](./guides/email-resend.md). **No** usar el MCP de Resend como runtime.
 - **Redirect URIs (Google Cloud Console)** — path fijo Better Auth: `{origin}/api/auth/callback/google`
   - Local: `http://localhost:3000/api/auth/callback/google`
   - Production: `https://finance.krivoox.com/api/auth/callback/google` (u origen canónico vigente)
@@ -101,12 +108,15 @@ En `next.config.ts`:
 
 ```ts
 experimental: {
+  optimizePackageImports: ["lucide-react", "radix-ui", "date-fns"],
   staleTimes: {
     dynamic: 0,   // sin cache cross-nav en segmentos dinámicos (listados de dinero)
     static: 180,  // loading boundaries / prefetch estático
   },
 }
 ```
+
+`cacheComponents` **no** está activo: el flag prende PPR y exige Suspense alrededor de todo IO dinámico (sesión, cookies, headers). Encenderlo sin migrar el layout autenticado bloquearía el shell. El contrato (cachear estructura, nunca dinero) vive en [SPEC-20 §10](./specs/20-performance-pwa.md).
 
 Velocidad percibida en soft-nav: `loading.tsx` + `PageSkeleton` + cerrar sidebar móvil al click. Detalle: [architecture.md §7.2](./architecture.md#72-navegación-inmediata-y-client-router-cache).
 
@@ -134,7 +144,8 @@ Fuente de producto: [SPEC-20](./specs/20-performance-pwa.md). Arquitectura: [§7
 | `format` | prettier |
 | `test` / `test:watch` | Vitest |
 | `postinstall` | `prisma generate` |
-| `db:generate` / `db:migrate` / `db:push` / `db:studio` | Prisma |
+| `db:generate` / `db:migrate` / `db:push` / `db:studio` | Prisma local |
+| `db:deploy` | `prisma migrate deploy` — Vercel lo corre en el build (`vercel.json` `buildCommand`) contra `DIRECT_URL` |
 | `auth:generate` | Better Auth CLI → modelos en schema |
 | `supabase:start` / `stop` / `status` | DB local |
 
@@ -157,7 +168,7 @@ Misma que Siturn — ver detalle en [architecture.md](./architecture.md):
 - `src/app/api/auth/[...all]/route.ts`
 - `src/lib/supabase/server.ts` (`server-only`; no hay browser client hasta Storage + RLS propio, KRI-18)
 - `src/middleware.ts` (cookie `better-auth*`)
-- `src/components/providers.tsx` (QueryClient + Sonner)
+- `src/components/providers.tsx` (Tooltip + Sonner)
 - `prisma/schema.prisma` + `prisma.config.ts`
 
 Referencia de implementación: repo `turno-app` (Siturn).

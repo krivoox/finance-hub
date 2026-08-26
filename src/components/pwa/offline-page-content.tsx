@@ -4,7 +4,9 @@ import { useSyncExternalStore, useState } from "react";
 import Link from "next/link";
 import { WifiOff } from "lucide-react";
 
+import { AmountInput } from "@/components/amount-input";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   clearOfflineDraftFromStorage,
   readOfflineDraftFromStorage,
@@ -93,7 +95,7 @@ export function OfflinePageContent() {
         <div className="flex size-12 items-center justify-center rounded-2xl bg-muted text-muted-foreground">
           <WifiOff className="size-6" aria-hidden />
         </div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+        <h1 className="font-heading text-2xl font-extrabold tracking-tight text-foreground">
           Sin conexión
         </h1>
         <p className="text-sm text-muted-foreground text-pretty">
@@ -134,7 +136,7 @@ export function OfflinePageContent() {
               key={type}
               type="button"
               className={cn(
-                "h-10 rounded-full border text-sm font-medium transition-colors",
+                "h-10 rounded-xl border text-sm font-medium transition-colors",
                 draft.type === type
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-border bg-background text-foreground",
@@ -151,12 +153,7 @@ export function OfflinePageContent() {
           <span className="text-xs font-medium text-muted-foreground">
             Monto
           </span>
-          <input
-            type="text"
-            inputMode="decimal"
-            autoComplete="off"
-            placeholder="0,00"
-            className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm tabular-nums outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring"
+          <AmountInput
             value={draft.amountUnits}
             onChange={(event) =>
               persist({ ...draft, amountUnits: event.target.value })
@@ -168,9 +165,8 @@ export function OfflinePageContent() {
           <span className="text-xs font-medium text-muted-foreground">
             Fecha
           </span>
-          <input
+          <Input
             type="date"
-            className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring"
             value={draft.occurredOn}
             onChange={(event) =>
               persist({ ...draft, occurredOn: event.target.value })
@@ -182,10 +178,9 @@ export function OfflinePageContent() {
           <span className="text-xs font-medium text-muted-foreground">
             Nota (opcional)
           </span>
-          <input
+          <Input
             type="text"
             maxLength={200}
-            className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none ring-offset-background focus-visible:ring-2 focus-visible:ring-ring"
             value={draft.description}
             onChange={(event) =>
               persist({ ...draft, description: event.target.value })
@@ -201,20 +196,15 @@ export function OfflinePageContent() {
 
         <div className="flex flex-wrap gap-2 pt-1">
           {online ? (
-            <Button asChild className="h-10">
+            <Button asChild>
               <Link href={resumeHref}>Continuar carga en la app</Link>
             </Button>
           ) : (
-            <Button type="button" className="h-10" disabled>
+            <Button type="button" disabled>
               Esperando red…
             </Button>
           )}
-          <Button
-            type="button"
-            variant="ghost"
-            className="h-10"
-            onClick={handleClear}
-          >
+          <Button type="button" variant="ghost" onClick={handleClear}>
             Borrar borrador
           </Button>
         </div>

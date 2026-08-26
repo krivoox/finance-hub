@@ -1,7 +1,10 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
 import { ContentPanel } from "@/components/app-shell/content-panel";
+import { PageSkeleton } from "@/components/app-shell/page-skeleton";
+import { SurfaceSection } from "@/components/surface-section";
 import { Button } from "@/components/ui/button";
 import { getSession } from "@/lib/session";
 import { getActiveWorkspaceForUser } from "@/features/workspaces/services";
@@ -17,7 +20,15 @@ export default async function NewAccountPage() {
     redirect("/login");
   }
 
-  const workspace = await getActiveWorkspaceForUser(session.user.id);
+  return (
+    <Suspense fallback={<PageSkeleton variant="detail" />}>
+      <NewAccountPageBody userId={session.user.id} />
+    </Suspense>
+  );
+}
+
+async function NewAccountPageBody({ userId }: { userId: string }) {
+  const workspace = await getActiveWorkspaceForUser(userId);
   if (!workspace) {
     redirect("/accounts");
   }
@@ -31,16 +42,18 @@ export default async function NewAccountPage() {
       title="Nueva cuenta"
       description={`Alta en ${workspace.name}. Default de moneda: ${workspace.baseCurrency}.`}
       actions={
-        <Button asChild variant="outline" className="h-10 sm:h-8">
+        <Button asChild variant="outline">
           <Link href="/accounts">Volver</Link>
         </Button>
       }
     >
       <div className="mx-auto w-full max-w-lg">
-        <NewAccountPageForm
-          workspaceId={workspace.id}
-          workspaceCurrency={workspace.baseCurrency}
-        />
+        <SurfaceSection>
+          <NewAccountPageForm
+            workspaceId={workspace.id}
+            workspaceCurrency={workspace.baseCurrency}
+          />
+        </SurfaceSection>
       </div>
     </ContentPanel>
   );
