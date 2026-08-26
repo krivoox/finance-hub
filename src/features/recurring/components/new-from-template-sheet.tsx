@@ -29,7 +29,7 @@ import {
   type PlatformTemplate,
 } from "@/features/recurring/catalog/platform-templates";
 import { PlatformLogo } from "@/features/recurring/components/platform-logo";
-import { CategoryPicker } from "@/features/categories/components/category-picker";
+import { CategorySelectField } from "@/features/categories/components/category-select-field";
 import {
   computeSubscriptionAmountCents,
   computeSubscriptionListBreakdown,
@@ -735,13 +735,11 @@ export function NewFromTemplateSheet({
             </FormField>
 
             <FormField label="Categoría" htmlFor="tpl-category">
-              <CategoryPicker
-                mode="single"
+              <CategorySelectField
                 id="tpl-category"
-                categories={expenseCategories.map((c) => ({
-                  id: c.id,
-                  name: c.name,
-                }))}
+                kind="expense"
+                workspaceId={workspaceId}
+                categories={expenseCategories}
                 value={categoryId || null}
                 onChange={(id) => setCategoryId(id ?? "")}
                 disabled={isPending}

@@ -21,7 +21,7 @@ import {
 } from "@/domain/money/parse-amount";
 import { Textarea } from "@/components/ui/textarea";
 import { FormSelect } from "@/components/ui/select";
-import { CategoryPicker } from "@/features/categories/components/category-picker";
+import { CategorySelectField } from "@/features/categories/components/category-select-field";
 import { refreshAfterMutation } from "@/lib/navigation";
 import {
   createRecurringRuleAction,
@@ -378,19 +378,17 @@ export function RecurringForm({
               control={control}
               name="categoryId"
               render={({ field }) => (
-                <CategoryPicker
-                  mode="single"
-                  id="rec-category"
-                  categories={categoryOptions.map((c) => ({
-                    id: c.id,
-                    name: c.name,
-                  }))}
-                  value={field.value || null}
-                  onChange={(id) => field.onChange(id ?? "")}
-                  disabled={isPending}
-                  aria-invalid={Boolean(errors.categoryId)}
-                  placeholder="Elegir categoría"
-                />
+                  <CategorySelectField
+                    id="rec-category"
+                    kind={type === "income" ? "income" : "expense"}
+                    workspaceId={workspaceId}
+                    categories={categoryOptions}
+                    value={field.value || null}
+                    onChange={(id) => field.onChange(id ?? "")}
+                    disabled={isPending}
+                    aria-invalid={Boolean(errors.categoryId)}
+                    placeholder="Elegir categoría"
+                  />
               )}
             />
           </FormField>

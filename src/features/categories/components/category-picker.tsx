@@ -1,7 +1,8 @@
 "use client";
 
-import { useId, useMemo, useState } from "react";
-import { CheckIcon, ChevronDownIcon, SearchIcon, XIcon } from "lucide-react";
+import { useId, useMemo, useState, useTransition } from "react";
+import { CheckIcon, ChevronDownIcon, PlusIcon, SearchIcon, XIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,8 +20,21 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
+import { createCategoryAction } from "@/features/categories/actions";
+import {
+  categoryCreateSuggestion,
+  composeCategoryName,
+  type CategoryKind,
+} from "@/features/categories/domain";
+import { invalidateNewTransactionFormOptions } from "@/features/transactions/stores/new-transaction-form-options-store";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+
+import {
+  CategoryEmojiGrid,
+  DEFAULT_CREATE_EMOJI,
+} from "./category-emoji-picker";
+import { CategoryMoreTileTrigger } from "./category-quick-picks";
 
 export type CategoryOption = {
   id: string;
@@ -48,6 +62,14 @@ type CategoryPickerSingleProps = CategoryPickerBase & {
   value: string | null;
   onChange: (id: string | null) => void;
   placeholder?: string;
+  /** In-place create from the search query (income/expense forms). */
+  allowCreate?: {
+    workspaceId: string;
+    kind: CategoryKind;
+  };
+  onCreated?: (category: { id: string; name: string }) => void;
+  /** `more-tile` is the last cell of the frequent-category row. */
+  triggerVariant?: "select" | "more-tile";
 };
 
 export type CategoryPickerProps =
@@ -129,6 +151,7 @@ function MultiTriggerSummary({
 type PanelProps = {
   mode: "multi" | "single";
   filtered: readonly CategoryOption[];
+  allNames: readonly string[];
   selectedIds: ReadonlySet<string>;
   query: string;
   onQueryChange: (q: string) => void;
@@ -136,11 +159,17 @@ type PanelProps = {
   onToggle: (id: string) => void;
   onClear: () => void;
   onClose: () => void;
+  allowCreate?: {
+    workspaceId: string;
+    kind: CategoryKind;
+  };
+  onCreated?: (category: { id: string; name: string }) => void;
 };
 
 function CategoryPickerPanel({
   mode,
   filtered,
+  allNames,
   selectedIds,
   query,
   onQueryChange,
@@ -148,8 +177,43 @@ function CategoryPickerPanel({
   onToggle,
   onClear,
   onClose,
+  allowCreate,
+  onCreated,
 }: PanelProps) {
   const hasSelection = selectedIds.size > 0;
+  const [emojiOpen, setEmojiOpen] = useState(false);
+  const [emoji, setEmoji] = useState<string>(
+    allowCreate ? DEFAULT_CREATE_EMOJI[allowCreate.kind] : DEFAULT_CREATE_EMOJI.expense,
+  );
+  const [emojiOverride, setEmojiOverride] = useState<string | null>(null);
+  const [isCreating, startCreate] = useTransition();
+
+  const suggestion =
+    mode === "single" && allowCreate
+      ? categoryCreateSuggestion(query, allNames)
+      : null;
+
+  const createEmoji = emojiOverride ?? suggestion?.emoji ?? emoji;
+
+  function handleCreate() {
+    if (!allowCreate || !suggestion) return;
+    const name = composeCategoryName(createEmoji, suggestion.label);
+    startCreate(async () => {
+      const result = await createCategoryAction({
+        workspaceId: allowCreate.workspaceId,
+        name,
+        kind: allowCreate.kind,
+      });
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
+      invalidateNewTransactionFormOptions(allowCreate.workspaceId);
+      onCreated?.({ id: result.data.id, name: result.data.name });
+      onToggle(result.data.id);
+      onClose();
+    });
+  }
 
   return (
     <div className="flex min-h-0 flex-col gap-3">
@@ -165,8 +229,11 @@ function CategoryPickerPanel({
           id={searchId}
           type="search"
           value={query}
-          onChange={(e) => onQueryChange(e.target.value)}
-          placeholder="Buscar…"
+          onChange={(e) => {
+            setEmojiOverride(null);
+            onQueryChange(e.target.value);
+          }}
+          placeholder={allowCreate ? "Buscar o crear…" : "Buscar…"}
           autoComplete="off"
           autoFocus={false}
           className="h-10 pl-8 sm:h-9"
@@ -197,7 +264,7 @@ function CategoryPickerPanel({
         aria-multiselectable={mode === "multi" ? true : undefined}
         className="flex max-h-[min(16rem,50dvh)] min-h-0 flex-col gap-0.5 overflow-y-auto overscroll-contain"
       >
-        {filtered.length === 0 ? (
+        {filtered.length === 0 && !suggestion ? (
           <li className="px-2 py-6 text-center text-sm text-muted-foreground">
             Sin resultados
           </li>
@@ -258,6 +325,51 @@ function CategoryPickerPanel({
           })
         )}
       </ul>
+
+      {suggestion ? (
+        <div className="flex flex-col gap-2 border-t border-border pt-2">
+          {emojiOpen ? (
+            <CategoryEmojiGrid
+              value={createEmoji}
+              onChange={(next) => {
+                setEmoji(next);
+                setEmojiOverride(next);
+                setEmojiOpen(false);
+              }}
+            />
+          ) : null}
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              aria-label="Elegir emoji"
+              aria-expanded={emojiOpen}
+              disabled={isCreating}
+              className={cn(
+                "flex size-10 shrink-0 items-center justify-center rounded-lg border border-border bg-muted/40 text-lg",
+                "hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none",
+                "sm:size-9",
+              )}
+              onClick={() => setEmojiOpen((open) => !open)}
+            >
+              <span aria-hidden>{createEmoji}</span>
+            </button>
+            <button
+              type="button"
+              disabled={isCreating}
+              className={cn(
+                "flex min-h-10 min-w-0 flex-1 items-center gap-2 rounded-lg px-2 py-2 text-left text-sm",
+                "hover:bg-muted/80 focus-visible:bg-muted/80 focus-visible:outline-none sm:min-h-9",
+              )}
+              onClick={handleCreate}
+            >
+              <PlusIcon className="size-4 shrink-0 text-primary" aria-hidden />
+              <span className="min-w-0 truncate">
+                {isCreating ? "Creando…" : `Crear «${suggestion.label}»`}
+              </span>
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -280,6 +392,10 @@ export function CategoryPicker(props: CategoryPickerProps) {
   const [query, setQuery] = useState("");
   const reactId = useId();
   const searchId = `${id ?? reactId}-search`;
+  const triggerVariant =
+    props.mode === "single" ? (props.triggerVariant ?? "select") : "select";
+  const allowCreate = props.mode === "single" ? props.allowCreate : undefined;
+  const onCreated = props.mode === "single" ? props.onCreated : undefined;
 
   const sorted = useMemo(
     () => [...categories].sort((a, b) => a.name.localeCompare(b.name, "es")),
@@ -290,6 +406,8 @@ export function CategoryPicker(props: CategoryPickerProps) {
     () => filterCategories(sorted, query),
     [sorted, query],
   );
+
+  const allNames = useMemo(() => sorted.map((c) => c.name), [sorted]);
 
   const selectedIds = useMemo(() => {
     if (props.mode === "multi") {
@@ -353,6 +471,7 @@ export function CategoryPicker(props: CategoryPickerProps) {
     <CategoryPickerPanel
       mode={props.mode}
       filtered={filtered}
+      allNames={allNames}
       selectedIds={selectedIds}
       query={query}
       onQueryChange={setQuery}
@@ -360,37 +479,64 @@ export function CategoryPicker(props: CategoryPickerProps) {
       onToggle={handleToggle}
       onClear={handleClear}
       onClose={() => handleOpenChange(false)}
+      allowCreate={allowCreate}
+      onCreated={onCreated}
     />
   );
 
-  const trigger = (
-    <button
-      type="button"
-      id={id}
-      disabled={disabled}
-      aria-invalid={ariaInvalid}
-      aria-haspopup="listbox"
-      aria-expanded={open}
-      className={cn(
-        nativeSelectClassName,
-        "items-center justify-between gap-2 text-left font-normal",
-        "h-auto min-h-10 py-2 sm:min-h-9",
-        className,
-      )}
-      onClick={() => {
-        if (isMobile) handleOpenChange(true);
-      }}
-    >
-      <span className="flex min-w-0 flex-1 items-center">{triggerLabel}</span>
-      <ChevronDownIcon
+  const trigger =
+    triggerVariant === "more-tile" ? (
+      <button
+        type="button"
+        id={id}
+        disabled={disabled}
+        aria-invalid={ariaInvalid}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label="Más categorías"
         className={cn(
-          "size-4 shrink-0 text-muted-foreground transition-transform",
-          open && "rotate-180",
+          "min-w-0 rounded-lg focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none",
+          "disabled:pointer-events-none disabled:opacity-50",
+          "active:scale-[0.97] motion-reduce:active:scale-100",
+          className,
         )}
-        aria-hidden
-      />
-    </button>
-  );
+        onClick={() => {
+          if (isMobile) handleOpenChange(true);
+        }}
+      >
+        <CategoryMoreTileTrigger
+          disabled={disabled}
+          expanded={open}
+        />
+      </button>
+    ) : (
+      <button
+        type="button"
+        id={id}
+        disabled={disabled}
+        aria-invalid={ariaInvalid}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        className={cn(
+          nativeSelectClassName,
+          "items-center justify-between gap-2 text-left font-normal",
+          "h-auto min-h-10 py-2 sm:min-h-9",
+          className,
+        )}
+        onClick={() => {
+          if (isMobile) handleOpenChange(true);
+        }}
+      >
+        <span className="flex min-w-0 flex-1 items-center">{triggerLabel}</span>
+        <ChevronDownIcon
+          className={cn(
+            "size-4 shrink-0 text-muted-foreground transition-transform",
+            open && "rotate-180",
+          )}
+          aria-hidden
+        />
+      </button>
+    );
 
   if (isMobile) {
     return (
@@ -424,7 +570,12 @@ export function CategoryPicker(props: CategoryPickerProps) {
       <PopoverTrigger asChild>{trigger}</PopoverTrigger>
       <PopoverContent
         align="start"
-        className="w-[var(--radix-popover-trigger-width)] min-w-64 p-3"
+        className={cn(
+          "p-3",
+          triggerVariant === "more-tile"
+            ? "w-80 min-w-72"
+            : "w-[var(--radix-popover-trigger-width)] min-w-64",
+        )}
         onOpenAutoFocus={preventSearchAutofocus}
       >
         {panel}

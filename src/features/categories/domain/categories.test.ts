@@ -128,6 +128,16 @@ describe("Categories domain — assertUniqueCategoryName (SPEC-04 T-02)", () => 
     ).not.toThrow();
   });
 
+  it("treats a leading emoji as the same name (SPEC-04 T-05)", () => {
+    const existing = [cat({ name: "🍽️ Comida", kind: "expense" })];
+    expect(() =>
+      assertUniqueCategoryName(existing, "Comida", "expense"),
+    ).toThrow(DuplicateCategoryName);
+    expect(() =>
+      assertUniqueCategoryName(existing, "🍽️ comida", "expense"),
+    ).toThrow(DuplicateCategoryName);
+  });
+
   it("empty/whitespace names throw CategoryDomainError (not silently pass)", () => {
     const existing: CategoryLike[] = [];
     expect(() => assertUniqueCategoryName(existing, "   ", "expense")).toThrow(

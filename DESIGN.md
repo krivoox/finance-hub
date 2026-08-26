@@ -110,7 +110,7 @@ El setup inicial del workspace (`/onboarding`, SPEC-15) **no** usa AppShell ni F
 - Formulario: 1 columna, secciones tipadas, `SegmentedControl` para ≤4 opciones
 - Cerrar al éxito / X en el header (sin Cancelar en el sheet)
 - Campos requeridos: asterisco en `FormField`; opcionales llevan la etiqueta “opcional”
-- Selector de categorías: no autofocus al buscador (el teclado no debe abrirse solo)
+- Selector de categorías: no autofocus al buscador (el teclado no debe abrirse solo). En alta de movimiento: fila de **atajos** (emoji en squircle + label; 4 o 5 según el ancho del sheet) y tile **Más** que abre el picker. Alta rápida: emoji a la izquierda del nombre si la búsqueda no coincide.
 
 Componentes: `src/components/form-sheet/*`
 
