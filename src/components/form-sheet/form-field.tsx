@@ -33,7 +33,14 @@ export function FormField({
           <span className="text-xs font-normal text-muted-foreground">
             opcional
           </span>
-        ) : null}
+        ) : (
+          <>
+            <span className="font-medium text-foreground" aria-hidden="true">
+              *
+            </span>
+            <span className="sr-only">(obligatorio)</span>
+          </>
+        )}
       </label>
       {children}
       {error ? <p className="text-xs text-destructive">{error}</p> : null}
@@ -91,15 +98,26 @@ export function FormStack({ children, className }: FormStackProps) {
 type FormActionsProps = {
   children: ReactNode;
   className?: string;
+  /**
+   * Pin to the bottom edge of a `layout="fill"` FormSheet. The form body
+   * (`FormSheetBody`) scrolls above this bar.
+   */
+  sticky?: boolean;
 };
 
-/** Sticky-feeling actions: full-width primary on mobile. */
-export function FormActions({ children, className }: FormActionsProps) {
+/** Sheet/page actions: full-width primary on mobile. */
+export function FormActions({
+  children,
+  className,
+  sticky = false,
+}: FormActionsProps) {
   return (
     <div
       className={cn(
-        "flex flex-col-reverse gap-2 border-t border-border bg-popover pt-4 sm:static sm:flex-row sm:justify-end sm:bg-transparent",
-        "sticky bottom-0 z-10 -mx-4 mt-2 px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:mx-0 sm:mt-0 sm:px-0 sm:py-0 sm:pb-0 sm:pt-4",
+        "flex flex-col-reverse gap-2 border-t border-border sm:flex-row sm:justify-end",
+        sticky
+          ? "shrink-0 bg-popover px-4 py-3 sm:px-5"
+          : "pt-4",
         className,
       )}
     >

@@ -25,6 +25,7 @@ import {
   FormActions,
   FormField,
   FormSection,
+  FormSheetBody,
   FormStack,
   SegmentedControl,
 } from "@/components/form-sheet";
@@ -32,6 +33,7 @@ import { DateField } from "@/components/date-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { nativeSelectClassName } from "@/components/ui/native-select";
+import { cn } from "@/lib/utils";
 import {
   clearOfflineDraftFromStorage,
   readOfflineDraftFromStorage,
@@ -62,6 +64,11 @@ type NewTransactionFormProps = {
   currentUserId?: string;
   /** Prefill from PWA shortcuts / `?new=expense|income`. */
   initialType?: CreateableTransactionType;
+  /**
+   * `sheet`: fill the FormSheet, pin Registrar, no Cancelar (X closes).
+   * `page`: standalone `/transactions/new` with Cancelar.
+   */
+  layout?: "page" | "sheet";
   onSuccess?: () => void;
   onCancel?: () => void;
 };
@@ -114,6 +121,7 @@ export function NewTransactionForm({
   splitGroups = [],
   currentUserId,
   initialType = "expense",
+  layout = "page",
   onSuccess,
   onCancel,
 }: NewTransactionFormProps) {
@@ -324,10 +332,9 @@ export function NewTransactionForm({
   const currencyHintLabel =
     selectedCurrency === "USD" ? "dólares (USD)" : "pesos (ARS)";
 
-  return (
-    <form className="flex flex-col gap-6" onSubmit={onSubmit} noValidate>
-      <FormStack>
-        <FormSection>
+  const fields = (
+    <FormStack>
+      <FormSection>
           <Controller
             control={control}
             name="type"
@@ -514,31 +521,46 @@ export function NewTransactionForm({
           />
         ) : null}
       </FormStack>
+  );
 
-      <FormActions>
-        {onCancel ? (
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full sm:w-auto"
-            disabled={isBusy}
-            onClick={onCancel}
-          >
-            Cancelar
-          </Button>
-        ) : null}
+  const actions = (
+    <FormActions sticky={layout === "sheet"}>
+      {layout !== "sheet" && onCancel ? (
         <Button
-          type="submit"
+          type="button"
+          variant="outline"
           className="w-full sm:w-auto"
-          disabled={isBusy || !hasAccountsForCurrency}
+          disabled={isBusy}
+          onClick={onCancel}
         >
-          {isBusy
-            ? "Guardando..."
-            : shareExpense && watchedType === "expense"
-              ? "Registrar gasto compartido"
-              : "Registrar"}
+          Cancelar
         </Button>
-      </FormActions>
+      ) : null}
+      <Button
+        type="submit"
+        className="w-full"
+        disabled={isBusy || !hasAccountsForCurrency}
+      >
+        {isBusy
+          ? "Guardando..."
+          : shareExpense && watchedType === "expense"
+            ? "Registrar gasto compartido"
+            : "Registrar"}
+      </Button>
+    </FormActions>
+  );
+
+  return (
+    <form
+      className={cn(
+        "flex flex-col",
+        layout === "sheet" ? "min-h-0 flex-1" : "gap-6",
+      )}
+      onSubmit={onSubmit}
+      noValidate
+    >
+      {layout === "sheet" ? <FormSheetBody>{fields}</FormSheetBody> : fields}
+      {actions}
     </form>
   );
 }
