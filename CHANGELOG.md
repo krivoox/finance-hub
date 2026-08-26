@@ -39,6 +39,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Restyle groups UI to match the ledger
 
+- **nav:** Add inline theme control for modal sheets
+
+- **nav:** Drop duplicate account header in Más sheet
+
 [Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.16.0...HEAD
 
 ## [0.13.0] - 2026-08-11
