@@ -6,44 +6,47 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
-import { createSplitGroupAction } from "@/features/splits/actions";
-import {
-  createSplitGroupSchema,
-  type CreateSplitGroupInput,
-} from "@/features/splits/schemas";
+import { renameSplitGroupAction } from "@/features/splits/actions";
+import { renameSplitGroupSchema } from "@/features/splits/schemas";
 import { FormActions, FormField, FormStack } from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { navigateAndRefresh } from "@/lib/navigation";
+import { refreshAfterMutation } from "@/lib/navigation";
 
-type NewSplitGroupFormProps = {
+type EditSplitGroupFormProps = {
+  splitGroupId: string;
+  name: string;
   onSuccess?: () => void;
+  onCancel?: () => void;
 };
 
-export function NewSplitGroupForm({ onSuccess }: NewSplitGroupFormProps) {
+export function EditSplitGroupForm({
+  splitGroupId,
+  name,
+  onSuccess,
+  onCancel,
+}: EditSplitGroupFormProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors, isSubmitting },
-  } = useForm<CreateSplitGroupInput>({
-    resolver: zodResolver(createSplitGroupSchema),
-    defaultValues: { name: "" },
+  } = useForm({
+    resolver: zodResolver(renameSplitGroupSchema),
+    defaultValues: { splitGroupId, name },
   });
 
   const onSubmit = handleSubmit((values) => {
     startTransition(async () => {
-      const result = await createSplitGroupAction(values);
+      const result = await renameSplitGroupAction(values);
       if (!result.ok) {
         toast.error(result.error);
         return;
       }
-      toast.success("Grupo creado");
-      reset({ name: "" });
+      toast.success("Grupo actualizado");
       onSuccess?.();
-      navigateAndRefresh(router, `/groups/${result.data.id}`);
+      refreshAfterMutation(router);
     });
   });
 
@@ -54,13 +57,11 @@ export function NewSplitGroupForm({ onSuccess }: NewSplitGroupFormProps) {
       <FormStack>
         <FormField
           label="Nombre"
-          htmlFor="split-group-name"
-          hint="Casa, asado del sábado, viaje…"
+          htmlFor="edit-split-group-name"
           error={errors.name?.message}
         >
           <Input
-            id="split-group-name"
-            placeholder="Casa, Asado del sábado…"
+            id="edit-split-group-name"
             aria-invalid={Boolean(errors.name)}
             {...register("name")}
           />
@@ -68,8 +69,18 @@ export function NewSplitGroupForm({ onSuccess }: NewSplitGroupFormProps) {
       </FormStack>
 
       <FormActions>
+        {onCancel ? (
+          <Button
+            type="button"
+            variant="outline"
+            disabled={isBusy}
+            onClick={onCancel}
+          >
+            Cancelar
+          </Button>
+        ) : null}
         <Button type="submit" disabled={isBusy}>
-          {isBusy ? "Creando…" : "Crear grupo"}
+          {isBusy ? "Guardando…" : "Guardar"}
         </Button>
       </FormActions>
     </form>

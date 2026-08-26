@@ -5,7 +5,7 @@ import {
   SurfaceSection,
 } from "@/components/surface-section";
 import { formatMoney } from "@/lib/format-money";
-import { peopleCountLabel, splitGroupKindLabel } from "./split-copy";
+import { peopleCountLabel } from "./split-copy";
 import { SplitLedgerRow } from "./split-ledger-row";
 import { SplitNetAmount } from "./split-net-amount";
 
@@ -43,8 +43,6 @@ export function PublicSplitGroupView({
               </p>
             </div>
             <span className="shrink-0 rounded-full bg-background/70 px-2.5 py-1 text-xs font-medium text-muted-foreground dark:bg-background/40">
-              {splitGroupKindLabel(group.kind)}
-              <span aria-hidden> · </span>
               {peopleCountLabel(group.members.length)}
             </span>
           </div>

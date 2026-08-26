@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { ArrowUpDown, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 
 import { FormSheet } from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
@@ -41,7 +41,7 @@ function clearCreateQuery(
 }
 
 /**
- * Page-local create CTAs for FX. “Nueva transacción” opens the global
+ * Header CTA for new ledger entries. “Nueva transacción” opens the global
  * new-transaction sheet (mounted in AppShell).
  */
 export function TransactionsCreateActions({
@@ -70,7 +70,7 @@ export function TransactionsCreateActions({
   const canFx = accounts.length >= 2;
 
   return (
-    <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+    <>
       <Button
         type="button"
         className="w-full gap-1.5 sm:w-auto"
@@ -80,6 +80,30 @@ export function TransactionsCreateActions({
         Nueva transacción
       </Button>
 
+      {/*
+        TODO(fx-create-entry): el trigger “Cambio” (SheetTrigger outline +
+        ArrowUpDown) se quitó del header de Transacciones. Cuando se retire
+        el flujo de crear cambio de moneda, borrar también:
+        - Este FormSheet + estado `fxOpen` / `?new=fx|exchange` en este archivo
+        - `NewCurrencyExchangeForm`
+          (`src/features/currency-exchange/components/new-currency-exchange-form.tsx`)
+        - `createCurrencyExchangeAction` / `deleteCurrencyExchangeAction`
+          (`src/features/currency-exchange/actions/create-currency-exchange.ts`
+          y re-export en `actions/index.ts`)
+        - `createCurrencyExchange` / `deleteCurrencyExchange`
+          (`src/features/currency-exchange/services/create-currency-exchange.ts`
+          y re-export en `services/index.ts`)
+        - `createCurrencyExchangeSchema` / `deleteCurrencyExchangeSchema`
+          (`src/features/currency-exchange/schemas/index.ts`)
+        - Dominio de create: `assertValidCurrencyExchange`, errores de exchange
+          (`src/features/currency-exchange/domain/{guards,errors}.ts`
+          + `guards.test.ts`)
+        - Comentario `fx`/`exchange`/`cross` en
+          `src/features/transactions/lib/list-search-params.ts`
+        No tocar cotización del sidebar (`consolidation-rate*`, “Convertir”).
+        Labels de ledger (`fx_debit` / `fx_credit`) quedan hasta que se decida
+        el destino de los movimientos ya registrados.
+      */}
       {canFx ? (
         <FormSheet
           open={fxOpen}
@@ -87,12 +111,6 @@ export function TransactionsCreateActions({
           title="Cambio de moneda"
           description="Canjeá entre cuentas ARS y USD del mismo workspace."
           size="md"
-          trigger={
-            <Button variant="outline" className="w-full gap-1.5 sm:w-auto">
-              <ArrowUpDown className="size-4" strokeWidth={1.75} />
-              Cambio
-            </Button>
-          }
         >
           <NewCurrencyExchangeForm
             workspaceId={workspaceId}
@@ -106,6 +124,6 @@ export function TransactionsCreateActions({
           />
         </FormSheet>
       ) : null}
-    </div>
+    </>
   );
 }

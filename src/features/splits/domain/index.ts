@@ -16,6 +16,12 @@ export {
   assertMemberCanPay,
   assertActorIsUserMember,
   assertCanRenameSplitGroup,
+  assertCanDeleteSplitGroup,
+  assertCanRenameMember,
+  assertCanRemoveMember,
+  canRenameMember,
+  canRemoveMember,
+  memberHasLedgerHistory,
 } from "./members";
 export {
   assertShareParticipants,
@@ -26,6 +32,7 @@ export {
   projectPublicSplitGroup,
   assertPublicShareToken,
 } from "./public";
+export { aggregateSplitSpendingByCategory } from "./spending-by-category";
 export {
   SplitDomainError,
   SplitSumMismatchError,
@@ -44,6 +51,8 @@ export {
   SplitCurrencyMismatchError,
   InvalidPublicShareTokenError,
   SplitNotFoundError,
+  CannotRemoveGroupCreatorError,
+  MemberHasSplitHistoryError,
 } from "./errors";
 export type {
   SplitShare,
@@ -55,6 +64,11 @@ export type {
   PublicSplitActivityItem,
   PublicSplitGroupProjection,
   SplitMethod,
-  SplitGroupKind,
+  SplitExpenseForCategory,
+  SplitCategorySpendingRow,
 } from "./types";
-export { SPLIT_NAME_MAX_LENGTH } from "./types";
+export {
+  SPLIT_NAME_MAX_LENGTH,
+  SPLIT_UNCATEGORIZED_CATEGORY_ID,
+  SPLIT_UNCATEGORIZED_CATEGORY_NAME,
+} from "./types";

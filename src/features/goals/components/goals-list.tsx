@@ -47,6 +47,7 @@ export type GoalsListItem = {
   linkedAccountName: string | null;
   status: GoalStatus;
   progressPercent: number;
+  progressFillPercent: number;
 };
 
 type GoalsListProps = {
@@ -162,7 +163,7 @@ export function GoalsList({ canMutate, goals, accounts }: GoalsListProps) {
                     <ProgressBar
                       className="mt-2"
                       size="lg"
-                      value={goal.progressPercent}
+                      value={goal.progressFillPercent}
                       tone={
                         goal.status === "completed"
                           ? "success"

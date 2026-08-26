@@ -306,17 +306,16 @@ No es un Workspace. Dueño de datos = `workspaceId` del creador (personal). Otro
 |-------|------|-------|
 | id | Id | |
 | workspaceId | Id | tenant **personal del creador**. No se switch-ea |
-| name | string | trim, 1…80 |
-| kind | `ongoing` \| `one_time` | metadata (casa vs asado); no cambia dinero en v1 |
+| name | string | trim, 1…80; único dato de producto del círculo (sin tipo) |
 | currency | CurrencyCode | freeze = `workspace.baseCurrency` al crear; inmutable |
 | publicShareToken | string | único, unguessable; vista pública **y** join v1 |
 | createdByUserId | Id | al crear queda miembro `kind=user` |
 
 **Invariantes**
 
-- Rename solo `createdByUserId`.
+- Rename y delete solo `createdByUserId`.
 - Token inválido → error opaco (no filtrar otros grupos).
-- v1 no se borra el grupo (cerrar = later). Si se borrara: cascade members/splits/settlements; txs de ledger de cada payer permanecen.
+- Delete del grupo: cascade members/splits/settlements; las txs de ledger de cada payer **permanecen**. El servicio borra splits/settlements **antes** de miembros (FKs Restrict).
 
 ### SplitGroupMember
 
@@ -338,7 +337,9 @@ Identidad en shares, payer, nets y settlements = **`id` (`memberId`)**. Nunca `U
 - Ghosts homónimos (trim, case-insensitive) en el mismo grupo → `DuplicateGhostNameError`. Ghost “Juan” + user Juan pueden coexistir hasta H11.
 - `userId` único por grupo (`AlreadySplitGroupMemberError`).
 - Un User **no** necesita Membership en el workspace de Ana para ser miembro.
-- v1: no hay baja. H11 later: el ghost se **reclama** mutando la misma fila (`kind=user`, set `userId`) para conservar `memberId` histórico.
+- Rename de displayName: ghost → cualquier user-miembro (unicidad homónima); user → uno mismo o el creador.
+- Baja: no el creador (`CannotRemoveGroupCreatorError`). No si hay shares, pagos o settlements (`MemberHasSplitHistoryError`). Ghost: cualquier user-miembro. User no creador: puede irse.
+- H11 later: el ghost se **reclama** mutando la misma fila (`kind=user`, set `userId`) para conservar `memberId` histórico.
 
 ### ExpenseSplit (gasto compartido — SPEC-10)
 
@@ -369,6 +370,7 @@ type SplitShare = {
 - Exact/percentage: cada `memberId` es miembro actual; subset permitido (implícito 0).
 - Payer v1 = registrador; ghost no paga.
 - Delete del expense: cascade split+shares; settlements no se tocan.
+- **Derivado (detalle autenticado):** gastos del grupo por categoría = Σ `expense.amountCents` de los splits, agrupados por `categoryId` de la tx (SPEC-09 FR-11 / SPEC-10 T-24). Settlements no entran. Vista pública no expone categorías.
 
 ### Settlement
 
@@ -448,7 +450,7 @@ Los saldos de cuenta y balances entre miembros son **lecturas derivadas**, no es
 
 ## Reglas transversales
 
-1. Autorización: mutaciones de **ledger** verifican Membership + role del workspace **personal del actor**. Mutaciones de `SplitGroup` verifican `SplitGroupMember` `kind=user` (rename: además `createdByUserId`). El visitante del link público solo lee una proyección (ADR-007). **Prohibido** exigir membership en el tenant de Ana para que Bob vea el grupo.
+1. Autorización: mutaciones de **ledger** verifican Membership + role del workspace **personal del actor**. Mutaciones de `SplitGroup` verifican `SplitGroupMember` `kind=user` (rename/delete del grupo: además `createdByUserId`). El visitante del link público solo lee una proyección (ADR-007). **Prohibido** exigir membership en el tenant de Ana para que Bob vea el grupo.
 2. Soft-delete / archive preferido a hard-delete cuando hay historial.
    - **Excepción histórica (SPEC-02):** hard-delete de workspace `group`. **KRI-29 / ADR-007** retira el tipo group; la migración borra esos tenants. El workspace `personal` no se elimina.
    - **Excepción (SPEC-03):** `DeleteAccount` — hard-delete de cuenta con confirmación fuerte y cascada de servicio; Archive sigue siendo el camino recomendado.

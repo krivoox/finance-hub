@@ -1,12 +1,24 @@
-import { CalendarDays, House } from "lucide-react";
+"use client";
+
+import { Users } from "lucide-react";
 
 import type { ListedSplitGroup } from "@/features/splits/services";
-import { peopleCountLabel, splitGroupKindLabel } from "./split-copy";
+import { DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { peopleCountLabel } from "./split-copy";
 import { SplitLedgerRow } from "./split-ledger-row";
 import { SplitNetAmount } from "./split-net-amount";
+import { SplitOverflowMenu } from "./split-overflow-menu";
 
-export function SplitGroupCard({ group }: { group: ListedSplitGroup }) {
-  const Icon = group.kind === "ongoing" ? House : CalendarDays;
+export function SplitGroupCard({
+  group,
+  onEdit,
+  onDelete,
+}: {
+  group: ListedSplitGroup;
+  onEdit?: () => void;
+  onDelete?: () => void;
+}) {
+  const canManage = Boolean(onEdit || onDelete);
 
   return (
     <SplitLedgerRow
@@ -16,17 +28,32 @@ export function SplitGroupCard({ group }: { group: ListedSplitGroup }) {
           className="flex size-9 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground"
           aria-hidden
         >
-          <Icon className="size-4" strokeWidth={1.75} />
+          <Users className="size-4" strokeWidth={1.75} />
         </span>
       }
       title={group.name}
-      caption={`${splitGroupKindLabel(group.kind)} · ${peopleCountLabel(group.memberCount)}`}
+      caption={peopleCountLabel(group.memberCount)}
       trailing={
         <SplitNetAmount
           cents={group.myNetCents}
           currency={group.currency}
           className="text-xs sm:text-sm"
         />
+      }
+      menu={
+        canManage ? (
+          <SplitOverflowMenu label={`Acciones de ${group.name}`}>
+            {onEdit ? (
+              <DropdownMenuItem onSelect={onEdit}>Editar</DropdownMenuItem>
+            ) : null}
+            {onEdit && onDelete ? <DropdownMenuSeparator /> : null}
+            {onDelete ? (
+              <DropdownMenuItem variant="destructive" onSelect={onDelete}>
+                Eliminar
+              </DropdownMenuItem>
+            ) : null}
+          </SplitOverflowMenu>
+        ) : undefined
       }
     />
   );

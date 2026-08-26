@@ -154,15 +154,27 @@ export function progressPercent(
   currentCents: number,
   targetCents: number,
 ): number {
+  return Math.floor(progressFillPercent(currentCents, targetCents));
+}
+
+/**
+ * SPEC-08 T-02b / FR-03 — Exact 0..100 ratio for the progress bar. Not
+ * floored: a small contribution on a large target must still move the fill
+ * (the integer label may stay at 0% until the next whole percent).
+ */
+export function progressFillPercent(
+  currentCents: number,
+  targetCents: number,
+): number {
   if (
     !Number.isFinite(currentCents) ||
     !Number.isFinite(targetCents) ||
-    targetCents <= 0
+    targetCents <= 0 ||
+    currentCents <= 0
   ) {
     return 0;
   }
-  const raw = Math.floor((currentCents / targetCents) * 100);
-  if (raw < 0) return 0;
+  const raw = (currentCents / targetCents) * 100;
   if (raw > 100) return 100;
   return raw;
 }

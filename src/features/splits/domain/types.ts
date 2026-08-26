@@ -49,6 +49,22 @@ export type PublicSplitGroupProjection = {
 };
 
 export type SplitMethod = "equal" | "percentage" | "exact";
-export type SplitGroupKind = "ongoing" | "one_time";
 
 export const SPLIT_NAME_MAX_LENGTH = 80;
+
+/** Same synthetic bucket as SPEC-11 analytics. Never a real category id. */
+export const SPLIT_UNCATEGORIZED_CATEGORY_ID = "_uncategorized";
+export const SPLIT_UNCATEGORIZED_CATEGORY_NAME = "Sin categoría";
+
+export type SplitExpenseForCategory = {
+  amountCents: number;
+  categoryId: string | null;
+  categoryName: string | null;
+};
+
+export type SplitCategorySpendingRow = {
+  categoryId: string;
+  categoryName: string;
+  amountCents: number;
+  transactionCount: number;
+};

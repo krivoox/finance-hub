@@ -6,10 +6,8 @@ import { getRequestOrigin } from "@/lib/request-origin";
 import { getSplitGroup } from "@/features/splits/services";
 import { SplitNotFoundError, NotSplitGroupUserMemberError } from "@/features/splits/domain";
 import { SplitGroupDetail } from "@/features/splits/components/split-group-detail";
-import {
-  peopleCountLabel,
-  splitGroupKindLabel,
-} from "@/features/splits/components/split-copy";
+import { SplitGroupDetailActions } from "@/features/splits/components/split-group-detail-actions";
+import { peopleCountLabel } from "@/features/splits/components/split-copy";
 
 export default async function SplitGroupDetailPage({
   params,
@@ -42,7 +40,17 @@ export default async function SplitGroupDetailPage({
   return (
     <ContentPanel
       title={group.name}
-      description={`${splitGroupKindLabel(group.kind)} · ${peopleCountLabel(group.members.length)}`}
+      description={peopleCountLabel(group.members.length)}
+      actions={
+        group.isCreator ? (
+          <div className="flex w-full justify-end sm:w-auto">
+            <SplitGroupDetailActions
+              splitGroupId={group.id}
+              name={group.name}
+            />
+          </div>
+        ) : undefined
+      }
     >
       <SplitGroupDetail group={group} shareUrl={shareUrl} />
     </ContentPanel>

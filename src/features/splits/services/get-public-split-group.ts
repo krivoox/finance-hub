@@ -55,7 +55,6 @@ export async function getPublicSplitGroup(token: string) {
 
   return {
     id: group.id,
-    kind: group.kind,
     currency: group.currency,
     token: group.publicShareToken,
     ...projectPublicSplitGroup({

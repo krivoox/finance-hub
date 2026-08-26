@@ -1,6 +1,12 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import { computeMemberBalances } from "@/features/splits/domain";
+import {
+  aggregateSplitSpendingByCategory,
+  canRemoveMember,
+  canRenameMember,
+  computeMemberBalances,
+  memberHasLedgerHistory,
+} from "@/features/splits/domain";
 import { toMemberRef } from "./member-map";
 import { loadSplitGroupForUser } from "./require-split-group-access";
 
@@ -25,6 +31,8 @@ export async function getSplitGroup(input: {
             currency: true,
             occurredOn: true,
             description: true,
+            categoryId: true,
+            category: { select: { name: true } },
           },
         },
       },
@@ -38,6 +46,12 @@ export async function getSplitGroup(input: {
 
   const members = group.members.map(toMemberRef);
   const nameById = new Map(members.map((m) => [m.memberId, m.displayName]));
+  const paidSplitMemberIds = splits.map((s) => s.paidByMemberId);
+  const shareMemberIds = splits.flatMap((s) => s.shares.map((sh) => sh.memberId));
+  const settlementMemberIds = settlements.flatMap((s) => [
+    s.fromMemberId,
+    s.toMemberId,
+  ]);
   const balances = computeMemberBalances(
     splits.map((s) => ({
       paidByMemberId: s.paidByMemberId,
@@ -53,20 +67,38 @@ export async function getSplitGroup(input: {
     })),
     members.map((m) => m.memberId),
   );
+  const memberAbm = {
+    actorUserId: input.userId,
+    createdByUserId: group.createdByUserId,
+    actorMemberId: actor.memberId,
+  };
 
   return {
     id: group.id,
     name: group.name,
-    kind: group.kind,
     currency: group.currency,
     publicShareToken: group.publicShareToken,
     createdByUserId: group.createdByUserId,
     isCreator: group.createdByUserId === input.userId,
     actorMemberId: actor.memberId,
-    members: members.map((m) => ({
-      ...m,
-      netCents: balances.find((b) => b.memberId === m.memberId)?.netCents ?? 0,
-    })),
+    members: members.map((m) => {
+      const hasLedgerHistory = memberHasLedgerHistory({
+        memberId: m.memberId,
+        paidSplitMemberIds,
+        shareMemberIds,
+        settlementMemberIds,
+      });
+      return {
+        ...m,
+        netCents: balances.find((b) => b.memberId === m.memberId)?.netCents ?? 0,
+        canRename: canRenameMember({ ...memberAbm, target: m }),
+        canRemove: canRemoveMember({
+          ...memberAbm,
+          target: m,
+          hasLedgerHistory,
+        }),
+      };
+    }),
     balances,
     activity: splits.map((s) => ({
       id: s.id,
@@ -79,6 +111,13 @@ export async function getSplitGroup(input: {
       paidByDisplayName: nameById.get(s.paidByMemberId) ?? "Alguien",
       method: s.method,
     })),
+    spendingByCategory: aggregateSplitSpendingByCategory(
+      splits.map((s) => ({
+        amountCents: s.expense.amountCents,
+        categoryId: s.expense.categoryId,
+        categoryName: s.expense.category?.name ?? null,
+      })),
+    ),
     settlements: settlements.map((s) => ({
       id: s.id,
       fromMemberId: s.fromMemberId,

@@ -8,7 +8,10 @@ import {
   createSettlementSchema,
   createSplitGroupSchema,
   deleteSettlementSchema,
+  deleteSplitGroupSchema,
   joinSplitGroupSchema,
+  removeSplitGroupMemberSchema,
+  renameSplitGroupMemberSchema,
   renameSplitGroupSchema,
 } from "@/features/splits/schemas";
 import {
@@ -17,8 +20,11 @@ import {
   createSettlement,
   createSplitGroup,
   deleteSettlement,
+  deleteSplitGroup,
   joinSplitGroup,
+  removeSplitGroupMember,
   renameSplitGroup,
+  renameSplitGroupMember,
 } from "@/features/splits/services";
 import { SplitDomainError } from "@/features/splits/domain";
 import { WorkspaceDomainError } from "@/features/workspaces/domain";
@@ -35,6 +41,10 @@ function errorMessage(err: unknown): string {
         return "Poné cómo se llama.";
       case "DuplicateGhostNameError":
         return "Ya hay alguien con ese nombre en el grupo.";
+      case "CannotRemoveGroupCreatorError":
+        return "El que armó el grupo no se puede sacar. Si ya no lo usás, eliminá el grupo.";
+      case "MemberHasSplitHistoryError":
+        return "No se puede sacar a alguien que ya tiene gastos o cobros.";
       case "AlreadySplitGroupMemberError":
         return "Ya estás en este grupo.";
       case "GhostCannotPayError":
@@ -42,6 +52,9 @@ function errorMessage(err: unknown): string {
       case "NotSplitGroupUserMemberError":
       case "SplitNotFoundError":
       case "ForbiddenSplitGroupActionError":
+        if (err.message === "Confirmation name does not match") {
+          return "Escribí el nombre del grupo tal cual para confirmar.";
+        }
         return "No tenés acceso a este grupo.";
       case "SplitGroupTooSmallError":
         return "Sumá a alguien más para dividir el gasto.";
@@ -91,7 +104,6 @@ export async function createSplitGroupAction(
     const group = await createSplitGroup({
       userId: session.user.id,
       name: parsed.data.name,
-      kind: parsed.data.kind,
     });
     revalidateSplitPaths(group.id);
     return { ok: true, data: { id: group.id } };
@@ -124,6 +136,30 @@ export async function renameSplitGroupAction(
   }
 }
 
+export async function deleteSplitGroupAction(
+  input: unknown,
+): Promise<ActionResult<{ id: string }>> {
+  const session = await getSession();
+  if (!session?.user?.id) return { ok: false, error: "No autenticado" };
+
+  const parsed = deleteSplitGroupSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
+  }
+
+  try {
+    const group = await deleteSplitGroup({
+      userId: session.user.id,
+      splitGroupId: parsed.data.splitGroupId,
+      confirmName: parsed.data.confirmName,
+    });
+    revalidateSplitPaths(group.id);
+    return { ok: true, data: { id: group.id } };
+  } catch (err) {
+    return { ok: false, error: errorMessage(err) };
+  }
+}
+
 export async function addGhostMemberAction(
   input: unknown,
 ): Promise<ActionResult<{ id: string }>> {
@@ -143,6 +179,55 @@ export async function addGhostMemberAction(
     });
     revalidateSplitPaths(parsed.data.splitGroupId);
     return { ok: true, data: { id: member.id } };
+  } catch (err) {
+    return { ok: false, error: errorMessage(err) };
+  }
+}
+
+export async function renameSplitGroupMemberAction(
+  input: unknown,
+): Promise<ActionResult<{ id: string }>> {
+  const session = await getSession();
+  if (!session?.user?.id) return { ok: false, error: "No autenticado" };
+
+  const parsed = renameSplitGroupMemberSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
+  }
+
+  try {
+    const member = await renameSplitGroupMember({
+      userId: session.user.id,
+      splitGroupId: parsed.data.splitGroupId,
+      memberId: parsed.data.memberId,
+      displayName: parsed.data.displayName,
+    });
+    revalidateSplitPaths(parsed.data.splitGroupId);
+    return { ok: true, data: { id: member.id } };
+  } catch (err) {
+    return { ok: false, error: errorMessage(err) };
+  }
+}
+
+export async function removeSplitGroupMemberAction(
+  input: unknown,
+): Promise<ActionResult<{ id: string }>> {
+  const session = await getSession();
+  if (!session?.user?.id) return { ok: false, error: "No autenticado" };
+
+  const parsed = removeSplitGroupMemberSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Datos inválidos" };
+  }
+
+  try {
+    const result = await removeSplitGroupMember({
+      userId: session.user.id,
+      splitGroupId: parsed.data.splitGroupId,
+      memberId: parsed.data.memberId,
+    });
+    revalidateSplitPaths(parsed.data.splitGroupId);
+    return { ok: true, data: { id: result.id } };
   } catch (err) {
     return { ok: false, error: errorMessage(err) };
   }

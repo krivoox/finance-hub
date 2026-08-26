@@ -1,57 +1,86 @@
-import { Badge } from "@/components/ui/badge";
-import {
-  SurfaceHeader,
-  SurfaceSection,
-} from "@/components/surface-section";
+"use client";
+
+import { useState } from "react";
+
+import { FormSheet } from "@/components/form-sheet";
+import { SurfaceSection } from "@/components/surface-section";
 import type { ListedSplitGroup } from "@/features/splits/services";
+import { DeleteSplitGroupDialog } from "./delete-split-group-dialog";
+import { EditSplitGroupForm } from "./edit-split-group-form";
 import { SplitGroupCard } from "./split-group-card";
 import { SplitGroupsEmpty } from "./split-groups-empty";
-import {
-  groupCountLabel,
-  splitGroupKindLabel,
-  type SplitGroupKindUi,
-} from "./split-copy";
 
-const KIND_ORDER: SplitGroupKindUi[] = ["ongoing", "one_time"];
+type GroupTarget = {
+  id: string;
+  name: string;
+};
 
 export function SplitGroupsDirectory({
   groups,
 }: {
   groups: readonly ListedSplitGroup[];
 }) {
+  const [editTarget, setEditTarget] = useState<GroupTarget | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<GroupTarget | null>(null);
+
   if (groups.length === 0) {
     return <SplitGroupsEmpty />;
   }
 
-  const sections = KIND_ORDER.map((kind) => ({
-    kind,
-    items: groups.filter((group) => group.kind === kind),
-  })).filter((section) => section.items.length > 0);
-
   return (
-    <div className="flex flex-col gap-5 sm:gap-6">
-      {sections.map((section) => (
-        <SurfaceSection
-          key={section.kind}
-          aria-label={splitGroupKindLabel(section.kind)}
-        >
-          <SurfaceHeader
-            title={splitGroupKindLabel(section.kind)}
-            action={
-              <Badge variant="outline" className="h-5 px-1.5 text-xs">
-                {groupCountLabel(section.items.length)}
-              </Badge>
-            }
+    <>
+      <SurfaceSection aria-label="Tus grupos">
+        <ul className="-mx-2 divide-y divide-border">
+          {groups.map((group) => (
+            <li key={group.id} className="min-w-0">
+              <SplitGroupCard
+                group={group}
+                onEdit={
+                  group.isCreator
+                    ? () => setEditTarget({ id: group.id, name: group.name })
+                    : undefined
+                }
+                onDelete={
+                  group.isCreator
+                    ? () => setDeleteTarget({ id: group.id, name: group.name })
+                    : undefined
+                }
+              />
+            </li>
+          ))}
+        </ul>
+      </SurfaceSection>
+
+      <FormSheet
+        open={editTarget != null}
+        onOpenChange={(open) => {
+          if (!open) setEditTarget(null);
+        }}
+        title="Editar grupo"
+        description="Cambiá el nombre. El círculo sigue siendo el mismo."
+        size="md"
+      >
+        {editTarget ? (
+          <EditSplitGroupForm
+            key={editTarget.id}
+            splitGroupId={editTarget.id}
+            name={editTarget.name}
+            onSuccess={() => setEditTarget(null)}
+            onCancel={() => setEditTarget(null)}
           />
-          <ul className="-mx-2 divide-y divide-border">
-            {section.items.map((group) => (
-              <li key={group.id} className="min-w-0">
-                <SplitGroupCard group={group} />
-              </li>
-            ))}
-          </ul>
-        </SurfaceSection>
-      ))}
-    </div>
+        ) : null}
+      </FormSheet>
+
+      {deleteTarget ? (
+        <DeleteSplitGroupDialog
+          open
+          onOpenChange={(open) => {
+            if (!open) setDeleteTarget(null);
+          }}
+          splitGroupId={deleteTarget.id}
+          name={deleteTarget.name}
+        />
+      ) : null}
+    </>
   );
 }

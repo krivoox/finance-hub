@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireMembership } from "@/features/workspaces/services";
 import {
   assertCanReadGoals,
+  progressFillPercent,
   progressPercent,
   type GoalKind,
   type GoalStatus,
@@ -21,6 +22,7 @@ export type GoalWithProgress = {
   linkedAccountName: string | null;
   status: GoalStatus;
   progressPercent: number;
+  progressFillPercent: number;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -86,6 +88,10 @@ export async function listGoals({
       linkedAccountName: r.linkedAccount?.name ?? null,
       status: r.status as GoalStatus,
       progressPercent: progressPercent(r.currentAmountCents, r.targetAmountCents),
+      progressFillPercent: progressFillPercent(
+        r.currentAmountCents,
+        r.targetAmountCents,
+      ),
       createdAt: r.createdAt,
       updatedAt: r.updatedAt,
     }))

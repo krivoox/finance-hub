@@ -16,14 +16,15 @@ export type AbmColumnSlot = "identity" | "amount" | "action";
 const SLOT_HEAD_CLASS: Record<AbmColumnSlot, string> = {
   identity: "min-w-0 w-[62%] sm:w-auto",
   amount: "w-[38%] text-right whitespace-nowrap sm:w-[1%]",
-  action: "hidden w-10 text-right sm:table-cell",
+  action: "hidden whitespace-nowrap text-right sm:table-cell sm:w-[1%]",
 };
 
 const SLOT_CELL_CLASS: Record<AbmColumnSlot, string> = {
   identity: "min-w-0 w-[62%] max-w-[62%] whitespace-normal sm:w-auto sm:max-w-none",
   amount:
     "w-[38%] max-w-[38%] text-right whitespace-nowrap sm:w-[1%] sm:max-w-none",
-  action: "relative z-10 hidden w-10 text-right sm:table-cell",
+  action:
+    "relative z-10 hidden whitespace-nowrap text-right sm:table-cell sm:w-[1%]",
 };
 
 type AbmTableProps = {

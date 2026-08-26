@@ -1,23 +1,25 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 
 import { formatSignedMoney } from "@/lib/format-money";
+import { cn } from "@/lib/utils";
 
-import { useTransactionFeedbackStore } from "../stores/transaction-feedback-store";
+import {
+  SPLASH_FADE_OUT_MS,
+  SPLASH_HOLD_MS,
+  useTransactionFeedbackStore,
+} from "../stores/transaction-feedback-store";
 
-/** DESIGN.md: UI motion &lt; 300ms. Overlay hold covers a typical RSC refresh. */
-const SPLASH_MS = 280;
-const MONEY_PENDING_MS = 520;
-
-const KIND_LABEL: Record<
-  "income" | "expense" | "transfer",
-  string
-> = {
+const KIND_LABEL: Record<"income" | "expense" | "transfer", string> = {
   income: "Ingreso registrado",
   expense: "Gasto registrado",
   transfer: "Transferencia registrada",
 };
+
+function prefersReducedMotion() {
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
 
 /**
  * Full-viewport confirmation of the amount just registered. Plays while the
@@ -27,25 +29,36 @@ const KIND_LABEL: Record<
 export function TransactionAmountSplash() {
   const splash = useTransactionFeedbackStore((s) => s.splash);
   const clearSplash = useTransactionFeedbackStore((s) => s.clearSplash);
-  const clearMoneyPending = useTransactionFeedbackStore(
-    (s) => s.clearMoneyPending,
-  );
+  const [exiting, setExiting] = useState(false);
+
+  useLayoutEffect(() => {
+    if (splash && prefersReducedMotion()) {
+      clearSplash();
+    }
+  }, [splash, clearSplash]);
 
   useEffect(() => {
-    if (!splash) return;
+    if (!splash) {
+      setExiting(false);
+      return;
+    }
 
+    if (prefersReducedMotion()) return;
+
+    setExiting(false);
+
+    const startExit = window.setTimeout(() => {
+      setExiting(true);
+    }, SPLASH_HOLD_MS);
     const hide = window.setTimeout(() => {
       clearSplash();
-    }, SPLASH_MS);
-    const pending = window.setTimeout(() => {
-      clearMoneyPending();
-    }, MONEY_PENDING_MS);
+    }, SPLASH_HOLD_MS + SPLASH_FADE_OUT_MS);
 
     return () => {
+      window.clearTimeout(startExit);
       window.clearTimeout(hide);
-      window.clearTimeout(pending);
     };
-  }, [splash, clearSplash, clearMoneyPending]);
+  }, [splash, clearSplash]);
 
   if (!splash) return null;
 
@@ -65,13 +78,19 @@ export function TransactionAmountSplash() {
 
   return (
     <div
-      className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-background/70 px-6 backdrop-blur-[2px]"
+      className={cn(
+        "pointer-events-none fixed inset-0 z-50 flex items-center justify-center bg-background/70 px-6 backdrop-blur-[2px] transition-opacity duration-200 ease-out",
+        exiting ? "opacity-0" : "opacity-100",
+      )}
       role="status"
       aria-live="polite"
       aria-label={KIND_LABEL[splash.kind]}
     >
       <p
-        className={`animate-in fade-in zoom-in-95 font-heading text-4xl font-extrabold tracking-tight tabular duration-300 sm:text-5xl ${toneClass}`}
+        className={cn(
+          "animate-in fade-in zoom-in-95 font-heading text-4xl font-extrabold tracking-tight tabular duration-300 sm:text-5xl",
+          toneClass,
+        )}
       >
         {formatSignedMoney(signed, splash.currency)}
       </p>

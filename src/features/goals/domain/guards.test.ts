@@ -24,6 +24,7 @@ import {
   assertValidGoalName,
   assertValidTargetAmount,
   normalizeGoalName,
+  progressFillPercent,
   progressPercent,
   reverseContribution,
 } from "./guards";
@@ -188,6 +189,34 @@ describe("progressPercent — SPEC-08 FR-03", () => {
   it("floors fractional percentages to integer for display", () => {
     // 333/1000 = 33.3% → 33
     expect(progressPercent(333, 1000)).toBe(33);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// SPEC-08 T-02b — bar fill uses the exact ratio so small contributions move
+// ---------------------------------------------------------------------------
+describe("progressFillPercent — SPEC-08 FR-03 bar", () => {
+  it("T-02 · matches the integer percent when the ratio is exact", () => {
+    expect(progressFillPercent(200_000_00, 500_000_00)).toBe(40);
+  });
+
+  it("T-02b · stays above 0 after a small contribution on a large target", () => {
+    // 50_000 ARS into a 5_600_999 ARS goal → 0.89%, which floors to 0%
+    const currentCents = 50_000_00;
+    const targetCents = 5_600_999_00;
+    expect(progressPercent(currentCents, targetCents)).toBe(0);
+    const fill = progressFillPercent(currentCents, targetCents);
+    expect(fill).toBeGreaterThan(0);
+    expect(fill).toBeCloseTo((50_000_00 / 5_600_999_00) * 100, 5);
+  });
+
+  it("caps at 100 when current exceeds target", () => {
+    expect(progressFillPercent(650_000_00, 500_000_00)).toBe(100);
+  });
+
+  it("returns 0 when current is 0 or the target is invalid", () => {
+    expect(progressFillPercent(0, 500_000_00)).toBe(0);
+    expect(progressFillPercent(1000, 0)).toBe(0);
   });
 });
 

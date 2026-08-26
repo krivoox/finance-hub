@@ -21,8 +21,8 @@ El trabajo a cubrir es **repartir gastos entre personas**, no compartir un ledge
 | Persona | Momento |
 |---------|---------|
 | Individuo con la app | Carga un gasto desde el teléfono (formulario normal) y lo reparte |
-| Pareja / casa (ongoing) | Mismo círculo durante meses; balances acumulados |
-| Asado / salida (one-time) | Círculo corto; se comparte un enlace por WhatsApp |
+| Pareja / casa | Mismo círculo durante meses; balances acumulados |
+| Asado / salida | Círculo corto; se comparte un enlace por WhatsApp |
 | Persona **sin** la app (ghost o visitante del enlace) | No instala nada; igual entra en el reparto y/o ve quién debe |
 
 ### Jobs-to-be-done
@@ -81,11 +81,19 @@ Riesgo principal de C: usuarios que ya usaban el workspace grupal como ledger de
 
 **H2. Crear grupo**
 
-> Como usuario, quiero crear “Un grupo nuevo” con nombre y tipo (sigue vs de una vez), para distinguir casa de asado.
+> Como usuario, quiero crear “Un grupo nuevo” con un nombre, para tener un círculo al que imputar gastos.
+
+**H2b. Editar y borrar grupo**
+
+> Como creador, quiero cambiar el nombre del grupo o eliminarlo, para corregir un error o cerrar un círculo que ya no uso.
 
 **H3. Miembro ghost**
 
 > Como creador/miembro, quiero sumar a alguien **solo con el nombre**, para repartir aunque no tenga la app.
+
+**H3b. Editar y sacar miembros**
+
+> Como miembro con cuenta, quiero corregir el nombre de alguien o sacarlo del grupo si todavía no hay gastos ni cobros, para no dejar gente de más.
 
 **H4. Invitar quien ya tiene la app**
 
@@ -102,6 +110,10 @@ Riesgo principal de C: usuarios que ya usaban el workspace grupal como ledger de
 **H7. Listado y balances del grupo**
 
 > Como usuario-miembro, quiero abrir el grupo y ver miembros + quién debe a quién + actividad de splits, para saber cómo estamos.
+
+**H7b. Gastos del grupo por categoría**
+
+> Como usuario-miembro, en el detalle del grupo quiero una tab «Gastos por categoría» junto al listado de movimientos, con el mismo donut del panel («Distribución de gastos»), para ver en qué se fue la plata compartida.
 
 **H8. El grupo no es un tenant**
 
@@ -123,7 +135,6 @@ Riesgo principal de C: usuarios que ya usaban el workspace grupal como ledger de
 
 ### P2 — Could / later
 
-**H12.** Cerrar un grupo one-time.  
 **H13.** Registrar “pagó un ghost / otro miembro” **sin** debitar mi cuenta.  
 **H14.** Simplify debts (mínimo de transferencias).  
 **H15.** Ledger compartido del hogar (cuentas de Casa) — **no** es este producto.
@@ -134,9 +145,9 @@ Riesgo principal de C: usuarios que ya usaban el workspace grupal como ledger de
 
 - Kill de workspace grupal + switcher + invites de tenant + UI/services asociados (ver §10).
 - Migración breaking: borrar workspaces `group` existentes y su grafo (aceptado).
-- `SplitGroup` en el workspace personal: create, list, detail, rename (owner).
-- Tipo `ongoing` | `one_time` (metadata; filtrar/copy). Cerrar grupo = later.
-- Miembros: el creador (user) + ghosts por nombre + user-miembros vía enlace.
+- `SplitGroup` en el workspace personal: create, list, detail, rename y delete (creador).
+- **Sin tipo de grupo.** Todos son grupos con un nombre. No hay `ongoing` / `one_time` en producto ni en el listado.
+- Miembros: el creador (user) + ghosts por nombre + user-miembros vía enlace. Rename de displayName y baja si no hay historial de splits/settlements.
 - Enlace **público de solo lectura** (token) con nombres + balances + lista corta de gastos del grupo. Sin cuentas, sin saldos de ledger.
 - Enlace o CTA **Unirme** para usuarios logueados (H4). Reclamar ghost (H11) puede ir en el mismo slice o inmediato P1 — si no entra, documentar duplicados.
 - Toggle de split **solo en alta de expense** (no income, no transfer, no desde `/groups` como form de carga).
@@ -170,8 +181,10 @@ Riesgo principal de C: usuarios que ya usaban el workspace grupal como ledger de
 | ID | Requisito |
 |----|-----------|
 | FR-01 | `/groups` lista los SplitGroups del usuario (creador o user-miembro). Empty: copy del asado + CTA “Crear un grupo”. **No** hay form de carga de gasto aquí. Footer/nota: los gastos divididos se cargan al registrar un gasto. |
-| FR-02 | Crear grupo: título “Un grupo nuevo”; nombre (placeholder “Casa, Asado del sábado…”); tipo “Qué es”: *Algo que sigue (casa, viaje largo)* = `ongoing`; *Algo de una vez (asado, salida)* = `one_time`. |
+| FR-02 | Crear grupo: título “Un grupo nuevo”; **solo nombre** (placeholder “Casa, Asado del sábado…”). Sin selector de tipo. |
+| FR-02b | El creador puede **renombrar** el grupo y **eliminarlo**. Delete: cascade de miembros, splits y settlements; las txs de ledger de cada payer **permanecen**. Confirmación explícita (nombre). |
 | FR-03 | Agregar miembro: (a) enlace de invitación **visible** en el detalle (URL a la vista + copiar + WhatsApp); (b) “Sólo el nombre” (ghost). |
+| FR-03b | ABM de miembros: renombrar displayName; sacar a alguien **sin** historial (shares, payer o settlements). No se saca al creador. Un user-miembro no creador puede irse si no tiene historial. |
 | FR-04 | Link público copiable; la URL se muestra en el detalle (no solo clipboard). Página sin auth con proyección limitada (FR-05). El origin del enlace es el host de la request (alias de preview / prod), no un hostname efímero. |
 | FR-05 | Proyección pública: nombre del grupo, miembros (solo `displayName`), net balances, actividad de splits (descripcion/monto/quién pagó). Sin cuentas, categorías internas, ni patrimonio. |
 | FR-06 | Alta de expense: si el usuario tiene ≥1 grupo, toggle “Dividirlo con alguien”. Selector de grupo. Default iguales entre miembros del grupo. Preview en lenguaje natural. Link “Repartirlo de otra forma” (H9). |
@@ -179,6 +192,7 @@ Riesgo principal de C: usuarios que ya usaban el workspace grupal como ledger de
 | FR-08 | User-miembro ve el grupo en **su** app (su workspace personal); no cambia de tenant. |
 | FR-09 | Kill list §10 ejecutada: cero UI/actions de group workspace; cero código muerto. |
 | FR-10 | Query de balances del grupo reutiliza el motor de SPEC-10 (miembro = `memberId`, no `userId` de workspace). |
+| FR-11 | Detalle autenticado (`/groups/[id]`): la card de movimientos tiene tabs «Movimientos» (listado actual: splits + settlements) y «Gastos por categoría» (donut + leyenda, mismo componente visual que el panel). Solo **splits**; settlements no entran. Monto = `expense.amountCents` (total del gasto, no la parte del actor). Agrupa por `categoryId` de la tx (SPEC-11); sin categoría → «Sin categoría». Ventana = **todos** los splits del grupo (no “este mes”). Vista pública: **sin** categorías (FR-05). |
 
 Copy de referencia (empty):
 
@@ -204,8 +218,20 @@ Agrupados por historia. Verificables en pantalla o por test de dominio (montos).
 ### H2 Crear
 
 - **Given** empty o listado  
-- **When** crea grupo nombre “Casa”, tipo ongoing  
-- **Then** el grupo existe; el creador es miembro `user`; aparece en `/groups`; moneda = base del personal
+- **When** crea grupo nombre “Casa”  
+- **Then** el grupo existe; el creador es miembro `user`; aparece en `/groups` **sin** etiqueta de tipo; moneda = base del personal
+
+- **Given** soy el creador del grupo “Casa”  
+- **When** lo renombro a “Depto”  
+- **Then** el listado y el detalle muestran “Depto”
+
+- **Given** soy el creador  
+- **When** confirmo eliminar el grupo  
+- **Then** desaparece de `/groups`; los gastos cargados en cuentas personales siguen
+
+- **Given** soy user-miembro y **no** creador  
+- **When** intento renombrar o borrar el grupo  
+- **Then** se rechaza (`ForbiddenSplitGroupActionError`)
 
 - **Given** nombre vacío o solo espacios  
 - **When** submit  
@@ -220,6 +246,22 @@ Agrupados por historia. Verificables en pantalla o por test de dominio (montos).
 - **Given** mismo grupo, nombre duplicado (case-insensitive trim)  
 - **When** agrego otro “juan”  
 - **Then** rechazo claro (no dos ghosts homónimos en el mismo grupo)
+
+- **Given** ghost “Juan” sin gastos ni cobros  
+- **When** lo renombro a “Juancito”  
+- **Then** figura “Juancito”; la clave homónima se actualiza
+
+- **Given** ghost o user-miembro **sin** shares, pagos ni settlements  
+- **When** lo saco del grupo (o me voy, si no soy el creador)  
+- **Then** deja de aparecer en miembros y en splits nuevos
+
+- **Given** alguien con historial de split o settlement  
+- **When** intento sacarlo  
+- **Then** rechazo claro (`MemberHasSplitHistoryError`)
+
+- **Given** soy el creador  
+- **When** intento sacarme del grupo  
+- **Then** rechazo (`CannotRemoveGroupCreatorError`); el camino es eliminar el grupo
 
 ### H4 Invite usuario
 
@@ -262,6 +304,18 @@ Agrupados por historia. Verificables en pantalla o por test de dominio (montos).
 - **When** abro el grupo  
 - **Then** nets coherentes con SPEC-10; actividad muestra quién registró / quién pagó
 
+- **Given** dos splits 6000 «Comida» y 4000 «Transporte», más un settlement 1000  
+- **When** abro el grupo y la tab «Gastos por categoría»  
+- **Then** el donut suma 10_000 (el settlement no entra); Comida 60 % y Transporte 40 %; la tab «Movimientos» sigue listando gastos **y** cobros
+
+- **Given** un split sin categoría  
+- **When** abro «Gastos por categoría»  
+- **Then** entra en el bucket «Sin categoría» (mismo id sintético que SPEC-11)
+
+- **Given** visitante del link público  
+- **When** abre `/s/{token}`  
+- **Then** no ve categorías ni el donut (FR-05)
+
 ### H8 Sin tenant grupal
 
 - **Given** usuario con solo personal (post-migración)  
@@ -294,8 +348,7 @@ User ── Membership ──► Workspace (siempre personal en producto)
 |-------|--------|
 | id | |
 | workspaceId | Tenant del **creador**. No se switch-ea. |
-| name | Visible |
-| kind | `ongoing` \| `one_time` |
+| name | Visible; el único dato de producto del círculo |
 | currency | = baseCurrency al crear (v1) |
 | publicShareToken | URL-safe, unguessable |
 | createdByUserId | |
@@ -403,9 +456,12 @@ Nombres en inglés para código. Contratos de dominio y Prisma: SPEC-10 §9 y §
 
 | Tipo | Nombre | Notas |
 |------|--------|-------|
-| Command | `CreateSplitGroup` | name, kind |
-| Command | `RenameSplitGroup` | owner |
+| Command | `CreateSplitGroup` | name |
+| Command | `RenameSplitGroup` | creador |
+| Command | `DeleteSplitGroup` | creador; cascade círculo; txs de ledger quedan |
 | Command | `AddGhostMember` | displayName |
+| Command | `RenameSplitGroupMember` | ghost: cualquier user-miembro; user: uno mismo o el creador |
+| Command | `RemoveSplitGroupMember` | sin historial; no el creador |
 | Command | `CreateSplitGroupInvite` | link “Tiene Plata” |
 | Command | `JoinSplitGroup` | token + session |
 | Command | `CreateExpenseWithSplit` | SPEC-05 + groupId; equal default |
