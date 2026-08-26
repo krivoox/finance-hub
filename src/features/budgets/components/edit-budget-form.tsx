@@ -13,8 +13,13 @@ import {
   FormSection,
   FormStack,
 } from "@/components/form-sheet";
+import { AmountInput } from "@/components/amount-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  formatCentsAsAmountInput,
+  parseAmountCents,
+} from "@/domain/money/parse-amount";
 import { refreshAfterMutation } from "@/lib/navigation";
 
 type CategoryOption = {
@@ -39,10 +44,6 @@ type EditBudgetFormProps = {
   onCancel?: () => void;
 };
 
-function centsToUnits(cents: number): string {
-  return (cents / 100).toFixed(2);
-}
-
 export function EditBudgetForm({
   budgetId,
   name,
@@ -64,7 +65,7 @@ export function EditBudgetForm({
   } = useForm<FormValues>({
     defaultValues: {
       name,
-      limitUnits: centsToUnits(limitCents),
+      limitUnits: formatCentsAsAmountInput(limitCents),
       categoryIds: [...categoryIds],
     },
   });
@@ -75,13 +76,8 @@ export function EditBudgetForm({
   );
 
   const onSubmit = handleSubmit((values) => {
-    const parsedUnits = Number(values.limitUnits.replace(",", "."));
-    if (!Number.isFinite(parsedUnits) || parsedUnits <= 0) {
-      toast.error("El límite debe ser mayor a 0");
-      return;
-    }
-    const nextLimitCents = Math.round(parsedUnits * 100);
-    if (!Number.isInteger(nextLimitCents) || nextLimitCents <= 0) {
+    const nextLimitCents = parseAmountCents(values.limitUnits);
+    if (nextLimitCents === null) {
       toast.error("El límite debe ser mayor a 0");
       return;
     }
@@ -133,14 +129,8 @@ export function EditBudgetForm({
             htmlFor="edit-budget-limit"
             hint={`Monto máximo del periodo (${currency})`}
           >
-            <Input
+            <AmountInput
               id="edit-budget-limit"
-              type="number"
-              inputMode="decimal"
-              min={0}
-              step="0.01"
-              placeholder="0,00"
-              className="tabular-nums"
               aria-invalid={Boolean(errors.limitUnits)}
               {...register("limitUnits", { required: true })}
             />

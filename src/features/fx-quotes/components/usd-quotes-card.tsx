@@ -8,8 +8,9 @@ import { toast } from "sonner";
 import type { UsdQuotesDto } from "@/features/fx-quotes/types";
 import { applyMepConsolidationRateAction } from "@/features/fx-quotes/actions";
 import { convertWithUsdQuote } from "@/features/fx-quotes/domain";
+import { parseAmountCents } from "@/domain/money/parse-amount";
+import { AmountInput } from "@/components/amount-input";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
   Popover,
@@ -82,9 +83,8 @@ function ConverterPanel({
 
   const result = useMemo(() => {
     if (!line) return null;
-    const major = Number(amount.replace(",", "."));
-    if (!Number.isFinite(major) || major < 0) return null;
-    const amountCents = Math.round(major * 100);
+    const amountCents = parseAmountCents(amount, { allowZero: true });
+    if (amountCents === null) return null;
     try {
       const out = convertWithUsdQuote({
         amountCents,
@@ -127,14 +127,9 @@ function ConverterPanel({
           { value: "oficial", label: "Oficial" },
         ]}
       />
-      <Input
-        type="number"
-        inputMode="decimal"
-        min={0}
-        step="0.01"
+      <AmountInput
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
-        className="tabular-nums"
         aria-label={`Monto en ${fromCurrency}`}
       />
       <p className="text-sm tabular-nums text-foreground">
