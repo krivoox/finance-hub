@@ -44,7 +44,7 @@ export function NewsletterSubscribeForm() {
   }
 
   return (
-    <form className="space-y-3" onSubmit={onSubmit} noValidate>
+    <form className="space-y-3" onSubmit={onSubmit} noValidate method="post">
       <div className="space-y-1">
         <label htmlFor="newsletter-email" className="sr-only">
           Email para novedades

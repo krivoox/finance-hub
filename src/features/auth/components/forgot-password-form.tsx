@@ -25,11 +25,21 @@ export function ForgotPasswordForm() {
   });
 
   const onSubmit = handleSubmit(async (values) => {
-    // Always show a generic success (SPEC-01 §5: no email enumeration).
-    await authClient.requestPasswordReset({
-      email: values.email,
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
+    // Always show a generic success (SPEC-01 §5: no email enumeration),
+    // even if the request fails or hangs (network / mailer / DB).
+    try {
+      await Promise.race([
+        authClient.requestPasswordReset({
+          email: values.email,
+          redirectTo: `${window.location.origin}/reset-password`,
+        }),
+        new Promise<void>((resolve) => {
+          setTimeout(resolve, 8_000);
+        }),
+      ]);
+    } catch {
+      // Swallow: the public surface stays generic.
+    }
     setSubmitted(true);
   });
 
@@ -49,7 +59,7 @@ export function ForgotPasswordForm() {
   }
 
   return (
-    <form className="space-y-4" onSubmit={onSubmit} noValidate>
+    <form className="space-y-4" onSubmit={onSubmit} noValidate method="post">
       <FormField label="Email" htmlFor="email" error={errors.email?.message}>
         <Input
           id="email"
