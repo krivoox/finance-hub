@@ -4,7 +4,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { FormSheet } from "@/components/form-sheet";
+import { FormSheet, FormSheetBody } from "@/components/form-sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { replaceAndRefresh } from "@/lib/navigation";
 
@@ -158,29 +158,36 @@ function NewTransactionSheetInner({
       title="Nueva transacción"
       description={`Gasto, ingreso o transferencia. Elegí la moneda (default ${currencyHint}).`}
       size="lg"
+      layout="fill"
     >
       {visibleLoad.status === "loading" || visibleLoad.status === "idle" ? (
-        <FormOptionsSkeleton />
+        <FormSheetBody>
+          <FormOptionsSkeleton />
+        </FormSheetBody>
       ) : null}
 
       {visibleLoad.status === "error" ? (
-        <p className="text-sm text-muted-foreground text-pretty">
-          {visibleLoad.message}
-        </p>
+        <FormSheetBody>
+          <p className="text-sm text-muted-foreground text-pretty">
+            {visibleLoad.message}
+          </p>
+        </FormSheetBody>
       ) : null}
 
       {visibleLoad.status === "ready" &&
       visibleLoad.options.accounts.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-pretty">
-          Necesitás al menos una cuenta activa para registrar transacciones.{" "}
-          <Link
-            href="/accounts"
-            className="font-medium text-foreground underline"
-            onClick={() => handleOpenChange(false)}
-          >
-            Ir a cuentas
-          </Link>
-        </p>
+        <FormSheetBody>
+          <p className="text-sm text-muted-foreground text-pretty">
+            Necesitás al menos una cuenta activa para registrar transacciones.{" "}
+            <Link
+              href="/accounts"
+              className="font-medium text-foreground underline"
+              onClick={() => handleOpenChange(false)}
+            >
+              Ir a cuentas
+            </Link>
+          </p>
+        </FormSheetBody>
       ) : null}
 
       {visibleLoad.status === "ready" &&
@@ -195,8 +202,8 @@ function NewTransactionSheetInner({
           splitGroups={visibleLoad.options.splitGroups}
           currentUserId={visibleLoad.options.currentUserId}
           initialType={initialType}
+          layout="sheet"
           onSuccess={handleSuccess}
-          onCancel={() => handleOpenChange(false)}
         />
       ) : null}
     </FormSheet>
