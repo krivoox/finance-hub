@@ -29,9 +29,11 @@ import {
   FormStack,
   SegmentedControl,
 } from "@/components/form-sheet";
+import { AmountInput } from "@/components/amount-input";
 import { DateField } from "@/components/date-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { parseAmountCents } from "@/domain/money/parse-amount";
 import { nativeSelectClassName } from "@/components/ui/native-select";
 import { cn } from "@/lib/utils";
 import {
@@ -90,14 +92,6 @@ function todayIsoDate(): string {
   const m = String(now.getMonth() + 1).padStart(2, "0");
   const d = String(now.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
-}
-
-function parseAmountCents(raw: string): number | null {
-  const parsedUnits = Number(raw.replace(",", "."));
-  if (!Number.isFinite(parsedUnits) || parsedUnits <= 0) return null;
-  const amountCents = Math.round(parsedUnits * 100);
-  if (!Number.isInteger(amountCents) || amountCents <= 0) return null;
-  return amountCents;
 }
 
 const TYPE_OPTIONS = CREATEABLE_TRANSACTION_TYPES.map((value) => ({
@@ -384,14 +378,9 @@ export function NewTransactionForm({
             htmlFor="tx-amount"
             hint={`En ${currencyHintLabel}`}
           >
-            <Input
+            <AmountInput
               id="tx-amount"
-              type="number"
-              inputMode="decimal"
-              min={0}
-              step="0.01"
-              placeholder="0,00"
-              className="h-11 text-base tabular-nums sm:h-9 sm:text-sm"
+              className="h-11 text-base sm:h-9 sm:text-sm"
               aria-invalid={Boolean(errors.amountUnits)}
               {...register("amountUnits", { required: true })}
             />

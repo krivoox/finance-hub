@@ -10,8 +10,9 @@ import {
   FormField,
   FormStack,
 } from "@/components/form-sheet";
+import { AmountInput } from "@/components/amount-input";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { parseAmountCents } from "@/domain/money/parse-amount";
 import { nativeSelectClassName } from "@/components/ui/native-select";
 import { refreshAfterMutation } from "@/lib/navigation";
 
@@ -49,9 +50,8 @@ export function CreateSettlementForm({
   if (others.length === 0) return null;
 
   const handleSubmit = () => {
-    const parsed = Number(amountUnits.replace(",", "."));
-    const amountCents = Math.round(parsed * 100);
-    if (!Number.isFinite(parsed) || amountCents <= 0) {
+    const amountCents = parseAmountCents(amountUnits);
+    if (amountCents === null) {
       toast.error("Poné un monto válido");
       return;
     }
@@ -98,13 +98,10 @@ export function CreateSettlementForm({
           </select>
         </FormField>
         <FormField label="Monto" htmlFor="settlement-amount" hint="Lo que te depositaron">
-          <Input
+          <AmountInput
             id="settlement-amount"
-            inputMode="decimal"
             value={amountUnits}
             onChange={(event) => setAmountUnits(event.target.value)}
-            placeholder="0,00"
-            className="tabular-nums"
           />
         </FormField>
       </FormStack>

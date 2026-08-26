@@ -12,6 +12,7 @@ import {
   FormStack,
   SegmentedControl,
 } from "@/components/form-sheet";
+import { AmountInput } from "@/components/amount-input";
 import { DateField } from "@/components/date-field";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -45,6 +46,12 @@ import {
 import { majorArsPerUsdToRateScaled } from "@/features/fx-quotes/domain/scale";
 import type { UsdQuotesDto } from "@/features/fx-quotes/types";
 import {
+  formatCentsAsAmountInput,
+  formatDecimalInput,
+  parseAmountCents,
+  parseDecimalNumber,
+} from "@/domain/money/parse-amount";
+import {
   isAccountCurrency,
   type AccountCurrency,
 } from "@/domain/money/currencies";
@@ -71,16 +78,6 @@ type NewFromTemplateSheetProps = {
   showDefaultTrigger?: boolean;
 };
 
-function centsToUnits(cents: number): string {
-  return (cents / 100).toFixed(2);
-}
-
-function parsePositiveUnits(raw: string): number | null {
-  const n = Number(raw.replace(",", "."));
-  if (!Number.isFinite(n) || n <= 0) return null;
-  return Math.round(n * 100);
-}
-
 function defaultFxFromQuotes(quotes: UsdQuotesDto | null): {
   quotePref: QuotePref;
   arsPerUsd: string;
@@ -89,7 +86,7 @@ function defaultFxFromQuotes(quotes: UsdQuotesDto | null): {
   if (mep && mep.sellRateScaled > 0) {
     return {
       quotePref: "mep",
-      arsPerUsd: String(
+      arsPerUsd: formatDecimalInput(
         rateScaledToArsPerUsd(mep.sellRateScaled, mep.scale),
       ),
     };
@@ -98,7 +95,7 @@ function defaultFxFromQuotes(quotes: UsdQuotesDto | null): {
   if (oficial && oficial.sellRateScaled > 0) {
     return {
       quotePref: "oficial",
-      arsPerUsd: String(
+      arsPerUsd: formatDecimalInput(
         rateScaledToArsPerUsd(oficial.sellRateScaled, oficial.scale),
       ),
     };
@@ -130,7 +127,7 @@ export function NewFromTemplateSheet({
   const [listCurrency, setListCurrency] = useState<AccountCurrency>("USD");
   const [taxesOn, setTaxesOn] = useState(true);
   const [markupPercent, setMarkupPercent] = useState(
-    String(DEFAULT_TAX_MARKUP_BPS / 100),
+    formatDecimalInput(DEFAULT_TAX_MARKUP_BPS / 100),
   );
   const [accountId, setAccountId] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -154,13 +151,13 @@ export function NewFromTemplateSheet({
 
   const taxMarkupBps = useMemo(() => {
     if (!taxesOn) return 0;
-    const pct = Number(markupPercent.replace(",", "."));
-    if (!Number.isFinite(pct) || pct < 0) return DEFAULT_TAX_MARKUP_BPS;
+    const pct = parseDecimalNumber(markupPercent, { allowZero: true });
+    if (pct === null) return DEFAULT_TAX_MARKUP_BPS;
     return Math.round(pct * 100);
   }, [taxesOn, markupPercent]);
 
   const listPriceCents = useMemo(
-    () => parsePositiveUnits(listPriceUnits),
+    () => parseAmountCents(listPriceUnits),
     [listPriceUnits],
   );
 
@@ -183,8 +180,8 @@ export function NewFromTemplateSheet({
     accountCurrency !== listCurrency;
 
   const resolvedRate = useMemo(() => {
-    const parsed = Number(arsPerUsd.replace(",", "."));
-    if (!Number.isFinite(parsed) || parsed <= 0) {
+    const parsed = parseDecimalNumber(arsPerUsd);
+    if (parsed === null) {
       return { rateScaled: null as number | null, scale: CONSOLIDATION_RATE_SCALE };
     }
     try {
@@ -253,7 +250,7 @@ export function NewFromTemplateSheet({
     setListPriceUnits("");
     setListCurrency("USD");
     setTaxesOn(true);
-    setMarkupPercent(String(DEFAULT_TAX_MARKUP_BPS / 100));
+    setMarkupPercent(formatDecimalInput(DEFAULT_TAX_MARKUP_BPS / 100));
     setAccountId("");
     setCategoryId("");
     setStartDate(todayDateOnly(new Date(), "UTC"));
@@ -282,12 +279,12 @@ export function NewFromTemplateSheet({
         ? `${template.name} · ${template.planLabel}`
         : template.name,
     );
-    setListPriceUnits(centsToUnits(template.listPriceCents));
+    setListPriceUnits(formatCentsAsAmountInput(template.listPriceCents));
     setListCurrency(template.listCurrency);
     const taxesDefault = template.defaultTaxMarkupBps > 0;
     setTaxesOn(taxesDefault);
     setMarkupPercent(
-      String(
+      formatDecimalInput(
         (taxesDefault
           ? template.defaultTaxMarkupBps
           : DEFAULT_TAX_MARKUP_BPS) / 100,
@@ -310,7 +307,7 @@ export function NewFromTemplateSheet({
   function changeListCurrency(next: AccountCurrency) {
     if (next === listCurrency) return;
 
-    const cents = parsePositiveUnits(listPriceUnits);
+    const cents = parseAmountCents(listPriceUnits);
     if (cents !== null && resolvedRate.rateScaled !== null) {
       try {
         const converted = convertArsUsdCents(
@@ -320,7 +317,7 @@ export function NewFromTemplateSheet({
           resolvedRate.rateScaled,
           resolvedRate.scale,
         );
-        setListPriceUnits(centsToUnits(converted));
+        setListPriceUnits(formatCentsAsAmountInput(converted));
       } catch {
         // Keep the numeric amount; user can edit after switching.
       }
@@ -579,13 +576,8 @@ export function NewFromTemplateSheet({
               htmlFor="tpl-list"
               hint={`${listCurrency} · editable`}
             >
-              <Input
+              <AmountInput
                 id="tpl-list"
-                type="number"
-                inputMode="decimal"
-                min={0}
-                step="0.01"
-                className="tabular-nums"
                 value={listPriceUnits}
                 onChange={(e) => setListPriceUnits(e.target.value)}
                 disabled={isPending}
@@ -616,13 +608,9 @@ export function NewFromTemplateSheet({
                   htmlFor="tpl-markup"
                   hint={`Sugerido ${DEFAULT_TAX_MARKUP_BPS / 100}% (IVA+IIBB aprox.)`}
                 >
-                  <Input
+                  <AmountInput
                     id="tpl-markup"
-                    type="number"
-                    inputMode="decimal"
-                    min={0}
-                    step="0.1"
-                    className="tabular-nums"
+                    placeholder="23,00"
                     value={markupPercent}
                     onChange={(e) => setMarkupPercent(e.target.value)}
                     disabled={isPending}
@@ -717,13 +705,8 @@ export function NewFromTemplateSheet({
                       : "Opcional · para ver ≈ en la otra moneda"
                   }
                 >
-                  <Input
+                  <AmountInput
                     id="tpl-fx"
-                    type="number"
-                    inputMode="decimal"
-                    min={0}
-                    step="0.01"
-                    className="tabular-nums"
                     placeholder="Ej. 1450"
                     value={arsPerUsd}
                     onChange={(e) => {

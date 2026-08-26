@@ -293,6 +293,7 @@ Excepción: `globals.css` (tokens) y assets SVG/marketing aislados.
 - Signo y color vía variante (`income` / `expense` / `transfer`).
 - Fechas: formato consistente; no inventar layouts de fecha por pantalla.
 - **Elegir fecha:** siempre `DateField`. Prohibido `<input type="date">` nativo.
+- **Campos de monto (KRI-33):** usar `AmountInput` (`src/components/amount-input.tsx`). `type="text"` + `inputMode="decimal"` para abrir teclado numérico en mobile. Separador decimal canónico: **coma**. El punto se normaliza a coma al tipear para que iOS (coma) y Android/US (punto) validen igual. Prohibido `<input type="number">` en importes: el teclado iOS no ofrece punto y el valor con coma queda inválido.
 
 ### Barras de progreso (`ProgressBar`)
 

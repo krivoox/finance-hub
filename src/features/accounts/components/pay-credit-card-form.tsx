@@ -10,9 +10,14 @@ import {
   FormField,
   FormStack,
 } from "@/components/form-sheet";
+import { AmountInput } from "@/components/amount-input";
 import { DateField } from "@/components/date-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  formatCentsAsAmountInput,
+  parseAmountCents,
+} from "@/domain/money/parse-amount";
 import { nativeSelectClassName } from "@/components/ui/native-select";
 import { createTransferAction } from "@/features/transactions/actions";
 import { formatMoney } from "@/lib/format-money";
@@ -53,18 +58,6 @@ function todayIsoDate(): string {
   return `${y}-${m}-${d}`;
 }
 
-function centsToUnitsInput(cents: number): string {
-  return (cents / 100).toFixed(2);
-}
-
-function parseAmountCents(raw: string): number | null {
-  const parsedUnits = Number(raw.replace(",", "."));
-  if (!Number.isFinite(parsedUnits) || parsedUnits <= 0) return null;
-  const amountCents = Math.round(parsedUnits * 100);
-  if (!Number.isInteger(amountCents) || amountCents <= 0) return null;
-  return amountCents;
-}
-
 export function PayCreditCardForm({
   workspaceId,
   creditCard,
@@ -97,7 +90,7 @@ export function PayCreditCardForm({
   } = useForm<FormValues>({
     defaultValues: {
       fromAccountId: defaultFromId,
-      amountUnits: centsToUnitsInput(creditCard.debtCents),
+      amountUnits: formatCentsAsAmountInput(creditCard.debtCents),
       occurredOn: todayIsoDate(),
       description: "Pago de resumen",
     },
@@ -209,14 +202,9 @@ export function PayCreditCardForm({
           htmlFor="pay-card-amount"
           hint={`Deuda actual: ${formatMoney(creditCard.debtCents, creditCard.currency)}`}
         >
-          <Input
+          <AmountInput
             id="pay-card-amount"
-            type="number"
-            inputMode="decimal"
-            min={0}
-            step="0.01"
-            placeholder="0,00"
-            className="h-11 text-base tabular-nums sm:h-9 sm:text-sm"
+            className="h-11 text-base sm:h-9 sm:text-sm"
             disabled={isBusy}
             {...register("amountUnits", { required: true })}
           />

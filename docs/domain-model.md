@@ -457,3 +457,4 @@ Los saldos de cuenta y balances entre miembros son **lecturas derivadas**, no es
    - Delete de expense con split: cascade del `ExpenseSplit` (SPEC-10 T-10).
 3. Idempotencia: comandos de creación pueden aceptar `clientRequestId` (fase P1+).
 4. Multi-moneda (ADR-006): cuentas ARS|USD; ledger nativo por moneda; canje explícito (`CurrencyExchange`); patrimonio consolidado solo con tasa manual del workspace. `baseCurrency` = consolidación y defaults — no única moneda permitida. Splits: moneda del grupo freeze; sin FX en el IOU.
+5. **Input de monto (KRI-33):** el usuario escribe unidades con **coma** decimal (`es-AR`). El punto se acepta y se normaliza a coma. El parseo a `amountCents` vive en `src/domain/money/parse-amount.ts` (entero, ADR-001). La UI no usa `type="number"`.

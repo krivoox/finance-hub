@@ -15,8 +15,10 @@ import {
   completeWorkspaceSetupAction,
   dismissWorkspaceSetupAction,
 } from "@/features/workspaces/actions";
+import { AmountInput } from "@/components/amount-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { parseAmountCents } from "@/domain/money/parse-amount";
 import { nativeSelectClassName } from "@/components/ui/native-select";
 import { navigateAndRefresh } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
@@ -249,8 +251,10 @@ export function OnboardingWizard({
 
   const submitFirstAccount = accountForm.handleSubmit((values) => {
     const submittingCreditCard = values.type === "credit_card";
-    const parsedUnits = Number(values.initialBalanceUnits.replace(",", "."));
-    if (!Number.isFinite(parsedUnits) || parsedUnits < 0) {
+    const initialBalanceCents = parseAmountCents(values.initialBalanceUnits, {
+      allowZero: true,
+    });
+    if (initialBalanceCents === null) {
       toast.error(
         submittingCreditCard
           ? "Deuda inicial inválida"
@@ -258,20 +262,15 @@ export function OnboardingWizard({
       );
       return;
     }
-    const initialBalanceCents = Math.round(parsedUnits * 100);
 
     let creditLimitCents: number | undefined;
     if (submittingCreditCard && values.creditLimitUnits.trim() !== "") {
-      const parsedLimit = Number(values.creditLimitUnits.replace(",", "."));
-      if (!Number.isFinite(parsedLimit) || parsedLimit <= 0) {
+      const parsedLimit = parseAmountCents(values.creditLimitUnits);
+      if (parsedLimit === null) {
         toast.error("Límite de crédito inválido");
         return;
       }
-      creditLimitCents = Math.round(parsedLimit * 100);
-      if (creditLimitCents <= 0) {
-        toast.error("Límite de crédito inválido");
-        return;
-      }
+      creditLimitCents = parsedLimit;
     }
 
     const input = {
@@ -489,13 +488,9 @@ export function OnboardingWizard({
                       {isCreditCard ? "Deuda inicial" : "Saldo inicial"}{" "}
                       ({previewCurrency})
                     </label>
-                    <Input
+                    <AmountInput
                       id="account-balance"
-                      className="h-11 tabular-nums"
-                      type="number"
-                      inputMode="decimal"
-                      min={0}
-                      step="0.01"
+                      className="h-11"
                       {...accountForm.register("initialBalanceUnits")}
                     />
                     <p className="text-xs text-muted-foreground">
@@ -514,13 +509,9 @@ export function OnboardingWizard({
                         Límite de crédito{" "}
                         <span className="font-normal">(opcional)</span>
                       </label>
-                      <Input
+                      <AmountInput
                         id="account-credit-limit"
-                        className="h-11 tabular-nums"
-                        type="number"
-                        inputMode="decimal"
-                        min={0}
-                        step="0.01"
+                        className="h-11"
                         placeholder="Sin límite"
                         {...accountForm.register("creditLimitUnits")}
                       />

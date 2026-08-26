@@ -18,9 +18,11 @@ import {
   FormStack,
   SegmentedControl,
 } from "@/components/form-sheet";
+import { AmountInput } from "@/components/amount-input";
 import { DateField } from "@/components/date-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { parseAmountCents } from "@/domain/money/parse-amount";
 import { refreshAfterMutation } from "@/lib/navigation";
 import {
   AccountChoiceList,
@@ -97,13 +99,8 @@ export function NewGoalForm({
   );
 
   const onSubmit = handleSubmit((values) => {
-    const parsedUnits = Number(values.targetAmountUnits.replace(",", "."));
-    if (!Number.isFinite(parsedUnits) || parsedUnits <= 0) {
-      toast.error("Monto objetivo inválido");
-      return;
-    }
-    const targetAmountCents = Math.round(parsedUnits * 100);
-    if (!Number.isInteger(targetAmountCents) || targetAmountCents <= 0) {
+    const targetAmountCents = parseAmountCents(values.targetAmountUnits);
+    if (targetAmountCents === null) {
       toast.error("Monto objetivo inválido");
       return;
     }
@@ -188,14 +185,8 @@ export function NewGoalForm({
           htmlFor="goal-target"
           hint="Monto meta"
         >
-          <Input
+          <AmountInput
             id="goal-target"
-            type="number"
-            inputMode="decimal"
-            min={0}
-            step="0.01"
-            placeholder="0,00"
-            className="tabular-nums"
             aria-invalid={Boolean(errors.targetAmountUnits)}
             {...register("targetAmountUnits", { required: true })}
           />

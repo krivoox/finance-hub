@@ -4,6 +4,7 @@ import { useSyncExternalStore, useState } from "react";
 import Link from "next/link";
 import { WifiOff } from "lucide-react";
 
+import { AmountInput } from "@/components/amount-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -152,12 +153,7 @@ export function OfflinePageContent() {
           <span className="text-xs font-medium text-muted-foreground">
             Monto
           </span>
-          <Input
-            type="text"
-            inputMode="decimal"
-            autoComplete="off"
-            placeholder="0,00"
-            className="tabular-nums"
+          <AmountInput
             value={draft.amountUnits}
             onChange={(event) =>
               persist({ ...draft, amountUnits: event.target.value })

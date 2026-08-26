@@ -16,8 +16,13 @@ import {
   FormField,
   FormStack,
 } from "@/components/form-sheet";
+import { AmountInput } from "@/components/amount-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  formatCentsAsAmountInput,
+  parseAmountCents,
+} from "@/domain/money/parse-amount";
 import { refreshAfterMutation } from "@/lib/navigation";
 
 type FormValues = {
@@ -54,7 +59,7 @@ export function EditAccountForm({
       name: account.name,
       creditLimitUnits:
         account.creditLimitCents != null
-          ? (account.creditLimitCents / 100).toFixed(2)
+          ? formatCentsAsAmountInput(account.creditLimitCents)
           : "",
     },
   });
@@ -76,12 +81,12 @@ export function EditAccountForm({
       if (raw === "") {
         input.creditLimitCents = null;
       } else {
-        const parsedUnits = Number(raw.replace(",", "."));
-        if (!Number.isFinite(parsedUnits) || parsedUnits <= 0) {
+        const parsedCents = parseAmountCents(raw);
+        if (parsedCents === null) {
           toast.error("Límite de crédito inválido");
           return;
         }
-        input.creditLimitCents = Math.round(parsedUnits * 100);
+        input.creditLimitCents = parsedCents;
       }
     }
 
@@ -127,14 +132,9 @@ export function EditAccountForm({
             optional
             hint="Opcional. Dejá vacío para quitar el límite."
           >
-            <Input
+            <AmountInput
               id="edit-account-credit-limit"
-              type="number"
-              inputMode="decimal"
-              min={0}
-              step="0.01"
               placeholder="Sin límite"
-              className="tabular-nums"
               {...register("creditLimitUnits")}
             />
           </FormField>
