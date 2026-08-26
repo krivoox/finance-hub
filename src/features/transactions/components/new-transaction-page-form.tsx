@@ -16,6 +16,7 @@ type CategoryOption = {
   id: string;
   name: string;
   kind: "income" | "expense";
+  usageCount?: number;
 };
 
 export function NewTransactionPageForm({

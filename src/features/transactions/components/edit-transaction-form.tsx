@@ -10,7 +10,7 @@ import {
   updateTransactionAction,
 } from "@/features/transactions/actions";
 import type { TransactionType } from "@/features/transactions/domain";
-import { CategoryPicker } from "@/features/categories/components/category-picker";
+import { CategorySelectField } from "@/features/categories/components/category-select-field";
 import {
   FormActions,
   FormField,
@@ -36,6 +36,7 @@ type CategoryOption = { id: string; name: string; kind: "income" | "expense" };
 
 type EditTransactionFormProps = {
   transactionId: string;
+  workspaceId: string;
   type: TransactionType;
   amountCents: number;
   currency: string;
@@ -63,6 +64,7 @@ type FormValues = {
 
 export function EditTransactionForm({
   transactionId,
+  workspaceId,
   type,
   amountCents,
   currency,
@@ -240,9 +242,10 @@ export function EditTransactionForm({
                   name="categoryId"
                   rules={{ required: true }}
                   render={({ field }) => (
-                    <CategoryPicker
-                      mode="single"
+                    <CategorySelectField
                       id="edit-tx-category"
+                      kind={type === "income" ? "income" : "expense"}
+                      workspaceId={workspaceId}
                       categories={kindCategories}
                       value={field.value || null}
                       onChange={(id) => field.onChange(id ?? "")}

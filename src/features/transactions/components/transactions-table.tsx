@@ -149,6 +149,7 @@ type TransactionsTableProps = {
 
 export function TransactionsTable({
   items,
+  workspaceId,
   canMutate,
   accounts,
   categories,
@@ -441,6 +442,7 @@ export function TransactionsTable({
           <EditTransactionForm
             key={singleSelected.id}
             transactionId={singleSelected.id}
+            workspaceId={workspaceId}
             type={singleSelected.type}
             amountCents={singleSelected.amountCents}
             currency={singleSelected.currency}

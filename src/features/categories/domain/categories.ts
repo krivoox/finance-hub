@@ -165,17 +165,6 @@ export function normalizeCategoryName(raw: string): string {
   return raw.trim().replace(/\s+/g, " ");
 }
 
-/**
- * Case- and diacritic-insensitive comparison key used for uniqueness checks.
- * Uses NFKD + strip combining marks so "Educación" and "educacion" collide.
- */
-function comparisonKey(name: string): string {
-  return normalizeCategoryName(name)
-    .toLocaleLowerCase()
-    .normalize("NFKD")
-    .replace(/\p{M}+/gu, "");
-}
-
 // ---------------------------------------------------------------------------
 // Assertions
 // ---------------------------------------------------------------------------
@@ -200,13 +189,13 @@ export function assertUniqueCategoryName(
     throw new CategoryDomainError("El nombre de la categoría es obligatorio");
   }
 
-  const target = comparisonKey(normalized);
+  const target = categoryNameKey(normalized);
   const conflict = existing.find(
     (c) =>
       c.kind === kind &&
       !c.isArchived &&
       c.id !== options.excludeId &&
-      comparisonKey(c.name) === target,
+      categoryNameKey(c.name) === target,
   );
   if (conflict) {
     throw new DuplicateCategoryName(normalized, kind);

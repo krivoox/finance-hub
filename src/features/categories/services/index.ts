@@ -23,3 +23,6 @@ export type {
   CategorySummary,
   ListCategoriesServiceInput,
 } from "./list-categories";
+
+export { countCategoryUsage } from "./count-category-usage";
+export type { CountCategoryUsageInput } from "./count-category-usage";

@@ -112,6 +112,7 @@ async function TransactionDetailBody({
         canMutate ? (
           <EditTransactionSheet
             transactionId={detail.id}
+            workspaceId={detail.workspaceId}
             type={detail.type}
             amountCents={detail.amountCents}
             currency={detail.currency}

@@ -20,7 +20,7 @@ import {
   resolveTransactionFormCurrency,
   type CreateableTransactionType,
 } from "@/features/transactions/domain";
-import { CategoryPicker } from "@/features/categories/components/category-picker";
+import { CategorySelectField } from "@/features/categories/components/category-select-field";
 import {
   FormActions,
   FormField,
@@ -54,6 +54,7 @@ type CategoryOption = {
   id: string;
   name: string;
   kind: "income" | "expense";
+  usageCount?: number;
 };
 
 type NewTransactionFormProps = {
@@ -444,9 +445,10 @@ export function NewTransactionForm({
                 name="categoryId"
                 rules={{ required: showCategory }}
                 render={({ field }) => (
-                  <CategoryPicker
-                    mode="single"
+                  <CategorySelectField
                     id="tx-category"
+                    kind={watchedType === "income" ? "income" : "expense"}
+                    workspaceId={workspaceId}
                     categories={filteredCategories}
                     value={field.value || null}
                     onChange={(id) => field.onChange(id ?? "")}

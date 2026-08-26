@@ -9,7 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getSession } from "@/lib/session";
 import { getActiveWorkspaceForUser } from "@/features/workspaces/services";
 import { listAccounts } from "@/features/accounts/services";
-import { listCategories } from "@/features/categories/services";
+import { countCategoryUsage, listCategories } from "@/features/categories/services";
 import { listSplitGroupsForExpenseForm } from "@/features/splits/services";
 import { NewTransactionPageForm } from "@/features/transactions/components/new-transaction-page-form";
 
@@ -19,10 +19,11 @@ export const metadata = {
 
 type AccountsResult = Awaited<ReturnType<typeof listAccounts>>;
 type CategoriesResult = Awaited<ReturnType<typeof listCategories>>;
+type UsageResult = Awaited<ReturnType<typeof countCategoryUsage>>;
 type SplitGroupsResult = Awaited<
   ReturnType<typeof listSplitGroupsForExpenseForm>
 >;
-type FormData = [AccountsResult, CategoriesResult, SplitGroupsResult];
+type FormData = [AccountsResult, CategoriesResult, UsageResult, SplitGroupsResult];
 
 export default async function NewTransactionPage() {
   const session = await getSession();
@@ -42,6 +43,7 @@ export default async function NewTransactionPage() {
   const dataPromise: Promise<FormData> = Promise.all([
     listAccounts({ userId: session.user.id, workspaceId: workspace.id }),
     listCategories({ userId: session.user.id, workspaceId: workspace.id }),
+    countCategoryUsage({ userId: session.user.id, workspaceId: workspace.id }),
     listSplitGroupsForExpenseForm(session.user.id),
   ]);
 
@@ -83,7 +85,7 @@ async function NewTransactionFormSection({
   currentUserId: string;
   data: Promise<FormData>;
 }) {
-  const [accounts, categories, splitGroups] = await data;
+  const [accounts, categories, usageById, splitGroups] = await data;
 
   const activeAccounts = accounts.filter((a) => !a.isArchived);
   if (activeAccounts.length === 0) {
@@ -105,6 +107,7 @@ async function NewTransactionFormSection({
           id: c.id,
           name: c.name,
           kind: c.kind,
+          usageCount: usageById[c.id] ?? 0,
         }))}
       splitGroups={splitGroups}
       currentUserId={currentUserId}

@@ -38,6 +38,7 @@ La página `/transactions` (**Transacciones**; copy histórico “Movimientos”
 | FR-05 | amount > 0; currency = account.currency (no mezclar monedas) |
 | FR-06 | Totales del resultado filtrado por moneda (ver §4.6) — independientes de la página actual |
 | FR-07 | Formulario de alta: selector de moneda (`ARS` \| `USD`); default = `workspace.baseCurrency`; listado de cuentas filtrado a esa moneda |
+| FR-08 | Formulario de alta (income/expense): atajos de categoría (4–5 más usadas del kind) + selector con búsqueda y alta rápida (SPEC-04 FR-06/FR-07) |
 
 ## 4. Reglas de negocio
 
@@ -205,6 +206,7 @@ Helpers de periodo (puro; paridad dashboard):
 - [ ] Totales del filtrado (FR-06): por moneda; `type=expense` → suma gastos; `type=all` → breakdown ingresos/gastos; independientes de la página.
 - [ ] Cursor inválido → primera página (sin error de producto).
 - [ ] Formulario create permite elegir ARS/USD; default = `workspace.baseCurrency`.
+- [ ] Formulario create (income/expense): 4–5 atajos de categoría más usadas + selector; se puede crear una categoría nueva desde la búsqueda.
 - [ ] Solo se listan cuentas de la moneda seleccionada; no se puede enviar USD a cuenta ARS (error de dominio).
 - [ ] Income/expense en cuenta USD persisten `currency=USD` y afectan el saldo de esa cuenta.
 
