@@ -93,7 +93,9 @@ Los formularios de carga (movimientos, cuentas, presupuestos, objetivos) **no vi
 | Móvil | **Bottom sheet** (~92dvh, esquinas superiores redondeadas). El teclado **empuja** el sheet (`interactive-widget: resizes-content` + `visualViewport`) y el cuerpo scrollea para que el campo con foco no quede tapado. |
 | `md+` | Drawer fijo a la **derecha** (`sm:max-w-md` / `lg` para movimientos) — la lista queda visible detrás |
 
-**Cerrar:** botón X en el header del sheet — `outline`, `rounded-full`, target táctil ≥40px en móvil (`size-10`). Neutro; no usar `destructive` (reservado a egresos y acciones destructivas).
+**Cerrar:** botón X en el header del sheet — `outline`, `rounded-full`, target táctil ≥40px en móvil (`size-10`). Neutro; no usar `destructive` (reservado a egresos y acciones destructivas). En sheets de alta/filtros **no** hay botón Cancelar: el pie es solo el CTA primario.
+
+**Pie anclado:** `FormSheet layout="fill"` + `FormSheetBody` (campos scrolleables) + `FormActions sticky`. Registrar / Aplicar quedan fijos al borde inferior; el contenido de fondo no scrollea mientras el sheet está abierto.
 
 **Por qué no modal centrado en desktop:** los forms tienen muchos campos y secciones condicionales (splits, categorías). El sheet escala mejor mobile (bottom) → desktop (drawer).
 
@@ -106,7 +108,9 @@ El setup inicial del workspace (`/onboarding`, SPEC-15) **no** usa AppShell ni F
 - Deep-link opcional: `/transactions?new=1` abre el mismo sheet
 - Lista limpia: tablas / progreso sin formulario encima
 - Formulario: 1 columna, secciones tipadas, `SegmentedControl` para ≤4 opciones
-- Cerrar al éxito / Cancelar
+- Cerrar al éxito / X en el header (sin Cancelar en el sheet)
+- Campos requeridos: asterisco en `FormField`; opcionales llevan la etiqueta “opcional”
+- Selector de categorías: no autofocus al buscador (el teclado no debe abrirse solo)
 
 Componentes: `src/components/form-sheet/*`
 

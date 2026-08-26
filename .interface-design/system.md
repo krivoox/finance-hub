@@ -24,7 +24,8 @@ Responsive: **mobile-first**. Base = phone with docked tab bar; `md` navy sideba
 - Money uses `.tabular` (Nunito + tabular-nums)
 - Business logic stays out of React components
 - Create: `FormSheet` bottom sheet on mobile / right drawer from `md`. CTAs in `ContentPanel.actions` or `?new=1`
-- Form density: 1 column · `FormField` · `FormSection` · `SegmentedControl` for type toggles
+- FormSheet alta/filtros: `layout="fill"` + `FormSheetBody` + `FormActions sticky`. Sin Cancelar (cierra la X). Sin scroll del fondo.
+- Form density: 1 column · `FormField` (asterisco si requerido) · `FormSection` · `SegmentedControl` for type toggles
 - Progress bars: `ProgressBar` with ≥3 tones; rose (`alert`) only for real alerts (budget exceeded)
 - Page chrome is `ContentPanel` (H1 + actions on canvas). Blocks are `SurfaceSection` cards.
 - Sidebar is navy in light **and** dark. Do not invert it to gray paper.
