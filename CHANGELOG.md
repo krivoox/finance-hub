@@ -19,11 +19,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **performance:** Accelerate navigation and money refreshes
 
+- Replace group workspaces with SplitGroups
+
 ### Fixed
 
 - **ui:** Keep the mobile tab bar in view and avoid stale JS in next dev
 
 - **nav:** Keep mobile Más sheet inside sidebar context
+
+- Stop app shell 500 on leftover group workspaces
+
+- Keep existing ledgers as the implicit personal account
+
+- Open the ledger that already has accounts, not empty personal
+
+- Show the split-group invite URL on the group page
+
+- Refetch split groups when opening Registrar
+
+- Restyle groups UI to match the ledger
 
 [Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.16.0...HEAD
 
