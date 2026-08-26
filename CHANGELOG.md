@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-08-26
+
 ### Added
 
 - **ui:** Apply ledger navy design system and restyle transactions
@@ -73,7 +75,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **ui:** Contain list taps and cache Registrar catalogs
 
-[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.16.0...HEAD
+[0.17.0]: https://github.com/krivoox/finance-hub/compare/v0.16.0...v0.17.0
 
 ## [0.16.0] - 2026-08-14
 
@@ -270,6 +272,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Baseline product release prior to Conventional Commits enforcement (accounts, workspaces, transactions, budgets, and related MVP surfaces)
 - Changelog automation (git-cliff), Conventional Commits (commitlint + husky), and SemVer GitHub Actions workflows
 
-[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.16.0...HEAD
-[0.16.0]: https://github.com/krivoox/finance-hub/compare/v0.15.0...v0.16.0
+[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.17.0...HEAD
+[0.17.0]: https://github.com/krivoox/finance-hub/compare/v0.16.0...v0.17.0
 [0.1.0]: https://github.com/krivoox/finance-hub/releases/tag/v0.1.0
