@@ -76,11 +76,11 @@ Rail navy flush a la izquierda (`Sidebar` `variant="sidebar"`) — **no** inset 
 | Transacciones | `/transactions` | Actividad diaria |
 | **+ Registrar** | acción (no ruta) | Abre `NewTransactionSheet`; CTA `bg-cta` rounded-xl |
 | Presupuestos | `/budgets` | Planificación; badge at-risk si aplica |
-| Más | sheet bottom | Cuentas, Objetivos, Grupos, Recurrentes, Ajustes, workspace, tema, salir |
+| Más | sheet bottom | Cuentas, Objetivos, Grupos, Recurrentes, Ajustes; tema inline (segmented); identidad + salir una vez al pie |
 
 **Craft:** barra full-width, no pill flotante. Cada tab muestra **icono + label debajo** (activo = `bg-info-muted` + `text-info-muted-foreground`). Clearance: `pb-[calc(4.75rem+env(safe-area-inset-bottom))]`.
 
-**Montaje (obligatorio):** `SidebarProvider` (contexto) envuelve el shell entero, incluido el tab bar — el sheet “Más” usa `useSidebar`. `MobileTabBar` y `NewTransactionSheet` viven **fuera** del flex (`SidebarFrame`: solo sidebar + inset). Si la `<nav>` es hermana flex de `SidebarInset`, ensancha la página, aparece scroll lateral y la barra sale del viewport. Contrato: `position: fixed; left: 0; bottom: 0; width: 100%; max-width: 100%; z-50`. No usar `100vw` / `100dvw` (incluyen el gutter del scrollbar).
+**Montaje (obligatorio):** `SidebarProvider` (contexto) envuelve el shell entero, incluido el tab bar. `MobileTabBar` y `NewTransactionSheet` viven **fuera** del flex (`SidebarFrame`: solo sidebar + inset). Si la `<nav>` es hermana flex de `SidebarInset`, ensancha la página, aparece scroll lateral y la barra sale del viewport. Contrato: `position: fixed; left: 0; bottom: 0; width: 100%; max-width: 100%; z-50`. No usar `100vw` / `100dvw` (incluyen el gutter del scrollbar).
 
 **Desktop (`md+`):** sidebar navy intacto; tab bar `md:hidden`.
 
@@ -207,7 +207,7 @@ Definidos en `:root` / `.dark` de `src/app/globals.css` y expuestos a Tailwind v
 
 - Provider: `@teispace/next-themes` en `app/layout.tsx`.
 - Anti-FOUC: `ThemeProvider` inyecta el script vía `useServerInsertedHTML`.
-- Opciones: `src/lib/theme.ts`. Toggle en sidebar: Claro / Oscuro / Sistema.
+- Opciones: `src/lib/theme.ts`. Toggle en sidebar: Claro / Oscuro / Sistema. En el sheet “Más” móvil: `ThemeToggle variant="inline"` (segmented, sin dropdown).
 - **El rail navy no se invierte** — es la firma en ambos temas.
 - Claro: canvas slate-50, cards blancas.
 - Oscuro: canvas navy night, cards un escalón más claras que el rail.

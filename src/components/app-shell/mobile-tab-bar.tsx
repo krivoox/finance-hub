@@ -7,7 +7,6 @@ import { AlertTriangle } from "lucide-react";
 
 import { useNewTransactionSheetStore } from "@/features/transactions/stores/new-transaction-sheet-store";
 import { cn } from "@/lib/utils";
-import type { WorkspaceOption } from "@/features/workspaces/components/workspace-switcher";
 
 import type { SidebarUser } from "./app-sidebar";
 import { MobileMoreSheet } from "./mobile-more-sheet";
@@ -22,8 +21,6 @@ import { navIntentPrefetchHandlers } from "./use-nav-prefetch";
 
 type MobileTabBarProps = {
   user: SidebarUser;
-  workspaces: readonly WorkspaceOption[];
-  activeWorkspace: WorkspaceOption | null;
   navBadges?: NavBadges;
   canRegister: boolean;
   cafecitoUrl?: string | null;
@@ -35,8 +32,6 @@ type MobileTabBarProps = {
  */
 export function MobileTabBar({
   user,
-  workspaces,
-  activeWorkspace,
   navBadges = {},
   canRegister,
   cafecitoUrl = null,
@@ -148,8 +143,6 @@ export function MobileTabBar({
         open={moreOpen}
         onOpenChange={setMoreOpen}
         user={user}
-        workspaces={workspaces}
-        activeWorkspace={activeWorkspace}
         navBadges={navBadges}
         cafecitoUrl={cafecitoUrl}
       />

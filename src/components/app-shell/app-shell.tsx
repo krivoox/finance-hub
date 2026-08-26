@@ -48,10 +48,9 @@ export function AppShell({
       <SkipLink />
       <SidebarProvider>
         {/*
-          Context wraps the whole shell so “Más” (theme / sign-out)
-          can call useSidebar. The flex frame is only sidebar + inset — if the
-          tab bar is a flex sibling of SidebarInset it widens the page and the
-          dock leaves the viewport.
+          Context wraps the whole shell (sidebar collapse + mobile sheet).
+          The flex frame is only sidebar + inset — if the tab bar is a flex
+          sibling of SidebarInset it widens the page and the dock leaves the viewport.
         */}
         <SidebarFrame className="min-h-svh max-w-full overflow-x-hidden md:h-svh md:overflow-hidden">
           <AppSidebar
@@ -92,8 +91,6 @@ export function AppShell({
 
         <MobileTabBar
           user={user}
-          workspaces={workspaces}
-          activeWorkspace={activeWorkspace}
           navBadges={navBadges}
           canRegister={Boolean(activeWorkspace) && canMutate}
           cafecitoUrl={cafecitoUrl}
