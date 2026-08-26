@@ -32,6 +32,7 @@ export {
   projectPublicSplitGroup,
   assertPublicShareToken,
 } from "./public";
+export { aggregateSplitSpendingByCategory } from "./spending-by-category";
 export {
   SplitDomainError,
   SplitSumMismatchError,
@@ -63,5 +64,11 @@ export type {
   PublicSplitActivityItem,
   PublicSplitGroupProjection,
   SplitMethod,
+  SplitExpenseForCategory,
+  SplitCategorySpendingRow,
 } from "./types";
-export { SPLIT_NAME_MAX_LENGTH } from "./types";
+export {
+  SPLIT_NAME_MAX_LENGTH,
+  SPLIT_UNCATEGORIZED_CATEGORY_ID,
+  SPLIT_UNCATEGORIZED_CATEGORY_NAME,
+} from "./types";

@@ -7,6 +7,7 @@ import {
 } from "@/components/surface-section";
 import { formatDateOnly } from "@/lib/format-date";
 import { formatMoney } from "@/lib/format-money";
+import { CategorySpendingDonut } from "@/features/dashboard/components/category-spending-donut";
 import { OpenNewTransactionButton } from "@/features/transactions/components/open-new-transaction-button";
 import { AddMemberForm } from "./add-member-form";
 import { CreateSettlementSheet } from "./create-settlement-sheet";
@@ -15,6 +16,7 @@ import {
   memberKindCaption,
   peopleCountLabel,
 } from "./split-copy";
+import { SplitGroupActivityTabs } from "./split-group-activity-tabs";
 import { SplitLedgerRow } from "./split-ledger-row";
 import { SplitMemberActions } from "./split-member-actions";
 import { SplitNetAmount } from "./split-net-amount";
@@ -159,40 +161,51 @@ export function SplitGroupDetail({
           title="Movimientos"
           description="Gastos imputados y cobros anotados"
         />
-        {ledger.length === 0 ? (
-          <p className="text-sm text-muted-foreground text-pretty">
-            Todavía no hay movimientos. Registrá un gasto y tildá «dividirlo con
-            alguien».
-          </p>
-        ) : (
-          <ul className="divide-y divide-border">
-            {ledger.map((item) => (
-              <li key={item.id} className="min-w-0">
-                <SplitLedgerRow
-                  leading={
-                    <span
-                      className={
-                        item.kind === "expense"
-                          ? "flex size-9 shrink-0 items-center justify-center rounded-lg bg-expense-muted text-sm"
-                          : "flex size-9 shrink-0 items-center justify-center rounded-lg bg-transfer-muted text-sm"
+        <SplitGroupActivityTabs
+          ledger={
+            ledger.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-pretty">
+                Todavía no hay movimientos. Registrá un gasto y tildá «dividirlo
+                con alguien».
+              </p>
+            ) : (
+              <ul className="divide-y divide-border">
+                {ledger.map((item) => (
+                  <li key={item.id} className="min-w-0">
+                    <SplitLedgerRow
+                      leading={
+                        <span
+                          className={
+                            item.kind === "expense"
+                              ? "flex size-9 shrink-0 items-center justify-center rounded-lg bg-expense-muted text-sm"
+                              : "flex size-9 shrink-0 items-center justify-center rounded-lg bg-transfer-muted text-sm"
+                          }
+                          aria-hidden
+                        >
+                          {item.kind === "expense" ? "🧾" : "🔄"}
+                        </span>
                       }
-                      aria-hidden
-                    >
-                      {item.kind === "expense" ? "🧾" : "🔄"}
-                    </span>
-                  }
-                  title={item.title}
-                  caption={item.subtitle}
-                  trailing={
-                    <p className="text-xs tabular sm:text-sm text-foreground">
-                      {item.amountLabel}
-                    </p>
-                  }
-                />
-              </li>
-            ))}
-          </ul>
-        )}
+                      title={item.title}
+                      caption={item.subtitle}
+                      trailing={
+                        <p className="text-xs tabular sm:text-sm text-foreground">
+                          {item.amountLabel}
+                        </p>
+                      }
+                    />
+                  </li>
+                ))}
+              </ul>
+            )
+          }
+          categories={
+            <CategorySpendingDonut
+              currency={group.currency}
+              rows={group.spendingByCategory}
+              emptyMessage="Todavía no hay gastos divididos. Los cobros anotados no entran."
+            />
+          }
+        />
       </SurfaceSection>
 
       <SurfaceSection>

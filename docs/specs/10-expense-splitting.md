@@ -43,6 +43,7 @@ No se cargan gastos desde la sección Grupos. Se cargan en el formulario normal 
 | FR-12 | Moneda del expense = moneda del grupo; mismatch → error de dominio |
 | FR-13 | Ghosts participan en allocate y nets; no pueden ser `paidByMemberId` |
 | FR-14 | User-miembro de **otro** personal puede registrar el expense en **su** ledger; el IOU queda en el SplitGroup (tenant del creador) |
+| FR-15 | Detalle autenticado: agregación de splits por categoría (`aggregateSplitSpendingByCategory`). Input = expenses de los splits (no settlements). `amountCents` = total del expense. Agrupa por `categoryId`; null → bucket sintético `_uncategorized` / «Sin categoría» (mismo criterio que SPEC-11). Categorías de tenants distintos con ids distintos **no** se fusionan por nombre (no hay taxonomía compartida). La cola «Otras» la aplica `buildCategoryShares` en UI, no este agregado. |
 
 ## 4. Modelo (lenguaje ubicuo)
 
@@ -227,8 +228,8 @@ Nombres de producto / application. El dominio expone las funciones puras de §9;
 | Command | `CreateSettlement` | from/to `memberId` |
 | Command | `DeleteSettlement` | miembro user; later si no entra H10 UI |
 | Query | `ListMySplitGroups` | creador o user-miembro (union por `member.userId`, no por membership del tenant Ana) |
-| Query | `GetSplitGroup` | user-miembro |
-| Query | `GetPublicSplitGroup` | token; proyección FR-05 / §5.6 |
+| Query | `GetSplitGroup` | user-miembro; incluye actividad **y** `spendingByCategory` (FR-15) |
+| Query | `GetPublicSplitGroup` | token; proyección FR-05 / §5.6 (**sin** categorías) |
 | Query | `GetSplitGroupBalances` | `computeMemberBalances` |
 | Query | `ListSplits` | actividad del grupo |
 
@@ -373,6 +374,24 @@ export function projectPublicSplitGroup(input: {
 }): PublicSplitGroupProjection
 
 export function assertPublicShareToken(token: string, expected: string): void
+
+export type SplitExpenseForCategory = {
+  amountCents: number
+  categoryId: string | null
+  categoryName: string | null
+}
+
+export type SplitCategorySpendingRow = {
+  categoryId: string
+  categoryName: string
+  amountCents: number
+  transactionCount: number
+}
+
+// --- detalle autenticado (SPEC-09 H7b / FR-15): solo splits; no settlements ---
+export function aggregateSplitSpendingByCategory(
+  expenses: readonly SplitExpenseForCategory[],
+): SplitCategorySpendingRow[]
 ```
 
 `assertCanCreateExpenseSplit` (precondiciones, T-09):
@@ -599,6 +618,19 @@ Cubierto en T-08; mantener un `it` explícito `assertMemberCanPay(ghost)` → `G
 - **Then** `MemberHasSplitHistoryError`
 - **Given** target = creador
 - **Then** `CannotRemoveGroupCreatorError`
+
+#### T-24 Gastos del grupo por categoría
+
+- **Given** splits 6000 `comida` + 4000 `transporte`  
+- **When** `aggregateSplitSpendingByCategory`  
+- **Then** filas desc: comida 6000 (1), transporte 4000 (1); Σ = 10_000  
+- **Given** dos splits de la misma categoría 3000 + 2000  
+- **Then** una fila 5000, `transactionCount = 2`  
+- **Given** expense `categoryId = null`  
+- **Then** bucket `_uncategorized` / «Sin categoría»  
+- **Given** lista vacía  
+- **Then** `[]`  
+- **And** el caller **no** pasa settlements (no hay campo que los mezcle)
 
 ## 12. Propuesta Prisma (KRI-29)
 

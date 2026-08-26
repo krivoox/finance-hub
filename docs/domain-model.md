@@ -370,6 +370,7 @@ type SplitShare = {
 - Exact/percentage: cada `memberId` es miembro actual; subset permitido (implícito 0).
 - Payer v1 = registrador; ghost no paga.
 - Delete del expense: cascade split+shares; settlements no se tocan.
+- **Derivado (detalle autenticado):** gastos del grupo por categoría = Σ `expense.amountCents` de los splits, agrupados por `categoryId` de la tx (SPEC-09 FR-11 / SPEC-10 T-24). Settlements no entran. Vista pública no expone categorías.
 
 ### Settlement
 

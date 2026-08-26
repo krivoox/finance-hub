@@ -111,6 +111,10 @@ Riesgo principal de C: usuarios que ya usaban el workspace grupal como ledger de
 
 > Como usuario-miembro, quiero abrir el grupo y ver miembros + quién debe a quién + actividad de splits, para saber cómo estamos.
 
+**H7b. Gastos del grupo por categoría**
+
+> Como usuario-miembro, en el detalle del grupo quiero una tab «Gastos por categoría» junto al listado de movimientos, con el mismo donut del panel («Distribución de gastos»), para ver en qué se fue la plata compartida.
+
 **H8. El grupo no es un tenant**
 
 > Como usuario, quiero **solo mis cuentas personales** (sin switcher de espacios grupales), para no mezclar patrimonio con deudas de asado.
@@ -188,6 +192,7 @@ Riesgo principal de C: usuarios que ya usaban el workspace grupal como ledger de
 | FR-08 | User-miembro ve el grupo en **su** app (su workspace personal); no cambia de tenant. |
 | FR-09 | Kill list §10 ejecutada: cero UI/actions de group workspace; cero código muerto. |
 | FR-10 | Query de balances del grupo reutiliza el motor de SPEC-10 (miembro = `memberId`, no `userId` de workspace). |
+| FR-11 | Detalle autenticado (`/groups/[id]`): la card de movimientos tiene tabs «Movimientos» (listado actual: splits + settlements) y «Gastos por categoría» (donut + leyenda, mismo componente visual que el panel). Solo **splits**; settlements no entran. Monto = `expense.amountCents` (total del gasto, no la parte del actor). Agrupa por `categoryId` de la tx (SPEC-11); sin categoría → «Sin categoría». Ventana = **todos** los splits del grupo (no “este mes”). Vista pública: **sin** categorías (FR-05). |
 
 Copy de referencia (empty):
 
@@ -298,6 +303,18 @@ Agrupados por historia. Verificables en pantalla o por test de dominio (montos).
 - **Given** splits y (si v1) settlements  
 - **When** abro el grupo  
 - **Then** nets coherentes con SPEC-10; actividad muestra quién registró / quién pagó
+
+- **Given** dos splits 6000 «Comida» y 4000 «Transporte», más un settlement 1000  
+- **When** abro el grupo y la tab «Gastos por categoría»  
+- **Then** el donut suma 10_000 (el settlement no entra); Comida 60 % y Transporte 40 %; la tab «Movimientos» sigue listando gastos **y** cobros
+
+- **Given** un split sin categoría  
+- **When** abro «Gastos por categoría»  
+- **Then** entra en el bucket «Sin categoría» (mismo id sintético que SPEC-11)
+
+- **Given** visitante del link público  
+- **When** abre `/s/{token}`  
+- **Then** no ve categorías ni el donut (FR-05)
 
 ### H8 Sin tenant grupal
 

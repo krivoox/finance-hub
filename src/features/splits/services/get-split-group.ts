@@ -1,6 +1,7 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
 import {
+  aggregateSplitSpendingByCategory,
   canRemoveMember,
   canRenameMember,
   computeMemberBalances,
@@ -30,6 +31,8 @@ export async function getSplitGroup(input: {
             currency: true,
             occurredOn: true,
             description: true,
+            categoryId: true,
+            category: { select: { name: true } },
           },
         },
       },
@@ -108,6 +111,13 @@ export async function getSplitGroup(input: {
       paidByDisplayName: nameById.get(s.paidByMemberId) ?? "Alguien",
       method: s.method,
     })),
+    spendingByCategory: aggregateSplitSpendingByCategory(
+      splits.map((s) => ({
+        amountCents: s.expense.amountCents,
+        categoryId: s.expense.categoryId,
+        categoryName: s.expense.category?.name ?? null,
+      })),
+    ),
     settlements: settlements.map((s) => ({
       id: s.id,
       fromMemberId: s.fromMemberId,
