@@ -87,7 +87,7 @@ Reutilizar el sheet existente cuando aplique:
 
 - [x] SW custom (no Workbox offline-first monolítico).
 - [x] Cache-first solo `/_next/static/*` (hashed / immutable).
-- [x] `Cache-Control: immutable` de `/_next/static` **solo en producción**. En `next dev`: `no-store` en estáticos + `Clear-Site-Data: "cache"` en HTML (las URLs de Turbopack no cambian; un `immutable` viejo hidrata JS stale).
+- [x] `Cache-Control: immutable` de `/_next/static` **solo en producción**. En `next dev` Next.js ya envía `no-store` en estáticos (sin override custom — rompe HMR) + `Clear-Site-Data: "cache"` en HTML (las URLs de Turbopack no cambian; un `immutable` viejo hidrata JS stale).
 - [x] Nunca en Cache Storage: HTML de dashboards/listados, `/api/*`, flights RSC como source of truth offline.
 - [x] Given creo un gasto, When vuelvo al panel, Then saldos reflejan el cambio sin hard reload.
 - [x] Given registro un gasto, When la action responde ok, Then veo el splash del monto y el sheet se cierra sin esperar el RSC; el patrimonio no muestra un número estimado.

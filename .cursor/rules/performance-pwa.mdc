@@ -13,7 +13,7 @@ Fuente: `docs/specs/20-performance-pwa.md`, `docs/architecture.md` §7.1–7.3, 
 2. `experimental.staleTimes.dynamic: 0` para listados/páginas de dinero — no “arreglar” lentitud cacheando payloads viejos.
 3. Prefetch del menú principal (idle; intent hover/focus si aplica). Links de nav nuevos = prefetchables (`nav-config.ts`).
 4. Confianza en números > offline: nunca cachear HTML de dashboards ni `/api/*` en Service Worker.
-5. SW (si existe): cache-first **solo** `/_next/static/*` (hashed / immutable). Header `immutable` de `/_next/static` **solo en producción**; en `next dev` usar `no-store` (no cachear chunks de Turbopack).
+5. SW (si existe): cache-first **solo** `/_next/static/*` (hashed / immutable). Header `immutable` de `/_next/static` **solo en producción**. En `next dev` no overridear Cache-Control de `/_next/static` (Next ya envía `no-store`; un header custom rompe HMR).
 6. Offline solo: form de cargar + `/offline`. Nunca saldos/patrimonio stale.
 7. Auth sigue Better Auth; hosting Vercel — no proponer PocketBase, Caddy self-host ni Workbox “offline app” genérico.
 8. PWA: `manifest.ts` + install; shortcuts a gasto/ingreso/cuentas (`?new=expense|income`, `/accounts`).

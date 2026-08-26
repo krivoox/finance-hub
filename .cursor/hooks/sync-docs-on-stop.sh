@@ -42,12 +42,12 @@ if [[ -z "$changed" ]]; then
   exit 0
 fi
 
-product_hit=$(printf '%s\n' "$changed" | grep -E '^(src/features/|src/lib/auth\.ts|src/middleware\.ts|prisma/)' || true)
+product_hit=$(printf '%s\n' "$changed" | grep -E '^(src/features/|src/lib/auth\.ts|src/proxy\.ts|prisma/)' || true)
 docs_hit=$(printf '%s\n' "$changed" | grep -E '^(docs/|\.cursor/rules/|AGENTS\.md|DESIGN\.md)' || true)
 
 if [[ -n "$product_hit" && -z "$docs_hit" ]]; then
   jq -n --arg msg "$(cat <<'EOF'
-Se detectaron cambios de producto (features/auth/prisma/middleware) sin tocar documentación en este turno.
+Se detectaron cambios de producto (features/auth/prisma/proxy) sin tocar documentación en este turno.
 
 Actualizá la documentación antes de cerrar:
 - Specs relevantes en docs/specs/
