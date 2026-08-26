@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { createSettlementAction } from "@/features/splits/actions";
-import { FormField } from "@/components/form-sheet";
+import {
+  FormActions,
+  FormField,
+  FormStack,
+} from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { nativeSelectClassName } from "@/components/ui/native-select";
@@ -29,10 +33,12 @@ export function CreateSettlementForm({
   splitGroupId,
   members,
   actorMemberId,
+  onSuccess,
 }: {
   splitGroupId: string;
   members: readonly MemberOption[];
   actorMemberId: string;
+  onSuccess?: () => void;
 }) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -61,47 +67,52 @@ export function CreateSettlementForm({
         toast.error(result.error);
         return;
       }
-      toast.success("Saldado");
+      toast.success("Cobro anotado");
       setAmountUnits("");
+      onSuccess?.();
       refreshAfterMutation(router);
     });
   };
 
   return (
-    <div className="space-y-3">
-      <p className="text-sm font-medium text-foreground">Ya me pagó</p>
-      <FormField label="Quién" htmlFor="settlement-from">
-        <select
-          id="settlement-from"
-          className={nativeSelectClassName}
-          value={fromMemberId}
-          onChange={(event) => setFromMemberId(event.target.value)}
-        >
-          {others.map((member) => (
-            <option key={member.memberId} value={member.memberId}>
-              {member.displayName}
-            </option>
-          ))}
-        </select>
-      </FormField>
-      <FormField label="Monto" htmlFor="settlement-amount">
-        <Input
-          id="settlement-amount"
-          inputMode="decimal"
-          value={amountUnits}
-          onChange={(event) => setAmountUnits(event.target.value)}
-          placeholder="0,00"
-        />
-      </FormField>
-      <Button
-        type="button"
-        variant="outline"
-        className="h-11 rounded-xl"
-        disabled={isPending}
-        onClick={handleSubmit}
-      >
-        Registrar que me pagaron
-      </Button>
-    </div>
+    <form
+      className="flex flex-col gap-6"
+      onSubmit={(event) => {
+        event.preventDefault();
+        handleSubmit();
+      }}
+    >
+      <FormStack>
+        <FormField label="Quién pagó" htmlFor="settlement-from">
+          <select
+            id="settlement-from"
+            className={nativeSelectClassName}
+            value={fromMemberId}
+            onChange={(event) => setFromMemberId(event.target.value)}
+          >
+            {others.map((member) => (
+              <option key={member.memberId} value={member.memberId}>
+                {member.displayName}
+              </option>
+            ))}
+          </select>
+        </FormField>
+        <FormField label="Monto" htmlFor="settlement-amount" hint="Lo que te depositaron">
+          <Input
+            id="settlement-amount"
+            inputMode="decimal"
+            value={amountUnits}
+            onChange={(event) => setAmountUnits(event.target.value)}
+            placeholder="0,00"
+            className="tabular-nums"
+          />
+        </FormField>
+      </FormStack>
+      <FormActions>
+        <Button type="submit" disabled={isPending}>
+          {isPending ? "Guardando…" : "Anotar cobro"}
+        </Button>
+      </FormActions>
+    </form>
   );
 }

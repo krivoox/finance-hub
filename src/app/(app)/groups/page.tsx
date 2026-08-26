@@ -1,5 +1,8 @@
 import { redirect } from "next/navigation";
+import { Plus } from "lucide-react";
+
 import { ContentPanel } from "@/components/app-shell/content-panel";
+import { Button } from "@/components/ui/button";
 import { getSession } from "@/lib/session";
 import { listMySplitGroups } from "@/features/splits/services";
 import { SplitGroupsDirectory } from "@/features/splits/components/split-groups-directory";
@@ -14,8 +17,19 @@ export default async function GroupsDirectoryPage() {
   return (
     <ContentPanel
       title="Grupos"
-      description="Gastos divididos con quien sea, tenga o no la app."
-      actions={groups.length > 0 ? <NewSplitGroupSheet /> : undefined}
+      description="Quién te debe y a quién le debés, sobre tus propias cuentas."
+      actions={
+        groups.length > 0 ? (
+          <NewSplitGroupSheet
+            trigger={
+              <Button className="w-full gap-1.5 sm:w-auto">
+                <Plus className="size-4" strokeWidth={1.75} />
+                Nuevo grupo
+              </Button>
+            }
+          />
+        ) : undefined
+      }
     >
       <SplitGroupsDirectory groups={groups} />
     </ContentPanel>

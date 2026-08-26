@@ -2,7 +2,7 @@
 
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
@@ -15,11 +15,15 @@ import {
   FormActions,
   FormField,
   FormStack,
+  SegmentedControl,
 } from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { nativeSelectClassName } from "@/components/ui/native-select";
 import { navigateAndRefresh } from "@/lib/navigation";
+import {
+  SPLIT_GROUP_KIND_OPTIONS,
+  splitGroupKindHint,
+} from "./split-copy";
 
 type NewSplitGroupFormProps = {
   onSuccess?: () => void;
@@ -32,6 +36,7 @@ export function NewSplitGroupForm({ onSuccess }: NewSplitGroupFormProps) {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<CreateSplitGroupInput>({
     resolver: zodResolver(createSplitGroupSchema),
@@ -64,26 +69,33 @@ export function NewSplitGroupForm({ onSuccess }: NewSplitGroupFormProps) {
         >
           <Input
             id="split-group-name"
-            placeholder="Casa, Asado del sábado..."
+            placeholder="Casa, Asado del sábado…"
             aria-invalid={Boolean(errors.name)}
             {...register("name")}
           />
         </FormField>
 
-        <FormField
-          label="Qué es"
-          htmlFor="split-group-kind"
-          error={errors.kind?.message}
-        >
-          <select
-            id="split-group-kind"
-            className={nativeSelectClassName}
-            {...register("kind")}
-          >
-            <option value="ongoing">Algo que sigue (casa, viaje largo)</option>
-            <option value="one_time">Algo de una vez (asado, salida)</option>
-          </select>
-        </FormField>
+        <Controller
+          control={control}
+          name="kind"
+          render={({ field }) => (
+            <FormField
+              label="Qué es"
+              htmlFor="split-group-kind"
+              hint={splitGroupKindHint(field.value)}
+              error={errors.kind?.message}
+            >
+              <SegmentedControl
+                id="split-group-kind"
+                ariaLabel="Qué es el grupo"
+                value={field.value}
+                options={SPLIT_GROUP_KIND_OPTIONS}
+                disabled={isBusy}
+                onChange={field.onChange}
+              />
+            </FormField>
+          )}
+        />
       </FormStack>
 
       <FormActions>

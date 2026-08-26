@@ -19,11 +19,11 @@ export function NewSplitGroupSheet({ trigger }: NewSplitGroupSheetProps) {
       open={open}
       onOpenChange={setOpen}
       title="Un grupo nuevo"
-      description="Para el asado, la casa o el súper. Los gastos se cargan después, al registrar un movimiento."
+      description="Los gastos se cargan al registrar un movimiento, sobre tus cuentas."
       size="md"
       trigger={
         trigger ?? (
-          <Button className="h-11 w-full rounded-xl sm:w-auto">
+          <Button className="w-full gap-1.5 sm:w-auto">
             <Plus className="size-4" strokeWidth={1.75} />
             Crear un grupo
           </Button>

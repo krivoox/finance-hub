@@ -14,7 +14,7 @@ export function JoinSplitGroupButton({ token }: { token: string }) {
 
   return (
     <Button
-      className="h-11 rounded-xl"
+      className="h-11 w-full rounded-xl"
       disabled={isPending}
       onClick={() => {
         startTransition(async () => {

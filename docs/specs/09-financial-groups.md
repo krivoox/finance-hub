@@ -182,14 +182,14 @@ Riesgo principal de C: usuarios que ya usaban el workspace grupal como ledger de
 
 Copy de referencia (empty):
 
-- Título: “¿El asado de este finde?”
-- Cuerpo: cargás lo que puso cada uno y mandás un enlace al WhatsApp. Los demás ven quién debe, sin instalar nada. También anda para alquiler y súper de la casa.
-- Destacado: la otra persona **no** necesita la app; se la puede sumar sólo con el nombre y el saldo se lleva igual.
+- Eyebrow: “Sobre tus cuentas”
+- Título: “Repartí un gasto entre varios”
+- Cuerpo: el grupo no es otra cuenta; el movimiento se carga en tu ledger y se imputa a las personas. Quien no tiene la app entra sólo con el nombre; el enlace muestra los saldos.
 - CTA: “Crear un grupo”
 
 Preview de referencia (form gasto):
 
-> En «Casa», entre 2: le toca $ X a cada uno. Vos pusiste todo, así que te deben el resto.
+> En «Casa», 2 personas · ARS X cada una. Tu cuenta cubre el total.
 
 ## 8. Criterios de aceptación (Given / When / Then)
 
@@ -199,7 +199,7 @@ Agrupados por historia. Verificables en pantalla o por test de dominio (montos).
 
 - **Given** usuario autenticado, workspace personal, 0 SplitGroups  
 - **When** abre `/groups`  
-- **Then** ve el empty (título informal + copy WhatsApp/ghost + CTA “Crear un grupo”); no ve switcher de workspace grupal ni “creá un workspace grupal”
+- **Then** ve el empty (título de producto + copy ledger/ghost/enlace + CTA “Crear un grupo”); no ve switcher de workspace grupal ni “creá un workspace grupal”
 
 ### H2 Crear
 

@@ -8,6 +8,7 @@ import { nativeSelectClassName } from "@/components/ui/native-select";
 import { formatMoney } from "@/lib/format-money";
 import { previewEqualSplit } from "@/features/splits/domain";
 import type { SplitGroupMemberRef } from "@/features/splits/domain";
+import { peopleCountLabel } from "./split-copy";
 
 export type ExpenseSplitGroupOption = {
   id: string;
@@ -65,27 +66,31 @@ export function ExpenseSplitFields({
 
   if (groups.length === 0) {
     return (
-      <div className="rounded-2xl border border-border p-4">
-        <p className="text-sm text-muted-foreground">
-          Para dividirlo, primero{" "}
-          <Link href="/groups" className="underline underline-offset-2">
-            creá un grupo
-          </Link>
-          .
-        </p>
-      </div>
+      <p className="rounded-lg bg-muted/60 px-3 py-2.5 text-sm text-muted-foreground text-pretty">
+        Para imputarlo a un grupo, primero{" "}
+        <Link
+          href="/groups"
+          className="font-medium text-foreground underline underline-offset-2"
+        >
+          creá uno
+        </Link>
+        .
+      </p>
     );
   }
 
+  const shareCents =
+    preview && selected ? typicalShareCents(preview) : null;
+
   return (
-    <div className="space-y-3 rounded-2xl border border-border p-4">
-      <label className="flex items-start justify-between gap-3">
+    <div className="space-y-3">
+      <label className="flex items-start justify-between gap-3 rounded-lg bg-muted/60 px-3 py-2.5">
         <span>
           <span className="block text-sm font-medium text-foreground">
             Dividirlo con alguien
           </span>
           <span className="mt-0.5 block text-xs text-muted-foreground">
-            Se reparte en partes iguales entre los del grupo.
+            Se imputa al grupo, en partes iguales. Tu cuenta cubre el total.
           </span>
         </span>
         <Checkbox
@@ -96,39 +101,49 @@ export function ExpenseSplitFields({
       </label>
 
       {enabled ? (
-        <>
+        <div className="space-y-3">
           {groupsForCurrency.length === 0 ? (
             <p className="text-sm text-muted-foreground">
-              No hay grupos en {currency}. Creá uno o cambiá la moneda del
-              gasto.
+              No hay grupos en {currency}. Creá uno o cambiá la moneda del gasto.
             </p>
           ) : (
-            <select
-              className={nativeSelectClassName}
-              value={selected?.id ?? ""}
-              onChange={(event) => onGroupChange(event.target.value)}
-              aria-label="Grupo"
-            >
-              {groupsForCurrency.map((group) => (
-                <option key={group.id} value={group.id}>
-                  {group.name}
-                </option>
-              ))}
-            </select>
+            <div className="space-y-1.5">
+              <label
+                htmlFor="expense-split-group"
+                className="text-xs font-medium text-muted-foreground"
+              >
+                Imputar a
+              </label>
+              <select
+                id="expense-split-group"
+                className={nativeSelectClassName}
+                value={selected?.id ?? ""}
+                onChange={(event) => onGroupChange(event.target.value)}
+              >
+                {groupsForCurrency.map((group) => (
+                  <option key={group.id} value={group.id}>
+                    {group.name}
+                  </option>
+                ))}
+              </select>
+            </div>
           )}
           {selected && selected.members.length < 2 ? (
             <p className="text-sm text-muted-foreground">
-              Sumá a alguien en «{selected.name}» para poder dividir.
+              Anotá a alguien en «{selected.name}» para poder dividir.
             </p>
           ) : null}
-          {preview && selected ? (
-            <p className="text-sm text-muted-foreground">
-              En «{selected.name}», entre {preview.participantCount}: le toca{" "}
-              {formatMoney(typicalShareCents(preview), currency)} a cada uno. Vos
-              pusiste todo, así que te deben el resto.
+          {preview && selected && shareCents !== null ? (
+            <p className="rounded-lg bg-muted/60 px-3 py-2.5 text-sm text-foreground text-pretty">
+              En «{selected.name}», {peopleCountLabel(preview.participantCount)}{" "}
+              ·{" "}
+              <span className="tabular font-medium">
+                {formatMoney(shareCents, currency)}
+              </span>{" "}
+              cada una. Tu cuenta cubre el total.
             </p>
           ) : null}
-        </>
+        </div>
       ) : null}
     </div>
   );
