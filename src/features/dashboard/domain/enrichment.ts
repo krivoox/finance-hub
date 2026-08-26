@@ -14,6 +14,7 @@ export type GoalProgressItem = {
   name: string;
   kind: string;
   progressPercent: number;
+  progressFillPercent: number;
   currentAmountCents: number;
   targetAmountCents: number;
   status: string;
@@ -60,6 +61,7 @@ export function selectActiveGoalsProgress<
     name: string;
     kind: string;
     progressPercent: number;
+    progressFillPercent: number;
     currentAmountCents: number;
     targetAmountCents: number;
     status: string;
@@ -72,6 +74,7 @@ export function selectActiveGoalsProgress<
       name: g.name,
       kind: g.kind,
       progressPercent: g.progressPercent,
+      progressFillPercent: g.progressFillPercent,
       currentAmountCents: g.currentAmountCents,
       targetAmountCents: g.targetAmountCents,
       status: g.status,

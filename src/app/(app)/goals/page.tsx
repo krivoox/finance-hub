@@ -140,6 +140,7 @@ async function GoalsListSection({
         linkedAccountName: goal.linkedAccountName,
         status: goal.status,
         progressPercent: goal.progressPercent,
+        progressFillPercent: goal.progressFillPercent,
       }))}
     />
   );

@@ -63,7 +63,7 @@ export function DashboardGoals({ currency, goals }: DashboardGoalsProps) {
                 </span>
               </div>
               <ProgressBar
-                value={goal.progressPercent}
+                value={goal.progressFillPercent}
                 tone={goalProgressTone(goal.progressPercent)}
                 aria-label={`${goal.name}: ${goal.progressPercent}%`}
               />

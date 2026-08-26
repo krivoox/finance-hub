@@ -61,6 +61,7 @@ export function ProgressBar({
   "aria-label": ariaLabel,
 }: ProgressBarProps) {
   const width = Math.min(100, Math.max(0, value));
+  const hasProgress = width > 0;
 
   return (
     <div
@@ -71,7 +72,14 @@ export function ProgressBar({
       aria-label={ariaLabel}
       className={cn(trackVariants({ size }), className)}
     >
-      <div className={fillVariants({ tone })} style={{ width: `${width}%` }} />
+      <div
+        className={fillVariants({ tone })}
+        style={{
+          width: `${width}%`,
+          // Sub-1% contributions otherwise collapse to 0px on a narrow track.
+          minWidth: hasProgress ? "0.375rem" : undefined,
+        }}
+      />
     </div>
   );
 }

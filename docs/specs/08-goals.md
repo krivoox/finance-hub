@@ -27,7 +27,7 @@ Objetivos: fondo de emergencia, ahorro para compra, cancelación de deudas. Segu
 |----|-----------|
 | FR-01 | Create goal kind=`save` \| `debt_payoff` |
 | FR-02 | `ContributeToGoal` crea **transfer** (origen → `linkedAccountId`) + `GoalContribution` + actualiza `currentAmount` / status — atómico |
-| FR-03 | Progress % = current/target (cap 100% para display) |
+| FR-03 | Progress % = current/target (cap 100%). Etiqueta entera (floor). La barra usa el ratio exacto para que un aporte chico se vea |
 | FR-04 | Auto-complete cuando current >= target |
 | FR-05 | Cancel goal |
 | FR-06 | `linkedAccountId` opcional al **crear**; **obligatorio** para aportar (destino de la transfer) |
@@ -208,6 +208,12 @@ Migración: aportes históricos **sin** transfer (si existen en ambientes) queda
 - **Given** target 500000, current 0, status active  
 - **When** `applyContribution(…, 200000)`  
 - **Then** current=200000, progress=40%, status active
+
+### T-02b Barra usa el ratio exacto (no floor)
+
+- **Given** target 560099900, current 0  
+- **When** `applyContribution(…, 5000000)` (50_000 ARS)  
+- **Then** current=5000000, `progressPercent` (etiqueta) = 0, `progressFillPercent` > 0 (~0.89)
 
 ### T-03 Complete
 
