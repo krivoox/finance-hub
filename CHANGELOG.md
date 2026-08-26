@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Show split-group spending by category
 
+- **email:** Integrate Resend for password reset and marketing
+
 ### Fixed
 
 - **ui:** Keep the mobile tab bar in view and avoid stale JS in next dev
@@ -62,6 +64,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **money:** Parse amount inputs with a canonical comma decimal
 
 - **forms:** Open a decimal keypad and use comma in amount fields
+
+- **email:** Keep public reset and newsletter forms from hanging
+
+- **auth:** Confirm password reset immediately without waiting
 
 [Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.16.0...HEAD
 
