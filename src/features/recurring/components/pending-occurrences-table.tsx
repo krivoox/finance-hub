@@ -194,10 +194,9 @@ export function PendingOccurrencesTable({
             ) : null}
             <AbmHead slot="identity">Descripción</AbmHead>
             <AbmHead hideBelow="md">Categoría</AbmHead>
-            <AbmHead hideBelow="lg">Cuenta</AbmHead>
             <AbmHead slot="amount">Monto</AbmHead>
-            <AbmHead hideBelow="sm">Fecha de cobro</AbmHead>
-            <AbmHead hideBelow="sm">Estado</AbmHead>
+            <AbmHead hideBelow="lg">Fecha de cobro</AbmHead>
+            <AbmHead hideBelow="lg">Estado</AbmHead>
             {canMutate ? (
               <AbmHead slot="action">
                 <span className="sr-only">Acciones</span>
@@ -229,11 +228,11 @@ export function PendingOccurrencesTable({
                     <span className="min-w-0 truncate font-medium text-foreground">
                       {item.ruleName}
                     </span>
-                    <span className="truncate text-xs text-muted-foreground sm:hidden">
+                    <span className="truncate text-xs text-muted-foreground lg:hidden">
                       {formatDateOnly(item.scheduledOn)} ·{" "}
                       {OCCURRENCE_STATUS_LABEL_ES[item.status]}
                     </span>
-                    <span className="hidden truncate text-xs text-muted-foreground sm:block md:hidden">
+                    <span className="hidden truncate text-xs text-muted-foreground lg:block">
                       {RECURRING_TYPE_LABEL_ES[item.ruleType]} ·{" "}
                       {accountLabel(item)}
                     </span>
@@ -262,9 +261,6 @@ export function PendingOccurrencesTable({
                     toneSeed={item.categoryId}
                   />
                 </AbmCell>
-                <AbmCell hideBelow="lg" muted>
-                  {accountLabel(item)}
-                </AbmCell>
                 <AbmCell slot="amount">
                   <AbmMoney
                     cents={signedAmountCents(item.ruleType, item.amountCents)}
@@ -272,10 +268,10 @@ export function PendingOccurrencesTable({
                     tone={tone}
                   />
                 </AbmCell>
-                <AbmCell hideBelow="sm" className="tabular-nums" muted>
+                <AbmCell hideBelow="lg" className="tabular-nums" muted>
                   {formatDateOnly(item.scheduledOn)}
                 </AbmCell>
-                <AbmCell hideBelow="sm">
+                <AbmCell hideBelow="lg">
                   <Badge variant={statusVariant(item.status)}>
                     {OCCURRENCE_STATUS_LABEL_ES[item.status]}
                   </Badge>
