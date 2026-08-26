@@ -87,6 +87,7 @@ Detalle y versiones → [stack.md](./stack.md).
 | Zustand | UI efímera (sheets, splash post-mutación) |
 | Vitest | Tests de `domain` / servicios puros |
 | shadcn + Tailwind 4 | UI; tokens en `DESIGN.md` / `globals.css` |
+| Resend | Email transaccional (reset) y marketing (contacts/broadcasts) |
 
 ## 5. Estructura de carpetas
 
@@ -113,15 +114,15 @@ Detalle y versiones → [stack.md](./stack.md).
     │   ├── budgets/
     │   ├── goals/
     │   ├── splits/
-    │   └── dashboard/
-    │       ├── components/
-    │       ├── actions/       # Server Actions
-    │       ├── services/      # Orquestación + Prisma
-    │       ├── domain/        # Reglas puras del feature — TDD
-    │       ├── schemas/       # Zod
-    │       └── types/
+    │   ├── dashboard/
+    │   └── email/             # Resend: reset + marketing (SPEC-21)
+    │       ├── components/    # (layout típico de feature)
+    │       ├── actions/
+    │       ├── services/
+    │       ├── domain/
+    │       └── schemas/
     ├── hooks/
-    ├── lib/                   # env, auth, prisma, session, supabase, utils
+    ├── lib/                   # env, auth, prisma, session, supabase, resend, utils
     ├── services/              # Transversal entre features
     ├── schemas/
     ├── types/
@@ -276,6 +277,7 @@ UI (RHF + Zod)
 | `splits` + overview grupo | [09](./specs/09-financial-groups.md) + [10](./specs/10-expense-splitting.md) |
 | analytics | [11-analytics](./specs/11-analytics.md) |
 | `dashboard` | [12-dashboard](./specs/12-dashboard.md) |
+| `email` | [21-email-resend](./specs/21-email-resend.md) |
 | shell / PWA / nav | [20-performance-pwa](./specs/20-performance-pwa.md) |
 
 ## 11. Qué no hacer

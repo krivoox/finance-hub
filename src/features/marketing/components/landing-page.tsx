@@ -13,6 +13,7 @@ import {
   LANDING_TRUST,
   LANDING_VALUES,
 } from "@/features/marketing/content";
+import { NewsletterSubscribeForm } from "./newsletter-subscribe-form";
 
 import { HeroDeviceMock } from "./hero-device-mock";
 import { LandingNav } from "./landing-nav";
@@ -24,7 +25,11 @@ import {
   SpiralMark,
 } from "./landing-visuals";
 
-export function LandingPage() {
+export function LandingPage({
+  newsletterEnabled = false,
+}: {
+  newsletterEnabled?: boolean;
+}) {
   return (
     <div className="flex min-h-svh flex-col bg-background text-foreground">
       <LandingNav />
@@ -92,7 +97,10 @@ export function LandingPage() {
 
         <div className="mx-auto max-w-6xl space-y-24 px-4 py-20 sm:space-y-28 sm:px-6 sm:py-28">
           {/* Definition (SEO extractable) */}
-          <section aria-labelledby="que-es" className="mx-auto max-w-3xl text-center">
+          <section
+            aria-labelledby="que-es"
+            className="mx-auto max-w-3xl text-center"
+          >
             <h2
               id="que-es"
               className="fh-display text-2xl font-semibold tracking-tight sm:text-3xl"
@@ -257,6 +265,19 @@ export function LandingPage() {
             <p className="mt-3 max-w-3xl text-base leading-relaxed text-muted-foreground text-pretty">
               {LANDING_EARLY_ACCESS.body}
             </p>
+            {newsletterEnabled ? (
+              <div className="mt-8 grid gap-6 border-t border-border pt-6 sm:grid-cols-[1fr_minmax(0,20rem)] sm:items-start sm:gap-10">
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">
+                    {LANDING_EARLY_ACCESS.newsletterTitle}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+                    {LANDING_EARLY_ACCESS.newsletterBody}
+                  </p>
+                </div>
+                <NewsletterSubscribeForm />
+              </div>
+            ) : null}
           </section>
 
           {/* FAQ + side CTA */}
@@ -305,7 +326,10 @@ export function LandingPage() {
                   soporte.
                 </p>
               </div>
-              <Button className="mt-8 h-10 w-full rounded-full sm:w-auto" asChild>
+              <Button
+                className="mt-8 h-10 w-full rounded-full sm:w-auto"
+                asChild
+              >
                 <Link href="/registro">Crear cuenta</Link>
               </Button>
             </aside>

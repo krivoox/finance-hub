@@ -151,13 +151,15 @@ export const LANDING_AUDIENCE = {
       body: "Gastos de casa o del asado, con nombre o enlace. Quien no tiene la app igual entra en el saldo.",
     },
   ],
-  anti:
-    "No está pensada para trading, contabilidad fiscal de empresa ni para “conectar el banco y olvidarse”.",
+  anti: "No está pensada para trading, contabilidad fiscal de empresa ni para “conectar el banco y olvidarse”.",
 } as const;
 
 export const LANDING_EARLY_ACCESS = {
   h2: "Acceso temprano",
   body: "Finance Hub está en desarrollo activo (beta de producto). Todavía no hay pricing público. Crear cuenta te deja usar el producto mientras validamos el centro financiero del hogar. Cuando haya planes, lo comunicaremos con claridad — sin sorpresas de “gratis para siempre”.",
+  newsletterTitle: "Novedades por email",
+  newsletterBody:
+    "Si todavía no querés crear cuenta, dejá tu email y te avisamos cuando haya avances.",
 } as const;
 
 export const LANDING_FINAL_CTA = {

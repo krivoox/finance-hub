@@ -32,6 +32,7 @@ Versiones de referencia: `turno-app` / Siturn (marzo 2026). Mantener alineadas s
 | Lint / format | ESLint 9 + `eslint-config-next` + Prettier | según Siturn |
 | CLI local DB | Supabase CLI | `^2.100` (devDependency) |
 | Tests (negocio) | Vitest | a configurar en Fase 0 |
+| Email | **Resend** (SDK Node) | `^6.23` (SPEC-21 / KRI-17) |
 | Smoke UI (opcional) | Maestro CLI + MCP | web Chromium (beta); ver `docs/guides/maestro-mcp.md` |
 
 ## Qué hace cada pieza
@@ -46,6 +47,7 @@ Versiones de referencia: `turno-app` / Siturn (marzo 2026). Mantener alineadas s
 | **Zod** | Validación doble: forms (cliente) + Server Actions |
 | **Zustand** | Solo UI (modales, sidebar, splash post-mutación) |
 | **Vitest** | TDD de lógica de negocio (no UI) |
+| **Resend** | Email transaccional (reset) y marketing (contacts/broadcasts). SDK servidor; no MCP como runtime |
 | **Maestro** | Smoke / exploración UI vía CLI o MCP (web beta); no sustituye Vitest |
 
 ## Prohibido (salvo pedido explícito)
@@ -73,6 +75,12 @@ BETTER_AUTH_URL=http://localhost:3000
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 
+# Resend (opcional en local; reset + marketing — SPEC-21)
+RESEND_API_KEY=
+EMAIL_FROM=Finance Hub <onboarding@resend.dev>
+EMAIL_REPLY_TO=
+RESEND_MARKETING_SEGMENT_ID=
+
 # Opcional (solo desarrollo): loguear cada statement SQL de Prisma
 # PRISMA_LOG_QUERIES=0
 ```
@@ -83,6 +91,7 @@ GOOGLE_CLIENT_SECRET=
 - `BETTER_AUTH_URL`: dominio canónico (fallback). En Vercel **Production** = `https://finance.krivoox.com`. En **Preview** el runtime prioriza `VERCEL_URL` y Better Auth usa Dynamic Base URL con `*.vercel.app` + `*.krivoox.com` (`demo.krivoox.com` en `develop`; ver `src/lib/env.ts` + `src/lib/auth.ts`). Preferible: no setear `BETTER_AUTH_URL` en Environment Preview. Opcional: `BETTER_AUTH_TRUSTED_ORIGINS`
 - `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`: provider social Google en Better Auth (`socialProviders.google`). Sin ellas, email/password sigue funcionando; el botón Google se oculta (feature degradable). Centralizar en `src/lib/env.ts` (opcionales).
 - `NEXT_PUBLIC_CAFECITO_URL`: URL pública del perfil Cafecito (ej. `https://cafecito.app/tu-usuario`). Sin ella, el popup de donación y la entrada de menú quedan ocultos.
+- **Email (Resend, KRI-17 / SPEC-21):** `RESEND_API_KEY` (opcional en local; necesaria para enviar en prod), `EMAIL_FROM` (default sandbox `Finance Hub <onboarding@resend.dev>`), `EMAIL_REPLY_TO` (opcional), `RESEND_MARKETING_SEGMENT_ID` (segmento de novedades). Guía: [guides/email-resend.md](./guides/email-resend.md). **No** usar el MCP de Resend como runtime.
 - **Redirect URIs (Google Cloud Console)** — path fijo Better Auth: `{origin}/api/auth/callback/google`
   - Local: `http://localhost:3000/api/auth/callback/google`
   - Production: `https://finance.krivoox.com/api/auth/callback/google` (u origen canónico vigente)
