@@ -38,7 +38,7 @@ Pantalla principal: visión clara del estado financiero del workspace personal.
 
 - Balances nativos: suma por moneda de accounts no archivadas (convención credit). Nunca sumar ARS+USD crudos.
 - Patrimonio consolidado: lectura con `WorkspaceConsolidationRate` (manual, o apply explícito desde MEP — SPEC-19); prefijo `≈` en UI. El feed diario **no** muta la tasa sin acción del usuario.
-- Cashflow: incomes − expenses del mes **por moneda** (transfers y `fx_*` excluidos).
+- Cashflow: incomes − expenses del mes **por moneda** (transfers y `fx_*` excluidos — KRI-34). El patrimonio (saldos de cuentas) sí refleja transfers entre cuentas; los KPIs Ingresos / Gastos / Flujo y el donut de categorías no.
 - “Recientes”: últimas N transacciones (default 10); cada una en su moneda.
 - Dashboard es **read model**; lógica de cálculo reutiliza servicios de dominio ya testeados.
 
@@ -103,6 +103,7 @@ Pantalla principal: visión clara del estado financiero del workspace personal.
 - No meter analytics densos adicionales en el primer viewport; deep-dive en SPEC-11
 - Cotizaciones (SPEC-19): preferir mini-card en sidebar + caption/CTA liviano aquí; no un segundo widget denso de FX en el primer viewport. Distinguir copy “Cotización” vs “TC de consolidación”.
 - **Móvil (~390px):** home del Panel = barras de gasto mensual + card de categorías (donut). Las cards no empujan el viewport (`scrollWidth === clientWidth`). Filas de dinero: identidad `min-w-0 truncate`; monto acotado. Overflow del shell: [DESIGN.md](../../DESIGN.md) §3.1.
+- **Donut “Gastos por categoría”:** el anillo escala al ancho de la card; el total del hoyo usa notación compacta y/o un cuerpo menor cuando el monto formateado no cabe (p. ej. `ARS 4.447.413,29`). El total es solo `expense` (sin transfers).
 
 ## 10. Notas de implementación
 

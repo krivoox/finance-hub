@@ -49,6 +49,7 @@ import {
   resumeRecurringRuleAction,
 } from "@/features/recurring/actions";
 import type { RecurringRuleListItem } from "@/features/recurring/services";
+import { signedLedgerAmountCents } from "@/features/transactions/domain";
 
 import {
   RECURRING_FREQUENCY_LABEL_ES,
@@ -76,8 +77,7 @@ function signedAmountCents(
   type: RecurringRuleListItem["type"],
   amountCents: number,
 ): number {
-  if (type === "income") return amountCents;
-  return -amountCents;
+  return signedLedgerAmountCents(type, amountCents);
 }
 
 function statusVariant(

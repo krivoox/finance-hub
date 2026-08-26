@@ -42,6 +42,12 @@ function cellsFromPresented(presented: PresentedListTotals): TotalsCell[] {
           tone: "income",
         });
       }
+      cells.push({
+        key: `${row.currency}-net`,
+        label: `Neto ${row.currency}`,
+        value: formatSignedMoney(row.netCents, row.currency),
+        tone: row.netCents < 0 ? "expense" : "income",
+      });
       return cells;
     });
   }
@@ -87,10 +93,11 @@ export function TransactionsListTotals({
   const presented = presentListTotals(buckets, typeFilter);
   if (!hasPresentableTotals(presented)) return null;
 
-  const totalCount = buckets.reduce((n, b) => n + b.count, 0);
   const cells = cellsFromPresented(presented);
   const countLabel =
-    totalCount === 1 ? "1 movimiento" : `${totalCount} movimientos`;
+    presented.movementCount === 1
+      ? "1 movimiento"
+      : `${presented.movementCount} movimientos`;
 
   return (
     <SurfaceSection
