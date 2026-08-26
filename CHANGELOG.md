@@ -71,6 +71,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **auth:** Confirm password reset immediately without waiting
 
+- **ui:** Contain list taps and cache Registrar catalogs
+
 [Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.16.0...HEAD
 
 ## [0.13.0] - 2026-08-11
