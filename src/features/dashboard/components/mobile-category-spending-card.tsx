@@ -9,31 +9,14 @@ import {
 } from "@/features/dashboard/domain";
 import { cn } from "@/lib/utils";
 
+import { donutSliceTone, SpendingDonutChart } from "./spending-donut-chart";
+
 type MobileCategorySpendingCardProps = {
   currency: string;
   yearMonth: string;
   rows: readonly SpendingByCategoryRow[];
   previousRows: readonly SpendingByCategoryRow[];
 };
-
-const SLICE_STROKE = [
-  "stroke-chart-1",
-  "stroke-chart-2",
-  "stroke-chart-3",
-  "stroke-chart-4",
-  "stroke-chart-5",
-] as const;
-const SLICE_FILL = [
-  "bg-chart-1",
-  "bg-chart-2",
-  "bg-chart-3",
-  "bg-chart-4",
-  "bg-chart-5",
-] as const;
-const SLICE_DOT = SLICE_FILL;
-
-const RADIUS = 15.915;
-const STROKE_WIDTH = 3.75;
 
 const longMonthFormatter = new Intl.DateTimeFormat("es-AR", {
   month: "long",
@@ -44,37 +27,6 @@ const longMonthFormatter = new Intl.DateTimeFormat("es-AR", {
 function monthDate(yearMonth: string): Date {
   const [year, month] = yearMonth.split("-");
   return new Date(Date.UTC(Number(year), Number(month) - 1, 1));
-}
-
-function sliceTone(categoryId: string, index: number) {
-  if (categoryId === OTHER_CATEGORY_ID) {
-    return {
-      stroke: "stroke-muted-foreground/50",
-      fill: "bg-muted-foreground/50",
-      dot: "bg-muted-foreground/50",
-    };
-  }
-  return {
-    stroke: SLICE_STROKE[index % SLICE_STROKE.length]!,
-    fill: SLICE_FILL[index % SLICE_FILL.length]!,
-    dot: SLICE_DOT[index % SLICE_DOT.length]!,
-  };
-}
-
-type DonutArc = { length: number; offset: number };
-
-function toDonutArcs(
-  slices: readonly { amountCents: number }[],
-  totalCents: number,
-): DonutArc[] {
-  const arcs: DonutArc[] = [];
-  let cursor = 0;
-  for (const slice of slices) {
-    const length = totalCents > 0 ? (slice.amountCents / totalCents) * 100 : 0;
-    arcs.push({ length, offset: -cursor });
-    cursor += length;
-  }
-  return arcs;
 }
 
 function previousCentsFor(
@@ -104,7 +56,7 @@ function movLabel(count: number): string {
 
 /**
  * Mobile spending-by-category card: donut + ranking bars + list.
- * Amounts come from domain aggregates (expenses only).
+ * Amounts come from domain aggregates (expenses only — KRI-34).
  */
 export function MobileCategorySpendingCard({
   currency,
@@ -113,7 +65,6 @@ export function MobileCategorySpendingCard({
   previousRows,
 }: MobileCategorySpendingCardProps) {
   const { slices, totalCents } = buildCategoryShares(rows);
-  const arcs = toDonutArcs(slices, totalCents);
   const keptIds = new Set(
     slices
       .filter((slice) => slice.categoryId !== OTHER_CATEGORY_ID)
@@ -134,42 +85,14 @@ export function MobileCategorySpendingCard({
         </p>
       ) : (
         <div className="mt-4 flex flex-col gap-6">
-          <div className="relative mx-auto size-44">
-            <svg viewBox="0 0 42 42" className="size-full -rotate-90" aria-hidden>
-              <circle
-                cx="21"
-                cy="21"
-                r={RADIUS}
-                fill="none"
-                strokeWidth={STROKE_WIDTH}
-                className="stroke-border"
-              />
-              {slices.map((slice, index) => {
-                const arc = arcs[index]!;
-                return (
-                  <circle
-                    key={slice.categoryId}
-                    cx="21"
-                    cy="21"
-                    r={RADIUS}
-                    fill="none"
-                    strokeWidth={STROKE_WIDTH}
-                    strokeDasharray={`${arc.length} ${100 - arc.length}`}
-                    strokeDashoffset={arc.offset}
-                    className={sliceTone(slice.categoryId, index).stroke}
-                  />
-                );
-              })}
-            </svg>
-            <div className="absolute inset-[22%] flex flex-col items-center justify-center gap-0.5 text-center">
-              <p className="text-[11px] leading-none text-muted-foreground">
-                Gastado
-              </p>
-              <p className="max-w-full text-base font-semibold leading-tight tracking-tight tabular-nums text-foreground">
-                {formatMoney(totalCents, currency)}
-              </p>
-            </div>
-          </div>
+          <SpendingDonutChart
+            currency={currency}
+            totalCents={totalCents}
+            slices={slices}
+            caption="Gastado"
+            captionPosition="above"
+            className="sm:mx-auto"
+          />
 
           <p className="text-center text-[11px] text-muted-foreground text-pretty">
             {hasPrevious
@@ -189,7 +112,7 @@ export function MobileCategorySpendingCard({
 
             <ul className="flex flex-col gap-3.5">
               {slices.map((slice, index) => {
-                const tone = sliceTone(slice.categoryId, index);
+                const tone = donutSliceTone(slice.categoryId, index);
                 const previousCents = previousCentsFor(
                   slice.categoryId,
                   previousRows,
@@ -251,7 +174,7 @@ export function MobileCategorySpendingCard({
             </div>
           </div>
 
-            <ul className="flex flex-col gap-1 border-t border-border pt-3">
+          <ul className="flex flex-col gap-1 border-t border-border pt-3">
             {slices.map((slice) => {
               const { emoji, label } = splitLeadingEmoji(slice.categoryName);
               const count = movCountFor(slice.categoryId, rows, keptIds);

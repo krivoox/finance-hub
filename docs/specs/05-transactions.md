@@ -146,7 +146,7 @@ Al aplicar los mismos filtros AND que el listado (§4.3–4.4 + alcance SPEC-14)
 | `expense` | **Suma gastos** por moneda (caso “cuánto gasté en X”) |
 | `income` | **Suma ingresos** por moneda |
 | `transfer` | **Suma transferencias** por moneda |
-| `all` | Breakdown **gastos + ingresos** por moneda; si el set filtrado solo tiene transfers, fallback a suma de transfers. `fx_*` no entran en el breakdown primario |
+| `all` | Breakdown **gastos + ingresos + neto** por moneda. `neto = ingresos − gastos`. Transferencias y `fx_*` **nunca** entran en ingresos, gastos, neto ni en el recuento de movimientos del strip (KRI-34). Si el set filtrado solo tiene transfers/`fx_*`, no hay totales de cashflow que mostrar. |
 
 **Paginación:** los totales **no** dependen de `cursor` ni de “Cargar más”. Query de agregación con el mismo `where` que `ListTransactions`.
 
@@ -203,7 +203,7 @@ Helpers de periodo (puro; paridad dashboard):
 - [ ] `accountId` incluye transfers donde la cuenta es origen o destino.
 - [ ] `categoryId` excluye transfers/`fx_*` (sin categoría).
 - [ ] Cambiar filtros limpia `cursor`; limpiar filtros vuelve a este mes (no a `all`).
-- [ ] Totales del filtrado (FR-06): por moneda; `type=expense` → suma gastos; `type=all` → breakdown ingresos/gastos; independientes de la página.
+- [ ] Totales del filtrado (FR-06): por moneda; `type=expense` → suma gastos; `type=all` → breakdown ingresos/gastos/neto **sin** transferencias ni `fx_*`; independientes de la página.
 - [ ] Cursor inválido → primera página (sin error de producto).
 - [ ] Formulario create permite elegir ARS/USD; default = `workspace.baseCurrency`.
 - [ ] Formulario create (income/expense): 4–5 atajos de categoría más usadas + selector; se puede crear una categoría nueva desde la búsqueda.
@@ -323,6 +323,16 @@ Helpers de periodo (puro; paridad dashboard):
 - **Given** expenses 3000 ARS + 500 USD en el filtro  
 - **When** `summarizeListAmounts` / presentación `type=expense`  
 - **Then** dos líneas de suma (ARS y USD); nunca un único total cruzado
+
+### T-20b Totales `type=all` excluyen transferencias (KRI-34)
+
+- **Given** income 10000 ARS, expense 3000 ARS, transfer 500 ARS  
+- **When** `presentListTotals(..., "all")`  
+- **Then** breakdown ARS income=10000, expense=3000, net=7000; el recuento de movimientos es 2 (sin la transfer)
+
+- **Given** solo transfers en el filtro y `type=all`  
+- **When** `presentListTotals`  
+- **Then** breakdown vacío (no fallback a SUMA de transfers)
 
 ### T-21 Totales independientes de la página
 

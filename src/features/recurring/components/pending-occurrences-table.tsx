@@ -31,6 +31,7 @@ import { refreshAfterMutation } from "@/lib/navigation";
 import { materializeRecurringOccurrenceAction } from "@/features/recurring/actions";
 import type { PendingOccurrence } from "@/features/recurring/services";
 import type { OccurrenceStatus } from "@/features/recurring/domain";
+import { signedLedgerAmountCents } from "@/features/transactions/domain";
 
 import {
   OCCURRENCE_STATUS_LABEL_ES,
@@ -58,8 +59,7 @@ function signedAmountCents(
   type: PendingOccurrence["ruleType"],
   amountCents: number,
 ): number {
-  if (type === "income") return amountCents;
-  return -amountCents;
+  return signedLedgerAmountCents(type, amountCents);
 }
 
 function statusVariant(

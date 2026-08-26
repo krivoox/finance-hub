@@ -27,3 +27,32 @@ export function formatSignedMoney(
   if (cents < 0) return `−${formatted}`;
   return formatted;
 }
+
+export type FormatFittedMoneyOptions = {
+  locale?: string;
+  /** Switch to compact notation when the full string exceeds this length. */
+  maxChars?: number;
+};
+
+/**
+ * Full currency format when it fits; compact (`4,4 M`) when a long amount
+ * would overflow a tight hole (donut center, KRI-34).
+ */
+export function formatFittedMoney(
+  cents: number,
+  currency: string,
+  options: FormatFittedMoneyOptions = {},
+): string {
+  const locale = options.locale ?? "es-AR";
+  const maxChars = options.maxChars ?? 14;
+  const full = formatMoney(cents, currency, locale);
+  if (full.length <= maxChars) return full;
+  return new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency,
+    currencyDisplay: "code",
+    notation: "compact",
+    compactDisplay: "short",
+    maximumFractionDigits: 1,
+  }).format(cents / 100);
+}

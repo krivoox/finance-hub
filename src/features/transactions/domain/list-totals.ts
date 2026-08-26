@@ -3,6 +3,7 @@
  *
  * Never mixes currencies. Income/expense are cashflow buckets; transfers and
  * fx legs are tracked separately (fx does not count as cashflow / budget spent).
+ * KRI-34: presented income / expense / net never include transfers.
  */
 
 import type { ListTypeFilter } from "./list-filters";
@@ -25,6 +26,10 @@ export type CurrencyListTotals = {
   readonly fxDebitCents: number;
   readonly fxCreditCents: number;
   readonly count: number;
+  readonly incomeCount: number;
+  readonly expenseCount: number;
+  readonly transferCount: number;
+  readonly fxCount: number;
 };
 
 export type PresentedSumLine = {
@@ -36,14 +41,28 @@ export type PresentedBreakdownLine = {
   readonly currency: string;
   readonly incomeCents: number;
   readonly expenseCents: number;
+  readonly netCents: number;
 };
 
 export type PresentedListTotals =
-  | { readonly mode: "expense"; readonly lines: readonly PresentedSumLine[] }
-  | { readonly mode: "income"; readonly lines: readonly PresentedSumLine[] }
-  | { readonly mode: "transfer"; readonly lines: readonly PresentedSumLine[] }
+  | {
+      readonly mode: "expense";
+      readonly movementCount: number;
+      readonly lines: readonly PresentedSumLine[];
+    }
+  | {
+      readonly mode: "income";
+      readonly movementCount: number;
+      readonly lines: readonly PresentedSumLine[];
+    }
+  | {
+      readonly mode: "transfer";
+      readonly movementCount: number;
+      readonly lines: readonly PresentedSumLine[];
+    }
   | {
       readonly mode: "breakdown";
+      readonly movementCount: number;
       readonly byCurrency: readonly PresentedBreakdownLine[];
     };
 
@@ -55,6 +74,10 @@ type MutableBucket = {
   fxDebitCents: number;
   fxCreditCents: number;
   count: number;
+  incomeCount: number;
+  expenseCount: number;
+  transferCount: number;
+  fxCount: number;
 };
 
 function emptyBucket(currency: string): MutableBucket {
@@ -66,7 +89,15 @@ function emptyBucket(currency: string): MutableBucket {
     fxDebitCents: 0,
     fxCreditCents: 0,
     count: 0,
+    incomeCount: 0,
+    expenseCount: 0,
+    transferCount: 0,
+    fxCount: 0,
   };
+}
+
+function rowCount(row: ListAmountRow): number {
+  return row.count ?? 1;
 }
 
 /**
@@ -84,22 +115,28 @@ export function summarizeListAmounts(
       bucket = emptyBucket(row.currency);
       map.set(row.currency, bucket);
     }
-    bucket.count += row.count ?? 1;
+    const n = rowCount(row);
+    bucket.count += n;
     switch (row.type) {
       case "income":
         bucket.incomeCents += row.amountCents;
+        bucket.incomeCount += n;
         break;
       case "expense":
         bucket.expenseCents += row.amountCents;
+        bucket.expenseCount += n;
         break;
       case "transfer":
         bucket.transferCents += row.amountCents;
+        bucket.transferCount += n;
         break;
       case "fx_debit":
         bucket.fxDebitCents += row.amountCents;
+        bucket.fxCount += n;
         break;
       case "fx_credit":
         bucket.fxCreditCents += row.amountCents;
+        bucket.fxCount += n;
         break;
       default:
         break;
@@ -111,9 +148,19 @@ export function summarizeListAmounts(
     .toSorted((a, b) => a.currency.localeCompare(b.currency));
 }
 
+function sumCounts(
+  buckets: readonly CurrencyListTotals[],
+  pick: (b: CurrencyListTotals) => number,
+): number {
+  return buckets.reduce((n, b) => n + pick(b), 0);
+}
+
 /**
  * Shape totals for the active type filter so the UI can show a Notion-like
- * SUMA (single mode) or income/expense breakdown (type=all).
+ * SUMA (single mode) or income/expense/net breakdown (type=all).
+ *
+ * `type=all` is cashflow: transfers and fx never appear as income, expense,
+ * net, or movementCount (KRI-34 / SPEC-05 T-20b).
  */
 export function presentListTotals(
   buckets: readonly CurrencyListTotals[],
@@ -123,6 +170,7 @@ export function presentListTotals(
     case "expense":
       return {
         mode: "expense",
+        movementCount: sumCounts(buckets, (b) => b.expenseCount),
         lines: buckets
           .filter((b) => b.expenseCents > 0)
           .map((b) => ({
@@ -133,6 +181,7 @@ export function presentListTotals(
     case "income":
       return {
         mode: "income",
+        movementCount: sumCounts(buckets, (b) => b.incomeCount),
         lines: buckets
           .filter((b) => b.incomeCents > 0)
           .map((b) => ({
@@ -143,6 +192,7 @@ export function presentListTotals(
     case "transfer":
       return {
         mode: "transfer",
+        movementCount: sumCounts(buckets, (b) => b.transferCount),
         lines: buckets
           .filter((b) => b.transferCents > 0)
           .map((b) => ({
@@ -158,21 +208,16 @@ export function presentListTotals(
           currency: b.currency,
           incomeCents: b.incomeCents,
           expenseCents: b.expenseCents,
+          netCents: b.incomeCents - b.expenseCents,
         }));
-      if (byCurrency.length > 0) {
-        return { mode: "breakdown", byCurrency };
-      }
-      // Filtered set may be only transfers (e.g. type=all + account) — still show SUMA.
-      const transferLines = buckets
-        .filter((b) => b.transferCents > 0)
-        .map((b) => ({
-          currency: b.currency,
-          amountCents: b.transferCents,
-        }));
-      if (transferLines.length > 0) {
-        return { mode: "transfer", lines: transferLines };
-      }
-      return { mode: "breakdown", byCurrency: [] };
+      return {
+        mode: "breakdown",
+        movementCount: sumCounts(
+          buckets,
+          (b) => b.incomeCount + b.expenseCount,
+        ),
+        byCurrency,
+      };
     }
   }
 }

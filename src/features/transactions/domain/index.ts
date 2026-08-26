@@ -45,6 +45,8 @@ export {
 } from "./list-filters";
 export type { ListTypeFilter } from "./list-filters";
 
+export { signedLedgerAmountCents } from "./ledger-amount";
+
 export { presentListTotals, summarizeListAmounts } from "./list-totals";
 export type {
   CurrencyListTotals,
