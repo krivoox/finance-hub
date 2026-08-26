@@ -3,6 +3,11 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactCompiler: true,
   /**
+   * Dev HMR/assets: browsers that open `http://127.0.0.1:3000` (not `localhost`)
+   * are treated as cross-origin by Next 16 and blocked unless listed here.
+   */
+  allowedDevOrigins: ["127.0.0.1"],
+  /**
    * Client Router Cache — `dynamic: 0` keeps money listados fresh after mutations.
    * Perceived speed on soft-nav comes from `loading.tsx` + closing the mobile sidebar.
    * See docs/architecture.md §7.2.

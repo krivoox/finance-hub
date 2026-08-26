@@ -24,6 +24,7 @@
 | [guides/git-flow.md](./guides/git-flow.md) | Git Flow: `main`/`develop`, PRs, borrado de ramas, Vercel |
 | [guides/changelog.md](./guides/changelog.md) | Changelog, Conventional Commits, SemVer y releases |
 | [guides/maestro-mcp.md](./guides/maestro-mcp.md) | Maestro MCP: smoke UI web (Chromium) desde Cursor |
+| [guides/email-resend.md](./guides/email-resend.md) | Resend: reset password, marketing, MCP vs SDK (KRI-17) |
 | [security-audit.md](./security-audit.md) | Auditoría de seguridad (KRI-16): Supabase/RLS, authz, headers, plan |
 | [DESIGN.md](../DESIGN.md) | Design system UI/UX (ledger navy, tokens, shell, variantes) |
 
@@ -51,6 +52,7 @@
 | 18 | [Transacciones recurrentes](./specs/18-recurring-transactions.md) | P1 |
 | 19 | [Cotizaciones USD (DolarApi)](./specs/19-usd-quotes-dolarapi.md) | P1 |
 | 20 | [Performance, navegación y PWA](./specs/20-performance-pwa.md) | P0 |
+| 21 | [Email transaccional y marketing (Resend)](./specs/21-email-resend.md) | P0 |
 
 ## Decisiones de arquitectura (ADR)
 
@@ -63,6 +65,7 @@
 | [005](./adr/005-changelog-semver.md) | Changelog automatizado y SemVer |
 | [006](./adr/006-multi-currency-ars-usd.md) | Multi-moneda ARS + USD |
 | [007](./adr/007-split-group-tenancy.md) | Workspace personal + SplitGroup (KRI-29; enmienda ADR-002) |
+| [008](./adr/008-resend-email.md) | Email con Resend (SDK servidor) |
 
 ## Formato de una spec
 

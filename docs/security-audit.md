@@ -144,7 +144,7 @@ Archivo: `src/lib/auth.ts`.
 | `trustedOrigins` incluye `https://*.vercel.app` y `https://*.krivoox.com` en preview/prod | Media | Cualquier deploy `*.vercel.app` es origen CSRF-válido. Acotar a hosts conocidos + `BETTER_AUTH_TRUSTED_ORIGINS`. |
 | `skipStateCookieCheck: true` | Media | Mitiga PWA/Safari (`state_security_mismatch`) pero debilita CSRF de OAuth redirect. Limitar a `display-mode: standalone` si es posible. |
 | Account linking `requireLocalEmailVerified: false` | Info | Decisión de producto SPEC-01 1.B (Google trusted). Documentado; no cambiar sin producto. |
-| Reset password: `sendResetPassword` no envía mail en producción | Alta (producto + seguridad) | SPEC-01 FR-06. El token se genera; el usuario no lo recibe. Flujo muerto en prod. |
+| Reset password vía Resend | Info (KRI-17) | SPEC-01 FR-06 cableado. Requiere `RESEND_API_KEY`. Verificación de email: KRI-23. |
 | `emailVerified` no se exige para usar la app | Media | Email/password sin verificación. Combinado con linking 1.B, un atacante que registre el email de la víctima **antes** podría interferir (ventana de takeover). Mitigar con verificación o “first verified wins”. |
 | Rate limit | Media | Defaults de Better Auth en prod (memoria). En serverless el contador se resetea en cold start. Usar `rateLimit.storage: "database"`. |
 | `encryptOAuthTokens` no está activo | Baja | Tokens Google en `account` en claro. Activar AES-256-GCM. |
@@ -251,7 +251,7 @@ Orden de implementación sugerido. Cada ítem es una subtarea Linear.
 | P1 | [KRI-20](https://linear.app/krivoox-desa/issue/KRI-20) | Headers: CSP (report-only → enforce), frame-ancestors, nosniff, referrer, HSTS | Hardening |
 | P1 | [KRI-21](https://linear.app/krivoox-desa/issue/KRI-21) | Cron: secret obligatorio, timing-safe, excluir del middleware | Bug |
 | P1 | [KRI-22](https://linear.app/krivoox-desa/issue/KRI-22) | Hash de tokens de invitación at rest | Hardening |
-| P1 | [KRI-23](https://linear.app/krivoox-desa/issue/KRI-23) | Email transaccional: reset password (SPEC-01 FR-06) + verificación de email | Feature/seguridad |
+| P1 | [KRI-23](https://linear.app/krivoox-desa/issue/KRI-23) | Verificación de email (reset ya cubierto por KRI-17 / SPEC-21) | Feature/seguridad |
 | P2 | [KRI-24](https://linear.app/krivoox-desa/issue/KRI-24) | Estrechar `trustedOrigins`; rate limit en DB; `encryptOAuthTokens`; acotar `skipStateCookieCheck` | Hardening |
 | P2 | [KRI-25](https://linear.app/krivoox-desa/issue/KRI-25) | Unificar `safeCallbackUrl`; validar cookie de invite | Hardening |
 | P3 | [KRI-26](https://linear.app/krivoox-desa/issue/KRI-26) | Higiene: borrar cliente Supabase muerto o documentarlo; logs prod; `npm audit` | Chore |
