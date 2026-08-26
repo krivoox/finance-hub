@@ -195,7 +195,6 @@ function NewTransactionSheetInner({
         <NewTransactionForm
           key={`${visibleLoad.options.workspaceId}:${initialType}`}
           workspaceId={visibleLoad.options.workspaceId}
-          workspaceName={visibleLoad.options.workspaceName}
           workspaceCurrency={visibleLoad.options.workspaceCurrency}
           accounts={visibleLoad.options.accounts}
           categories={visibleLoad.options.categories}

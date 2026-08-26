@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { refreshAfterMutation } from "@/lib/navigation";
 import { Input } from "@/components/ui/input";
 import { parseAmountCents } from "@/domain/money/parse-amount";
-import { nativeSelectClassName } from "@/components/ui/native-select";
+import { FormSelect } from "@/components/ui/select";
 import { BUDGET_PERIOD_LABEL_ES } from "./period-labels";
 
 type CategoryOption = {
@@ -40,8 +40,6 @@ type FormValues = {
   currency: "ARS" | "USD";
   categoryIds: string[];
 };
-
-const SELECT_CLASSES = nativeSelectClassName;
 
 function todayIsoDate(): string {
   const now = new Date();
@@ -164,17 +162,15 @@ export function NewBudgetForm({
           </FormField>
 
           <FormField label="Periodo" htmlFor="budget-period">
-            <select
+            <FormSelect
+              control={control}
+              name="period"
               id="budget-period"
-              className={SELECT_CLASSES}
-              {...register("period")}
-            >
-              {BUDGET_PERIODS.map((p) => (
-                <option key={p} value={p}>
-                  {BUDGET_PERIOD_LABEL_ES[p]}
-                </option>
-              ))}
-            </select>
+              options={BUDGET_PERIODS.map((p) => ({
+                value: p,
+                label: BUDGET_PERIOD_LABEL_ES[p],
+              }))}
+            />
           </FormField>
 
           <FormField
@@ -190,14 +186,15 @@ export function NewBudgetForm({
           </FormField>
 
           <FormField label="Moneda" htmlFor="budget-currency">
-            <select
+            <FormSelect
+              control={control}
+              name="currency"
               id="budget-currency"
-              className={SELECT_CLASSES}
-              {...register("currency")}
-            >
-              <option value="ARS">ARS</option>
-              <option value="USD">USD</option>
-            </select>
+              options={[
+                { value: "ARS", label: "ARS" },
+                { value: "USD", label: "USD" },
+              ]}
+            />
           </FormField>
         </FormSection>
 

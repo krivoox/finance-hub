@@ -13,7 +13,7 @@ import {
 import { AmountInput } from "@/components/amount-input";
 import { Button } from "@/components/ui/button";
 import { parseAmountCents } from "@/domain/money/parse-amount";
-import { nativeSelectClassName } from "@/components/ui/native-select";
+import { Select } from "@/components/ui/select";
 import { refreshAfterMutation } from "@/lib/navigation";
 
 type MemberOption = {
@@ -84,18 +84,15 @@ export function CreateSettlementForm({
     >
       <FormStack>
         <FormField label="Quién pagó" htmlFor="settlement-from">
-          <select
+          <Select
             id="settlement-from"
-            className={nativeSelectClassName}
             value={fromMemberId}
-            onChange={(event) => setFromMemberId(event.target.value)}
-          >
-            {others.map((member) => (
-              <option key={member.memberId} value={member.memberId}>
-                {member.displayName}
-              </option>
-            ))}
-          </select>
+            onValueChange={setFromMemberId}
+            options={others.map((member) => ({
+              value: member.memberId,
+              label: member.displayName,
+            }))}
+          />
         </FormField>
         <FormField label="Monto" htmlFor="settlement-amount" hint="Lo que te depositaron">
           <AmountInput

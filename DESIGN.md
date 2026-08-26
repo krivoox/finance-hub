@@ -333,6 +333,7 @@ Toda vista de datos: loading (`Skeleton`) · empty · error.
 | Input | `ui/input` | Fondos/bordes vía tokens |
 | Calendar | `ui/calendar` | selección `info`, locale `es` |
 | DateField | `components/date-field` | Trigger + popover `Calendar` |
+| Select | `ui/select` | Desplegable custom (Radix). Nunca `<select>` nativo. En RHF: `FormSelect`. |
 | Table | `ui/table` | Filas con `border-border`; headers muted uppercase tracking |
 | Data table | `components/data-table` | Selección + `BulkActionsBar` |
 | Sidebar | `ui/sidebar` | `variant="sidebar"`; tokens navy |
@@ -399,7 +400,9 @@ Componentes en `src/features/dashboard/components/`. Superficies: `src/component
 ### Formulario
 
 - Labels `text-sm text-muted-foreground`.
-- Inputs altura consistente (shadcn).
+- Inputs y selects altura consistente (`h-10` / `rounded-xl`).
+- Selects: `Select` / `FormSelect` (`ui/select`) — desplegable `bg-popover` con check. Nunca `<select>` nativo (el OS no sigue tokens y se rompe dentro de FormSheet).
+- ≤4 opciones fijas (tipo, moneda): `SegmentedControl`. Listas (cuentas, periodos): `Select`.
 - Error: `text-destructive` + `aria-invalid`.
 
 ### Empty state

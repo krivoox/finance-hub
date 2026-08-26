@@ -19,7 +19,7 @@ import { DateField } from "@/components/date-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { parseAmountCents } from "@/domain/money/parse-amount";
-import { nativeSelectClassName } from "@/components/ui/native-select";
+import { FormSelect } from "@/components/ui/select";
 import { refreshAfterMutation } from "@/lib/navigation";
 
 type AccountOption = {
@@ -51,8 +51,6 @@ function todayIsoDate(): string {
   const d = String(now.getDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
 }
-
-const SELECT_CLASSES = nativeSelectClassName;
 
 export function NewCurrencyExchangeForm({
   workspaceId,
@@ -162,17 +160,16 @@ export function NewCurrencyExchangeForm({
       <FormStack>
         <FormSection>
           <FormField label="De cuenta" htmlFor="fx-from-account">
-            <select
+            <FormSelect
+              control={control}
+              name="fromAccountId"
               id="fx-from-account"
-              className={SELECT_CLASSES}
-              {...register("fromAccountId", { required: true })}
-            >
-              {fromOptions.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.name} ({a.currency})
-                </option>
-              ))}
-            </select>
+              rules={{ required: true }}
+              options={fromOptions.map((a) => ({
+                value: a.id,
+                label: `${a.name} (${a.currency})`,
+              }))}
+            />
           </FormField>
 
           <FormField
@@ -189,17 +186,16 @@ export function NewCurrencyExchangeForm({
 
         <FormSection>
           <FormField label="A cuenta" htmlFor="fx-to-account">
-            <select
+            <FormSelect
+              control={control}
+              name="toAccountId"
               id="fx-to-account"
-              className={SELECT_CLASSES}
-              {...register("toAccountId", { required: true })}
-            >
-              {toOptions.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.name} ({a.currency})
-                </option>
-              ))}
-            </select>
+              rules={{ required: true }}
+              options={toOptions.map((a) => ({
+                value: a.id,
+                label: `${a.name} (${a.currency})`,
+              }))}
+            />
           </FormField>
 
           <FormField

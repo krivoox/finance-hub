@@ -4,7 +4,7 @@ import { useMemo } from "react";
 import Link from "next/link";
 
 import { Checkbox } from "@/components/ui/checkbox";
-import { nativeSelectClassName } from "@/components/ui/native-select";
+import { Select } from "@/components/ui/select";
 import { formatMoney } from "@/lib/format-money";
 import { previewEqualSplit } from "@/features/splits/domain";
 import type { SplitGroupMemberRef } from "@/features/splits/domain";
@@ -114,18 +114,15 @@ export function ExpenseSplitFields({
               >
                 Imputar a
               </label>
-              <select
+              <Select
                 id="expense-split-group"
-                className={nativeSelectClassName}
                 value={selected?.id ?? ""}
-                onChange={(event) => onGroupChange(event.target.value)}
-              >
-                {groupsForCurrency.map((group) => (
-                  <option key={group.id} value={group.id}>
-                    {group.name}
-                  </option>
-                ))}
-              </select>
+                onValueChange={onGroupChange}
+                options={groupsForCurrency.map((group) => ({
+                  value: group.id,
+                  label: group.name,
+                }))}
+              />
             </div>
           )}
           {selected && selected.members.length < 2 ? (
