@@ -17,7 +17,7 @@ import { DateField } from "@/components/date-field";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
-import { nativeSelectClassName } from "@/components/ui/native-select";
+import { Select } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { formatMoney } from "@/lib/format-money";
 import { refreshAfterMutation } from "@/lib/navigation";
@@ -57,8 +57,6 @@ import {
 } from "@/domain/money/currencies";
 
 import type { AccountOption, CategoryOption } from "./recurring-form";
-
-const SELECT_CLASSES = nativeSelectClassName;
 
 type Step = "gallery" | "configure";
 
@@ -720,20 +718,20 @@ export function NewFromTemplateSheet({
             ) : null}
 
             <FormField label="Cuenta" htmlFor="tpl-account">
-              <select
+              <Select
                 id="tpl-account"
-                className={SELECT_CLASSES}
                 value={accountId}
-                onChange={(e) => setAccountId(e.target.value)}
+                onValueChange={setAccountId}
                 disabled={isPending}
-              >
-                <option value="">Elegí una cuenta</option>
-                {accounts.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.name} · {a.currency}
-                  </option>
-                ))}
-              </select>
+                placeholder="Elegí una cuenta"
+                options={[
+                  { value: "", label: "Elegí una cuenta" },
+                  ...accounts.map((a) => ({
+                    value: a.id,
+                    label: `${a.name} · ${a.currency}`,
+                  })),
+                ]}
+              />
             </FormField>
 
             <FormField label="Categoría" htmlFor="tpl-category">

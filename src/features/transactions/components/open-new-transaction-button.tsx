@@ -6,6 +6,7 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+import { formOptionsIntentPrefetchHandlers } from "../stores/new-transaction-form-options-store";
 import { useNewTransactionSheetStore } from "../stores/new-transaction-sheet-store";
 
 type OpenNewTransactionButtonProps = Omit<
@@ -33,8 +34,9 @@ export function OpenNewTransactionButton({
     <Button
       type="button"
       className={cn(className)}
-      onClick={() => openSheet()}
       {...props}
+      onClick={() => openSheet()}
+      {...formOptionsIntentPrefetchHandlers()}
     >
       {children ?? (
         <>

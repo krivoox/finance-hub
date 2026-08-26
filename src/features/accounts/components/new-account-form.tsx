@@ -6,6 +6,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { createAccountAction } from "@/features/accounts/actions";
+import { invalidateNewTransactionFormOptions } from "@/features/transactions/stores/new-transaction-form-options-store";
 import {
   createAccountSchema,
   type CreateAccountInput,
@@ -21,7 +22,7 @@ import { Button } from "@/components/ui/button";
 import { refreshAfterMutation } from "@/lib/navigation";
 import { Input } from "@/components/ui/input";
 import { parseAmountCents } from "@/domain/money/parse-amount";
-import { nativeSelectClassName } from "@/components/ui/native-select";
+import { FormSelect } from "@/components/ui/select";
 import { ACCOUNT_TYPE_LABEL_ES } from "./account-type-labels";
 
 type FormValues = {
@@ -118,6 +119,7 @@ export function NewAccountForm({
         return;
       }
       toast.success("Cuenta creada");
+      invalidateNewTransactionFormOptions();
       reset({
         name: "",
         type: "checking",
@@ -161,17 +163,15 @@ export function NewAccountForm({
         </FormField>
 
         <FormField label="Tipo" htmlFor="account-type">
-          <select
+          <FormSelect
+            control={control}
+            name="type"
             id="account-type"
-            className={nativeSelectClassName}
-            {...register("type")}
-          >
-            {ACCOUNT_TYPES.map((code) => (
-              <option key={code} value={code}>
-                {ACCOUNT_TYPE_LABEL_ES[code]}
-              </option>
-            ))}
-          </select>
+            options={ACCOUNT_TYPES.map((code) => ({
+              value: code,
+              label: ACCOUNT_TYPE_LABEL_ES[code],
+            }))}
+          />
         </FormField>
 
         {isCreditCard ? (
@@ -185,14 +185,15 @@ export function NewAccountForm({
         ) : null}
 
         <FormField label="Moneda" htmlFor="account-currency">
-          <select
+          <FormSelect
+            control={control}
+            name="currency"
             id="account-currency"
-            className={nativeSelectClassName}
-            {...register("currency")}
-          >
-            <option value="ARS">Pesos (ARS)</option>
-            <option value="USD">Dólares (USD)</option>
-          </select>
+            options={[
+              { value: "ARS", label: "Pesos (ARS)" },
+              { value: "USD", label: "Dólares (USD)" },
+            ]}
+          />
         </FormField>
 
         <FormField

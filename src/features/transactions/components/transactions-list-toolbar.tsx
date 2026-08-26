@@ -15,7 +15,7 @@ import {
 import { DateField } from "@/components/date-field";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { nativeSelectClassName } from "@/components/ui/native-select";
+import { Select } from "@/components/ui/select";
 import { CategoryPicker } from "@/features/categories/components/category-picker";
 import { cn } from "@/lib/utils";
 
@@ -335,19 +335,19 @@ export function TransactionsListToolbar({
               </FormField>
 
               <FormField label="Cuenta" htmlFor="tx-filter-account" optional>
-                <select
+                <Select
                   id="tx-filter-account"
-                  className={nativeSelectClassName}
                   value={draftAccountId}
-                  onChange={(e) => setDraftAccountId(e.target.value)}
-                >
-                  <option value="">Todas</option>
-                  {accounts.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.name}
-                    </option>
-                  ))}
-                </select>
+                  onValueChange={setDraftAccountId}
+                  placeholder="Todas"
+                  options={[
+                    { value: "", label: "Todas" },
+                    ...accounts.map((a) => ({
+                      value: a.id,
+                      label: a.name,
+                    })),
+                  ]}
+                />
               </FormField>
 
               <FormField label="Categoría" htmlFor="tx-filter-category" optional>

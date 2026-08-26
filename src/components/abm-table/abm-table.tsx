@@ -1,6 +1,7 @@
 "use client";
 
 import type { ComponentProps, ReactNode } from "react";
+import Link from "next/link";
 
 import { SurfaceSection } from "@/components/surface-section";
 import { TableHead, TableCell } from "@/components/ui/table";
@@ -9,6 +10,20 @@ import { cn } from "@/lib/utils";
 
 export const ABM_HEAD_CLASS = "h-10 px-3 sm:px-4";
 export const ABM_CELL_CLASS = "px-3 py-3 sm:px-4 sm:py-3.5";
+
+/**
+ * Stretch-link overlay class. The containing `relative` must be the `<td>`
+ * (`slot="identity"`), not the `<tr>` — see SLOT_CELL_CLASS.
+ */
+export const ABM_STRETCH_LINK_CLASS =
+  "after:absolute after:inset-0 hover:underline";
+
+/** Extra hit target over the amount cell so the whole visible row opens. */
+export function AbmRowHitLink({ href }: { href: string }) {
+  return (
+    <Link href={href} tabIndex={-1} aria-hidden className="absolute inset-0" />
+  );
+}
 
 /** Mobile-first column roles: identity + amount stay visible; actions hide below sm. */
 export type AbmColumnSlot = "identity" | "amount" | "action";
@@ -19,10 +34,16 @@ const SLOT_HEAD_CLASS: Record<AbmColumnSlot, string> = {
   action: "hidden whitespace-nowrap text-right sm:table-cell sm:w-[1%]",
 };
 
+/**
+ * `relative` lives on the cell, never the `<tr>`. WebKit ignores
+ * `position: relative` on table-row, so stretch-links (`after:inset-0`)
+ * would all overlay the table container and steal taps (first/last row).
+ */
 const SLOT_CELL_CLASS: Record<AbmColumnSlot, string> = {
-  identity: "min-w-0 w-[62%] max-w-[62%] whitespace-normal sm:w-auto sm:max-w-none",
+  identity:
+    "relative min-w-0 w-[62%] max-w-[62%] whitespace-normal sm:w-auto sm:max-w-none",
   amount:
-    "w-[38%] max-w-[38%] text-right whitespace-nowrap sm:w-[1%] sm:max-w-none",
+    "relative w-[38%] max-w-[38%] text-right whitespace-nowrap sm:w-[1%] sm:max-w-none",
   action:
     "relative z-10 hidden whitespace-nowrap text-right sm:table-cell sm:w-[1%]",
 };

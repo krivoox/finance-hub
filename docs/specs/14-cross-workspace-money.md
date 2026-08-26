@@ -156,4 +156,4 @@ Para `externally_funded_expense`: se registra el home expense; el link (si se ma
 ## 10. Notas UX
 
 - Form aporte: “Aportar a otro espacio” con resumen `Sale de X → Entra en Y`
-- Form expense/income: select agrupado “Se descuenta de / Se acredita en” + resumen “Se registra en / Se descuenta de”
+- Form expense/income: select “Se descuenta de / Se acredita en” (cuenta y moneda ya se eligen ahí; sin resumen duplicado)

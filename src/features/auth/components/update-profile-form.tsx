@@ -18,7 +18,7 @@ import {
 } from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { nativeSelectClassName } from "@/components/ui/native-select";
+import { FormSelect } from "@/components/ui/select";
 
 export type UpdateProfileFormProps = {
   initialValues: UpdateProfileInput;
@@ -34,6 +34,7 @@ export function UpdateProfileForm({
   const {
     register,
     handleSubmit,
+    control,
     setError,
     formState: { errors, isSubmitting },
   } = useForm<UpdateProfileInput>({
@@ -84,18 +85,16 @@ export function UpdateProfileForm({
           htmlFor="preferredCurrency"
           error={errors.preferredCurrency?.message}
         >
-          <select
+          <FormSelect
+            control={control}
+            name="preferredCurrency"
             id="preferredCurrency"
-            aria-invalid={Boolean(errors.preferredCurrency)}
-            className={nativeSelectClassName}
-            {...register("preferredCurrency")}
-          >
-            {SUPPORTED_CURRENCIES.map((code) => (
-              <option key={code} value={code}>
-                {code}
-              </option>
-            ))}
-          </select>
+            invalid={Boolean(errors.preferredCurrency)}
+            options={SUPPORTED_CURRENCIES.map((code) => ({
+              value: code,
+              label: code,
+            }))}
+          />
         </FormField>
 
         <FormField

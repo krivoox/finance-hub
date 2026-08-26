@@ -27,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **email:** Integrate Resend for password reset and marketing
 
+- **ui:** Replace native selects with a custom dropdown
+
 ### Fixed
 
 - **ui:** Keep the mobile tab bar in view and avoid stale JS in next dev
@@ -68,6 +70,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **email:** Keep public reset and newsletter forms from hanging
 
 - **auth:** Confirm password reset immediately without waiting
+
+- **ui:** Contain list taps and cache Registrar catalogs
 
 [Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.16.0...HEAD
 

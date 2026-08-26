@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
 import { updateAccountAction } from "@/features/accounts/actions";
+import { invalidateNewTransactionFormOptions } from "@/features/transactions/stores/new-transaction-form-options-store";
 import {
   updateAccountSchema,
   type UpdateAccountInput,
@@ -103,6 +104,7 @@ export function EditAccountForm({
         return;
       }
       toast.success("Cuenta actualizada");
+      invalidateNewTransactionFormOptions();
       onSuccess?.();
       refreshAfterMutation(router);
     });

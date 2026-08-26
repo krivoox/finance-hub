@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
@@ -8,14 +8,17 @@ import { FormSheet, FormSheetBody } from "@/components/form-sheet";
 import { Skeleton } from "@/components/ui/skeleton";
 import { replaceAndRefresh } from "@/lib/navigation";
 
-import {
-  getNewTransactionFormOptionsAction,
-  type NewTransactionFormOptions,
-} from "../actions/get-new-transaction-form-options";
+import type { NewTransactionFormOptions } from "../actions/get-new-transaction-form-options";
+import type { CreateableTransactionType } from "../domain";
 import {
   initialTypeFromCreateParam,
   isTransactionCreateParam,
 } from "../domain/create-param";
+import {
+  prefetchNewTransactionFormOptions,
+  refreshNewTransactionFormOptions,
+  useNewTransactionFormOptionsStore,
+} from "../stores/new-transaction-form-options-store";
 import { useNewTransactionSheetStore } from "../stores/new-transaction-sheet-store";
 import { NewTransactionForm } from "./new-transaction-form";
 
@@ -26,15 +29,9 @@ type NewTransactionSheetProps = {
   workspaceId: string | null;
 };
 
-type LoadState =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "ready"; options: NewTransactionFormOptions }
-  | { status: "error"; message: string };
-
 function FormOptionsSkeleton() {
   return (
-    <div className="flex flex-col gap-4" aria-busy="true" aria-label="Cargando">
+    <div className="flex min-h-0 flex-col gap-4" aria-busy="true" aria-label="Cargando">
       <Skeleton className="h-10 w-full rounded-lg" />
       <Skeleton className="h-10 w-full rounded-lg" />
       <Skeleton className="h-10 w-3/4 rounded-lg" />
@@ -60,22 +57,19 @@ function NewTransactionSheetInner({
   const setOpen = useNewTransactionSheetStore((s) => s.setOpen);
   const openSheet = useNewTransactionSheetStore((s) => s.openSheet);
 
-  const [load, setLoad] = useState<LoadState>({ status: "idle" });
-  const cacheRef = useRef<{
-    workspaceId: string;
-    options: NewTransactionFormOptions;
-  } | null>(null);
-  const loadWorkspaceId =
-    load.status === "ready" ? load.options.workspaceId : null;
+  const options = useNewTransactionFormOptionsStore((s) =>
+    workspaceId ? (s.byWorkspaceId[workspaceId] ?? null) : null,
+  );
+  const loadingWorkspaceId = useNewTransactionFormOptionsStore(
+    (s) => s.loadingWorkspaceId,
+  );
+  const error = useNewTransactionFormOptionsStore((s) => s.error);
 
-  // If workspace switched while showing ready options, drop stale UI.
-  const visibleLoad: LoadState =
-    load.status === "ready" &&
-    workspaceId &&
-    loadWorkspaceId &&
-    loadWorkspaceId !== workspaceId
-      ? { status: "idle" }
-      : load;
+  // Warm catalogs as soon as the shell mounts so Registrar opens with fields.
+  useEffect(() => {
+    if (!enabled || !workspaceId) return;
+    prefetchNewTransactionFormOptions(workspaceId);
+  }, [enabled, workspaceId]);
 
   // Deep-link: /transactions?new=1|transaction|expense|income (SPEC-20 shortcuts)
   useEffect(() => {
@@ -86,36 +80,10 @@ function NewTransactionSheetInner({
     }
   }, [enabled, searchParams, openSheet]);
 
-  // Fetch options when the sheet opens (cache keyed by workspace).
+  // Stale-while-revalidate: cached options paint immediately; refresh in background.
   useEffect(() => {
     if (!open || !enabled || !workspaceId) return;
-
-    let cancelled = false;
-    const cached = cacheRef.current;
-    // Show last options instantly, but always refetch: a group or member
-    // created after the previous open would otherwise be missing.
-    if (cached && cached.workspaceId === workspaceId) {
-      setLoad({ status: "ready", options: cached.options });
-    } else {
-      setLoad({ status: "loading" });
-    }
-
-    void getNewTransactionFormOptionsAction().then((result) => {
-      if (cancelled) return;
-      if (!result.ok) {
-        setLoad({ status: "error", message: result.error });
-        return;
-      }
-      cacheRef.current = {
-        workspaceId,
-        options: result.data,
-      };
-      setLoad({ status: "ready", options: result.data });
-    });
-
-    return () => {
-      cancelled = true;
-    };
+    void refreshNewTransactionFormOptions(workspaceId);
   }, [open, enabled, workspaceId]);
 
   function clearTransactionCreateQuery(opts?: { refresh?: boolean }) {
@@ -139,43 +107,41 @@ function NewTransactionSheetInner({
   }
 
   function handleSuccess() {
-    cacheRef.current = null;
-    setLoad({ status: "idle" });
     handleOpenChange(false);
   }
 
   if (!enabled) return null;
 
-  const currencyHint =
-    visibleLoad.status === "ready"
-      ? visibleLoad.options.workspaceCurrency
-      : "ARS o USD";
+  const showSkeleton =
+    open && !options && (loadingWorkspaceId === workspaceId || !error);
+  const showError = open && !options && Boolean(error);
+  const emptyAccounts = open && options && options.accounts.length === 0;
+  const showForm = open && options && options.accounts.length > 0;
 
   return (
     <FormSheet
       open={open}
       onOpenChange={(next) => handleOpenChange(next)}
       title="Nueva transacción"
-      description={`Gasto, ingreso o transferencia. Elegí la moneda (default ${currencyHint}).`}
+      description={`Gasto, ingreso o transferencia. Elegí la moneda (default ${options?.workspaceCurrency ?? "ARS o USD"}).`}
       size="lg"
       layout="fill"
     >
-      {visibleLoad.status === "loading" || visibleLoad.status === "idle" ? (
+      {showSkeleton ? (
         <FormSheetBody>
           <FormOptionsSkeleton />
         </FormSheetBody>
       ) : null}
 
-      {visibleLoad.status === "error" ? (
+      {showError ? (
         <FormSheetBody>
           <p className="text-sm text-muted-foreground text-pretty">
-            {visibleLoad.message}
+            {error}
           </p>
         </FormSheetBody>
       ) : null}
 
-      {visibleLoad.status === "ready" &&
-      visibleLoad.options.accounts.length === 0 ? (
+      {emptyAccounts ? (
         <FormSheetBody>
           <p className="text-sm text-muted-foreground text-pretty">
             Necesitás al menos una cuenta activa para registrar transacciones.{" "}
@@ -190,19 +156,10 @@ function NewTransactionSheetInner({
         </FormSheetBody>
       ) : null}
 
-      {visibleLoad.status === "ready" &&
-      visibleLoad.options.accounts.length > 0 ? (
-        <NewTransactionForm
-          key={`${visibleLoad.options.workspaceId}:${initialType}`}
-          workspaceId={visibleLoad.options.workspaceId}
-          workspaceName={visibleLoad.options.workspaceName}
-          workspaceCurrency={visibleLoad.options.workspaceCurrency}
-          accounts={visibleLoad.options.accounts}
-          categories={visibleLoad.options.categories}
-          splitGroups={visibleLoad.options.splitGroups}
-          currentUserId={visibleLoad.options.currentUserId}
+      {showForm && options ? (
+        <SheetForm
+          options={options}
           initialType={initialType}
-          layout="sheet"
           onSuccess={handleSuccess}
         />
       ) : null}
@@ -210,9 +167,34 @@ function NewTransactionSheetInner({
   );
 }
 
+function SheetForm({
+  options,
+  initialType,
+  onSuccess,
+}: {
+  options: NewTransactionFormOptions;
+  initialType: CreateableTransactionType;
+  onSuccess: () => void;
+}) {
+  return (
+    <NewTransactionForm
+      key={`${options.workspaceId}:${initialType}`}
+      workspaceId={options.workspaceId}
+      workspaceCurrency={options.workspaceCurrency}
+      accounts={options.accounts}
+      categories={options.categories}
+      splitGroups={options.splitGroups}
+      currentUserId={options.currentUserId}
+      initialType={initialType}
+      layout="sheet"
+      onSuccess={onSuccess}
+    />
+  );
+}
+
 /**
  * Global create sheet for new transactions. Mount once in the authenticated
- * app shell. Opens instantly; options load inside the sheet.
+ * app shell. Catalogs prefetch on mount so the sheet opens with fields ready.
  */
 export function NewTransactionSheet(props: NewTransactionSheetProps) {
   return (

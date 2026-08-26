@@ -60,8 +60,8 @@ type AccountChoiceListProps = {
 };
 
 /**
- * In-sheet account picker. Native `<select>` is unusable inside FormSheet
- * (OS picker + Dialog pointer-events / overflow). Rows are the control.
+ * In-sheet account picker. Rows are the control (type + currency stay visible).
+ * Do not use a native `<select>` — OS picker + Dialog pointer-events / overflow.
  */
 export function AccountChoiceList({
   id,

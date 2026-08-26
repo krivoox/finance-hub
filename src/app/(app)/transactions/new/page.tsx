@@ -93,7 +93,6 @@ async function NewTransactionFormSection({
   return (
     <NewTransactionPageForm
       workspaceId={workspace.id}
-      workspaceName={workspace.name}
       workspaceCurrency={workspace.baseCurrency}
       accounts={activeAccounts.map((a) => ({
         id: a.id,

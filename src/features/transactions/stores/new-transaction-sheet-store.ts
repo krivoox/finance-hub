@@ -4,7 +4,8 @@ import type { CreateableTransactionType } from "@/features/transactions/domain";
 
 /**
  * UI-only store for the global “Nueva transacción” FormSheet (H1).
- * Opens instantly from any authenticated route; form options load async.
+ * Opens instantly from any authenticated route; catalogs live in
+ * `new-transaction-form-options-store` (prefetch + session cache).
  */
 type NewTransactionSheetState = {
   open: boolean;

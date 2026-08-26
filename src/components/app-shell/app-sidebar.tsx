@@ -39,6 +39,7 @@ import { cn } from "@/lib/utils";
 import { navigateAndRefresh } from "@/lib/navigation";
 import { useCafecitoDialogStore } from "@/features/cafecito/stores/cafecito-dialog-store";
 import { useNewTransactionSheetStore } from "@/features/transactions/stores/new-transaction-sheet-store";
+import { formOptionsIntentPrefetchHandlers } from "@/features/transactions/stores/new-transaction-form-options-store";
 import {
   WorkspaceSwitcher,
   type WorkspaceOption,
@@ -289,6 +290,7 @@ export function AppSidebar({
                 if (isMobile) setOpenMobile(false);
                 openNewTransaction();
               }}
+              {...formOptionsIntentPrefetchHandlers()}
             >
               <Plus className="size-4" strokeWidth={1.75} />
               <span className="flex flex-wrap group-data-[collapsible=icon]:sr-only">

@@ -18,7 +18,7 @@ import {
   formatCentsAsAmountInput,
   parseAmountCents,
 } from "@/domain/money/parse-amount";
-import { nativeSelectClassName } from "@/components/ui/native-select";
+import { FormSelect } from "@/components/ui/select";
 import { createTransferAction } from "@/features/transactions/actions";
 import { formatMoney } from "@/lib/format-money";
 import { refreshAfterMutation } from "@/lib/navigation";
@@ -172,19 +172,22 @@ export function PayCreditCardForm({
               : undefined
           }
         >
-          <select
+          <FormSelect
+            control={control}
+            name="fromAccountId"
             id="pay-card-from"
-            className={nativeSelectClassName}
+            rules={{ required: true }}
             disabled={isBusy}
-            {...register("fromAccountId", { required: true })}
-          >
-            <option value="">Elegí una cuenta…</option>
-            {eligibleSources.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.name}
-              </option>
-            ))}
-          </select>
+            invalid={Boolean(errors.fromAccountId)}
+            placeholder="Elegí una cuenta…"
+            options={[
+              { value: "", label: "Elegí una cuenta…" },
+              ...eligibleSources.map((a) => ({
+                value: a.id,
+                label: a.name,
+              })),
+            ]}
+          />
         </FormField>
 
         <FormField label="Tarjeta" htmlFor="pay-card-to">
