@@ -163,7 +163,7 @@ Invalidación futura: `cacheTag("ws:{id}:ledger")` en lecturas de dinero **no** 
 Given el usuario confirma un gasto, When la Server Action responde ok:
 
 1. Se cierra el sheet.
-2. Un splash muestra el monto (~280 ms, `prefers-reduced-motion` lo anula).
+2. Un splash muestra el monto (~1 s de hold + fade-out; `prefers-reduced-motion` lo anula). El atenuado del patrimonio se levanta con un tope (~1.6 s) independiente del overlay, para no dejar la UI grisada.
 3. `router.refresh()` corre en paralelo.
 4. Las superficies de dinero se atenúan (`aria-busy`) hasta que llega el RSC.
 5. Si la action falla, toast de error y el sheet permanece; no hay splash.
