@@ -59,6 +59,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **categories:** Do not autofocus the category search field
 
+- **money:** Parse amount inputs with a canonical comma decimal
+
+- **forms:** Open a decimal keypad and use comma in amount fields
+
 [Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.16.0...HEAD
 
 ## [0.13.0] - 2026-08-11
