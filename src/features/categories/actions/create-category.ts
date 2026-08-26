@@ -11,7 +11,7 @@ import { categoryErrorToMessage, type ActionResult } from "./errors";
 
 export async function createCategoryAction(
   input: CreateCategoryInput,
-): Promise<ActionResult<{ id: string }>> {
+): Promise<ActionResult<{ id: string; name: string; kind: "income" | "expense" }>> {
   const session = await getSession();
   if (!session?.user?.id) return { ok: false, error: "No autenticado" };
 
@@ -31,8 +31,8 @@ export async function createCategoryAction(
       kind: parsed.data.kind,
       parentId: parsed.data.parentId ?? null,
     });
-    revalidatePath("/", "layout");
-    return { ok: true, data: { id: result.id } };
+    revalidatePath("/settings");
+    return { ok: true, data: { id: result.id, name: result.name, kind: result.kind } };
   } catch (err) {
     return { ok: false, error: categoryErrorToMessage(err) };
   }

@@ -14,6 +14,7 @@ type CategoryOption = { id: string; name: string; kind: "income" | "expense" };
 
 type EditTransactionSheetProps = {
   transactionId: string;
+  workspaceId: string;
   type: TransactionType;
   amountCents: number;
   currency: string;
@@ -29,6 +30,7 @@ type EditTransactionSheetProps = {
 
 export function EditTransactionSheet({
   transactionId,
+  workspaceId,
   type,
   amountCents,
   currency,
@@ -66,6 +68,7 @@ export function EditTransactionSheet({
     >
       <EditTransactionForm
         transactionId={transactionId}
+        workspaceId={workspaceId}
         type={type}
         amountCents={amountCents}
         currency={currency}

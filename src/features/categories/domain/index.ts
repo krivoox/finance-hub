@@ -26,7 +26,14 @@ export {
   CATEGORY_PILL_TONES,
   categoryPillTone,
 } from "./category-pill-tone";
-export { splitLeadingEmoji } from "./split-leading-emoji";
+export { composeCategoryName, splitLeadingEmoji } from "./split-leading-emoji";
+export { categoryCreateSuggestion } from "./category-search";
+export {
+  CATEGORY_QUICK_PICK_MAX,
+  CATEGORY_QUICK_PICK_MIN,
+  pickFrequentCategories,
+  pinSelectedCategory,
+} from "./frequent-categories";
 
 export type {
   CategoryKind,
@@ -37,3 +44,5 @@ export type {
 } from "./categories";
 
 export type { CategoryPillTone } from "./category-pill-tone";
+export type { CategoryCreateSuggestion } from "./category-search";
+export type { FrequentCategoryCandidate } from "./frequent-categories";

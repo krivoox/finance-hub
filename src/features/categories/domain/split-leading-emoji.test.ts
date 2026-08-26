@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { splitLeadingEmoji } from "./split-leading-emoji";
+import { composeCategoryName, splitLeadingEmoji } from "./split-leading-emoji";
 
 describe("splitLeadingEmoji", () => {
   it("Given a seeded category name, When split, Then emoji and label separate", () => {
@@ -29,5 +29,19 @@ describe("splitLeadingEmoji", () => {
       emoji: null,
       label: "🎮",
     });
+  });
+});
+
+describe("composeCategoryName", () => {
+  it("Given emoji and label, When compose, Then joins with a space (SPEC-04 T-06)", () => {
+    expect(composeCategoryName("💊", "Farmacia")).toBe("💊 Farmacia");
+  });
+
+  it("Given no emoji, When compose, Then returns the trimmed label", () => {
+    expect(composeCategoryName(null, "  Farmacia  ")).toBe("Farmacia");
+  });
+
+  it("Given empty label, When compose, Then returns empty", () => {
+    expect(composeCategoryName("💊", "   ")).toBe("");
   });
 });
