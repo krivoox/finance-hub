@@ -1,4 +1,4 @@
-import { formatFittedMoney } from "@/lib/format-money";
+import { formatFittedMoney, formatMoney } from "@/lib/format-money";
 import { cn } from "@/lib/utils";
 import { OTHER_CATEGORY_ID } from "@/features/dashboard/domain";
 
@@ -86,6 +86,7 @@ export function SpendingDonutChart({
   className,
 }: SpendingDonutChartProps) {
   const arcs = toDonutArcs(slices, totalCents);
+  const fullAmount = formatMoney(totalCents, currency);
   const amountLabel = formatFittedMoney(totalCents, currency, { maxChars: 14 });
 
   const captionEl = (
@@ -135,7 +136,11 @@ export function SpendingDonutChart({
           );
         })}
       </svg>
-      <div className="absolute inset-[14%] flex flex-col items-center justify-center gap-0.5 px-1 text-center">
+      <div
+        className="absolute inset-[14%] flex flex-col items-center justify-center gap-0.5 px-1 text-center"
+        title={fullAmount}
+        aria-label={`${caption}: ${fullAmount}`}
+      >
         {captionPosition === "above" ? captionEl : null}
         {amountEl}
         {captionPosition === "below" ? captionEl : null}
