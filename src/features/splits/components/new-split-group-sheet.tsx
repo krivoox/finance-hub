@@ -19,7 +19,7 @@ export function NewSplitGroupSheet({ trigger }: NewSplitGroupSheetProps) {
       open={open}
       onOpenChange={setOpen}
       title="Un grupo nuevo"
-      description="Los gastos se cargan al registrar un movimiento, sobre tus cuentas."
+      description="Ponéle un nombre. Los gastos se cargan al registrar un movimiento, sobre tus cuentas."
       size="md"
       trigger={
         trigger ?? (

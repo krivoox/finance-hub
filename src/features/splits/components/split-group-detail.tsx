@@ -14,10 +14,9 @@ import {
   actorNetHint,
   memberKindCaption,
   peopleCountLabel,
-  splitGroupKindHint,
-  splitGroupKindLabel,
 } from "./split-copy";
 import { SplitLedgerRow } from "./split-ledger-row";
+import { SplitMemberActions } from "./split-member-actions";
 import { SplitNetAmount } from "./split-net-amount";
 
 type Detail = Awaited<
@@ -95,13 +94,9 @@ export function SplitGroupDetail({
             </p>
             <p className="mt-1.5 text-xs text-muted-foreground">
               {actorNetHint(actorNet)}
-              <span aria-hidden> · </span>
-              {splitGroupKindHint(group.kind)}
             </p>
           </div>
           <span className="shrink-0 rounded-full bg-background/70 px-2.5 py-1 text-xs font-medium text-muted-foreground dark:bg-background/40">
-            {splitGroupKindLabel(group.kind)}
-            <span aria-hidden> · </span>
             {peopleCountLabel(group.members.length)}
           </span>
         </div>
@@ -125,7 +120,7 @@ export function SplitGroupDetail({
           title="Saldos"
           description="Lo que cada persona tiene a favor o en contra"
         />
-        <ul className="divide-y divide-border">
+        <ul className="-mx-2 divide-y divide-border">
           {group.members.map((member) => (
             <li key={member.memberId} className="min-w-0">
               <SplitLedgerRow
@@ -140,6 +135,18 @@ export function SplitGroupDetail({
                     currency={group.currency}
                     className="text-xs sm:text-sm"
                   />
+                }
+                menu={
+                  member.canRename || member.canRemove ? (
+                    <SplitMemberActions
+                      splitGroupId={group.id}
+                      memberId={member.memberId}
+                      displayName={member.displayName}
+                      isSelf={member.memberId === group.actorMemberId}
+                      canRename={member.canRename}
+                      canRemove={member.canRemove}
+                    />
+                  ) : undefined
                 }
               />
             </li>

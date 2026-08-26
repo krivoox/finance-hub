@@ -38,7 +38,6 @@ export async function listSplitGroupsForExpenseForm(userId: string) {
   return memberships.map((row) => ({
     id: row.splitGroup.id,
     name: row.splitGroup.name,
-    kind: row.splitGroup.kind,
     currency: row.splitGroup.currency,
     memberCount: row.splitGroup.members.length,
     members: row.splitGroup.members.map(toMemberRef),

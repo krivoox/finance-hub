@@ -16,6 +16,12 @@ export {
   assertMemberCanPay,
   assertActorIsUserMember,
   assertCanRenameSplitGroup,
+  assertCanDeleteSplitGroup,
+  assertCanRenameMember,
+  assertCanRemoveMember,
+  canRenameMember,
+  canRemoveMember,
+  memberHasLedgerHistory,
 } from "./members";
 export {
   assertShareParticipants,
@@ -44,6 +50,8 @@ export {
   SplitCurrencyMismatchError,
   InvalidPublicShareTokenError,
   SplitNotFoundError,
+  CannotRemoveGroupCreatorError,
+  MemberHasSplitHistoryError,
 } from "./errors";
 export type {
   SplitShare,
@@ -55,6 +63,5 @@ export type {
   PublicSplitActivityItem,
   PublicSplitGroupProjection,
   SplitMethod,
-  SplitGroupKind,
 } from "./types";
 export { SPLIT_NAME_MAX_LENGTH } from "./types";

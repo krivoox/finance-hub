@@ -49,6 +49,5 @@ export type PublicSplitGroupProjection = {
 };
 
 export type SplitMethod = "equal" | "percentage" | "exact";
-export type SplitGroupKind = "ongoing" | "one_time";
 
 export const SPLIT_NAME_MAX_LENGTH = 80;

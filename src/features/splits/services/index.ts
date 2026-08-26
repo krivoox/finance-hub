@@ -1,6 +1,9 @@
 export { createSplitGroup } from "./create-split-group";
 export { renameSplitGroup } from "./rename-split-group";
+export { deleteSplitGroup } from "./delete-split-group";
 export { addGhostMember } from "./add-ghost-member";
+export { renameSplitGroupMember } from "./rename-split-group-member";
+export { removeSplitGroupMember } from "./remove-split-group-member";
 export { joinSplitGroup } from "./join-split-group";
 export { listMySplitGroups } from "./list-my-split-groups";
 export type { ListedSplitGroup } from "./list-my-split-groups";

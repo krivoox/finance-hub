@@ -17,7 +17,7 @@ export default async function GroupsDirectoryPage() {
   return (
     <ContentPanel
       title="Grupos"
-      description="Quién te debe y a quién le debés, sobre tus propias cuentas."
+      description="Quién te debe y a quién le debés. Un grupo es un círculo con nombre: casa, asado, viaje."
       actions={
         groups.length > 0 ? (
           <NewSplitGroupSheet

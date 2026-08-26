@@ -6,7 +6,6 @@ const nameSchema = z.string().min(1).max(80);
 
 export const createSplitGroupSchema = z.object({
   name: nameSchema,
-  kind: z.enum(["ongoing", "one_time"]),
 });
 export type CreateSplitGroupInput = z.infer<typeof createSplitGroupSchema>;
 
@@ -15,9 +14,25 @@ export const renameSplitGroupSchema = z.object({
   name: nameSchema,
 });
 
+export const deleteSplitGroupSchema = z.object({
+  splitGroupId: z.string().min(1),
+  confirmName: z.string().min(1),
+});
+
 export const addGhostMemberSchema = z.object({
   splitGroupId: z.string().min(1),
   displayName: nameSchema,
+});
+
+export const renameSplitGroupMemberSchema = z.object({
+  splitGroupId: z.string().min(1),
+  memberId: z.string().min(1),
+  displayName: nameSchema,
+});
+
+export const removeSplitGroupMemberSchema = z.object({
+  splitGroupId: z.string().min(1),
+  memberId: z.string().min(1),
 });
 
 export const joinSplitGroupSchema = z.object({

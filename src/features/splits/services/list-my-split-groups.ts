@@ -6,7 +6,6 @@ import { toMemberRef } from "./member-map";
 export type ListedSplitGroup = {
   id: string;
   name: string;
-  kind: "ongoing" | "one_time";
   currency: string;
   memberCount: number;
   myNetCents: number;
@@ -53,7 +52,6 @@ export async function listMySplitGroups(
     return {
       id: group.id,
       name: group.name,
-      kind: group.kind,
       currency: group.currency,
       memberCount: group.members.length,
       myNetCents: mine?.netCents ?? 0,

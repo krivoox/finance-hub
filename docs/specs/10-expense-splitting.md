@@ -70,12 +70,12 @@ Definiciones:
 ### 5.1 SplitGroup
 
 1. `name` tras `trim` tiene longitud 1…80. Vacío o solo espacios → `InvalidSplitGroupNameError`.
-2. `kind ∈ { ongoing, one_time }` es metadata de producto (filtrar/copy). **No** cambia reglas de dinero en v1. Cerrar grupo = later.
+2. El grupo **no** tiene tipo de producto. Un círculo se identifica por `name`. (La columna Prisma `kind` puede existir con default; la UI y los comandos no la exponen.)
 3. `currency` se fija al crear = `workspace.baseCurrency` del creador. **Inmutable**.
 4. `workspaceId` = tenant personal del creador. Nunca se reasigna.
 5. `createdByUserId` es el creador; al crear queda un miembro `kind=user` con ese `userId`.
 6. `publicShareToken` es único, URL-safe, unguessable (entropía de servicio; el dominio solo exige no vacío). Un token sirve para **vista pública y join** (v1). Rotar = later.
-7. Rename: solo `createdByUserId`. Otro user-miembro → `ForbiddenSplitGroupActionError`.
+7. Rename y delete del grupo: solo `createdByUserId`. Otro user-miembro → `ForbiddenSplitGroupActionError`. Delete: cascade del círculo (splits, settlements, members); txs de ledger de cada payer permanecen.
 
 ### 5.2 SplitGroupMember
 
@@ -84,7 +84,7 @@ Definiciones:
 10. `userId` único por grupo cuando `kind=user` (`@@unique([splitGroupId, userId])`). Re-join del mismo user → `AlreadySplitGroupMemberError`.
 11. Ghost **no** inicia sesión, **no** ejecuta comandos, **sí** entra en `allocate*` y en nets.
 12. Un User **no** necesita `Membership` en el workspace del creador para ser miembro del grupo.
-13. v1: no hay baja de miembros. H11 (claim ghost) = later: **mismo** `memberId`, pasa `ghost` → `user` y setea `userId` (conserva historial de shares).
+13. Baja de miembro: no el creador (`CannotRemoveGroupCreatorError`). No si el `memberId` aparece en shares, `paidBy` o settlements (`MemberHasSplitHistoryError`). Ghost: cualquier user-miembro. User no creador: puede sacarse a sí mismo. Rename de displayName: ghost → cualquier user-miembro (unicidad homónima excluyendo al propio); user → uno mismo o el creador. H11 (claim ghost) = later: **mismo** `memberId`, pasa `ghost` → `user` y setea `userId`.
 
 ### 5.3 ExpenseSplit / shares
 
@@ -123,7 +123,7 @@ para i en 0..n-1 (members ordenados por memberId asc):
 
 31. Delete del expense (SPEC-05, actor con authz de **su** ledger): borra `ExpenseSplit` + shares en la misma transacción de persistencia. Settlements **no** se tocan. Nets se recalculan sin ese split.
 32. Ana **no** puede borrar el expense de Bob (no es su tenant). Bob sí; el IOU desaparece del grupo de Ana.
-33. v1 no borra SplitGroup (cerrar = H12 later). Si en el futuro se borra el grupo: cascade members/splits/settlements; las txs de ledger de cada payer **permanecen**.
+33. Delete de SplitGroup (creador): el service borra settlements y splits **antes** de miembros (FKs Restrict). Cascade del círculo; las txs de ledger de cada payer **permanecen**.
 34. Workspace personal es inborrable → no hay cascade “se cayó el tenant del creador”.
 
 ### 5.6 Público y join
@@ -138,8 +138,10 @@ para i en 0..n-1 (members ordenados por memberId asc):
 | Acción | Quién |
 |--------|-------|
 | `CreateSplitGroup` | Usuario autenticado; el grupo nace en **su** personal |
-| `RenameSplitGroup` | `createdByUserId` |
+| `RenameSplitGroup`, `DeleteSplitGroup` | `createdByUserId` |
 | `AddGhostMember`, devolver link, `CreateSettlement` | Miembro `kind=user` |
+| `RenameSplitGroupMember` | Ghost: user-miembro. User: uno mismo o el creador |
+| `RemoveSplitGroupMember` | Sin historial. Ghost: user-miembro. User no creador: sí mismo o el creador. Nunca el creador |
 | `JoinSplitGroup` | Sesión + token; no requiere membership del tenant creador |
 | `CreateExpenseWithSplit` | Miembro `kind=user` **y** membership mutadora en **su** personal (la tx) |
 | `GetSplitGroup` / balances autenticados | Miembro `kind=user` (404/Forbidden para extraños; no revelar el grupo) |
@@ -159,7 +161,9 @@ Todos extienden `SplitDomainError`. Mensajes en inglés (código); la UI traduce
 | `AlreadySplitGroupMemberError` | `userId` ya es miembro `user` de ese grupo |
 | `GhostCannotPayError` | `paidByMemberId` apunta a `kind=ghost` |
 | `NotSplitGroupUserMemberError` | El actor no es miembro `kind=user` (service → Forbidden) |
-| `ForbiddenSplitGroupActionError` | p.ej. rename sin ser creador |
+| `ForbiddenSplitGroupActionError` | p.ej. rename/delete del grupo sin ser creador; rename/baja de un user ajeno |
+| `CannotRemoveGroupCreatorError` | Intento de sacar al creador del grupo |
+| `MemberHasSplitHistoryError` | Baja de un miembro con shares, pagos o settlements |
 | `SplitGroupTooSmallError` | Split con `< 2` miembros actuales |
 | `SplitMemberNotInGroupError` | Share / payer / settlement party no es miembro actual |
 | `SplitCurrencyMismatchError` | `expense.currency !== group.currency` |
@@ -212,9 +216,12 @@ Nombres de producto / application. El dominio expone las funciones puras de §9;
 
 | Tipo | Nombre | Notas |
 |------|--------|-------|
-| Command | `CreateSplitGroup` | name, kind; miembro creador; currency freeze; token |
+| Command | `CreateSplitGroup` | name; miembro creador; currency freeze; token |
 | Command | `RenameSplitGroup` | solo creador |
+| Command | `DeleteSplitGroup` | solo creador; cascade círculo; txs quedan |
 | Command | `AddGhostMember` | displayName |
+| Command | `RenameSplitGroupMember` | displayName; ver §5.7 |
+| Command | `RemoveSplitGroupMember` | sin historial; no el creador |
 | Command | `JoinSplitGroup` | token + session |
 | Command | `CreateExpenseWithSplit` | SPEC-05 + `splitGroupId`; equal default |
 | Command | `CreateSettlement` | from/to `memberId` |
@@ -514,7 +521,7 @@ Este escenario es **puro** (filtrar el split del input). El service debe garanti
 
 #### T-13 Crear grupo
 
-- **Given** nombre `"  Casa  "`, kind `ongoing`, `baseCurrency=ARS`
+- **Given** nombre `"  Casa  "`, `baseCurrency=ARS`
 - **When** se normaliza el nombre (`trim` → `"Casa"`) y se toma currency del personal
 - **Then** nombre válido; currency `ARS`
 - **Given** `"   "` o `""`
@@ -565,6 +572,34 @@ Cubierto en T-11; si se implementa `assertShareParticipants` aparte, el test de 
 
 Cubierto en T-08; mantener un `it` explícito `assertMemberCanPay(ghost)` → `GhostCannotPayError`.
 
+#### T-21 Delete / rename grupo (authz)
+
+- **Given** `createdByUserId=ana`, actor `ana`
+- **When** `assertCanDeleteSplitGroup` / `assertCanRenameSplitGroup`
+- **Then** OK
+- **Given** actor `bob` (user-miembro)
+- **Then** `ForbiddenSplitGroupActionError`
+
+#### T-22 Rename miembro
+
+- **Given** ghost Juan; actor user-miembro
+- **When** `assertCanRenameMember` sobre Juan
+- **Then** OK
+- **Given** user Bob; actor Ana creadora
+- **Then** OK
+- **Given** user Bob; actor Carl (otro user, no creador)
+- **Then** `ForbiddenSplitGroupActionError`
+
+#### T-23 Baja de miembro
+
+- **Given** ghost sin historial; actor user-miembro
+- **When** `assertCanRemoveMember`
+- **Then** OK
+- **Given** miembro con share, paidBy o settlement
+- **Then** `MemberHasSplitHistoryError`
+- **Given** target = creador
+- **Then** `CannotRemoveGroupCreatorError`
+
 ## 12. Propuesta Prisma (KRI-29)
 
 **Estrategia: migración breaking, un solo modelo.** No convivir `Workspace.group` + `SplitGroup`. No feature-flag. Pre-prod: se acepta pérdida de datos de group WS.
@@ -604,7 +639,8 @@ model SplitGroup {
   id                String         @id @default(cuid())
   workspaceId       String
   name              String
-  kind              SplitGroupKind
+  /// leftover column; product does not expose group kind
+  kind              SplitGroupKind @default(ongoing)
   currency          String
   publicShareToken  String         @unique
   createdByUserId   String

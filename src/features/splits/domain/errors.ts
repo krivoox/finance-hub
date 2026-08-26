@@ -116,3 +116,17 @@ export class SplitNotFoundError extends SplitDomainError {
     this.name = "SplitNotFoundError";
   }
 }
+
+export class CannotRemoveGroupCreatorError extends SplitDomainError {
+  constructor() {
+    super("The group creator cannot be removed");
+    this.name = "CannotRemoveGroupCreatorError";
+  }
+}
+
+export class MemberHasSplitHistoryError extends SplitDomainError {
+  constructor() {
+    super("A member with splits or settlements cannot be removed");
+    this.name = "MemberHasSplitHistoryError";
+  }
+}
