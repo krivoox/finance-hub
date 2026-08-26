@@ -24,22 +24,17 @@ export function ForgotPasswordForm() {
     defaultValues: { email: "" },
   });
 
-  const onSubmit = handleSubmit(async (values) => {
-    // Always show a generic success (SPEC-01 §5: no email enumeration),
-    // even if the request fails or hangs (network / mailer / DB).
-    try {
-      await Promise.race([
-        authClient.requestPasswordReset({
-          email: values.email,
-          redirectTo: `${window.location.origin}/reset-password`,
-        }),
-        new Promise<void>((resolve) => {
-          setTimeout(resolve, 8_000);
-        }),
-      ]);
-    } catch {
-      // Swallow: the public surface stays generic.
-    }
+  const onSubmit = handleSubmit((values) => {
+    // SPEC-01 §5: always show a generic success (no email enumeration).
+    // Fire-and-forget so a slow/failing mailer or DB does not trap the UI.
+    void authClient
+      .requestPasswordReset({
+        email: values.email,
+        redirectTo: `${window.location.origin}/reset-password`,
+      })
+      .catch(() => {
+        // Swallow: the public surface stays generic.
+      });
     setSubmitted(true);
   });
 
