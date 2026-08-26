@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **categories:** Add frequent shortcuts and inline create in the transaction form
 
+### Fixed
+
+- **ledger:** Exclude transfers from cashflow totals and fit category donut
+
+- **dashboard:** Keep full spent amount in donut accessible name
+
 [Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.17.0...HEAD
 
 ## [0.13.0] - 2026-08-11
