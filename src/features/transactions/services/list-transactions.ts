@@ -8,7 +8,6 @@ import {
 } from "@/features/transactions/domain";
 import type { TransactionRecord } from "./require-transaction-membership";
 import { buildListTransactionsWhere } from "./list-transactions-where";
-import { listLocalAccountIds } from "./list-local-account-ids";
 
 export type ListTransactionsServiceInput = {
   userId: string;
@@ -31,9 +30,6 @@ export type ListedTransaction = TransactionRecord & {
   counterpartyAccountName: string | null;
   categoryName: string | null;
   createdByDisplayName: string;
-  /** True when listed because it hits a local account but registers elsewhere. */
-  isExternalToWorkspace: boolean;
-  registrationWorkspaceName: string | null;
   /** SPEC-08 H4 — present when this transfer is a goal contribution. */
   goalContribution: {
     contributionId: string;
@@ -58,10 +54,8 @@ export type ListTransactionsResult = {
 const MAX_LIMIT = 200;
 
 /**
- * SPEC-05 FR-04 + SPEC-14 FR-05 — Lists transactions of a workspace ordered by
- * `occurredOn` desc, plus txs that affect local accounts but register elsewhere.
- *
- * Invalid cursor → first page (soft-reset, SPEC-05 §4.5).
+ * SPEC-05 FR-04 — Lists transactions of the personal workspace ordered by
+ * `occurredOn` desc. Invalid cursor → first page (soft-reset, SPEC-05 §4.5).
  */
 export async function listTransactions(
   input: ListTransactionsServiceInput,
@@ -69,7 +63,6 @@ export async function listTransactions(
   const limit = Math.min(input.limit ?? LIST_PAGE_SIZE, MAX_LIMIT);
 
   const membershipPromise = requireMembership(input.userId, input.workspaceId);
-  const localAccountIdsPromise = listLocalAccountIds(input.workspaceId);
   const cursorPromise = input.cursor
     ? prisma.transaction.findUnique({
         where: { id: input.cursor },
@@ -77,14 +70,13 @@ export async function listTransactions(
       })
     : Promise.resolve(null);
 
-  const [{ role }, localAccountIds, anchor] = await Promise.all([
+  const [{ role }, anchor] = await Promise.all([
     membershipPromise,
-    localAccountIdsPromise,
     cursorPromise,
   ]);
   assertCanReadTransactions(role);
 
-  const filters = buildListTransactionsWhere(input, localAccountIds);
+  const filters = buildListTransactionsWhere(input);
 
   // Soft-reset: missing / foreign cursor → first page (SPEC-05 §4.5).
   const cursorId = input.cursor && anchor ? input.cursor : undefined;
@@ -112,7 +104,6 @@ export async function listTransactions(
       createdByUserId: true,
       createdAt: true,
       updatedAt: true,
-      workspace: { select: { name: true } },
       account: { select: { name: true, workspaceId: true } },
       counterpartyAccount: { select: { name: true } },
       category: { select: { name: true } },
@@ -152,7 +143,6 @@ export async function listTransactions(
   );
 
   const items: ListedTransaction[] = trimmed.map((r) => {
-    const isExternal = r.workspaceId !== input.workspaceId;
     const recurring =
       r.recurringRule && r.scheduledOn
         ? {
@@ -182,8 +172,6 @@ export async function listTransactions(
       categoryName: r.category?.name ?? null,
       createdByDisplayName:
         nameByUserId.get(r.createdByUserId) ?? r.createdByUserId,
-      isExternalToWorkspace: isExternal,
-      registrationWorkspaceName: isExternal ? r.workspace.name : null,
       goalContribution: r.goalContribution
         ? {
             contributionId: r.goalContribution.id,

@@ -7,7 +7,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { signIn } from "@/lib/auth-client";
 import { loginSchema, type LoginInput } from "@/features/auth/schemas";
-import { acceptInvitationAction } from "@/features/workspaces/actions";
 import {
   AuthMethodDivider,
   GoogleSignInButton,
@@ -19,13 +18,11 @@ import { navigateAndRefresh } from "@/lib/navigation";
 
 export function LoginForm({
   callbackUrl,
-  inviteToken,
   prefillEmail,
   googleEnabled = false,
   googleClientId,
 }: {
   callbackUrl?: string;
-  inviteToken?: string;
   prefillEmail?: string;
   googleEnabled?: boolean;
   googleClientId?: string;
@@ -59,17 +56,6 @@ export function LoginForm({
       return;
     }
 
-    if (inviteToken) {
-      const accepted = await acceptInvitationAction({ token: inviteToken });
-      if (!accepted.ok) {
-        toast.message("Sesión iniciada", {
-          description: accepted.error,
-        });
-      } else {
-        toast.success("Te uniste al workspace");
-      }
-    }
-
     setIsSubmitting(false);
     navigateAndRefresh(router, callbackUrl ?? "/dashboard");
   };
@@ -80,7 +66,6 @@ export function LoginForm({
         <>
           <GoogleSignInButton
             mode="login"
-            inviteToken={inviteToken}
             callbackUrl={callbackUrl}
             googleClientId={googleClientId}
           />

@@ -86,16 +86,6 @@ export class CannotDeleteLastActiveAccountError extends AccountDomainError {
   }
 }
 
-/** SPEC-03 §5.4 — Hard-delete blocked when txs participate in CrossWorkspaceLink. */
-export class AccountHasCrossWorkspaceLinksError extends AccountDomainError {
-  constructor() {
-    super(
-      "Esta cuenta tiene movimientos vinculados a otro espacio. No se puede eliminar.",
-    );
-    this.name = "AccountHasCrossWorkspaceLinksError";
-  }
-}
-
 /** SPEC-03 §6 — UI type-to-confirm name does not match account name. */
 export class AccountDeleteConfirmationMismatchError extends AccountDomainError {
   constructor() {

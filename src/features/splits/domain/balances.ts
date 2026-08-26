@@ -1,16 +1,10 @@
-import { InvalidSettlementError, NotAGroupWorkspaceError } from "./errors";
-import type { SplitShare } from "./allocate";
-
-export type SplitForBalance = {
-  paidByUserId: string;
-  shares: readonly SplitShare[];
-};
-
-export type SettlementForBalance = {
-  fromUserId: string;
-  toUserId: string;
-  amountCents: number;
-};
+import { InvalidSettlementError } from "./errors";
+import { SplitMemberNotInGroupError } from "./errors";
+import type {
+  MemberBalance,
+  SettlementForBalance,
+  SplitForBalance,
+} from "./types";
 
 /**
  * Net balance for a member.
@@ -18,30 +12,24 @@ export type SettlementForBalance = {
  * Negative `netCents` = they owe others.
  *
  * For each split: payer is credited (total − own share); each other participant
- * is debited their share. Settlements: fromUser pays toUser → fromUser net +,
- * toUser net − (debt reduction).
+ * is debited their share. Settlements: fromMember pays toMember → from net +,
+ * to net − (debt reduction).
  */
-export type MemberBalance = {
-  userId: string;
-  netCents: number;
-};
-
-export function assertGroupWorkspace(type: "personal" | "group"): void {
-  if (type !== "group") {
-    throw new NotAGroupWorkspaceError();
-  }
-}
-
 export function assertValidSettlement(input: {
-  fromUserId: string;
-  toUserId: string;
+  fromMemberId: string;
+  toMemberId: string;
   amountCents: number;
+  currentMemberIds: readonly string[];
 }): void {
-  if (input.fromUserId === input.toUserId) {
-    throw new InvalidSettlementError("Settlement parties must be different users");
+  if (input.fromMemberId === input.toMemberId) {
+    throw new InvalidSettlementError("Settlement parties must be different members");
   }
   if (!Number.isInteger(input.amountCents) || input.amountCents <= 0) {
     throw new InvalidSettlementError("Settlement amount must be a positive integer");
+  }
+  const current = new Set(input.currentMemberIds);
+  if (!current.has(input.fromMemberId) || !current.has(input.toMemberId)) {
+    throw new SplitMemberNotInGroupError();
   }
 }
 
@@ -55,36 +43,27 @@ export function computeMemberBalances(
     nets.set(id, 0);
   }
 
-  const bump = (userId: string, delta: number) => {
-    if (!nets.has(userId)) {
-      nets.set(userId, 0);
+  const bump = (memberId: string, delta: number) => {
+    if (!nets.has(memberId)) {
+      nets.set(memberId, 0);
     }
-    nets.set(userId, (nets.get(userId) ?? 0) + delta);
+    nets.set(memberId, (nets.get(memberId) ?? 0) + delta);
   };
 
   for (const split of splits) {
     const total = split.shares.reduce((acc, s) => acc + s.shareCents, 0);
-    // Payer fronted the full amount → credit total
-    bump(split.paidByUserId, total);
-    // Each share is what that person owes → debit
+    bump(split.paidByMemberId, total);
     for (const share of split.shares) {
-      bump(share.userId, -share.shareCents);
+      bump(share.memberId, -share.shareCents);
     }
   }
 
   for (const settlement of settlements) {
-    // from pays to → from's debt decreases (net +), to's credit decreases (net −)
-    bump(settlement.fromUserId, settlement.amountCents);
-    bump(settlement.toUserId, -settlement.amountCents);
+    bump(settlement.fromMemberId, settlement.amountCents);
+    bump(settlement.toMemberId, -settlement.amountCents);
   }
 
   return [...nets.entries()]
-    .map(([userId, netCents]) => ({ userId, netCents }))
-    .toSorted((a, b) => a.userId.localeCompare(b.userId));
-}
-
-export function assertCanMutateSplits(role: string): void {
-  if (role === "viewer") {
-    throw new InvalidSettlementError("Viewers cannot mutate splits or settlements");
-  }
+    .map(([memberId, netCents]) => ({ memberId, netCents }))
+    .toSorted((a, b) => a.memberId.localeCompare(b.memberId));
 }

@@ -39,10 +39,10 @@ export default async function DashboardPage() {
     return (
       <ContentPanel
         title="Panel"
-        description="Todavía no tenés un workspace activo."
+        description="No se pudo cargar tu cuenta."
       >
         <p className="text-sm text-muted-foreground">
-          Creá un workspace para empezar a ver tu resumen financiero.
+          Recargá la página. Si sigue igual, cerrá sesión y volvé a entrar.
         </p>
       </ContentPanel>
     );

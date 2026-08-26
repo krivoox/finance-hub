@@ -10,7 +10,7 @@ import { OnboardingWizard } from "@/features/workspaces/components/onboarding-wi
 import type { AccountType } from "@/features/accounts/domain";
 
 export const metadata = {
-  title: "Configurar espacio · Finance Hub",
+  title: "Configurar cuenta · Finance Hub",
 };
 
 export default async function OnboardingPage() {

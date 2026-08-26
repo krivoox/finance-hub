@@ -4,7 +4,6 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { signIn } from "@/lib/auth-client";
 import { isStandaloneDisplay } from "@/lib/pwa-display";
-import { rememberInviteTokenAction } from "@/features/workspaces/actions";
 import { signInWithGoogleIdTokenAction } from "@/features/auth/actions/sign-in-google-id-token";
 import { requestGoogleIdToken } from "@/features/auth/lib/google-id-token";
 import { resolveGoogleCallbackURL } from "@/features/auth/lib/google-callback-url";
@@ -39,12 +38,10 @@ const STANDALONE_GOOGLE_HINT =
 
 export function GoogleSignInButton({
   mode,
-  inviteToken,
   callbackUrl,
   googleClientId,
 }: {
   mode: "login" | "register";
-  inviteToken?: string;
   callbackUrl?: string;
   /** Public OAuth client id for GIS id_token in installed PWAs. */
   googleClientId?: string;
@@ -54,18 +51,8 @@ export function GoogleSignInButton({
   const onClick = async () => {
     setIsLoading(true);
 
-    if (inviteToken) {
-      try {
-        await rememberInviteTokenAction(inviteToken);
-      } catch {
-        // Cookie is best-effort; OAuth + acceptPendingInvitationsForEmail
-        // still cover first-time Google signup by email match.
-      }
-    }
-
     const callbackURL = resolveGoogleCallbackURL({
       mode,
-      inviteToken,
       callbackUrl,
     });
 

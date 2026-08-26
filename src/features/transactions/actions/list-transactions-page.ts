@@ -32,8 +32,6 @@ export type ListedTransactionPageItem = {
   counterpartyAccountName: string | null;
   categoryName: string | null;
   createdByDisplayName: string;
-  isExternalToWorkspace: boolean;
-  registrationWorkspaceName: string | null;
   goalContribution: {
     contributionId: string;
     goalId: string;
@@ -107,8 +105,6 @@ export async function listTransactionsPageAction(
           counterpartyAccountName: tx.counterpartyAccountName,
           categoryName: tx.categoryName,
           createdByDisplayName: tx.createdByDisplayName,
-          isExternalToWorkspace: tx.isExternalToWorkspace,
-          registrationWorkspaceName: tx.registrationWorkspaceName,
           goalContribution: tx.goalContribution,
           recurring: tx.recurring,
         })),

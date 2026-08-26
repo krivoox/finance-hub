@@ -48,11 +48,6 @@ export type Workspace = Prisma.WorkspaceModel
  */
 export type Membership = Prisma.MembershipModel
 /**
- * Model Invitation
- * 
- */
-export type Invitation = Prisma.InvitationModel
-/**
  * Model Category
  * 
  */
@@ -93,11 +88,6 @@ export type UsdQuoteSnapshot = Prisma.UsdQuoteSnapshotModel
  */
 export type UsdQuoteLine = Prisma.UsdQuoteLineModel
 /**
- * Model CrossWorkspaceLink
- * 
- */
-export type CrossWorkspaceLink = Prisma.CrossWorkspaceLinkModel
-/**
  * Model Budget
  * 
  */
@@ -117,6 +107,16 @@ export type Goal = Prisma.GoalModel
  * 
  */
 export type GoalContribution = Prisma.GoalContributionModel
+/**
+ * Model SplitGroup
+ * 
+ */
+export type SplitGroup = Prisma.SplitGroupModel
+/**
+ * Model SplitGroupMember
+ * 
+ */
+export type SplitGroupMember = Prisma.SplitGroupMemberModel
 /**
  * Model ExpenseSplit
  * 

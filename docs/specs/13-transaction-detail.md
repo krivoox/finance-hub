@@ -7,6 +7,8 @@
 | Prioridad | P1 |
 | Dependencias | SPEC-05, SPEC-06, SPEC-10 |
 
+> **KRI-29.** Si hay split: mostrar miembros del `SplitGroup` (incl. ghosts). El bloque de aporte cross-workspace (SPEC-14) **se elimina** con ese código.
+
 ## 1. Contexto
 
 El historial de movimientos es una tabla densa. El usuario necesita abrir un movimiento y ver toda la información disponible, editarlo o eliminarlo.

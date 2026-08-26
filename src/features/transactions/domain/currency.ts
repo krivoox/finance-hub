@@ -17,11 +17,6 @@ export type AccountCurrencyOption = {
   readonly currency: string;
 };
 
-export type PaymentAccountGroupLike<T extends AccountCurrencyOption> = {
-  readonly workspaceId: string;
-  readonly accounts: readonly T[];
-};
-
 /**
  * SPEC-05 T-22 — Default form currency is workspace `baseCurrency` when the
  * selection is missing or not in ACCOUNT_CURRENCIES.
@@ -48,22 +43,6 @@ export function filterAccountsByCurrency<T extends AccountCurrencyOption>(
   currency: string,
 ): T[] {
   return accounts.filter((a) => a.currency === currency);
-}
-
-/**
- * Same rule for SPEC-14 payment groups: drop empty groups after filtering.
- * Preserves extra group fields (name, type, …) via the generic.
- */
-export function filterPaymentGroupsByCurrency<
-  TAccount extends AccountCurrencyOption,
-  TGroup extends PaymentAccountGroupLike<TAccount>,
->(groups: readonly TGroup[], currency: string): TGroup[] {
-  return groups
-    .map((g) => ({
-      ...g,
-      accounts: filterAccountsByCurrency(g.accounts, currency),
-    }))
-    .filter((g) => g.accounts.length > 0) as TGroup[];
 }
 
 /** Currencies present among accounts (stable order: ACCOUNT_CURRENCIES). */

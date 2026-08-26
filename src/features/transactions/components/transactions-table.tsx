@@ -62,8 +62,6 @@ type TableTransaction = {
   counterpartyAccountId: string | null;
   counterpartyAccountName: string | null;
   createdByDisplayName: string;
-  isExternalToWorkspace: boolean;
-  registrationWorkspaceName: string | null;
   goalContribution: {
     contributionId: string;
     goalId: string;
@@ -149,7 +147,6 @@ type TransactionsTableProps = {
 
 export function TransactionsTable({
   items,
-  workspaceId,
   canMutate,
   accounts,
   categories,
@@ -305,9 +302,7 @@ export function TransactionsTable({
               const accountLabel =
                 tx.type === "transfer" && tx.counterpartyAccountName
                   ? `${tx.accountName} → ${tx.counterpartyAccountName}`
-                  : tx.isExternalToWorkspace && tx.registrationWorkspaceName
-                    ? `${tx.registrationWorkspaceName} · ${tx.accountName}`
-                    : tx.accountName;
+                  : tx.accountName;
               const categoryLabel =
                 tx.type === "transfer"
                   ? "Transferencia"
@@ -322,9 +317,6 @@ export function TransactionsTable({
                     ? "Cambio de moneda"
                     : (splitLeadingEmoji(tx.categoryName ?? "").label ||
                       "Transacción"));
-              const descriptionWithChip = tx.isExternalToWorkspace
-                ? `${tx.registrationWorkspaceName ?? "Otro espacio"} · ${description}`
-                : description;
               const glyph = rowGlyph(tx);
 
               return (
@@ -339,7 +331,7 @@ export function TransactionsTable({
                     <SelectRowCell
                       selection={selection}
                       id={tx.id}
-                      label={`Seleccionar ${descriptionWithChip}`}
+                      label={`Seleccionar ${description}`}
                     />
                   ) : null}
                   <AbmCell slot="identity">
@@ -357,7 +349,7 @@ export function TransactionsTable({
                               `/transactions/${tx.id}`,
                             )}
                           >
-                            {descriptionWithChip}
+                            {description}
                           </Link>
                           {tx.recurring ? (
                             <span
@@ -388,12 +380,6 @@ export function TransactionsTable({
                           {" · "}
                           {formatDateOnly(tx.occurredOn)}
                         </span>
-                        {tx.accountWorkspaceId !== workspaceId &&
-                        !tx.isExternalToWorkspace ? (
-                          <span className="text-xs text-muted-foreground">
-                            Pagado desde otro espacio
-                          </span>
-                        ) : null}
                       </div>
                     </div>
                   </AbmCell>

@@ -35,8 +35,8 @@ export const LANDING_FEATURE_CARDS = [
     tone: "info" as const,
   },
   {
-    title: "Espacio compartido",
-    body: "Invitá a tu pareja o familia, repartí gastos y saldá balances sin planillas eternas.",
+    title: "Gastos compartidos",
+    body: "Casa o asado: sumá a alguien con el nombre o un enlace de WhatsApp. No hace falta que instale la app.",
     tone: "warning" as const,
   },
   {
@@ -148,7 +148,7 @@ export const LANDING_AUDIENCE = {
     },
     {
       title: "Hogar",
-      body: "Varios miembros, roles, invitaciones y una verdad financiera del grupo.",
+      body: "Gastos de casa o del asado, con nombre o enlace. Quien no tiene la app igual entra en el saldo.",
     },
   ],
   anti:

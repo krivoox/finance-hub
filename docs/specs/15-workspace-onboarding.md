@@ -9,7 +9,7 @@
 
 ## 1. Contexto
 
-Al crear un workspace (personal en registro o grupal vía `CreateGroupWorkspace`), se seedan categorías (SPEC-04) pero **no hay cuentas**. Sin al menos una cuenta, el ledger no es usable.
+Al crear el workspace **personal** en registro, se seedan categorías (SPEC-04) pero **no hay cuentas**. Sin al menos una cuenta, el ledger no es usable. **KRI-29:** no hay onboarding post-`CreateGroupWorkspace` (esa feature se elimina).
 
 Esta spec define el **first-run** que deja el workspace listo para usar y enseña el ritmo de la app (ledger + “Registrar”) **sin** product tour de tooltips.
 
@@ -24,7 +24,7 @@ Esta spec define el **first-run** que deja el workspace listo para usar y enseñ
 ## 3. Historias de usuario
 
 1. Como usuario nuevo, quiero configurar mi espacio en pocos minutos para poder registrar movimientos de inmediato.
-2. Como owner que crea un workspace grupal, quiero el mismo setup mínimo antes de invitar a nadie.
+2. ~~Como owner que crea un workspace grupal, quiero el mismo setup mínimo antes de invitar a nadie.~~ **Retirado KRI-29.**
 3. Como usuario, quiero ver cómo queda el panel (patrimonio / filas) mientras configuro, no un tutorial aparte.
 4. Como usuario apurado, quiero poder omitir el onboarding y crear mi primera cuenta manualmente, pero no quedarme en un estado sin cuentas.
 

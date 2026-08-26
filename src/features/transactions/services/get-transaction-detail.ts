@@ -7,26 +7,19 @@ import {
 import { requireTransactionMembership } from "./require-transaction-membership";
 
 export type TransactionSplitShareDetail = {
-  userId: string;
+  memberId: string;
   shareCents: number;
   displayName: string;
 };
 
 export type TransactionSplitDetail = {
   id: string;
-  paidByUserId: string;
+  splitGroupId: string;
+  splitGroupName: string;
+  paidByMemberId: string;
   paidByDisplayName: string;
   method: string;
   shares: TransactionSplitShareDetail[];
-};
-
-export type CrossWorkspaceLinkDetail = {
-  id: string;
-  kind: "contribution" | "externally_funded_expense";
-  twinTransactionId: string;
-  twinWorkspaceId: string;
-  twinWorkspaceName: string;
-  role: "source" | "target";
 };
 
 export type GoalContributionDetail = {
@@ -49,19 +42,13 @@ export type TransactionDetail = {
   categoryName: string | null;
   accountId: string;
   accountName: string;
-  accountWorkspaceId: string;
-  accountWorkspaceName: string;
-  accountWorkspaceType: "personal" | "group";
   counterpartyAccountId: string | null;
   counterpartyAccountName: string | null;
   createdByUserId: string;
   createdByDisplayName: string;
   createdAt: Date;
   updatedAt: Date;
-  /** True when the payment account lives in another workspace than the tx. */
-  isExternallyFunded: boolean;
   split: TransactionSplitDetail | null;
-  crossWorkspaceLink: CrossWorkspaceLinkDetail | null;
   goalContribution: GoalContributionDetail | null;
 };
 
@@ -107,20 +94,23 @@ export async function getTransactionDetail({
       updatedAt: true,
       workspace: { select: { name: true } },
       category: { select: { name: true } },
-      account: {
-        select: {
-          name: true,
-          workspaceId: true,
-          workspace: { select: { name: true, type: true } },
-        },
-      },
+      account: { select: { name: true } },
       counterpartyAccount: { select: { name: true } },
       expenseSplit: {
         select: {
           id: true,
-          paidByUserId: true,
+          splitGroupId: true,
+          paidByMemberId: true,
           method: true,
-          shares: { select: { userId: true, shareCents: true } },
+          splitGroup: { select: { name: true } },
+          paidBy: { select: { displayName: true } },
+          shares: {
+            select: {
+              memberId: true,
+              shareCents: true,
+              member: { select: { displayName: true } },
+            },
+          },
         },
       },
       goalContribution: {
@@ -128,32 +118,6 @@ export async function getTransactionDetail({
           id: true,
           goalId: true,
           goal: { select: { name: true, kind: true } },
-        },
-      },
-      crossWorkspaceLinkAsSource: {
-        select: {
-          id: true,
-          kind: true,
-          targetTransactionId: true,
-          targetTransaction: {
-            select: {
-              workspaceId: true,
-              workspace: { select: { name: true } },
-            },
-          },
-        },
-      },
-      crossWorkspaceLinkAsTarget: {
-        select: {
-          id: true,
-          kind: true,
-          sourceTransactionId: true,
-          sourceTransaction: {
-            select: {
-              workspaceId: true,
-              workspace: { select: { name: true } },
-            },
-          },
         },
       },
     },
@@ -166,52 +130,23 @@ export async function getTransactionDetail({
     throw new TransactionNotFoundError(transactionId);
   }
 
-  const userIds = new Set<string>([row.createdByUserId]);
-  if (row.expenseSplit) {
-    userIds.add(row.expenseSplit.paidByUserId);
-    for (const s of row.expenseSplit.shares) userIds.add(s.userId);
-  }
-  const users = await prisma.user.findMany({
-    where: { id: { in: [...userIds] } },
+  const creator = await prisma.user.findUnique({
+    where: { id: row.createdByUserId },
     select: { id: true, name: true, displayName: true, email: true },
   });
-  const nameById = new Map(users.map((u) => [u.id, displayName(u)]));
-
-  let crossWorkspaceLink: CrossWorkspaceLinkDetail | null = null;
-  if (row.crossWorkspaceLinkAsSource) {
-    const link = row.crossWorkspaceLinkAsSource;
-    crossWorkspaceLink = {
-      id: link.id,
-      kind: link.kind as CrossWorkspaceLinkDetail["kind"],
-      twinTransactionId: link.targetTransactionId,
-      twinWorkspaceId: link.targetTransaction.workspaceId,
-      twinWorkspaceName: link.targetTransaction.workspace.name,
-      role: "source",
-    };
-  } else if (row.crossWorkspaceLinkAsTarget) {
-    const link = row.crossWorkspaceLinkAsTarget;
-    crossWorkspaceLink = {
-      id: link.id,
-      kind: link.kind as CrossWorkspaceLinkDetail["kind"],
-      twinTransactionId: link.sourceTransactionId,
-      twinWorkspaceId: link.sourceTransaction.workspaceId,
-      twinWorkspaceName: link.sourceTransaction.workspace.name,
-      role: "target",
-    };
-  }
 
   const split: TransactionSplitDetail | null = row.expenseSplit
     ? {
         id: row.expenseSplit.id,
-        paidByUserId: row.expenseSplit.paidByUserId,
-        paidByDisplayName:
-          nameById.get(row.expenseSplit.paidByUserId) ??
-          row.expenseSplit.paidByUserId,
+        splitGroupId: row.expenseSplit.splitGroupId,
+        splitGroupName: row.expenseSplit.splitGroup.name,
+        paidByMemberId: row.expenseSplit.paidByMemberId,
+        paidByDisplayName: row.expenseSplit.paidBy.displayName,
         method: row.expenseSplit.method,
         shares: row.expenseSplit.shares.map((s) => ({
-          userId: s.userId,
+          memberId: s.memberId,
           shareCents: s.shareCents,
-          displayName: nameById.get(s.userId) ?? s.userId,
+          displayName: s.member.displayName,
         })),
       }
     : null;
@@ -229,19 +164,13 @@ export async function getTransactionDetail({
     categoryName: row.category?.name ?? null,
     accountId: row.accountId,
     accountName: row.account.name,
-    accountWorkspaceId: row.account.workspaceId,
-    accountWorkspaceName: row.account.workspace.name,
-    accountWorkspaceType: row.account.workspace.type as "personal" | "group",
     counterpartyAccountId: row.counterpartyAccountId,
     counterpartyAccountName: row.counterpartyAccount?.name ?? null,
     createdByUserId: row.createdByUserId,
-    createdByDisplayName:
-      nameById.get(row.createdByUserId) ?? row.createdByUserId,
+    createdByDisplayName: creator ? displayName(creator) : row.createdByUserId,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt,
-    isExternallyFunded: row.account.workspaceId !== row.workspaceId,
     split,
-    crossWorkspaceLink,
     goalContribution: row.goalContribution
       ? {
           contributionId: row.goalContribution.id,

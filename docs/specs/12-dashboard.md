@@ -7,9 +7,11 @@
 | Prioridad | P1 |
 | Dependencias | SPEC-03, SPEC-05, SPEC-07, SPEC-08, SPEC-09; preview recurrentes SPEC-18; cotizaciones SPEC-19 (opcional) |
 
+> **KRI-29.** El dashboard es del workspace **personal**. `memberBalances` de workspace `group` y el CTA “Ver grupo” hacia tenant **salen**. Un chip later hacia `/groups` (deudas de SplitGroup) es opcional; no es patrimonio del hogar.
+
 ## 1. Contexto
 
-Pantalla principal: visión clara del estado financiero del workspace activo (personal o grupal).
+Pantalla principal: visión clara del estado financiero del workspace personal.
 
 ## 2. Historias de usuario
 

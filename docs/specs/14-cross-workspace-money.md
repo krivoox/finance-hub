@@ -3,11 +3,13 @@
 | Campo | Valor |
 |-------|-------|
 | ID | SPEC-14 |
-| Estado | Draft |
-| Prioridad | P1 |
+| Estado | **Retirada (KRI-29)** — no implementar; matar código en el mismo epic que SPEC-09 |
+| Prioridad | — |
 | Dependencias | SPEC-02, SPEC-05, SPEC-09, SPEC-10 |
 
-## 1. Contexto
+> **KRI-29.** Sin workspace grupal no hay “Casa” como tenant ni Visa personal pagando el ledger del hogar. Aportes `CrossWorkspaceLink`, expense funded externo y labels de privacidad de cuenta ajena **salen de producto**. El gasto dividido vive en el ledger **personal** de quien paga + IOU en `SplitGroup` ([SPEC-09](./09-financial-groups.md) / [SPEC-10](./10-expense-splitting.md)).
+
+## 1. Contexto (histórico, pre-retirada)
 
 Un usuario opera varios workspaces (personal + hogar). Necesita:
 

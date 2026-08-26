@@ -10,8 +10,8 @@ export const SETTINGS_TABS = [
   },
   {
     id: "workspace" as const,
-    label: "Workspace",
-    description: "Espacios grupales y tasa FX",
+    label: "Cuenta",
+    description: "Nombre y tipo de cambio",
   },
   {
     id: "categorias" as const,

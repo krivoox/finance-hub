@@ -4,7 +4,6 @@ import { prisma } from "@/lib/prisma";
 import { env } from "@/lib/env";
 import { nextCookies } from "@/lib/next-cookies";
 import { createPersonalWorkspaceForUser } from "@/features/workspaces/services/create-personal-workspace";
-import { acceptPendingInvitationsForEmail } from "@/features/workspaces/services/invitations";
 const googleClientId = env.GOOGLE_CLIENT_ID;
 const googleClientSecret = env.GOOGLE_CLIENT_SECRET;
 const googleSocialProviders =
@@ -206,12 +205,6 @@ export const auth = betterAuth({
           await createPersonalWorkspaceForUser({
             userId: user.id,
             userName: user.name ?? user.email,
-          });
-          // SPEC-02: join every pending group invite for this email
-          // (personal workspace already exists from the call above).
-          await acceptPendingInvitationsForEmail({
-            userId: user.id,
-            email: user.email,
           });
         },
       },

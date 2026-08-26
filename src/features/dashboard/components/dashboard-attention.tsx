@@ -7,11 +7,7 @@ import {
   SurfaceSection,
 } from "@/components/surface-section";
 import { formatMoney } from "@/lib/format-money";
-import type {
-  BudgetAtRiskItem,
-  Insight,
-  MemberBalanceItem,
-} from "@/features/dashboard/domain";
+import type { BudgetAtRiskItem, Insight } from "@/features/dashboard/domain";
 
 import { formatInsight } from "./format";
 
@@ -19,19 +15,16 @@ type DashboardAttentionProps = {
   currency: string;
   budgetsAtRisk: readonly BudgetAtRiskItem[];
   insights: readonly Insight[];
-  memberBalances: readonly MemberBalanceItem[] | null;
 };
 
 export function DashboardAttention({
   currency,
   budgetsAtRisk,
   insights,
-  memberBalances,
 }: DashboardAttentionProps) {
   const hasBudgets = budgetsAtRisk.length > 0;
   const hasInsights = insights.length > 0;
-  const hasGroup = memberBalances != null && memberBalances.length > 0;
-  const allClear = !hasBudgets && !hasInsights && !hasGroup;
+  const allClear = !hasBudgets && !hasInsights;
 
   return (
     <SurfaceSection aria-label="Atención">
@@ -91,38 +84,6 @@ export function DashboardAttention({
                 </li>
               ))}
             </ul>
-          ) : null}
-
-          {hasGroup ? (
-            <div>
-              <div className="mb-2 flex items-center justify-between gap-3">
-                <h3 className="text-xs font-medium tracking-wide text-muted-foreground uppercase">
-                  Balances del grupo
-                </h3>
-                <Button variant="ghost" size="sm" asChild>
-                  <Link href="/groups/activity">Ver grupo</Link>
-                </Button>
-              </div>
-              <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border">
-                {memberBalances.map((m) => (
-                  <li
-                    key={m.userId}
-                    className="flex min-w-0 items-center justify-between gap-3 px-4 py-3"
-                  >
-                    <p className="min-w-0 truncate font-medium text-foreground">
-                      {m.displayName ?? m.userId}
-                    </p>
-                    <Badge
-                      variant={m.netCents >= 0 ? "income" : "expense"}
-                      className="max-w-[55%] shrink-0 truncate tabular-nums"
-                    >
-                      {m.netCents >= 0 ? "Le deben " : "Debe "}
-                      {formatMoney(Math.abs(m.netCents), currency)}
-                    </Badge>
-                  </li>
-                ))}
-              </ul>
-            </div>
           ) : null}
         </div>
       )}

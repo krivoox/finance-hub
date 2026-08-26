@@ -19,12 +19,6 @@ export type GoalProgressItem = {
   status: string;
 };
 
-export type MemberBalanceItem = {
-  userId: string;
-  netCents: number;
-  displayName?: string;
-};
-
 /**
  * SPEC-12 T-03 — budgets at risk are those in warning or exceeded status.
  */

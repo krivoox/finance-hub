@@ -135,7 +135,8 @@ Fuente de producto: [SPEC-20](./specs/20-performance-pwa.md). Arquitectura: [§7
 | `format` | prettier |
 | `test` / `test:watch` | Vitest |
 | `postinstall` | `prisma generate` |
-| `db:generate` / `db:migrate` / `db:push` / `db:studio` | Prisma |
+| `db:generate` / `db:migrate` / `db:push` / `db:studio` | Prisma local |
+| `db:deploy` | `prisma migrate deploy` — Vercel lo corre en el build (`vercel.json` `buildCommand`) contra `DIRECT_URL` |
 | `auth:generate` | Better Auth CLI → modelos en schema |
 | `supabase:start` / `stop` / `status` | DB local |
 

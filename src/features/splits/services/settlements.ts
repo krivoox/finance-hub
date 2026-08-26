@@ -1,52 +1,33 @@
 import "server-only";
 import { prisma } from "@/lib/prisma";
-import {
-  assertCanMutateSplits,
-  assertGroupWorkspace,
-  assertValidSettlement,
-  InvalidSettlementError,
-} from "@/features/splits/domain";
-import { requireMembership } from "@/features/workspaces/services";
+import { assertValidSettlement } from "@/features/splits/domain";
+import { loadSplitGroupForUser } from "./require-split-group-access";
 
 export async function createSettlement(input: {
   userId: string;
-  workspaceId: string;
-  fromUserId: string;
-  toUserId: string;
+  splitGroupId: string;
+  fromMemberId: string;
+  toMemberId: string;
   amountCents: number;
   occurredOn: string;
   note?: string;
 }) {
-  const membership = await requireMembership(input.userId, input.workspaceId);
-  assertCanMutateSplits(membership.role);
-
-  const workspace = await prisma.workspace.findUniqueOrThrow({
-    where: { id: input.workspaceId },
-    select: { type: true },
+  const { group } = await loadSplitGroupForUser(input.userId, input.splitGroupId);
+  assertValidSettlement({
+    fromMemberId: input.fromMemberId,
+    toMemberId: input.toMemberId,
+    amountCents: input.amountCents,
+    currentMemberIds: group.members.map((m) => m.id),
   });
-  assertGroupWorkspace(workspace.type);
-  assertValidSettlement(input);
-
-  const memberIds = new Set(
-    (
-      await prisma.membership.findMany({
-        where: { workspaceId: input.workspaceId },
-        select: { userId: true },
-      })
-    ).map((m) => m.userId),
-  );
-  if (!memberIds.has(input.fromUserId) || !memberIds.has(input.toUserId)) {
-    throw new InvalidSettlementError("Settlement parties must be workspace members");
-  }
 
   const [y, m, d] = input.occurredOn.split("-").map(Number);
   const occurredOn = new Date(Date.UTC(y!, m! - 1, d!));
 
   return prisma.settlement.create({
     data: {
-      workspaceId: input.workspaceId,
-      fromUserId: input.fromUserId,
-      toUserId: input.toUserId,
+      splitGroupId: group.id,
+      fromMemberId: input.fromMemberId,
+      toMemberId: input.toMemberId,
       amountCents: input.amountCents,
       occurredOn,
       note: input.note,
@@ -63,11 +44,9 @@ export async function deleteSettlement(input: {
     where: { id: input.settlementId },
   });
   if (!settlement) {
-    throw new InvalidSettlementError("Settlement not found");
+    throw new Error("Settlement not found");
   }
-  const membership = await requireMembership(input.userId, settlement.workspaceId);
-  assertCanMutateSplits(membership.role);
-
+  await loadSplitGroupForUser(input.userId, settlement.splitGroupId);
   await prisma.settlement.delete({ where: { id: settlement.id } });
   return { id: settlement.id };
 }

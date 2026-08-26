@@ -37,21 +37,21 @@ export type ExpenseSplitShareSumAggregateOutputType = {
 export type ExpenseSplitShareMinAggregateOutputType = {
   id: string | null
   splitId: string | null
-  userId: string | null
+  memberId: string | null
   shareCents: number | null
 }
 
 export type ExpenseSplitShareMaxAggregateOutputType = {
   id: string | null
   splitId: string | null
-  userId: string | null
+  memberId: string | null
   shareCents: number | null
 }
 
 export type ExpenseSplitShareCountAggregateOutputType = {
   id: number
   splitId: number
-  userId: number
+  memberId: number
   shareCents: number
   _all: number
 }
@@ -68,21 +68,21 @@ export type ExpenseSplitShareSumAggregateInputType = {
 export type ExpenseSplitShareMinAggregateInputType = {
   id?: true
   splitId?: true
-  userId?: true
+  memberId?: true
   shareCents?: true
 }
 
 export type ExpenseSplitShareMaxAggregateInputType = {
   id?: true
   splitId?: true
-  userId?: true
+  memberId?: true
   shareCents?: true
 }
 
 export type ExpenseSplitShareCountAggregateInputType = {
   id?: true
   splitId?: true
-  userId?: true
+  memberId?: true
   shareCents?: true
   _all?: true
 }
@@ -176,7 +176,7 @@ export type ExpenseSplitShareGroupByArgs<ExtArgs extends runtime.Types.Extension
 export type ExpenseSplitShareGroupByOutputType = {
   id: string
   splitId: string
-  userId: string
+  memberId: string
   shareCents: number
   _count: ExpenseSplitShareCountAggregateOutputType | null
   _avg: ExpenseSplitShareAvgAggregateOutputType | null
@@ -206,35 +206,38 @@ export type ExpenseSplitShareWhereInput = {
   NOT?: Prisma.ExpenseSplitShareWhereInput | Prisma.ExpenseSplitShareWhereInput[]
   id?: Prisma.StringFilter<"ExpenseSplitShare"> | string
   splitId?: Prisma.StringFilter<"ExpenseSplitShare"> | string
-  userId?: Prisma.StringFilter<"ExpenseSplitShare"> | string
+  memberId?: Prisma.StringFilter<"ExpenseSplitShare"> | string
   shareCents?: Prisma.IntFilter<"ExpenseSplitShare"> | number
   split?: Prisma.XOR<Prisma.ExpenseSplitScalarRelationFilter, Prisma.ExpenseSplitWhereInput>
+  member?: Prisma.XOR<Prisma.SplitGroupMemberScalarRelationFilter, Prisma.SplitGroupMemberWhereInput>
 }
 
 export type ExpenseSplitShareOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   splitId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  memberId?: Prisma.SortOrder
   shareCents?: Prisma.SortOrder
   split?: Prisma.ExpenseSplitOrderByWithRelationInput
+  member?: Prisma.SplitGroupMemberOrderByWithRelationInput
 }
 
 export type ExpenseSplitShareWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  splitId_userId?: Prisma.ExpenseSplitShareSplitIdUserIdCompoundUniqueInput
+  splitId_memberId?: Prisma.ExpenseSplitShareSplitIdMemberIdCompoundUniqueInput
   AND?: Prisma.ExpenseSplitShareWhereInput | Prisma.ExpenseSplitShareWhereInput[]
   OR?: Prisma.ExpenseSplitShareWhereInput[]
   NOT?: Prisma.ExpenseSplitShareWhereInput | Prisma.ExpenseSplitShareWhereInput[]
   splitId?: Prisma.StringFilter<"ExpenseSplitShare"> | string
-  userId?: Prisma.StringFilter<"ExpenseSplitShare"> | string
+  memberId?: Prisma.StringFilter<"ExpenseSplitShare"> | string
   shareCents?: Prisma.IntFilter<"ExpenseSplitShare"> | number
   split?: Prisma.XOR<Prisma.ExpenseSplitScalarRelationFilter, Prisma.ExpenseSplitWhereInput>
-}, "id" | "splitId_userId">
+  member?: Prisma.XOR<Prisma.SplitGroupMemberScalarRelationFilter, Prisma.SplitGroupMemberWhereInput>
+}, "id" | "splitId_memberId">
 
 export type ExpenseSplitShareOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   splitId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  memberId?: Prisma.SortOrder
   shareCents?: Prisma.SortOrder
   _count?: Prisma.ExpenseSplitShareCountOrderByAggregateInput
   _avg?: Prisma.ExpenseSplitShareAvgOrderByAggregateInput
@@ -249,55 +252,54 @@ export type ExpenseSplitShareScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ExpenseSplitShareScalarWhereWithAggregatesInput | Prisma.ExpenseSplitShareScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"ExpenseSplitShare"> | string
   splitId?: Prisma.StringWithAggregatesFilter<"ExpenseSplitShare"> | string
-  userId?: Prisma.StringWithAggregatesFilter<"ExpenseSplitShare"> | string
+  memberId?: Prisma.StringWithAggregatesFilter<"ExpenseSplitShare"> | string
   shareCents?: Prisma.IntWithAggregatesFilter<"ExpenseSplitShare"> | number
 }
 
 export type ExpenseSplitShareCreateInput = {
   id?: string
-  userId: string
   shareCents: number
   split: Prisma.ExpenseSplitCreateNestedOneWithoutSharesInput
+  member: Prisma.SplitGroupMemberCreateNestedOneWithoutSharesInput
 }
 
 export type ExpenseSplitShareUncheckedCreateInput = {
   id?: string
   splitId: string
-  userId: string
+  memberId: string
   shareCents: number
 }
 
 export type ExpenseSplitShareUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   shareCents?: Prisma.IntFieldUpdateOperationsInput | number
   split?: Prisma.ExpenseSplitUpdateOneRequiredWithoutSharesNestedInput
+  member?: Prisma.SplitGroupMemberUpdateOneRequiredWithoutSharesNestedInput
 }
 
 export type ExpenseSplitShareUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   splitId?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  memberId?: Prisma.StringFieldUpdateOperationsInput | string
   shareCents?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type ExpenseSplitShareCreateManyInput = {
   id?: string
   splitId: string
-  userId: string
+  memberId: string
   shareCents: number
 }
 
 export type ExpenseSplitShareUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   shareCents?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type ExpenseSplitShareUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   splitId?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  memberId?: Prisma.StringFieldUpdateOperationsInput | string
   shareCents?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
@@ -311,15 +313,15 @@ export type ExpenseSplitShareOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type ExpenseSplitShareSplitIdUserIdCompoundUniqueInput = {
+export type ExpenseSplitShareSplitIdMemberIdCompoundUniqueInput = {
   splitId: string
-  userId: string
+  memberId: string
 }
 
 export type ExpenseSplitShareCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   splitId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  memberId?: Prisma.SortOrder
   shareCents?: Prisma.SortOrder
 }
 
@@ -330,19 +332,61 @@ export type ExpenseSplitShareAvgOrderByAggregateInput = {
 export type ExpenseSplitShareMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   splitId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  memberId?: Prisma.SortOrder
   shareCents?: Prisma.SortOrder
 }
 
 export type ExpenseSplitShareMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   splitId?: Prisma.SortOrder
-  userId?: Prisma.SortOrder
+  memberId?: Prisma.SortOrder
   shareCents?: Prisma.SortOrder
 }
 
 export type ExpenseSplitShareSumOrderByAggregateInput = {
   shareCents?: Prisma.SortOrder
+}
+
+export type ExpenseSplitShareCreateNestedManyWithoutMemberInput = {
+  create?: Prisma.XOR<Prisma.ExpenseSplitShareCreateWithoutMemberInput, Prisma.ExpenseSplitShareUncheckedCreateWithoutMemberInput> | Prisma.ExpenseSplitShareCreateWithoutMemberInput[] | Prisma.ExpenseSplitShareUncheckedCreateWithoutMemberInput[]
+  connectOrCreate?: Prisma.ExpenseSplitShareCreateOrConnectWithoutMemberInput | Prisma.ExpenseSplitShareCreateOrConnectWithoutMemberInput[]
+  createMany?: Prisma.ExpenseSplitShareCreateManyMemberInputEnvelope
+  connect?: Prisma.ExpenseSplitShareWhereUniqueInput | Prisma.ExpenseSplitShareWhereUniqueInput[]
+}
+
+export type ExpenseSplitShareUncheckedCreateNestedManyWithoutMemberInput = {
+  create?: Prisma.XOR<Prisma.ExpenseSplitShareCreateWithoutMemberInput, Prisma.ExpenseSplitShareUncheckedCreateWithoutMemberInput> | Prisma.ExpenseSplitShareCreateWithoutMemberInput[] | Prisma.ExpenseSplitShareUncheckedCreateWithoutMemberInput[]
+  connectOrCreate?: Prisma.ExpenseSplitShareCreateOrConnectWithoutMemberInput | Prisma.ExpenseSplitShareCreateOrConnectWithoutMemberInput[]
+  createMany?: Prisma.ExpenseSplitShareCreateManyMemberInputEnvelope
+  connect?: Prisma.ExpenseSplitShareWhereUniqueInput | Prisma.ExpenseSplitShareWhereUniqueInput[]
+}
+
+export type ExpenseSplitShareUpdateManyWithoutMemberNestedInput = {
+  create?: Prisma.XOR<Prisma.ExpenseSplitShareCreateWithoutMemberInput, Prisma.ExpenseSplitShareUncheckedCreateWithoutMemberInput> | Prisma.ExpenseSplitShareCreateWithoutMemberInput[] | Prisma.ExpenseSplitShareUncheckedCreateWithoutMemberInput[]
+  connectOrCreate?: Prisma.ExpenseSplitShareCreateOrConnectWithoutMemberInput | Prisma.ExpenseSplitShareCreateOrConnectWithoutMemberInput[]
+  upsert?: Prisma.ExpenseSplitShareUpsertWithWhereUniqueWithoutMemberInput | Prisma.ExpenseSplitShareUpsertWithWhereUniqueWithoutMemberInput[]
+  createMany?: Prisma.ExpenseSplitShareCreateManyMemberInputEnvelope
+  set?: Prisma.ExpenseSplitShareWhereUniqueInput | Prisma.ExpenseSplitShareWhereUniqueInput[]
+  disconnect?: Prisma.ExpenseSplitShareWhereUniqueInput | Prisma.ExpenseSplitShareWhereUniqueInput[]
+  delete?: Prisma.ExpenseSplitShareWhereUniqueInput | Prisma.ExpenseSplitShareWhereUniqueInput[]
+  connect?: Prisma.ExpenseSplitShareWhereUniqueInput | Prisma.ExpenseSplitShareWhereUniqueInput[]
+  update?: Prisma.ExpenseSplitShareUpdateWithWhereUniqueWithoutMemberInput | Prisma.ExpenseSplitShareUpdateWithWhereUniqueWithoutMemberInput[]
+  updateMany?: Prisma.ExpenseSplitShareUpdateManyWithWhereWithoutMemberInput | Prisma.ExpenseSplitShareUpdateManyWithWhereWithoutMemberInput[]
+  deleteMany?: Prisma.ExpenseSplitShareScalarWhereInput | Prisma.ExpenseSplitShareScalarWhereInput[]
+}
+
+export type ExpenseSplitShareUncheckedUpdateManyWithoutMemberNestedInput = {
+  create?: Prisma.XOR<Prisma.ExpenseSplitShareCreateWithoutMemberInput, Prisma.ExpenseSplitShareUncheckedCreateWithoutMemberInput> | Prisma.ExpenseSplitShareCreateWithoutMemberInput[] | Prisma.ExpenseSplitShareUncheckedCreateWithoutMemberInput[]
+  connectOrCreate?: Prisma.ExpenseSplitShareCreateOrConnectWithoutMemberInput | Prisma.ExpenseSplitShareCreateOrConnectWithoutMemberInput[]
+  upsert?: Prisma.ExpenseSplitShareUpsertWithWhereUniqueWithoutMemberInput | Prisma.ExpenseSplitShareUpsertWithWhereUniqueWithoutMemberInput[]
+  createMany?: Prisma.ExpenseSplitShareCreateManyMemberInputEnvelope
+  set?: Prisma.ExpenseSplitShareWhereUniqueInput | Prisma.ExpenseSplitShareWhereUniqueInput[]
+  disconnect?: Prisma.ExpenseSplitShareWhereUniqueInput | Prisma.ExpenseSplitShareWhereUniqueInput[]
+  delete?: Prisma.ExpenseSplitShareWhereUniqueInput | Prisma.ExpenseSplitShareWhereUniqueInput[]
+  connect?: Prisma.ExpenseSplitShareWhereUniqueInput | Prisma.ExpenseSplitShareWhereUniqueInput[]
+  update?: Prisma.ExpenseSplitShareUpdateWithWhereUniqueWithoutMemberInput | Prisma.ExpenseSplitShareUpdateWithWhereUniqueWithoutMemberInput[]
+  updateMany?: Prisma.ExpenseSplitShareUpdateManyWithWhereWithoutMemberInput | Prisma.ExpenseSplitShareUpdateManyWithWhereWithoutMemberInput[]
+  deleteMany?: Prisma.ExpenseSplitShareScalarWhereInput | Prisma.ExpenseSplitShareScalarWhereInput[]
 }
 
 export type ExpenseSplitShareCreateNestedManyWithoutSplitInput = {
@@ -387,15 +431,63 @@ export type ExpenseSplitShareUncheckedUpdateManyWithoutSplitNestedInput = {
   deleteMany?: Prisma.ExpenseSplitShareScalarWhereInput | Prisma.ExpenseSplitShareScalarWhereInput[]
 }
 
+export type ExpenseSplitShareCreateWithoutMemberInput = {
+  id?: string
+  shareCents: number
+  split: Prisma.ExpenseSplitCreateNestedOneWithoutSharesInput
+}
+
+export type ExpenseSplitShareUncheckedCreateWithoutMemberInput = {
+  id?: string
+  splitId: string
+  shareCents: number
+}
+
+export type ExpenseSplitShareCreateOrConnectWithoutMemberInput = {
+  where: Prisma.ExpenseSplitShareWhereUniqueInput
+  create: Prisma.XOR<Prisma.ExpenseSplitShareCreateWithoutMemberInput, Prisma.ExpenseSplitShareUncheckedCreateWithoutMemberInput>
+}
+
+export type ExpenseSplitShareCreateManyMemberInputEnvelope = {
+  data: Prisma.ExpenseSplitShareCreateManyMemberInput | Prisma.ExpenseSplitShareCreateManyMemberInput[]
+  skipDuplicates?: boolean
+}
+
+export type ExpenseSplitShareUpsertWithWhereUniqueWithoutMemberInput = {
+  where: Prisma.ExpenseSplitShareWhereUniqueInput
+  update: Prisma.XOR<Prisma.ExpenseSplitShareUpdateWithoutMemberInput, Prisma.ExpenseSplitShareUncheckedUpdateWithoutMemberInput>
+  create: Prisma.XOR<Prisma.ExpenseSplitShareCreateWithoutMemberInput, Prisma.ExpenseSplitShareUncheckedCreateWithoutMemberInput>
+}
+
+export type ExpenseSplitShareUpdateWithWhereUniqueWithoutMemberInput = {
+  where: Prisma.ExpenseSplitShareWhereUniqueInput
+  data: Prisma.XOR<Prisma.ExpenseSplitShareUpdateWithoutMemberInput, Prisma.ExpenseSplitShareUncheckedUpdateWithoutMemberInput>
+}
+
+export type ExpenseSplitShareUpdateManyWithWhereWithoutMemberInput = {
+  where: Prisma.ExpenseSplitShareScalarWhereInput
+  data: Prisma.XOR<Prisma.ExpenseSplitShareUpdateManyMutationInput, Prisma.ExpenseSplitShareUncheckedUpdateManyWithoutMemberInput>
+}
+
+export type ExpenseSplitShareScalarWhereInput = {
+  AND?: Prisma.ExpenseSplitShareScalarWhereInput | Prisma.ExpenseSplitShareScalarWhereInput[]
+  OR?: Prisma.ExpenseSplitShareScalarWhereInput[]
+  NOT?: Prisma.ExpenseSplitShareScalarWhereInput | Prisma.ExpenseSplitShareScalarWhereInput[]
+  id?: Prisma.StringFilter<"ExpenseSplitShare"> | string
+  splitId?: Prisma.StringFilter<"ExpenseSplitShare"> | string
+  memberId?: Prisma.StringFilter<"ExpenseSplitShare"> | string
+  shareCents?: Prisma.IntFilter<"ExpenseSplitShare"> | number
+}
+
 export type ExpenseSplitShareCreateWithoutSplitInput = {
   id?: string
-  userId: string
   shareCents: number
+  member: Prisma.SplitGroupMemberCreateNestedOneWithoutSharesInput
 }
 
 export type ExpenseSplitShareUncheckedCreateWithoutSplitInput = {
   id?: string
-  userId: string
+  memberId: string
   shareCents: number
 }
 
@@ -425,37 +517,51 @@ export type ExpenseSplitShareUpdateManyWithWhereWithoutSplitInput = {
   data: Prisma.XOR<Prisma.ExpenseSplitShareUpdateManyMutationInput, Prisma.ExpenseSplitShareUncheckedUpdateManyWithoutSplitInput>
 }
 
-export type ExpenseSplitShareScalarWhereInput = {
-  AND?: Prisma.ExpenseSplitShareScalarWhereInput | Prisma.ExpenseSplitShareScalarWhereInput[]
-  OR?: Prisma.ExpenseSplitShareScalarWhereInput[]
-  NOT?: Prisma.ExpenseSplitShareScalarWhereInput | Prisma.ExpenseSplitShareScalarWhereInput[]
-  id?: Prisma.StringFilter<"ExpenseSplitShare"> | string
-  splitId?: Prisma.StringFilter<"ExpenseSplitShare"> | string
-  userId?: Prisma.StringFilter<"ExpenseSplitShare"> | string
-  shareCents?: Prisma.IntFilter<"ExpenseSplitShare"> | number
+export type ExpenseSplitShareCreateManyMemberInput = {
+  id?: string
+  splitId: string
+  shareCents: number
+}
+
+export type ExpenseSplitShareUpdateWithoutMemberInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  shareCents?: Prisma.IntFieldUpdateOperationsInput | number
+  split?: Prisma.ExpenseSplitUpdateOneRequiredWithoutSharesNestedInput
+}
+
+export type ExpenseSplitShareUncheckedUpdateWithoutMemberInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  splitId?: Prisma.StringFieldUpdateOperationsInput | string
+  shareCents?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
+export type ExpenseSplitShareUncheckedUpdateManyWithoutMemberInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  splitId?: Prisma.StringFieldUpdateOperationsInput | string
+  shareCents?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type ExpenseSplitShareCreateManySplitInput = {
   id?: string
-  userId: string
+  memberId: string
   shareCents: number
 }
 
 export type ExpenseSplitShareUpdateWithoutSplitInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
   shareCents?: Prisma.IntFieldUpdateOperationsInput | number
+  member?: Prisma.SplitGroupMemberUpdateOneRequiredWithoutSharesNestedInput
 }
 
 export type ExpenseSplitShareUncheckedUpdateWithoutSplitInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  memberId?: Prisma.StringFieldUpdateOperationsInput | string
   shareCents?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type ExpenseSplitShareUncheckedUpdateManyWithoutSplitInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  memberId?: Prisma.StringFieldUpdateOperationsInput | string
   shareCents?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
@@ -464,54 +570,61 @@ export type ExpenseSplitShareUncheckedUpdateManyWithoutSplitInput = {
 export type ExpenseSplitShareSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   splitId?: boolean
-  userId?: boolean
+  memberId?: boolean
   shareCents?: boolean
   split?: boolean | Prisma.ExpenseSplitDefaultArgs<ExtArgs>
+  member?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["expenseSplitShare"]>
 
 export type ExpenseSplitShareSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   splitId?: boolean
-  userId?: boolean
+  memberId?: boolean
   shareCents?: boolean
   split?: boolean | Prisma.ExpenseSplitDefaultArgs<ExtArgs>
+  member?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["expenseSplitShare"]>
 
 export type ExpenseSplitShareSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   splitId?: boolean
-  userId?: boolean
+  memberId?: boolean
   shareCents?: boolean
   split?: boolean | Prisma.ExpenseSplitDefaultArgs<ExtArgs>
+  member?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["expenseSplitShare"]>
 
 export type ExpenseSplitShareSelectScalar = {
   id?: boolean
   splitId?: boolean
-  userId?: boolean
+  memberId?: boolean
   shareCents?: boolean
 }
 
-export type ExpenseSplitShareOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "splitId" | "userId" | "shareCents", ExtArgs["result"]["expenseSplitShare"]>
+export type ExpenseSplitShareOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "splitId" | "memberId" | "shareCents", ExtArgs["result"]["expenseSplitShare"]>
 export type ExpenseSplitShareInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   split?: boolean | Prisma.ExpenseSplitDefaultArgs<ExtArgs>
+  member?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
 }
 export type ExpenseSplitShareIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   split?: boolean | Prisma.ExpenseSplitDefaultArgs<ExtArgs>
+  member?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
 }
 export type ExpenseSplitShareIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   split?: boolean | Prisma.ExpenseSplitDefaultArgs<ExtArgs>
+  member?: boolean | Prisma.SplitGroupMemberDefaultArgs<ExtArgs>
 }
 
 export type $ExpenseSplitSharePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ExpenseSplitShare"
   objects: {
     split: Prisma.$ExpenseSplitPayload<ExtArgs>
+    member: Prisma.$SplitGroupMemberPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     splitId: string
-    userId: string
+    memberId: string
     shareCents: number
   }, ExtArgs["result"]["expenseSplitShare"]>
   composites: {}
@@ -908,6 +1021,7 @@ readonly fields: ExpenseSplitShareFieldRefs;
 export interface Prisma__ExpenseSplitShareClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   split<T extends Prisma.ExpenseSplitDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ExpenseSplitDefaultArgs<ExtArgs>>): Prisma.Prisma__ExpenseSplitClient<runtime.Types.Result.GetResult<Prisma.$ExpenseSplitPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  member<T extends Prisma.SplitGroupMemberDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SplitGroupMemberDefaultArgs<ExtArgs>>): Prisma.Prisma__SplitGroupMemberClient<runtime.Types.Result.GetResult<Prisma.$SplitGroupMemberPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -939,7 +1053,7 @@ export interface Prisma__ExpenseSplitShareClient<T, Null = never, ExtArgs extend
 export interface ExpenseSplitShareFieldRefs {
   readonly id: Prisma.FieldRef<"ExpenseSplitShare", 'String'>
   readonly splitId: Prisma.FieldRef<"ExpenseSplitShare", 'String'>
-  readonly userId: Prisma.FieldRef<"ExpenseSplitShare", 'String'>
+  readonly memberId: Prisma.FieldRef<"ExpenseSplitShare", 'String'>
   readonly shareCents: Prisma.FieldRef<"ExpenseSplitShare", 'Int'>
 }
     

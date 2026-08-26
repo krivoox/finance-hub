@@ -182,23 +182,6 @@ export type EnumMembershipRoleWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumMembershipRoleFilter<$PrismaModel>
 }
 
-export type EnumInvitationStatusFilter<$PrismaModel = never> = {
-  equals?: $Enums.InvitationStatus | Prisma.EnumInvitationStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.InvitationStatus[] | Prisma.ListEnumInvitationStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.InvitationStatus[] | Prisma.ListEnumInvitationStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumInvitationStatusFilter<$PrismaModel> | $Enums.InvitationStatus
-}
-
-export type EnumInvitationStatusWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.InvitationStatus | Prisma.EnumInvitationStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.InvitationStatus[] | Prisma.ListEnumInvitationStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.InvitationStatus[] | Prisma.ListEnumInvitationStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumInvitationStatusWithAggregatesFilter<$PrismaModel> | $Enums.InvitationStatus
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumInvitationStatusFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumInvitationStatusFilter<$PrismaModel>
-}
-
 export type EnumCategoryKindFilter<$PrismaModel = never> = {
   equals?: $Enums.CategoryKind | Prisma.EnumCategoryKindFieldRefInput<$PrismaModel>
   in?: $Enums.CategoryKind[] | Prisma.ListEnumCategoryKindFieldRefInput<$PrismaModel>
@@ -355,23 +338,6 @@ export type EnumRecurringPausedReasonNullableWithAggregatesFilter<$PrismaModel =
   _max?: Prisma.NestedEnumRecurringPausedReasonNullableFilter<$PrismaModel>
 }
 
-export type EnumCrossWorkspaceLinkKindFilter<$PrismaModel = never> = {
-  equals?: $Enums.CrossWorkspaceLinkKind | Prisma.EnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
-  in?: $Enums.CrossWorkspaceLinkKind[] | Prisma.ListEnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
-  notIn?: $Enums.CrossWorkspaceLinkKind[] | Prisma.ListEnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumCrossWorkspaceLinkKindFilter<$PrismaModel> | $Enums.CrossWorkspaceLinkKind
-}
-
-export type EnumCrossWorkspaceLinkKindWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.CrossWorkspaceLinkKind | Prisma.EnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
-  in?: $Enums.CrossWorkspaceLinkKind[] | Prisma.ListEnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
-  notIn?: $Enums.CrossWorkspaceLinkKind[] | Prisma.ListEnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumCrossWorkspaceLinkKindWithAggregatesFilter<$PrismaModel> | $Enums.CrossWorkspaceLinkKind
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumCrossWorkspaceLinkKindFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumCrossWorkspaceLinkKindFilter<$PrismaModel>
-}
-
 export type EnumBudgetPeriodFilter<$PrismaModel = never> = {
   equals?: $Enums.BudgetPeriod | Prisma.EnumBudgetPeriodFieldRefInput<$PrismaModel>
   in?: $Enums.BudgetPeriod[] | Prisma.ListEnumBudgetPeriodFieldRefInput<$PrismaModel>
@@ -421,6 +387,40 @@ export type EnumGoalStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumGoalStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumGoalStatusFilter<$PrismaModel>
+}
+
+export type EnumSplitGroupKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.SplitGroupKind | Prisma.EnumSplitGroupKindFieldRefInput<$PrismaModel>
+  in?: $Enums.SplitGroupKind[] | Prisma.ListEnumSplitGroupKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SplitGroupKind[] | Prisma.ListEnumSplitGroupKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSplitGroupKindFilter<$PrismaModel> | $Enums.SplitGroupKind
+}
+
+export type EnumSplitGroupKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SplitGroupKind | Prisma.EnumSplitGroupKindFieldRefInput<$PrismaModel>
+  in?: $Enums.SplitGroupKind[] | Prisma.ListEnumSplitGroupKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SplitGroupKind[] | Prisma.ListEnumSplitGroupKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSplitGroupKindWithAggregatesFilter<$PrismaModel> | $Enums.SplitGroupKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSplitGroupKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSplitGroupKindFilter<$PrismaModel>
+}
+
+export type EnumSplitMemberKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.SplitMemberKind | Prisma.EnumSplitMemberKindFieldRefInput<$PrismaModel>
+  in?: $Enums.SplitMemberKind[] | Prisma.ListEnumSplitMemberKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SplitMemberKind[] | Prisma.ListEnumSplitMemberKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSplitMemberKindFilter<$PrismaModel> | $Enums.SplitMemberKind
+}
+
+export type EnumSplitMemberKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SplitMemberKind | Prisma.EnumSplitMemberKindFieldRefInput<$PrismaModel>
+  in?: $Enums.SplitMemberKind[] | Prisma.ListEnumSplitMemberKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SplitMemberKind[] | Prisma.ListEnumSplitMemberKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSplitMemberKindWithAggregatesFilter<$PrismaModel> | $Enums.SplitMemberKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSplitMemberKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSplitMemberKindFilter<$PrismaModel>
 }
 
 export type EnumSplitMethodFilter<$PrismaModel = never> = {
@@ -621,23 +621,6 @@ export type NestedEnumMembershipRoleWithAggregatesFilter<$PrismaModel = never> =
   _max?: Prisma.NestedEnumMembershipRoleFilter<$PrismaModel>
 }
 
-export type NestedEnumInvitationStatusFilter<$PrismaModel = never> = {
-  equals?: $Enums.InvitationStatus | Prisma.EnumInvitationStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.InvitationStatus[] | Prisma.ListEnumInvitationStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.InvitationStatus[] | Prisma.ListEnumInvitationStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumInvitationStatusFilter<$PrismaModel> | $Enums.InvitationStatus
-}
-
-export type NestedEnumInvitationStatusWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.InvitationStatus | Prisma.EnumInvitationStatusFieldRefInput<$PrismaModel>
-  in?: $Enums.InvitationStatus[] | Prisma.ListEnumInvitationStatusFieldRefInput<$PrismaModel>
-  notIn?: $Enums.InvitationStatus[] | Prisma.ListEnumInvitationStatusFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumInvitationStatusWithAggregatesFilter<$PrismaModel> | $Enums.InvitationStatus
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumInvitationStatusFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumInvitationStatusFilter<$PrismaModel>
-}
-
 export type NestedEnumCategoryKindFilter<$PrismaModel = never> = {
   equals?: $Enums.CategoryKind | Prisma.EnumCategoryKindFieldRefInput<$PrismaModel>
   in?: $Enums.CategoryKind[] | Prisma.ListEnumCategoryKindFieldRefInput<$PrismaModel>
@@ -794,23 +777,6 @@ export type NestedEnumRecurringPausedReasonNullableWithAggregatesFilter<$PrismaM
   _max?: Prisma.NestedEnumRecurringPausedReasonNullableFilter<$PrismaModel>
 }
 
-export type NestedEnumCrossWorkspaceLinkKindFilter<$PrismaModel = never> = {
-  equals?: $Enums.CrossWorkspaceLinkKind | Prisma.EnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
-  in?: $Enums.CrossWorkspaceLinkKind[] | Prisma.ListEnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
-  notIn?: $Enums.CrossWorkspaceLinkKind[] | Prisma.ListEnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumCrossWorkspaceLinkKindFilter<$PrismaModel> | $Enums.CrossWorkspaceLinkKind
-}
-
-export type NestedEnumCrossWorkspaceLinkKindWithAggregatesFilter<$PrismaModel = never> = {
-  equals?: $Enums.CrossWorkspaceLinkKind | Prisma.EnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
-  in?: $Enums.CrossWorkspaceLinkKind[] | Prisma.ListEnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
-  notIn?: $Enums.CrossWorkspaceLinkKind[] | Prisma.ListEnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel>
-  not?: Prisma.NestedEnumCrossWorkspaceLinkKindWithAggregatesFilter<$PrismaModel> | $Enums.CrossWorkspaceLinkKind
-  _count?: Prisma.NestedIntFilter<$PrismaModel>
-  _min?: Prisma.NestedEnumCrossWorkspaceLinkKindFilter<$PrismaModel>
-  _max?: Prisma.NestedEnumCrossWorkspaceLinkKindFilter<$PrismaModel>
-}
-
 export type NestedEnumBudgetPeriodFilter<$PrismaModel = never> = {
   equals?: $Enums.BudgetPeriod | Prisma.EnumBudgetPeriodFieldRefInput<$PrismaModel>
   in?: $Enums.BudgetPeriod[] | Prisma.ListEnumBudgetPeriodFieldRefInput<$PrismaModel>
@@ -860,6 +826,40 @@ export type NestedEnumGoalStatusWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumGoalStatusFilter<$PrismaModel>
   _max?: Prisma.NestedEnumGoalStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumSplitGroupKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.SplitGroupKind | Prisma.EnumSplitGroupKindFieldRefInput<$PrismaModel>
+  in?: $Enums.SplitGroupKind[] | Prisma.ListEnumSplitGroupKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SplitGroupKind[] | Prisma.ListEnumSplitGroupKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSplitGroupKindFilter<$PrismaModel> | $Enums.SplitGroupKind
+}
+
+export type NestedEnumSplitGroupKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SplitGroupKind | Prisma.EnumSplitGroupKindFieldRefInput<$PrismaModel>
+  in?: $Enums.SplitGroupKind[] | Prisma.ListEnumSplitGroupKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SplitGroupKind[] | Prisma.ListEnumSplitGroupKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSplitGroupKindWithAggregatesFilter<$PrismaModel> | $Enums.SplitGroupKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSplitGroupKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSplitGroupKindFilter<$PrismaModel>
+}
+
+export type NestedEnumSplitMemberKindFilter<$PrismaModel = never> = {
+  equals?: $Enums.SplitMemberKind | Prisma.EnumSplitMemberKindFieldRefInput<$PrismaModel>
+  in?: $Enums.SplitMemberKind[] | Prisma.ListEnumSplitMemberKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SplitMemberKind[] | Prisma.ListEnumSplitMemberKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSplitMemberKindFilter<$PrismaModel> | $Enums.SplitMemberKind
+}
+
+export type NestedEnumSplitMemberKindWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.SplitMemberKind | Prisma.EnumSplitMemberKindFieldRefInput<$PrismaModel>
+  in?: $Enums.SplitMemberKind[] | Prisma.ListEnumSplitMemberKindFieldRefInput<$PrismaModel>
+  notIn?: $Enums.SplitMemberKind[] | Prisma.ListEnumSplitMemberKindFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumSplitMemberKindWithAggregatesFilter<$PrismaModel> | $Enums.SplitMemberKind
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumSplitMemberKindFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumSplitMemberKindFilter<$PrismaModel>
 }
 
 export type NestedEnumSplitMethodFilter<$PrismaModel = never> = {

@@ -9,14 +9,14 @@ export const metadata = {
   robots: { index: false, follow: true },
 };
 
-type SearchParams = { invite?: string; email?: string };
+type SearchParams = { email?: string };
 
 export default async function RegisterPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const { invite, email } = await searchParams;
+  const { email } = await searchParams;
 
   const session = await getSession();
   if (session?.user?.id) {
@@ -30,14 +30,11 @@ export default async function RegisterPage({
           Creá tu cuenta
         </h1>
         <p className="text-xs text-muted-foreground">
-          {invite
-            ? "Vas a crear tu workspace personal y unirte al grupo invitado."
-            : "Vas a crear un workspace personal en el proceso."}
+          Vas a crear un workspace personal en el proceso.
         </p>
       </div>
 
       <RegisterForm
-        inviteToken={invite}
         prefillEmail={email}
         googleEnabled={isGoogleOAuthEnabled}
         googleClientId={env.GOOGLE_CLIENT_ID}
@@ -46,11 +43,7 @@ export default async function RegisterPage({
       <p className="text-center text-xs text-muted-foreground">
         ¿Ya tenés cuenta?{" "}
         <Link
-          href={
-            invite
-              ? `/login?invite=${encodeURIComponent(invite)}${email ? `&email=${encodeURIComponent(email)}` : ""}`
-              : "/login"
-          }
+          href="/login"
           className="font-medium text-foreground underline-offset-4 hover:underline"
         >
           Iniciá sesión

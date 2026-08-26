@@ -390,7 +390,6 @@ export const ModelName = {
   Verification: 'Verification',
   Workspace: 'Workspace',
   Membership: 'Membership',
-  Invitation: 'Invitation',
   Category: 'Category',
   FinanceAccount: 'FinanceAccount',
   Transaction: 'Transaction',
@@ -399,11 +398,12 @@ export const ModelName = {
   WorkspaceConsolidationRate: 'WorkspaceConsolidationRate',
   UsdQuoteSnapshot: 'UsdQuoteSnapshot',
   UsdQuoteLine: 'UsdQuoteLine',
-  CrossWorkspaceLink: 'CrossWorkspaceLink',
   Budget: 'Budget',
   BudgetCategory: 'BudgetCategory',
   Goal: 'Goal',
   GoalContribution: 'GoalContribution',
+  SplitGroup: 'SplitGroup',
+  SplitGroupMember: 'SplitGroupMember',
   ExpenseSplit: 'ExpenseSplit',
   ExpenseSplitShare: 'ExpenseSplitShare',
   Settlement: 'Settlement'
@@ -422,7 +422,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "workspace" | "membership" | "invitation" | "category" | "financeAccount" | "transaction" | "recurringRule" | "currencyExchange" | "workspaceConsolidationRate" | "usdQuoteSnapshot" | "usdQuoteLine" | "crossWorkspaceLink" | "budget" | "budgetCategory" | "goal" | "goalContribution" | "expenseSplit" | "expenseSplitShare" | "settlement"
+    modelProps: "user" | "session" | "account" | "verification" | "workspace" | "membership" | "category" | "financeAccount" | "transaction" | "recurringRule" | "currencyExchange" | "workspaceConsolidationRate" | "usdQuoteSnapshot" | "usdQuoteLine" | "budget" | "budgetCategory" | "goal" | "goalContribution" | "splitGroup" | "splitGroupMember" | "expenseSplit" | "expenseSplitShare" | "settlement"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -867,80 +867,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.MembershipCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.MembershipCountAggregateOutputType> | number
-        }
-      }
-    }
-    Invitation: {
-      payload: Prisma.$InvitationPayload<ExtArgs>
-      fields: Prisma.InvitationFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.InvitationFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvitationPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.InvitationFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvitationPayload>
-        }
-        findFirst: {
-          args: Prisma.InvitationFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvitationPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.InvitationFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvitationPayload>
-        }
-        findMany: {
-          args: Prisma.InvitationFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvitationPayload>[]
-        }
-        create: {
-          args: Prisma.InvitationCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvitationPayload>
-        }
-        createMany: {
-          args: Prisma.InvitationCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.InvitationCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvitationPayload>[]
-        }
-        delete: {
-          args: Prisma.InvitationDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvitationPayload>
-        }
-        update: {
-          args: Prisma.InvitationUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvitationPayload>
-        }
-        deleteMany: {
-          args: Prisma.InvitationDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.InvitationUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.InvitationUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvitationPayload>[]
-        }
-        upsert: {
-          args: Prisma.InvitationUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$InvitationPayload>
-        }
-        aggregate: {
-          args: Prisma.InvitationAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateInvitation>
-        }
-        groupBy: {
-          args: Prisma.InvitationGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.InvitationGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.InvitationCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.InvitationCountAggregateOutputType> | number
         }
       }
     }
@@ -1536,80 +1462,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    CrossWorkspaceLink: {
-      payload: Prisma.$CrossWorkspaceLinkPayload<ExtArgs>
-      fields: Prisma.CrossWorkspaceLinkFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.CrossWorkspaceLinkFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CrossWorkspaceLinkPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.CrossWorkspaceLinkFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CrossWorkspaceLinkPayload>
-        }
-        findFirst: {
-          args: Prisma.CrossWorkspaceLinkFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CrossWorkspaceLinkPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.CrossWorkspaceLinkFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CrossWorkspaceLinkPayload>
-        }
-        findMany: {
-          args: Prisma.CrossWorkspaceLinkFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CrossWorkspaceLinkPayload>[]
-        }
-        create: {
-          args: Prisma.CrossWorkspaceLinkCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CrossWorkspaceLinkPayload>
-        }
-        createMany: {
-          args: Prisma.CrossWorkspaceLinkCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.CrossWorkspaceLinkCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CrossWorkspaceLinkPayload>[]
-        }
-        delete: {
-          args: Prisma.CrossWorkspaceLinkDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CrossWorkspaceLinkPayload>
-        }
-        update: {
-          args: Prisma.CrossWorkspaceLinkUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CrossWorkspaceLinkPayload>
-        }
-        deleteMany: {
-          args: Prisma.CrossWorkspaceLinkDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.CrossWorkspaceLinkUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.CrossWorkspaceLinkUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CrossWorkspaceLinkPayload>[]
-        }
-        upsert: {
-          args: Prisma.CrossWorkspaceLinkUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$CrossWorkspaceLinkPayload>
-        }
-        aggregate: {
-          args: Prisma.CrossWorkspaceLinkAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateCrossWorkspaceLink>
-        }
-        groupBy: {
-          args: Prisma.CrossWorkspaceLinkGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.CrossWorkspaceLinkGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.CrossWorkspaceLinkCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.CrossWorkspaceLinkCountAggregateOutputType> | number
-        }
-      }
-    }
     Budget: {
       payload: Prisma.$BudgetPayload<ExtArgs>
       fields: Prisma.BudgetFieldRefs
@@ -1903,6 +1755,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.GoalContributionCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.GoalContributionCountAggregateOutputType> | number
+        }
+      }
+    }
+    SplitGroup: {
+      payload: Prisma.$SplitGroupPayload<ExtArgs>
+      fields: Prisma.SplitGroupFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SplitGroupFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SplitGroupPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SplitGroupFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SplitGroupPayload>
+        }
+        findFirst: {
+          args: Prisma.SplitGroupFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SplitGroupPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SplitGroupFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SplitGroupPayload>
+        }
+        findMany: {
+          args: Prisma.SplitGroupFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SplitGroupPayload>[]
+        }
+        create: {
+          args: Prisma.SplitGroupCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SplitGroupPayload>
+        }
+        createMany: {
+          args: Prisma.SplitGroupCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SplitGroupCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SplitGroupPayload>[]
+        }
+        delete: {
+          args: Prisma.SplitGroupDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SplitGroupPayload>
+        }
+        update: {
+          args: Prisma.SplitGroupUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SplitGroupPayload>
+        }
+        deleteMany: {
+          args: Prisma.SplitGroupDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SplitGroupUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SplitGroupUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SplitGroupPayload>[]
+        }
+        upsert: {
+          args: Prisma.SplitGroupUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SplitGroupPayload>
+        }
+        aggregate: {
+          args: Prisma.SplitGroupAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSplitGroup>
+        }
+        groupBy: {
+          args: Prisma.SplitGroupGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SplitGroupGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SplitGroupCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SplitGroupCountAggregateOutputType> | number
+        }
+      }
+    }
+    SplitGroupMember: {
+      payload: Prisma.$SplitGroupMemberPayload<ExtArgs>
+      fields: Prisma.SplitGroupMemberFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SplitGroupMemberFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SplitGroupMemberPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SplitGroupMemberFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SplitGroupMemberPayload>
+        }
+        findFirst: {
+          args: Prisma.SplitGroupMemberFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SplitGroupMemberPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SplitGroupMemberFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SplitGroupMemberPayload>
+        }
+        findMany: {
+          args: Prisma.SplitGroupMemberFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SplitGroupMemberPayload>[]
+        }
+        create: {
+          args: Prisma.SplitGroupMemberCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SplitGroupMemberPayload>
+        }
+        createMany: {
+          args: Prisma.SplitGroupMemberCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SplitGroupMemberCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SplitGroupMemberPayload>[]
+        }
+        delete: {
+          args: Prisma.SplitGroupMemberDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SplitGroupMemberPayload>
+        }
+        update: {
+          args: Prisma.SplitGroupMemberUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SplitGroupMemberPayload>
+        }
+        deleteMany: {
+          args: Prisma.SplitGroupMemberDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SplitGroupMemberUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SplitGroupMemberUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SplitGroupMemberPayload>[]
+        }
+        upsert: {
+          args: Prisma.SplitGroupMemberUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SplitGroupMemberPayload>
+        }
+        aggregate: {
+          args: Prisma.SplitGroupMemberAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSplitGroupMember>
+        }
+        groupBy: {
+          args: Prisma.SplitGroupMemberGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SplitGroupMemberGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SplitGroupMemberCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SplitGroupMemberCountAggregateOutputType> | number
         }
       }
     }
@@ -2251,22 +2251,6 @@ export const MembershipScalarFieldEnum = {
 export type MembershipScalarFieldEnum = (typeof MembershipScalarFieldEnum)[keyof typeof MembershipScalarFieldEnum]
 
 
-export const InvitationScalarFieldEnum = {
-  id: 'id',
-  workspaceId: 'workspaceId',
-  email: 'email',
-  role: 'role',
-  token: 'token',
-  status: 'status',
-  expiresAt: 'expiresAt',
-  invitedByUserId: 'invitedByUserId',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type InvitationScalarFieldEnum = (typeof InvitationScalarFieldEnum)[keyof typeof InvitationScalarFieldEnum]
-
-
 export const CategoryScalarFieldEnum = {
   id: 'id',
   workspaceId: 'workspaceId',
@@ -2402,17 +2386,6 @@ export const UsdQuoteLineScalarFieldEnum = {
 export type UsdQuoteLineScalarFieldEnum = (typeof UsdQuoteLineScalarFieldEnum)[keyof typeof UsdQuoteLineScalarFieldEnum]
 
 
-export const CrossWorkspaceLinkScalarFieldEnum = {
-  id: 'id',
-  kind: 'kind',
-  sourceTransactionId: 'sourceTransactionId',
-  targetTransactionId: 'targetTransactionId',
-  createdAt: 'createdAt'
-} as const
-
-export type CrossWorkspaceLinkScalarFieldEnum = (typeof CrossWorkspaceLinkScalarFieldEnum)[keyof typeof CrossWorkspaceLinkScalarFieldEnum]
-
-
 export const BudgetScalarFieldEnum = {
   id: 'id',
   workspaceId: 'workspaceId',
@@ -2470,11 +2443,39 @@ export const GoalContributionScalarFieldEnum = {
 export type GoalContributionScalarFieldEnum = (typeof GoalContributionScalarFieldEnum)[keyof typeof GoalContributionScalarFieldEnum]
 
 
-export const ExpenseSplitScalarFieldEnum = {
+export const SplitGroupScalarFieldEnum = {
   id: 'id',
   workspaceId: 'workspaceId',
+  name: 'name',
+  kind: 'kind',
+  currency: 'currency',
+  publicShareToken: 'publicShareToken',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SplitGroupScalarFieldEnum = (typeof SplitGroupScalarFieldEnum)[keyof typeof SplitGroupScalarFieldEnum]
+
+
+export const SplitGroupMemberScalarFieldEnum = {
+  id: 'id',
+  splitGroupId: 'splitGroupId',
+  kind: 'kind',
+  userId: 'userId',
+  displayName: 'displayName',
+  displayNameKey: 'displayNameKey',
+  createdAt: 'createdAt'
+} as const
+
+export type SplitGroupMemberScalarFieldEnum = (typeof SplitGroupMemberScalarFieldEnum)[keyof typeof SplitGroupMemberScalarFieldEnum]
+
+
+export const ExpenseSplitScalarFieldEnum = {
+  id: 'id',
+  splitGroupId: 'splitGroupId',
   expenseTransactionId: 'expenseTransactionId',
-  paidByUserId: 'paidByUserId',
+  paidByMemberId: 'paidByMemberId',
   method: 'method',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -2486,7 +2487,7 @@ export type ExpenseSplitScalarFieldEnum = (typeof ExpenseSplitScalarFieldEnum)[k
 export const ExpenseSplitShareScalarFieldEnum = {
   id: 'id',
   splitId: 'splitId',
-  userId: 'userId',
+  memberId: 'memberId',
   shareCents: 'shareCents'
 } as const
 
@@ -2495,9 +2496,9 @@ export type ExpenseSplitShareScalarFieldEnum = (typeof ExpenseSplitShareScalarFi
 
 export const SettlementScalarFieldEnum = {
   id: 'id',
-  workspaceId: 'workspaceId',
-  fromUserId: 'fromUserId',
-  toUserId: 'toUserId',
+  splitGroupId: 'splitGroupId',
+  fromMemberId: 'fromMemberId',
+  toMemberId: 'toMemberId',
   amountCents: 'amountCents',
   occurredOn: 'occurredOn',
   note: 'note',
@@ -2602,20 +2603,6 @@ export type ListEnumMembershipRoleFieldRefInput<$PrismaModel> = FieldRefInputTyp
 
 
 /**
- * Reference to a field of type 'InvitationStatus'
- */
-export type EnumInvitationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InvitationStatus'>
-    
-
-
-/**
- * Reference to a field of type 'InvitationStatus[]'
- */
-export type ListEnumInvitationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InvitationStatus[]'>
-    
-
-
-/**
  * Reference to a field of type 'CategoryKind'
  */
 export type EnumCategoryKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CategoryKind'>
@@ -2714,20 +2701,6 @@ export type ListEnumRecurringPausedReasonFieldRefInput<$PrismaModel> = FieldRefI
 
 
 /**
- * Reference to a field of type 'CrossWorkspaceLinkKind'
- */
-export type EnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CrossWorkspaceLinkKind'>
-    
-
-
-/**
- * Reference to a field of type 'CrossWorkspaceLinkKind[]'
- */
-export type ListEnumCrossWorkspaceLinkKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CrossWorkspaceLinkKind[]'>
-    
-
-
-/**
  * Reference to a field of type 'BudgetPeriod'
  */
 export type EnumBudgetPeriodFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BudgetPeriod'>
@@ -2766,6 +2739,34 @@ export type EnumGoalStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
  * Reference to a field of type 'GoalStatus[]'
  */
 export type ListEnumGoalStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GoalStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'SplitGroupKind'
+ */
+export type EnumSplitGroupKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SplitGroupKind'>
+    
+
+
+/**
+ * Reference to a field of type 'SplitGroupKind[]'
+ */
+export type ListEnumSplitGroupKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SplitGroupKind[]'>
+    
+
+
+/**
+ * Reference to a field of type 'SplitMemberKind'
+ */
+export type EnumSplitMemberKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SplitMemberKind'>
+    
+
+
+/**
+ * Reference to a field of type 'SplitMemberKind[]'
+ */
+export type ListEnumSplitMemberKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'SplitMemberKind[]'>
     
 
 
@@ -2912,7 +2913,6 @@ export type GlobalOmitConfig = {
   verification?: Prisma.VerificationOmit
   workspace?: Prisma.WorkspaceOmit
   membership?: Prisma.MembershipOmit
-  invitation?: Prisma.InvitationOmit
   category?: Prisma.CategoryOmit
   financeAccount?: Prisma.FinanceAccountOmit
   transaction?: Prisma.TransactionOmit
@@ -2921,11 +2921,12 @@ export type GlobalOmitConfig = {
   workspaceConsolidationRate?: Prisma.WorkspaceConsolidationRateOmit
   usdQuoteSnapshot?: Prisma.UsdQuoteSnapshotOmit
   usdQuoteLine?: Prisma.UsdQuoteLineOmit
-  crossWorkspaceLink?: Prisma.CrossWorkspaceLinkOmit
   budget?: Prisma.BudgetOmit
   budgetCategory?: Prisma.BudgetCategoryOmit
   goal?: Prisma.GoalOmit
   goalContribution?: Prisma.GoalContributionOmit
+  splitGroup?: Prisma.SplitGroupOmit
+  splitGroupMember?: Prisma.SplitGroupMemberOmit
   expenseSplit?: Prisma.ExpenseSplitOmit
   expenseSplitShare?: Prisma.ExpenseSplitShareOmit
   settlement?: Prisma.SettlementOmit
