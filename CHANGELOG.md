@@ -11,7 +11,129 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **categories:** Add frequent shortcuts and inline create in the transaction form
 
-[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.17.0...HEAD
+## [0.17.0] - 2026-08-26
+
+### Added
+
+- **ui:** Apply ledger navy design system and restyle transactions
+
+- **ui:** Roll out ledger navy across the app
+
+- **ui:** Colorful nav glyphs and mobile-first money rows
+
+- **dashboard:** Compact mobile home without desktop read models
+
+- **performance:** Accelerate navigation and money refreshes
+
+- Replace group workspaces with SplitGroups
+
+- Drop group kind and add group and member ABM
+
+- Show split-group spending by category
+
+- **email:** Integrate Resend for password reset and marketing
+
+- **ui:** Replace native selects with a custom dropdown
+
+### Fixed
+
+- **ui:** Keep the mobile tab bar in view and avoid stale JS in next dev
+
+- **nav:** Keep mobile Más sheet inside sidebar context
+
+- Stop app shell 500 on leftover group workspaces
+
+- Keep existing ledgers as the implicit personal account
+
+- Open the ledger that already has accounts, not empty personal
+
+- Show the split-group invite URL on the group page
+
+- Refetch split groups when opening Registrar
+
+- Restyle groups UI to match the ledger
+
+- **nav:** Add inline theme control for modal sheets
+
+- **nav:** Drop duplicate account header in Más sheet
+
+- Keep the post-expense splash visible and lift dimmed numbers
+
+- Advance goal progress bars on small contributions
+
+- Keep recurring confirm actions inside the table
+
+- Hide the unused currency-exchange create button
+
+- **ui:** Pin FormSheet CTAs and lock background scroll
+
+- **categories:** Do not autofocus the category search field
+
+- **money:** Parse amount inputs with a canonical comma decimal
+
+- **forms:** Open a decimal keypad and use comma in amount fields
+
+- **email:** Keep public reset and newsletter forms from hanging
+
+- **auth:** Confirm password reset immediately without waiting
+
+- **ui:** Contain list taps and cache Registrar catalogs
+
+[0.17.0]: https://github.com/krivoox/finance-hub/compare/v0.16.0...v0.17.0
+
+## [0.16.0] - 2026-08-14
+
+### Added
+
+- **goals:** Add ABM and in-sheet account picker
+
+### Fixed
+
+- **transactions:** Require twin membership on contribution update/delete
+
+- **security:** Lockdown public schema with RLS deny-all
+
+[0.16.0]: https://github.com/krivoox/finance-hub/compare/v0.15.0...v0.16.0
+
+## [0.15.0] - 2026-08-12
+
+### Added
+
+- Stream Panel and transactions with per-section Suspense
+
+- Stream remaining (app) list and detail pages with Suspense
+
+[0.15.0]: https://github.com/krivoox/finance-hub/compare/v0.14.0...v0.15.0
+
+## [0.14.0] - 2026-08-12
+
+### Added
+
+- **transactions:** Allow USD income/expense with currency selector
+
+- **accounts:** Paridad UI y tests tarjeta ARS/USD (KRI-11)
+
+- **accounts:** Editar cuenta y paridad credit_card en onboarding (KRI-11)
+
+- ABM de workspaces con hard-delete de grupos
+
+- Pills de categorías en listado de presupuestos
+
+- Totales del listado filtrado de transacciones
+
+- Acciones masivas en listado de transacciones
+
+- ABM de cuentas con archivar y hard-delete
+
+- Implement SPEC-20 performance, soft-nav prefetch, PWA SW
+
+- Finish SPEC-20 after docs merge — intent prefetch and telemetry
+
+### Fixed
+
+- Add missing soft-nav loading.tsx for nested app routes
+
+[0.14.0]: https://github.com/krivoox/finance-hub/compare/v0.13.0...v0.14.0
 
 ## [0.13.0] - 2026-08-11
 
@@ -154,6 +276,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Baseline product release prior to Conventional Commits enforcement (accounts, workspaces, transactions, budgets, and related MVP surfaces)
 - Changelog automation (git-cliff), Conventional Commits (commitlint + husky), and SemVer GitHub Actions workflows
 
-[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.13.0...HEAD
-[0.13.0]: https://github.com/krivoox/finance-hub/compare/v0.12.0...v0.13.0
+[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.17.0...HEAD
+[0.17.0]: https://github.com/krivoox/finance-hub/compare/v0.16.0...v0.17.0
 [0.1.0]: https://github.com/krivoox/finance-hub/releases/tag/v0.1.0

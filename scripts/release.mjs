@@ -6,12 +6,13 @@
  *
  * Usage:
  *   node scripts/release.mjs
- *   node scripts/release.mjs --dry-run
+ *   node scripts/release.mjs --plan
  */
 import { execFileSync } from 'node:child_process';
 import { readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { maxSemver, planRelease } from './semver.mjs';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const changelogPath = join(root, 'CHANGELOG.md');
@@ -27,27 +28,43 @@ function sh(cmd, args) {
 }
 
 function hasReleaseTags() {
-  try {
-    sh('git', ['describe', '--tags', '--match', 'v[0-9]*', '--abbrev=0']);
-    return true;
-  } catch {
-    return false;
-  }
+  return Boolean(maxTag());
 }
 
 function previousTag() {
+  return maxTag();
+}
+
+function maxTag() {
+  const tags = sh('git', ['tag', '--list', 'v[0-9]*'])
+    .split('\n')
+    .map((t) => t.trim())
+    .filter(Boolean);
+  return maxSemver(tags);
+}
+
+function cliffBumpedVersion() {
   try {
-    return sh('git', ['describe', '--tags', '--match', 'v[0-9]*', '--abbrev=0']);
-  } catch {
-    return null;
+    return sh('npx', ['git-cliff', '--bumped-version']).replace(
+      /\u001b\[[0-9;]*m/g,
+      '',
+    );
+  } catch (err) {
+    const msg = err.stderr?.toString?.() || err.message || String(err);
+    throw new Error(`Could not compute bumped version: ${msg}`);
   }
 }
 
+const wantPlan = process.argv.includes('--plan');
 const pkgPath = join(root, 'package.json');
 const pkg = JSON.parse(readFileSync(pkgPath, 'utf8'));
 const current = pkg.version;
 
 if (!hasReleaseTags()) {
+  if (wantPlan) {
+    console.log(`CATCHUP v${current}`);
+    process.exit(0);
+  }
   console.log(
     `No SemVer tags yet. First production tag v${current} is created by the Release workflow on main (bootstrap).`,
   );
@@ -55,26 +72,42 @@ if (!hasReleaseTags()) {
   process.exit(0);
 }
 
-let nextTag;
+let cliffNext;
 try {
-  nextTag = sh('npx', ['git-cliff', '--bumped-version']);
+  cliffNext = cliffBumpedVersion();
 } catch (err) {
-  const msg = err.stderr?.toString?.() || err.message || String(err);
-  console.error('Could not compute bumped version:', msg);
+  console.error(err.message);
   process.exit(1);
 }
 
-if (!nextTag) {
-  console.error('git-cliff returned an empty bumped version');
-  process.exit(1);
-}
+const latestTag = maxTag();
+const plan = planRelease({
+  current,
+  latestTag,
+  cliffNext,
+});
 
-const nextVersion = nextTag.replace(/^v/, '');
-
-if (nextVersion === current) {
-  console.log(`No SemVer bump needed (still ${current}). Skipping.`);
+if (wantPlan) {
+  console.log(plan.action === 'skip' ? 'SKIP' : `${plan.action.toUpperCase()} ${plan.tag}`);
   process.exit(0);
 }
+
+if (plan.action === 'skip') {
+  console.log(
+    `No SemVer bump (package ${current}, latest tag ${latestTag}, git-cliff ${cliffNext}). Skipping.`,
+  );
+  process.exit(0);
+}
+
+if (plan.action === 'catchup') {
+  console.log(
+    `Catch-up: package.json ${current} is ahead of latest tag ${latestTag}. Tag ${plan.tag} without rewriting changelog.`,
+  );
+  process.exit(0);
+}
+
+const nextTag = plan.tag;
+const nextVersion = plan.version;
 
 console.log(`Version: ${current} → ${nextVersion} (${nextTag})`);
 
