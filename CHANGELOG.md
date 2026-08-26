@@ -55,6 +55,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Hide the unused currency-exchange create button
 
+- **ui:** Pin FormSheet CTAs and lock background scroll
+
+- **categories:** Do not autofocus the category search field
+
 [Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.16.0...HEAD
 
 ## [0.13.0] - 2026-08-11
