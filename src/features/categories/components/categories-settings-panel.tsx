@@ -25,6 +25,7 @@ import {
   createCategoryAction,
   renameCategoryAction,
 } from "@/features/categories/actions";
+import { invalidateNewTransactionFormOptions } from "@/features/transactions/stores/new-transaction-form-options-store";
 import {
   CONTRIBUTION_CATEGORY_NAMES,
   type CategoryKind,
@@ -240,6 +241,7 @@ function CreateCategoryForm({
         return;
       }
       toast.success("Categoría creada");
+      invalidateNewTransactionFormOptions();
       setName("");
       onSuccess();
     });
@@ -312,6 +314,7 @@ function RenameCategoryForm({
         return;
       }
       toast.success("Categoría renombrada");
+      invalidateNewTransactionFormOptions();
       onSuccess();
     });
   }
@@ -410,6 +413,7 @@ function ArchiveCategoryButton({
               return;
             }
             toast.success("Categoría archivada");
+            invalidateNewTransactionFormOptions();
             onDone();
           });
         }}

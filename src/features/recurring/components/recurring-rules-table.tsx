@@ -16,6 +16,8 @@ import {
   AbmHead,
   AbmCell,
   AbmMoney,
+  AbmRowHitLink,
+  ABM_STRETCH_LINK_CLASS,
 } from "@/components/abm-table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -273,7 +275,7 @@ export function RecurringRulesTable({
                 data-state={
                   selection.isSelected(rule.id) ? "selected" : undefined
                 }
-                className="relative border-border/60"
+                className="border-border/60"
               >
                 {canMutate ? (
                   <SelectRowCell
@@ -287,7 +289,7 @@ export function RecurringRulesTable({
                   <div className="flex min-w-0 flex-col gap-0.5">
                     <Link
                       href={`/transactions/recurring/${rule.id}`}
-                      className="min-w-0 truncate font-medium text-foreground after:absolute after:inset-0 hover:underline"
+                      className={`min-w-0 truncate font-medium text-foreground ${ABM_STRETCH_LINK_CLASS}`}
                     >
                       {rule.name}
                     </Link>
@@ -315,6 +317,7 @@ export function RecurringRulesTable({
                   {accountLabel(rule)}
                 </AbmCell>
                 <AbmCell slot="amount">
+                  <AbmRowHitLink href={`/transactions/recurring/${rule.id}`} />
                   <AbmMoney
                     cents={signedAmountCents(rule.type, rule.amountCents)}
                     currency={rule.currency}

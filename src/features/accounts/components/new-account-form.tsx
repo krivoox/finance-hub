@@ -6,6 +6,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 
 import { createAccountAction } from "@/features/accounts/actions";
+import { invalidateNewTransactionFormOptions } from "@/features/transactions/stores/new-transaction-form-options-store";
 import {
   createAccountSchema,
   type CreateAccountInput,
@@ -118,6 +119,7 @@ export function NewAccountForm({
         return;
       }
       toast.success("Cuenta creada");
+      invalidateNewTransactionFormOptions();
       reset({
         name: "",
         type: "checking",
