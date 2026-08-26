@@ -20,7 +20,7 @@ import {
   parseAmountCents,
 } from "@/domain/money/parse-amount";
 import { Textarea } from "@/components/ui/textarea";
-import { nativeSelectClassName } from "@/components/ui/native-select";
+import { FormSelect } from "@/components/ui/select";
 import { CategoryPicker } from "@/features/categories/components/category-picker";
 import { refreshAfterMutation } from "@/lib/navigation";
 import {
@@ -48,8 +48,6 @@ import {
   RECURRING_FREQUENCY_LABEL_ES,
   RECURRING_TYPE_LABEL_ES,
 } from "./labels";
-
-const SELECT_CLASSES = nativeSelectClassName;
 
 const TYPE_OPTIONS = RECURRING_RULE_TYPES.map((value) => ({
   value,
@@ -332,19 +330,21 @@ export function RecurringForm({
           htmlFor="rec-account"
           error={errors.accountId?.message}
         >
-          <select
+          <FormSelect
+            control={control}
+            name="accountId"
             id="rec-account"
-            className={SELECT_CLASSES}
-            aria-invalid={Boolean(errors.accountId)}
-            {...register("accountId", { required: "Elegí una cuenta" })}
-          >
-            <option value="">Elegí una cuenta</option>
-            {accounts.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.name} · {a.currency}
-              </option>
-            ))}
-          </select>
+            rules={{ required: "Elegí una cuenta" }}
+            invalid={Boolean(errors.accountId)}
+            placeholder="Elegí una cuenta"
+            options={[
+              { value: "", label: "Elegí una cuenta" },
+              ...accounts.map((a) => ({
+                value: a.id,
+                label: `${a.name} · ${a.currency}`,
+              })),
+            ]}
+          />
         </FormField>
 
         {type === "transfer" ? (
@@ -353,19 +353,20 @@ export function RecurringForm({
             htmlFor="rec-counterparty"
             error={errors.counterpartyAccountId?.message}
           >
-            <select
+            <FormSelect
+              control={control}
+              name="counterpartyAccountId"
               id="rec-counterparty"
-              className={SELECT_CLASSES}
-              aria-invalid={Boolean(errors.counterpartyAccountId)}
-              {...register("counterpartyAccountId")}
-            >
-              <option value="">Elegí una cuenta</option>
-              {counterpartyOptions.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.name} · {a.currency}
-                </option>
-              ))}
-            </select>
+              invalid={Boolean(errors.counterpartyAccountId)}
+              placeholder="Elegí una cuenta"
+              options={[
+                { value: "", label: "Elegí una cuenta" },
+                ...counterpartyOptions.map((a) => ({
+                  value: a.id,
+                  label: `${a.name} · ${a.currency}`,
+                })),
+              ]}
+            />
           </FormField>
         ) : (
           <FormField

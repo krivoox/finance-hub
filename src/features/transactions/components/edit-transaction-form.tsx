@@ -29,7 +29,7 @@ import {
   formatCentsAsAmountInput,
   parseAmountCents,
 } from "@/domain/money/parse-amount";
-import { nativeSelectClassName } from "@/components/ui/native-select";
+import { FormSelect } from "@/components/ui/select";
 
 type AccountOption = { id: string; name: string; currency: string };
 type CategoryOption = { id: string; name: string; kind: "income" | "expense" };
@@ -205,18 +205,16 @@ export function EditTransactionForm({
 
           <FormSection title="Cuenta y categoría">
             <FormField label={accountLabel} htmlFor="edit-tx-account">
-              <select
+              <FormSelect
+                control={control}
+                name="accountId"
                 id="edit-tx-account"
-                className={nativeSelectClassName}
                 disabled={isBusy || linkedToGoal}
-                {...register("accountId")}
-              >
-                {accounts.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.name}
-                  </option>
-                ))}
-              </select>
+                options={accounts.map((a) => ({
+                  value: a.id,
+                  label: a.name,
+                }))}
+              />
             </FormField>
 
             {type === "transfer" ? (
@@ -224,18 +222,16 @@ export function EditTransactionForm({
                 label="Cuenta destino"
                 htmlFor="edit-tx-counterparty"
               >
-                <select
+                <FormSelect
+                  control={control}
+                  name="counterpartyAccountId"
                   id="edit-tx-counterparty"
-                  className={nativeSelectClassName}
                   disabled={isBusy || linkedToGoal}
-                  {...register("counterpartyAccountId")}
-                >
-                  {accounts.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {a.name}
-                    </option>
-                  ))}
-                </select>
+                  options={accounts.map((a) => ({
+                    value: a.id,
+                    label: a.name,
+                  }))}
+                />
               </FormField>
             ) : (
               <FormField label="Categoría" htmlFor="edit-tx-category">

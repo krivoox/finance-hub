@@ -25,7 +25,7 @@ Responsive: **mobile-first**. Base = phone with docked tab bar; `md` navy sideba
 - Business logic stays out of React components
 - Create: `FormSheet` bottom sheet on mobile / right drawer from `md`. CTAs in `ContentPanel.actions` or `?new=1`
 - FormSheet alta/filtros: `layout="fill"` + `FormSheetBody` + `FormActions sticky`. Sin Cancelar (cierra la X). Sin scroll del fondo.
-- Form density: 1 column · `FormField` (asterisco si requerido) · `FormSection` · `SegmentedControl` for type toggles
+- Form density: 1 column · `FormField` (asterisco si requerido) · `FormSection` · `SegmentedControl` for type toggles · `Select`/`FormSelect` for lists (never native `<select>`)
 - Progress bars: `ProgressBar` with ≥3 tones; rose (`alert`) only for real alerts (budget exceeded)
 - Page chrome is `ContentPanel` (H1 + actions on canvas). Blocks are `SurfaceSection` cards.
 - Sidebar is navy in light **and** dark. Do not invert it to gray paper.
@@ -37,5 +37,7 @@ Responsive: **mobile-first**. Base = phone with docked tab bar; `md` navy sideba
 - Card — 16px radius · 20–24px pad · `shadow-card`
 - Page title — 18px Nunito 800
 - Eyebrow — 10–11px / 600 / uppercase / tracking-widest
+- Select trigger — 40px h · 12px radius · same chrome as Input · chevron muted
+- Select menu — `bg-popover` · 8px radius · `shadow-md` + hairline ring · item 40px h · check `text-primary`
 
 Reference: DESIGN.md

@@ -21,7 +21,7 @@ import { Button } from "@/components/ui/button";
 import { refreshAfterMutation } from "@/lib/navigation";
 import { Input } from "@/components/ui/input";
 import { parseAmountCents } from "@/domain/money/parse-amount";
-import { nativeSelectClassName } from "@/components/ui/native-select";
+import { FormSelect } from "@/components/ui/select";
 import { ACCOUNT_TYPE_LABEL_ES } from "./account-type-labels";
 
 type FormValues = {
@@ -161,17 +161,15 @@ export function NewAccountForm({
         </FormField>
 
         <FormField label="Tipo" htmlFor="account-type">
-          <select
+          <FormSelect
+            control={control}
+            name="type"
             id="account-type"
-            className={nativeSelectClassName}
-            {...register("type")}
-          >
-            {ACCOUNT_TYPES.map((code) => (
-              <option key={code} value={code}>
-                {ACCOUNT_TYPE_LABEL_ES[code]}
-              </option>
-            ))}
-          </select>
+            options={ACCOUNT_TYPES.map((code) => ({
+              value: code,
+              label: ACCOUNT_TYPE_LABEL_ES[code],
+            }))}
+          />
         </FormField>
 
         {isCreditCard ? (
@@ -185,14 +183,15 @@ export function NewAccountForm({
         ) : null}
 
         <FormField label="Moneda" htmlFor="account-currency">
-          <select
+          <FormSelect
+            control={control}
+            name="currency"
             id="account-currency"
-            className={nativeSelectClassName}
-            {...register("currency")}
-          >
-            <option value="ARS">Pesos (ARS)</option>
-            <option value="USD">Dólares (USD)</option>
-          </select>
+            options={[
+              { value: "ARS", label: "Pesos (ARS)" },
+              { value: "USD", label: "Dólares (USD)" },
+            ]}
+          />
         </FormField>
 
         <FormField

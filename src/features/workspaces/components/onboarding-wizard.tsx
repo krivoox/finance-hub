@@ -19,7 +19,7 @@ import { AmountInput } from "@/components/amount-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { parseAmountCents } from "@/domain/money/parse-amount";
-import { nativeSelectClassName } from "@/components/ui/native-select";
+import { FormSelect } from "@/components/ui/select";
 import { navigateAndRefresh } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
 import { LedgerPreview, type LedgerPreviewAccount } from "./ledger-preview";
@@ -470,14 +470,16 @@ export function OnboardingWizard({
                     >
                       Moneda
                     </label>
-                    <select
+                    <FormSelect
+                      control={accountForm.control}
+                      name="currency"
                       id="account-currency"
-                      className={cn(nativeSelectClassName, "h-11 sm:h-11")}
-                      {...accountForm.register("currency")}
-                    >
-                      <option value="ARS">Pesos (ARS)</option>
-                      <option value="USD">Dólares (USD)</option>
-                    </select>
+                      className="h-11 sm:h-11"
+                      options={[
+                        { value: "ARS", label: "Pesos (ARS)" },
+                        { value: "USD", label: "Dólares (USD)" },
+                      ]}
+                    />
                   </div>
 
                   <div className="space-y-2">

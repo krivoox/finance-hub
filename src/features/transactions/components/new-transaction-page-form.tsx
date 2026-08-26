@@ -20,7 +20,6 @@ type CategoryOption = {
 
 export function NewTransactionPageForm({
   workspaceId,
-  workspaceName,
   workspaceCurrency,
   accounts,
   categories,
@@ -28,7 +27,6 @@ export function NewTransactionPageForm({
   currentUserId,
 }: {
   workspaceId: string;
-  workspaceName: string;
   workspaceCurrency: string;
   accounts: readonly AccountOption[];
   categories: readonly CategoryOption[];
@@ -40,7 +38,6 @@ export function NewTransactionPageForm({
   return (
     <NewTransactionForm
       workspaceId={workspaceId}
-      workspaceName={workspaceName}
       workspaceCurrency={workspaceCurrency}
       accounts={accounts}
       categories={categories}

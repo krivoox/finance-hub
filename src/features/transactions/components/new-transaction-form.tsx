@@ -34,7 +34,7 @@ import { DateField } from "@/components/date-field";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { parseAmountCents } from "@/domain/money/parse-amount";
-import { nativeSelectClassName } from "@/components/ui/native-select";
+import { FormSelect } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
   clearOfflineDraftFromStorage,
@@ -58,7 +58,6 @@ type CategoryOption = {
 
 type NewTransactionFormProps = {
   workspaceId: string;
-  workspaceName: string;
   workspaceCurrency: string;
   accounts: readonly AccountOption[];
   categories: readonly CategoryOption[];
@@ -104,11 +103,8 @@ const CURRENCY_OPTIONS = ACCOUNT_CURRENCIES.map((value) => ({
   label: value,
 }));
 
-const SELECT_CLASSES = nativeSelectClassName;
-
 export function NewTransactionForm({
   workspaceId,
-  workspaceName,
   workspaceCurrency,
   accounts,
   categories,
@@ -320,9 +316,6 @@ export function NewTransactionForm({
   const showCategory = watchedType !== "transfer";
   const showCounterparty = watchedType === "transfer";
   const hasAccountsForCurrency = accountsForCurrency.length > 0;
-  const selectedAccount = accountsForCurrency.find(
-    (account) => account.id === watchedAccountId,
-  );
   const currencyHintLabel =
     selectedCurrency === "USD" ? "dólares (USD)" : "pesos (ARS)";
 
@@ -413,36 +406,36 @@ export function NewTransactionForm({
             }
             htmlFor="tx-account"
           >
-            <select
+            <FormSelect
+              control={control}
+              name="accountId"
               id="tx-account"
-              className={SELECT_CLASSES}
-              aria-invalid={Boolean(errors.accountId)}
+              rules={{ required: true }}
               disabled={!hasAccountsForCurrency || isBusy}
-              {...register("accountId", { required: true })}
-            >
-              {accountsForCurrency.map((a) => (
-                <option key={a.id} value={a.id}>
-                  {a.name} · {a.currency}
-                </option>
-              ))}
-            </select>
+              invalid={Boolean(errors.accountId)}
+              placeholder="Elegí una cuenta"
+              options={accountsForCurrency.map((a) => ({
+                value: a.id,
+                label: `${a.name} · ${a.currency}`,
+              }))}
+            />
           </FormField>
 
           {showCounterparty ? (
             <FormField label="Cuenta destino" htmlFor="tx-counterparty">
-              <select
+              <FormSelect
+                control={control}
+                name="counterpartyAccountId"
                 id="tx-counterparty"
-                className={SELECT_CLASSES}
-                aria-invalid={Boolean(errors.counterpartyAccountId)}
+                rules={{ required: true }}
                 disabled={counterpartyOptions.length === 0 || isBusy}
-                {...register("counterpartyAccountId", { required: true })}
-              >
-                {counterpartyOptions.map((a) => (
-                  <option key={a.id} value={a.id}>
-                    {a.name} · {a.currency}
-                  </option>
-                ))}
-              </select>
+                invalid={Boolean(errors.counterpartyAccountId)}
+                placeholder="Elegí una cuenta"
+                options={counterpartyOptions.map((a) => ({
+                  value: a.id,
+                  label: `${a.name} · ${a.currency}`,
+                }))}
+              />
             </FormField>
           ) : (
             <FormField label="Categoría" htmlFor="tx-category">
@@ -484,17 +477,6 @@ export function NewTransactionForm({
               )}
             />
           </FormField>
-
-          {watchedType !== "transfer" && selectedAccount ? (
-            <p className="rounded-lg bg-muted/60 px-3 py-2.5 text-sm text-foreground">
-              Se registra en <strong>{workspaceName}</strong>
-              {" · "}
-              {watchedType === "income" ? "Se acredita en" : "Se descuenta de"}{" "}
-              <strong>{selectedAccount.name}</strong>
-              {" · "}
-              <strong>{selectedCurrency}</strong>
-            </p>
-          ) : null}
         </FormSection>
 
         {watchedType === "expense" ? (
