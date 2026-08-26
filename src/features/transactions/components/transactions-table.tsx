@@ -37,7 +37,10 @@ import {
 } from "@/features/categories/domain/category-pill-tone";
 import { splitLeadingEmoji } from "@/features/categories/domain/split-leading-emoji";
 import { deleteTransactionAction } from "@/features/transactions/actions";
-import type { TransactionType } from "@/features/transactions/domain";
+import {
+  signedLedgerAmountCents,
+  type TransactionType,
+} from "@/features/transactions/domain";
 import { formatDateOnly } from "@/lib/format-date";
 import { navigateAndRefresh, refreshAfterMutation } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
@@ -129,9 +132,7 @@ function signedAmountCents(
   type: TransactionType,
   amountCents: number,
 ): number {
-  if (type === "income" || type === "fx_credit") return amountCents;
-  if (type === "expense" || type === "fx_debit") return -amountCents;
-  return -amountCents;
+  return signedLedgerAmountCents(type, amountCents);
 }
 
 function occurredOnIso(value: Date | string): string {

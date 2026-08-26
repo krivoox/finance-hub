@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.1] - 2026-08-26
+
+### Fixed
+
+- **ledger:** Exclude transfers from cashflow totals and fit category donut
+
+- **dashboard:** Keep full spent amount in donut accessible name
+
 ## [0.18.0] - 2026-08-26
 
 ### Added
@@ -278,7 +286,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Baseline product release prior to Conventional Commits enforcement (accounts, workspaces, transactions, budgets, and related MVP surfaces)
 - Changelog automation (git-cliff), Conventional Commits (commitlint + husky), and SemVer GitHub Actions workflows
 
-[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.18.0...HEAD
+[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.18.1...HEAD
+[0.18.1]: https://github.com/krivoox/finance-hub/compare/v0.18.0...v0.18.1
 [0.18.0]: https://github.com/krivoox/finance-hub/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/krivoox/finance-hub/compare/v0.16.0...v0.17.0
 [0.1.0]: https://github.com/krivoox/finance-hub/releases/tag/v0.1.0

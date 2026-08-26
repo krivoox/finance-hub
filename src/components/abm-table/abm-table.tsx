@@ -5,7 +5,7 @@ import Link from "next/link";
 
 import { SurfaceSection } from "@/components/surface-section";
 import { TableHead, TableCell } from "@/components/ui/table";
-import { formatSignedMoney } from "@/lib/format-money";
+import { formatMoney, formatSignedMoney } from "@/lib/format-money";
 import { cn } from "@/lib/utils";
 
 export const ABM_HEAD_CLASS = "h-10 px-3 sm:px-4";
@@ -164,7 +164,9 @@ export function AbmMoney({
         className,
       )}
     >
-      {formatSignedMoney(cents, currency)}
+      {tone === "transfer"
+        ? formatMoney(Math.abs(cents), currency)
+        : formatSignedMoney(cents, currency)}
     </span>
   );
 }
