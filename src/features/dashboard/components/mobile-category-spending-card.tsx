@@ -4,11 +4,11 @@ import { formatMoney } from "@/lib/format-money";
 import { splitLeadingEmoji } from "@/features/categories/domain/split-leading-emoji";
 import {
   buildCategoryShares,
-  OTHER_CATEGORY_ID,
   type SpendingByCategoryRow,
 } from "@/features/dashboard/domain";
 import { cn } from "@/lib/utils";
 
+import { CategorySpendingAllList } from "./category-spending-all-list";
 import { donutSliceTone, SpendingDonutChart } from "./spending-donut-chart";
 
 type MobileCategorySpendingCardProps = {
@@ -36,24 +36,6 @@ function previousCentsFor(
   return previousRows.find((row) => row.categoryId === categoryId)?.amountCents ?? 0;
 }
 
-function movCountFor(
-  categoryId: string,
-  rows: readonly SpendingByCategoryRow[],
-  otherIds: ReadonlySet<string>,
-): number {
-  if (categoryId === OTHER_CATEGORY_ID) {
-    return rows
-      .filter((row) => !otherIds.has(row.categoryId))
-      .reduce((sum, row) => sum + (row.transactionCount ?? 0), 0);
-  }
-  return rows.find((row) => row.categoryId === categoryId)?.transactionCount ?? 0;
-}
-
-function movLabel(count: number): string {
-  if (count === 1) return "1 mov.";
-  return `${count} mov.`;
-}
-
 /**
  * Mobile spending-by-category card: donut + ranking bars + list.
  * Amounts come from domain aggregates (expenses only — KRI-34).
@@ -65,11 +47,6 @@ export function MobileCategorySpendingCard({
   previousRows,
 }: MobileCategorySpendingCardProps) {
   const { slices, totalCents } = buildCategoryShares(rows);
-  const keptIds = new Set(
-    slices
-      .filter((slice) => slice.categoryId !== OTHER_CATEGORY_ID)
-      .map((slice) => slice.categoryId),
-  );
   const monthLabel = longMonthFormatter.format(monthDate(yearMonth));
   const hasPrevious = previousRows.some((row) => row.amountCents > 0);
 
@@ -135,7 +112,7 @@ export function MobileCategorySpendingCard({
                           {emoji ? `${emoji} ${label}` : label}
                         </span>
                       </span>
-                      <span className="shrink-0 text-sm tabular-nums text-expense">
+                      <span className="tabular shrink-0 text-sm text-expense">
                         {formatMoney(slice.amountCents, currency)}
                       </span>
                     </div>
@@ -168,43 +145,20 @@ export function MobileCategorySpendingCard({
 
             <div className="flex items-baseline justify-between border-t border-border pt-3">
               <span className="text-sm text-muted-foreground">Total</span>
-              <span className="text-sm font-semibold tabular-nums text-expense">
+              <span className="tabular text-sm font-semibold text-expense">
                 {formatMoney(totalCents, currency)}
               </span>
             </div>
           </div>
 
-          <ul className="flex flex-col gap-1 border-t border-border pt-3">
-            {slices.map((slice) => {
-              const { emoji, label } = splitLeadingEmoji(slice.categoryName);
-              const count = movCountFor(slice.categoryId, rows, keptIds);
-
-              return (
-                <li
-                  key={`row-${slice.categoryId}`}
-                  className="flex items-center gap-3 py-2"
-                >
-                  <span
-                    className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-muted text-base"
-                    aria-hidden
-                  >
-                    {emoji ?? "·"}
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-sm text-foreground">
-                      {label}
-                    </span>
-                    <span className="text-[11px] text-muted-foreground">
-                      {slice.percent}% · {movLabel(count)}
-                    </span>
-                  </span>
-                  <span className="shrink-0 text-sm tabular-nums text-expense">
-                    {formatMoney(slice.amountCents, currency)}
-                  </span>
-                </li>
-              );
-            })}
-          </ul>
+          <div className="border-t border-border pt-3">
+            <CategorySpendingAllList
+              currency={currency}
+              rows={rows}
+              slices={slices}
+              variant="replace"
+            />
+          </div>
         </div>
       )}
     </section>

@@ -62,6 +62,35 @@ export function buildCategoryShares(
   return { slices, totalCents };
 }
 
+/**
+ * Real categories folded into the synthetic "Otras" slice. Empty when the
+ * donut did not collapse a tail (nothing to disclose).
+ */
+export function hiddenCategoryRows(
+  rows: readonly SpendingByCategoryRow[],
+  slices: readonly CategoryShare[],
+): SpendingByCategoryRow[] {
+  const hasOther = slices.some((s) => s.categoryId === OTHER_CATEGORY_ID);
+  if (!hasOther) return [];
+
+  const keptIds = new Set(
+    slices
+      .filter((s) => s.categoryId !== OTHER_CATEGORY_ID)
+      .map((s) => s.categoryId),
+  );
+
+  return rankedSpendingRows(rows).filter((row) => !keptIds.has(row.categoryId));
+}
+
+/** Positive spending rows, ranked by amount desc. No synthetic "Otras". */
+export function rankedSpendingRows(
+  rows: readonly SpendingByCategoryRow[],
+): SpendingByCategoryRow[] {
+  return rows
+    .filter((r) => r.amountCents > 0)
+    .toSorted((a, b) => b.amountCents - a.amountCents);
+}
+
 function toPercent(amountCents: number, totalCents: number): number {
   return Math.round((amountCents / totalCents) * 1000) / 10;
 }

@@ -13,6 +13,8 @@ import {
 } from "@/features/dashboard/domain";
 import { cn } from "@/lib/utils";
 
+import { CategorySpendingAllList } from "./category-spending-all-list";
+
 type DashboardSpendingBarProps = {
   currency: string;
   rows: readonly SpendingByCategoryRow[];
@@ -85,7 +87,7 @@ export function DashboardSpendingBar({
         })}
       </div>
 
-      <ul className="mt-3 space-y-2">
+      <ul className="mt-3 flex flex-col gap-2">
         {slices.map((slice, index) => (
           <li
             key={slice.categoryId}
@@ -101,12 +103,20 @@ export function DashboardSpendingBar({
             <span className="min-w-0 flex-1 truncate text-foreground">
               {slice.categoryName}
             </span>
-            <span className="shrink-0 text-xs tabular-nums text-muted-foreground">
+            <span className="tabular shrink-0 text-xs text-muted-foreground">
               {slice.percent}%
             </span>
           </li>
         ))}
       </ul>
+
+      <div className="mt-3">
+        <CategorySpendingAllList
+          currency={currency}
+          rows={rows}
+          slices={slices}
+        />
+      </div>
     </SurfaceSection>
   );
 }
