@@ -159,7 +159,7 @@ export default async function AccountsPage() {
 - Handler: `src/app/api/auth/[...all]/route.ts`
 - Tras registro: crear Workspace `personal` + Membership `owner` (SPEC-01) en servicio de aplicación, no en el Client Component
 - Post-registro / sesión en forms de auth: navegar a `/onboarding` (SPEC-15) si el espacio aún no está listo
-- Middleware: cookie prefijo `better-auth*`; proteger rutas autenticadas; forms `/login`, `/registro` redirigen a `/onboarding` si hay sesión
+- Proxy (`src/proxy.ts`): cookie prefijo `better-auth*`; proteger rutas autenticadas; forms `/login`, `/registro` redirigen a `/onboarding` si hay sesión
 - Cookies de producto: `fh-workspace-id` (activo), `fh-setup-dismissed` (omitió onboarding con 0 cuentas), `fh-invite-token` (invite pendiente), `fh-shell` (`compact` | `full`, breakpoint `md` vía matchMedia — no User-Agent; elige el árbol RSC del Panel, **no** cachea saldos)
 
 ### 6.1 Onboarding (fuera del shell)

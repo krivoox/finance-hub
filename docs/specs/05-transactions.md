@@ -392,7 +392,7 @@ Detalle de UI: [SPEC-13](./13-transaction-detail.md). Dinero entre workspaces: [
 |------|-----|
 | Domain | `getCurrentWeekPeriod`; `resolveListPeriod`; `resolveListTypeFilter`; `summarizeListAmounts` / `presentListTotals`; `resolveTransactionFormCurrency`; `filterAccountsByCurrency`; errores `InvalidDateRange` / `TransactionCurrencyMismatchError`; constante `LIST_PAGE_SIZE=25`; reutilizar/extraer `getCurrentMonthPeriod` sin acoplar UI |
 | Services | `listTransactions` + `sumFilteredTransactions` con `where` compartido; `limit` default 25 en listado; cursor inválido → primera página; conservar OR de cuenta y alcance SPEC-14; create income/expense/transfer: si viene `currency`, assert vs cuenta |
-| Schemas/actions | Zod de query params (`period`, `type` de listado ≠ enum completo de Prisma); `currency` opcional `ARS`\|`USD` en create; no confiar solo en middleware |
+| Schemas/actions | Zod de query params (`period`, `type` de listado ≠ enum completo de Prisma); `currency` opcional `ARS`\|`USD` en create; no confiar solo en proxy |
 | UI | Estado en searchParams; chips/selects; reset cursor al cambiar filtros; “Limpiar” → este mes; strip sticky (móvil) + footer SUMA bajo Monto (`sm+`); create form: selector de moneda + cuentas filtradas; FormSheet con CTA anclado, sin Cancelar, sin scroll de fondo, asterisco en requeridos; CategoryPicker sin autofocus al buscar |
 
 **Tensión resuelta:** semana de Movimientos ≠ semana de Budget. Mes de Movimientos = mes de Dashboard (timezone usuario).

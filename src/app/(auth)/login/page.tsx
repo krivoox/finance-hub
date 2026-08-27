@@ -16,7 +16,7 @@ type SearchParams = {
   error?: string;
 };
 
-/** Avoid bouncing auth to PWA/meta assets used as callbackUrl by middleware. */
+/** Avoid bouncing auth to PWA/meta assets used as callbackUrl by proxy. */
 function safeCallbackUrl(callbackUrl?: string): string | undefined {
   if (!callbackUrl?.startsWith("/") || callbackUrl.startsWith("//")) {
     return undefined;
