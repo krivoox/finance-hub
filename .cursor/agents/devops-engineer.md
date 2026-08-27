@@ -110,7 +110,7 @@ Reglas:
 
 - Añadir/quitar vars → actualizar `src/lib/env.ts` + `.env.example` + Vercel/Supabase
 - `BETTER_AUTH_URL` coherente con el dominio del entorno
-- Cookies/middleware Better Auth en deploys multi-dominio
+- Cookies/proxy Better Auth en deploys multi-dominio
 - Principio de mínimo privilegio (service role solo servidor)
 
 ### Observabilidad y troubleshooting

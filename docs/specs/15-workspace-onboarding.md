@@ -176,7 +176,7 @@ Esta spec define el **first-run** que deja el workspace listo para usar y enseñ
 | UI | `onboarding-wizard.tsx`, `ledger-preview.tsx` |
 | Rutas | `src/app/(onboarding)/onboarding/page.tsx` + layout soft |
 | Gate app | `src/app/(app)/layout.tsx` → redirect si `needsSetup` |
-| Auth redirect | `register-form` → `/onboarding`; middleware auth forms → `/onboarding` |
+| Auth redirect | `register-form` → `/onboarding`; proxy auth forms → `/onboarding` |
 
 ## 12. Dependencias
 
