@@ -103,7 +103,7 @@ Pantalla principal: visión clara del estado financiero del workspace personal.
 - No meter analytics densos adicionales en el primer viewport; deep-dive en SPEC-11
 - Cotizaciones (SPEC-19): preferir mini-card en sidebar + caption/CTA liviano aquí; no un segundo widget denso de FX en el primer viewport. Distinguir copy “Cotización” vs “TC de consolidación”.
 - **Móvil (~390px):** home del Panel = barras de gasto mensual + card de categorías (donut). Las cards no empujan el viewport (`scrollWidth === clientWidth`). Filas de dinero: identidad `min-w-0 truncate`; monto acotado. Overflow del shell: [DESIGN.md](../../DESIGN.md) §3.1.
-- **Donut “Gastos por categoría”:** el anillo escala al ancho de la card; el total del hoyo usa notación compacta y/o un cuerpo menor cuando el monto formateado no cabe (p. ej. `ARS 4.447.413,29`). El total es solo `expense` (sin transfers).
+- **Donut “Gastos por categoría”:** el anillo escala al ancho de la card; el total del hoyo usa notación compacta y/o un cuerpo menor cuando el monto formateado no cabe (p. ej. `ARS 4.447.413,29`). El total es solo `expense` (sin transfers). El anillo y la leyenda compacta agrupan la cola en un slice sintético «Otras» (no es una categoría real). Si hay cola, «Ver todas las categorías» expande in-place el ranking completo con nombres reales y montos.
 
 ## 10. Notas de implementación
 
