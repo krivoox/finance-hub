@@ -13,14 +13,15 @@
 | Pregunta del ticket | Respuesta |
 |---------------------|-----------|
 | ¿Rediseñar todo para que cambiar la moneda default funcione? | **No.** Convertir historial, presupuestos, grupos y patrimonio al vuelo es un producto distinto (y peligroso). |
-| ¿Elegirla al configurar la cuenta y no poder cambiarla más? | **Sí, para `Workspace.baseCurrency`.** Hoy ya nace en el alta (default `ARS`) y el onboarding la muestra read-only. Tratarla como freeze. |
-| ¿Agregar más monedas de uso según la cuenta? | **Ya existe para ARS y USD.** Cada `FinanceAccount` tiene su `currency` inmutable. EUR/BRL/CLP/UYU en el perfil son un señuelo: las cuentas no las aceptan. |
+| ¿Elegirla al configurar la cuenta y no poder cambiarla más? | **Sí, para `Workspace.baseCurrency`.** Hoy ya nace en el alta (default `ARS`) y el onboarding la muestra read-only. Tratarla como freeze. Para cualquier país: elegirla **en onboarding** (§9). |
+| ¿Agregar más monedas de uso según la cuenta? | **Ya existe para ARS y USD.** Cada `FinanceAccount` tiene su `currency` inmutable. El perfil con EUR/BRL es un señuelo. Internacional = whitelist en onboarding + cuentas `base` o USD (§9), no N-FX. |
 
 Acciones de producto (follow-up de implementación, no este análisis):
 
 1. **Quitar de Ajustes → Perfil** el selector “Moneda preferida” y el campo “Zona horaria”.
 2. **Eliminar el tab Cuenta entero** (rename + tasa de consolidación) y el código que solo sirve a esa UI.
 3. Dejar el modelo: `User.preferredCurrency` / `User.timezone` / `Workspace.baseCurrency` en DB con defaults Argentina; no hace falta migración destructiva.
+4. Si el producto quiere “cualquier país”: **elegir `baseCurrency` (y timezone) una vez en onboarding y freeze** — ver §9. No es un rediseño del ledger.
 
 ---
 
@@ -187,10 +188,12 @@ No hace falta un ADR nuevo: ADR-006 sigue vigente. Este documento es la decisió
 ## 7. Fuera de alcance (no hacer)
 
 - Feeds que reconviertan el historial al cambiar “moneda default”.
-- Cuentas EUR/BRL/CLP/UYU.
+- Cuentas en **cualquier** ISO 4217 sin whitelist (N monedas × N tasas).
 - Time-travel de patrimonio / historial de TC (ya fuera de SPEC-16/19).
-- Pedir timezone en onboarding (SPEC-15 lo excluye a propósito).
 - Unificar `preferredCurrency` con `baseCurrency` vía sync en cada `UpdateProfile` (escondería el freeze y rompería expectativas: “cambié a USD y mis cuentas ARS siguen en pesos”).
+- Cotizaciones DolarApi / MEP para un usuario cuyo `baseCurrency` no es ARS.
+
+Pedir timezone + moneda en onboarding **deja de estar fuera de alcance** si se adopta §9 (hoy SPEC-15 lo excluye a propósito para el MVP AR).
 
 ---
 
@@ -205,3 +208,65 @@ Un issue de implementación, p. ej. **`fix: limpiar Ajustes (KRI-35)`**, con est
 5. No tocar ledger, canje, cotizaciones ni cálculo de periodos.
 
 Criterio de listo: Ajustes no promete nada que el ledger no cumpla; el TC sigue aplicándose con “Usar MEP de hoy”; crear cuenta ARS o USD sigue igual.
+
+Un segundo issue, p. ej. **`feat: moneda de espacio en onboarding (freeze)`**, cubre §9 (whitelist, wizard, invariante de dominio, ADR-006 enmienda). No mezclarlo con la limpieza de Ajustes.
+
+---
+
+## 9. ¿Y si la app es multi-moneda, se elige en onboarding y no se puede cambiar? (cualquier país)
+
+Sí: **ese es el modelo correcto** para internacionalizar. No hace falta un motor FX tipo Wise. El `Money` VO ya acepta cualquier ISO 4217 de 3 letras; el techo hoy es de **producto** (`ACCOUNT_CURRENCIES = ARS|USD`, consolidación y DolarApi pensados ARS↔USD).
+
+Hay que no confundir tres productos:
+
+| Modelo | Qué es | ¿Lo queremos? |
+|--------|--------|----------------|
+| **A. Mono-moneda internacional** | Onboarding elige MXN/EUR/BRL/…; todas las cuentas en esa moneda; sin dólares | Sirve para España/México *hasta* que el usuario tenga USD. **Rompe el caso Argentina** (hogar bimonetario). |
+| **B. Base freeze + segunda moneda USD** | Onboarding elige la moneda *local* del espacio; freeze para siempre; las cuentas pueden ser `baseCurrency` **o** USD | **Recomendado.** Un mexicano opera en MXN (+ USD si quiere). Un argentino en ARS + USD como hoy. |
+| **C. Multi-FX abierto** | Cualquier cuenta en cualquier ISO, N tasas, N feeds | Rediseño. No para este horizonte. |
+
+### 9.1 Qué se congela (y cuándo)
+
+Congelar **`Workspace.baseCurrency`**, no “la moneda de cada banco”:
+
+1. Onboarding, **antes de la primera cuenta**: selector de moneda local (whitelist ISO, no el enum inflado del perfil).
+2. Al confirmar, `updateWorkspaceIdentity({ baseCurrency })` — hoy existe y **no tiene callers**.
+3. Invariante de dominio: una vez hay ≥1 cuenta (o `CompleteWorkspaceSetup`), `baseCurrency` es **inmutable**. Rechazar cualquier patch posterior (`CannotChangeBaseCurrency`).
+4. Ajustes **no** muestra el control. Como mucho, un dato read-only (“Moneda del espacio: BRL”).
+5. Timezone en el mismo paso (país → IANA). Mismo freeze. El text field de Perfil sigue de más.
+
+`Account.currency` sigue eligiéndose **al crear cada cuenta**, inmutable después (SPEC-03). No es la misma palanca.
+
+### 9.2 Whitelist (no “el mundo”)
+
+Abrir de a un set que Intl sepa formatear. Ejemplo v1 internacional:
+
+`ARS, USD, EUR, BRL, MXN, CLP, UYU, COP, PEN, GBP`
+
+Regla de cuentas: `currency ∈ { baseCurrency, USD }` (si la base ya es USD, solo USD — o permitir EUR como segunda más adelante, no ahora).
+
+Canje (SPEC-16): el agregado ya es “dos montos explícitos”. Generalizar la guarda “solo ARS↔USD” a “base ↔ USD”. Sin feed: el usuario tipea ambos montos. DolarApi / “Usar MEP” **solo** si `baseCurrency === "ARS"`.
+
+Consolidación: el schema ya tiene `quoteCurrency`. Hoy el dominio todavía corta en ARS↔USD (`UnsupportedConversionError`). Generalizar a `baseCurrency ↔ USD` con tasa manual; el sidebar de cotizaciones AR es un extra, no un requisito para Brasil/México.
+
+Formato: `formatMoney` ya pasa el ISO a `Intl`; el locale default `es-AR` puede quedar (muestra el código `MXN` / `EUR`). Locale por país es polish, no bloquea.
+
+### 9.3 Qué no cambia del ledger
+
+- Centavos enteros (ADR-001).
+- Nada de sumar monedas crudas.
+- Transfer same-currency; canje explícito si hay dos monedas.
+- Splits: moneda del grupo = freeze de `baseCurrency` al crear (como ahora).
+- No reconversión de historial. Por eso el freeze: cambiar la base después no tiene un significado honesto.
+
+### 9.4 Costo real vs rediseño
+
+No es rediseñar el sistema. Es:
+
+- enmendar ADR-006 / SPEC-03 / SPEC-15 / SPEC-16 (whitelist + freeze + canje base↔USD);
+- usar el action de identidad en el wizard;
+- invariante `CannotChangeBaseCurrency` con test TDD;
+- soltar el corte hardcodeado ARS↔USD en consolidación cuando la base no es ARS;
+- **no** construir feeds por país.
+
+Usuarios ya existentes: `baseCurrency = ARS` implícito; el freeze ya se cumple. No hay migración de montos.
