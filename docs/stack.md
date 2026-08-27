@@ -167,7 +167,7 @@ Misma que Siturn — ver detalle en [architecture.md](./architecture.md):
 - `src/lib/env.ts`, `prisma.ts`, `auth.ts`, `session.ts`, `auth-client.ts`
 - `src/app/api/auth/[...all]/route.ts`
 - `src/lib/supabase/server.ts` (`server-only`; no hay browser client hasta Storage + RLS propio, KRI-18)
-- `src/middleware.ts` (cookie `better-auth*`)
+- `src/proxy.ts` (cookie `better-auth*`; convención Next.js 16, reemplaza `middleware.ts`)
 - `src/components/providers.tsx` (Tooltip + Sonner)
 - `prisma/schema.prisma` + `prisma.config.ts`
 

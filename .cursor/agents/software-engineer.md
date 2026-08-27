@@ -157,7 +157,7 @@ No optimices por microbenchmarks sin síntoma. Preferí claridad de capas + meno
 - Preferí cambios mínimos y enfocados; no refactors colaterales ni docs no pedidos — **salvo** que la decisión de arquitectura lo requiera y esté justificada arriba.
 - Código/dominio en **inglés**; docs de producto/ADR en **español**.
 - Errores: manejá fallos esperados; no tragues excepciones en silencio.
-- Authz: nunca confíes solo en layout/middleware; revalidá en cada mutation.
+- Authz: nunca confíes solo en layout/proxy; revalidá en cada mutation.
 - Performance: evitá waterfalls; `Promise.all` cuando sea independiente; RSC por defecto (skill React best practices).
 - Prisma: ambos lados de relaciones; índices en campos consultados; migraciones conscientes (coordiná con DevOps si es prod).
 - UI: tokens semánticos; sin hex sueltos ni `zinc-*`/`slate-*`/`blue-*` en producto; mobile-first (`DESIGN.md`). CTA primario = `bg-cta`. Sidebar navy en ambos temas.
