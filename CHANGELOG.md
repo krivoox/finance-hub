@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **dashboard:** Expand Otras into a full category ranking
+
 [Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.18.1...HEAD
 
 ## [0.18.1] - 2026-08-26
