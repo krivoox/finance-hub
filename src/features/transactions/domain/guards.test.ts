@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   AccountArchivedError,
   AccountWorkspaceMismatchError,
+  AdjustmentLedgerFieldsImmutableError,
   CategoryKindMismatchError,
   CategoryNotAllowedError,
   CategoryRequiredError,
@@ -16,6 +17,7 @@ import {
   TransferLinkedToGoalError,
   assertAccountActive,
   assertAccountBelongsToWorkspace,
+  assertAdjustmentLedgerFieldsImmutable,
   assertCategoryKindMatches,
   assertCategoryRequiredForType,
   assertOccurredOnNotTooFuture,
@@ -100,6 +102,15 @@ describe("assertCategoryRequiredForType", () => {
   it("transfer without category is fine", () => {
     expect(() => assertCategoryRequiredForType("transfer", null)).not.toThrow();
     expect(() => assertCategoryRequiredForType("transfer", "")).not.toThrow();
+  });
+
+  it("adjustment types must NOT carry a category", () => {
+    expect(() =>
+      assertCategoryRequiredForType("adjustment_credit", "cat-1"),
+    ).toThrow(CategoryNotAllowedError);
+    expect(() =>
+      assertCategoryRequiredForType("adjustment_debit", null),
+    ).not.toThrow();
   });
 });
 
@@ -197,6 +208,15 @@ describe("assertTransferCounterparty", () => {
   it("income/expense without counterparty is fine", () => {
     expect(() => assertTransferCounterparty("income", null)).not.toThrow();
     expect(() => assertTransferCounterparty("expense", null)).not.toThrow();
+  });
+
+  it("adjustment types must NOT have counterparty", () => {
+    expect(() =>
+      assertTransferCounterparty("adjustment_credit", "acc-2"),
+    ).toThrow(CounterpartyNotAllowedError);
+    expect(() =>
+      assertTransferCounterparty("adjustment_debit", null),
+    ).not.toThrow();
   });
 });
 
@@ -376,5 +396,34 @@ describe("assertTransferNotLinkedToGoal — SPEC-08 T-15", () => {
     expect(() => assertTransferNotLinkedToGoal(true, true)).toThrow(
       TransferLinkedToGoalError,
     );
+  });
+});
+
+describe("assertAdjustmentLedgerFieldsImmutable — SPEC-22 T-22", () => {
+  it("allows date/description updates on an adjustment", () => {
+    expect(() =>
+      assertAdjustmentLedgerFieldsImmutable({
+        type: "adjustment_credit",
+        mutatingLedgerFields: false,
+      }),
+    ).not.toThrow();
+  });
+
+  it("rejects amount/account mutations on an adjustment", () => {
+    expect(() =>
+      assertAdjustmentLedgerFieldsImmutable({
+        type: "adjustment_debit",
+        mutatingLedgerFields: true,
+      }),
+    ).toThrow(AdjustmentLedgerFieldsImmutableError);
+  });
+
+  it("does not apply to income/expense/transfer", () => {
+    expect(() =>
+      assertAdjustmentLedgerFieldsImmutable({
+        type: "expense",
+        mutatingLedgerFields: true,
+      }),
+    ).not.toThrow();
   });
 });

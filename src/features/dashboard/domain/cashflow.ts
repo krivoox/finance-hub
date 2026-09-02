@@ -36,7 +36,7 @@ export function computeMonthlyCashflow(
       } else if (tx.type === "expense") {
       expenseCents += tx.amountCents;
     }
-    // transfer, fx_debit, fx_credit: excluded from cashflow (SPEC-12 §4 / SPEC-16)
+    // transfer, fx_*, adjustment_*: excluded (SPEC-12 §4 / SPEC-16 / SPEC-22)
   }
 
   return {

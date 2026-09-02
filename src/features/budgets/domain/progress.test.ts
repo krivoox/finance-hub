@@ -177,6 +177,29 @@ describe("SPEC-07 T-05 — transfers/incomes se ignoran", () => {
     );
     expect(spent).toBe(0);
   });
+
+  it("SPEC-22 T-28: un ajuste no suma a spent", () => {
+    const b = budget({ categoryIds: [] });
+    const spent = computeBudgetSpent(
+      b,
+      [
+        tx({
+          type: "adjustment_debit",
+          amountCents: 8_000,
+          categoryId: null,
+          occurredOn: new Date("2026-07-05T00:00:00Z"),
+        }),
+        tx({
+          type: "expense",
+          amountCents: 1_000,
+          categoryId: "cat-food",
+          occurredOn: new Date("2026-07-05T00:00:00Z"),
+        }),
+      ],
+      new Date("2026-07-10T00:00:00Z"),
+    );
+    expect(spent).toBe(1_000);
+  });
 });
 
 describe("SPEC-07 T-05b — otra moneda ignorada", () => {

@@ -148,3 +148,13 @@ export class TransferLinkedToGoalError extends TransactionDomainError {
     this.name = "TransferLinkedToGoalError";
   }
 }
+
+/** SPEC-22 FR-09 — Adjustment amount/account/type cannot change via generic update. */
+export class AdjustmentLedgerFieldsImmutableError extends TransactionDomainError {
+  constructor(
+    message = "El monto y la cuenta de un ajuste no se pueden cambiar. Eliminalo y creá uno nuevo, o usá cambiar objetivo.",
+  ) {
+    super(message);
+    this.name = "AdjustmentLedgerFieldsImmutableError";
+  }
+}

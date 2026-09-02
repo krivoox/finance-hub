@@ -46,24 +46,39 @@ describe("resolveListTypeFilter — SPEC-05 T-16, T-19", () => {
       type: "fx_debit",
       counterpartyAccountId: "acc-b",
     });
+    const adjustment = tx({
+      id: "adj",
+      type: "adjustment_credit",
+    });
 
     const allTypes = resolveListTypeFilter("all");
     expect(allTypes).toBeUndefined();
     expect(matchesTypeFilter(income, allTypes)).toBe(true);
     expect(matchesTypeFilter(transfer, allTypes)).toBe(true);
     expect(matchesTypeFilter(fx, allTypes)).toBe(true);
+    expect(matchesTypeFilter(adjustment, allTypes)).toBe(true);
 
     const transferOnly = resolveListTypeFilter("transfer");
     expect(transferOnly).toEqual(["transfer"]);
     expect(matchesTypeFilter(income, transferOnly)).toBe(false);
     expect(matchesTypeFilter(transfer, transferOnly)).toBe(true);
     expect(matchesTypeFilter(fx, transferOnly)).toBe(false);
+    expect(matchesTypeFilter(adjustment, transferOnly)).toBe(false);
 
     const incomeOnly = resolveListTypeFilter("income");
     expect(incomeOnly).toEqual(["income"]);
     expect(matchesTypeFilter(income, incomeOnly)).toBe(true);
     expect(matchesTypeFilter(transfer, incomeOnly)).toBe(false);
     expect(matchesTypeFilter(fx, incomeOnly)).toBe(false);
+    expect(matchesTypeFilter(adjustment, incomeOnly)).toBe(false);
+
+    const expenseOnly = resolveListTypeFilter("expense");
+    expect(matchesTypeFilter(adjustment, expenseOnly)).toBe(false);
+  });
+
+  it("SPEC-22 T-25: URL type=adjustment_credit normalizes to all", () => {
+    expect(normalizeListTypeFilter("adjustment_credit")).toBe("all");
+    expect(resolveListTypeFilter("adjustment_credit")).toBeUndefined();
   });
 });
 
@@ -96,5 +111,20 @@ describe("matchesCategoryFilter — SPEC-05 T-18", () => {
     });
     expect(matchesCategoryFilter(expense, "cat-x")).toBe(true);
     expect(matchesCategoryFilter(transfer, "cat-x")).toBe(false);
+  });
+
+  it("SPEC-22 T-26: adjustments (null category) are excluded by categoryId", () => {
+    const expense = tx({
+      id: "e",
+      type: "expense",
+      categoryId: "cat-x",
+    });
+    const adjustment = tx({
+      id: "adj",
+      type: "adjustment_debit",
+      categoryId: null,
+    });
+    expect(matchesCategoryFilter(expense, "cat-x")).toBe(true);
+    expect(matchesCategoryFilter(adjustment, "cat-x")).toBe(false);
   });
 });

@@ -93,3 +93,23 @@ export class AccountDeleteConfirmationMismatchError extends AccountDomainError {
     this.name = "AccountDeleteConfirmationMismatchError";
   }
 }
+
+/** SPEC-22 — target equals the derived current balance; nothing to persist. */
+export class NoAdjustmentNeededError extends AccountDomainError {
+  constructor(
+    message = "El saldo ya coincide con ese valor. No hace falta ajustar.",
+  ) {
+    super(message);
+    this.name = "NoAdjustmentNeededError";
+  }
+}
+
+/** SPEC-22 — target/current is not a safe integer, or credit-card debt < 0. */
+export class InvalidTargetBalanceError extends AccountDomainError {
+  constructor(
+    message = "El saldo objetivo no es válido.",
+  ) {
+    super(message);
+    this.name = "InvalidTargetBalanceError";
+  }
+}

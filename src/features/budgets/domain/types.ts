@@ -58,7 +58,14 @@ export type BudgetPeriodBounds = {
  * on the full `TransactionLike`.
  */
 export type BudgetExpenseCandidate = {
-  readonly type: "income" | "expense" | "transfer" | "fx_debit" | "fx_credit";
+  readonly type:
+    | "income"
+    | "expense"
+    | "transfer"
+    | "fx_debit"
+    | "fx_credit"
+    | "adjustment_credit"
+    | "adjustment_debit";
   readonly amountCents: number;
   readonly occurredOn: Date;
   readonly categoryId: string | null;

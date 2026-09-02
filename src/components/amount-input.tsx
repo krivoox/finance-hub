@@ -12,6 +12,8 @@ export type AmountInputProps = Omit<
 > & {
   /** Fraction digits kept while typing. Money amounts use 2. */
   maxFractionDigits?: number;
+  /** Keep a leading minus (balance targets that may be overdrawn). */
+  allowNegative?: boolean;
 };
 
 /**
@@ -23,6 +25,7 @@ export function AmountInput({
   className,
   onChange,
   maxFractionDigits = 2,
+  allowNegative = false,
   placeholder = "0,00",
   autoComplete = "off",
   ...props
@@ -43,6 +46,7 @@ export function AmountInput({
       onChange={(event) => {
         const next = normalizeDecimalInput(event.target.value, {
           maxFractionDigits,
+          allowNegative,
         });
         if (event.target.value !== next) {
           event.target.value = next;

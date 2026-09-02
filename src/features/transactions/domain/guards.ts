@@ -10,6 +10,7 @@ import type { CategoryKind } from "@/features/categories/domain";
 import {
   AccountArchivedError,
   AccountWorkspaceMismatchError,
+  AdjustmentLedgerFieldsImmutableError,
   CategoryKindMismatchError,
   CategoryNotAllowedError,
   CategoryRequiredError,
@@ -54,7 +55,13 @@ export function assertCategoryRequiredForType(
   categoryId: string | null | undefined,
 ): void {
   const hasCategory = typeof categoryId === "string" && categoryId.length > 0;
-  if (type === "transfer" || type === "fx_debit" || type === "fx_credit") {
+  if (
+    type === "transfer" ||
+    type === "fx_debit" ||
+    type === "fx_credit" ||
+    type === "adjustment_credit" ||
+    type === "adjustment_debit"
+  ) {
     if (hasCategory) throw new CategoryNotAllowedError();
     return;
   }
@@ -117,7 +124,7 @@ export function assertTransferCounterparty(
     if (!hasCounterparty) throw new CounterpartyRequiredError();
     return;
   }
-  // income / expense / fx_* must not carry a counterparty
+  // income / expense / fx_* / adjustment_* must not carry a counterparty
   if (hasCounterparty) throw new CounterpartyNotAllowedError();
 }
 
@@ -211,6 +218,24 @@ export function assertTransferNotLinkedToGoal(
 ): void {
   if (hasGoalContribution && mutatingLedgerFields) {
     throw new TransferLinkedToGoalError();
+  }
+}
+
+/**
+ * SPEC-22 FR-09 — Generic `UpdateTransaction` cannot change amount / account /
+ * category / counterparty / type of an adjustment. Use
+ * `UpdateBalanceAdjustment` (new target) instead.
+ */
+export function assertAdjustmentLedgerFieldsImmutable(input: {
+  readonly type: TransactionType;
+  readonly mutatingLedgerFields: boolean;
+}): void {
+  if (
+    (input.type === "adjustment_credit" ||
+      input.type === "adjustment_debit") &&
+    input.mutatingLedgerFields
+  ) {
+    throw new AdjustmentLedgerFieldsImmutableError();
   }
 }
 
