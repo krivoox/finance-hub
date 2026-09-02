@@ -19,6 +19,8 @@ import { getTransactionDetail } from "@/features/transactions/services";
 import { EditTransactionSheet } from "@/features/transactions/components/edit-transaction-sheet";
 import { TRANSACTION_TYPE_LABEL_ES } from "@/features/transactions/components/transaction-type-labels";
 import {
+  signedLedgerAmountCents,
+  isAdjustmentType,
   TransactionNotFoundError,
   type TransactionType,
 } from "@/features/transactions/domain";
@@ -32,14 +34,25 @@ type PageProps = {
 function badgeVariantForType(
   type: TransactionType,
 ): "income" | "expense" | "transfer" {
-  if (type === "income" || type === "fx_credit") return "income";
-  if (type === "expense" || type === "fx_debit") return "expense";
+  if (
+    type === "income" ||
+    type === "fx_credit" ||
+    type === "adjustment_credit"
+  ) {
+    return "income";
+  }
+  if (
+    type === "expense" ||
+    type === "fx_debit" ||
+    type === "adjustment_debit"
+  ) {
+    return "expense";
+  }
   return "transfer";
 }
 
 function signedAmountCents(type: TransactionType, amountCents: number): number {
-  if (type === "income" || type === "fx_credit") return amountCents;
-  return -amountCents;
+  return signedLedgerAmountCents(type, amountCents);
 }
 
 function formatOccurredOn(date: Date): string {
@@ -176,11 +189,13 @@ async function TransactionDetailBody({
                   ? "Se acredita en"
                   : detail.type === "expense" || detail.type === "fx_debit"
                     ? "Se descuenta de"
-                    : "Cuentas"}
+                    : isAdjustmentType(detail.type)
+                      ? "Cuenta"
+                      : "Cuentas"}
               </dt>
               <dd className="text-foreground">{transferLabel}</dd>
             </div>
-            {detail.type !== "transfer" ? (
+            {detail.type !== "transfer" && !isAdjustmentType(detail.type) ? (
               <div className="space-y-1">
                 <dt className="text-xs font-medium tracking-widest text-muted-foreground uppercase">
                   Categoría

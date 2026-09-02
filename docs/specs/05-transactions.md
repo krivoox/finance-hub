@@ -5,15 +5,15 @@
 | ID | SPEC-05 |
 | Estado | Draft |
 | Prioridad | P0 |
-| Dependencias | SPEC-01 (timezone), SPEC-03, SPEC-04; canje SPEC-16 |
+| Dependencias | SPEC-01 (timezone), SPEC-03, SPEC-04; canje SPEC-16; ajuste SPEC-22 |
 
 > **KRI-29.** Alta de **expense**: toggle “Dividirlo con alguien” → `SplitGroup` (SPEC-09 / SPEC-10). Listado/cuentas **cross-workspace (SPEC-14) se retiran** con el epic.
 
 ## 1. Contexto
 
-Ingresos y gastos son el núcleo del ledger. Las transferencias se especifican en SPEC-06. El canje de moneda (`fx_debit` / `fx_credit`) en SPEC-16 forma parte del mismo ledger y aparece en el listado según las reglas de filtro de tipo.
+Ingresos y gastos son el núcleo del ledger. Las transferencias se especifican en SPEC-06. El canje de moneda (`fx_debit` / `fx_credit`) en SPEC-16 y el **ajuste de saldo** ([SPEC-22](./22-balance-adjustment.md)) forman parte del mismo ledger y aparecen en el listado según las reglas de filtro de tipo.
 
-La página `/transactions` (**Transacciones**; copy histórico “Movimientos”) es el listado principal del ledger del workspace activo: **no** es un cashflow (incluye transfers y, con `type=all`, también `fx_*`). Plantillas recurrentes y su bandeja viven en [SPEC-18](./18-recurring-transactions.md) (`/transactions/recurring`).
+La página `/transactions` (**Transacciones**; copy histórico “Movimientos”) es el listado principal del ledger del workspace activo: **no** es un cashflow (incluye transfers y, con `type=all`, también `fx_*` y **ajustes de saldo**, [SPEC-22](./22-balance-adjustment.md)). Plantillas recurrentes y su bandeja viven en [SPEC-18](./18-recurring-transactions.md) (`/transactions/recurring`).
 
 ## 2. Historias de usuario
 
@@ -56,7 +56,7 @@ La página `/transactions` (**Transacciones**; copy histórico “Movimientos”
 ### 4.2 Listado — alcance del ledger (FR-04)
 
 - El listado es del **ledger completo** del workspace (más txs que afectan cuentas locales con registro en otro workspace, SPEC-14 FR-05).
-- **No** es cashflow del dashboard: en el periodo pueden aparecer `income`, `expense`, `transfer` y (según filtro de tipo) `fx_debit` / `fx_credit`.
+- **No** es cashflow del dashboard: en el periodo pueden aparecer `income`, `expense`, `transfer`, `fx_debit` / `fx_credit` y ajustes (SPEC-22; visibles con `type=all`).
 - Orden: `occurredOn` desc, luego `createdAt` desc, luego `id` desc (desempate estable para cursor).
 - **Aporte a objetivo (SPEC-08 H4):** las transfers creadas por `ContributeToGoal` aparecen como `type=transfer`. El DTO de listado debe incluir `goalContribution: null | { contributionId, goalId, goalName, goalKind }` (join) para badge/label en UI — **sin** cambiar la matriz de filtro `type`.
 
@@ -101,18 +101,18 @@ Timezone: `User.timezone` ([SPEC-01](./01-auth.md)). Preferencias no reescriben 
 |--------|---------|-----------|
 | `type` | `all` (default / ausente) \| `income` \| `expense` \| `transfer` | Ver matriz abajo |
 | `accountId` | id opcional | Match si `accountId` **o** `counterpartyAccountId` (cubre origen/destino de transfer y patas de fx) |
-| `categoryId` | id opcional | Match exacto `categoryId`. Transfers y `fx_*` tienen `categoryId = null` → **quedan fuera** cuando hay filtro de categoría |
+| `categoryId` | id opcional | Match exacto `categoryId`. Transfers, `fx_*` y `adjustment_*` tienen `categoryId = null` → **quedan fuera** cuando hay filtro de categoría |
 
 **Matriz `type` (MVP):**
 
 | `type` URL | Tipos de ledger incluidos |
 |------------|---------------------------|
-| `all` / ausente / inválido → `all` | `income`, `expense`, `transfer`, `fx_debit`, `fx_credit` |
+| `all` / ausente / inválido → `all` | `income`, `expense`, `transfer`, `fx_debit`, `fx_credit`, `adjustment_credit`, `adjustment_debit` |
 | `income` | solo `income` |
 | `expense` | solo `expense` |
-| `transfer` | solo `transfer` (**no** incluye `fx_*`) |
+| `transfer` | solo `transfer` (**no** incluye `fx_*` ni `adjustment_*`) |
 
-- En MVP, `fx_*` **solo** son visibles con `type=all`.
+- En MVP, `fx_*` y `adjustment_*` **solo** son visibles con `type=all` (SPEC-16 / SPEC-22).
 - Filtros se combinan con **AND** (periodo ∩ tipo ∩ cuenta ∩ categoría).
 - `accountId` / `categoryId` inexistentes o fuera del workspace: el service/authz responde vacío o error de membresía según capa de I/O; el dominio de filtros no inventa ids.
 
@@ -138,6 +138,7 @@ Al aplicar los mismos filtros AND que el listado (§4.3–4.4 + alcance SPEC-14)
 | `expenseCents` | `expense` |
 | `transferCents` | `transfer` |
 | `fxDebitCents` / `fxCreditCents` | `fx_debit` / `fx_credit` (visibles con `type=all`; **no** son cashflow ni budget spent) |
+| *(sin bucket de cashflow)* | `adjustment_credit` / `adjustment_debit` (SPEC-22): visibles con `type=all`; **no** entran en income/expense/net ni en `movementCount` de `presentListTotals` |
 
 **Presentación según filtro `type` (`presentListTotals`):**
 
@@ -146,7 +147,7 @@ Al aplicar los mismos filtros AND que el listado (§4.3–4.4 + alcance SPEC-14)
 | `expense` | **Suma gastos** por moneda (caso “cuánto gasté en X”) |
 | `income` | **Suma ingresos** por moneda |
 | `transfer` | **Suma transferencias** por moneda |
-| `all` | Breakdown **gastos + ingresos + neto** por moneda. `neto = ingresos − gastos`. Transferencias y `fx_*` **nunca** entran en ingresos, gastos, neto ni en el recuento de movimientos del strip (KRI-34). Si el set filtrado solo tiene transfers/`fx_*`, no hay totales de cashflow que mostrar. |
+| `all` | Breakdown **gastos + ingresos + neto** por moneda. `neto = ingresos − gastos`. Transferencias, `fx_*` y **ajustes (SPEC-22)** **nunca** entran en ingresos, gastos, neto ni en el recuento de movimientos del strip (KRI-34). Si el set filtrado solo tiene transfers/`fx_*`/ajustes, no hay totales de cashflow que mostrar. |
 
 **Paginación:** los totales **no** dependen de `cursor` ni de “Cargar más”. Query de agregación con el mismo `where` que `ListTransactions`.
 
@@ -158,7 +159,9 @@ Al aplicar los mismos filtros AND que el listado (§4.3–4.4 + alcance SPEC-14)
 |------|--------|-----------------|
 | Command | `CreateIncome` | accountId, categoryId, amountCents, occurredOn, description?, currency? (opcional; si viene, debe = account.currency) |
 | Command | `CreateExpense` | igual |
-| Command | `UpdateTransaction` | campos mutables |
+| Command | `CreateBalanceAdjustment` | ver [SPEC-22](./22-balance-adjustment.md) — input = **target** (no delta); persiste `adjustment_credit` \| `adjustment_debit` |
+| Command | `UpdateBalanceAdjustment` | SPEC-22 — nuevo target; recalcula tipo/monto |
+| Command | `UpdateTransaction` | campos mutables; en ajustes solo description/occurredOn |
 | Command | `DeleteTransaction` | transactionId (UI: también en lote vía `BulkActionsBar`, una action por id) |
 | Query | `ListTransactions` | ver contrato abajo |
 | Query | `SumFilteredTransactions` | mismos filtros que list (sin cursor); agrega por currency+type |
@@ -199,11 +202,11 @@ Helpers de periodo (puro; paridad dashboard):
 - [ ] Default de listado: periodo **este mes** (timezone usuario), `type=all`, sin cuenta/categoría, primera página (25 ítems).
 - [ ] `this_week` = lunes–domingo en timezone; distinto del ancla weekly de presupuestos.
 - [ ] `custom` valida `from≤to`, inclusive, span ≤366; `from=to` OK; error `InvalidDateRange` si no.
-- [ ] Filtros AND; `type=transfer` no muestra `fx_*`; `type=all` sí puede mostrarlos.
+- [ ] Filtros AND; `type=transfer` no muestra `fx_*` ni `adjustment_*`; `type=all` sí puede mostrarlos.
 - [ ] `accountId` incluye transfers donde la cuenta es origen o destino.
-- [ ] `categoryId` excluye transfers/`fx_*` (sin categoría).
+- [ ] `categoryId` excluye transfers/`fx_*`/`adjustment_*` (sin categoría).
 - [ ] Cambiar filtros limpia `cursor`; limpiar filtros vuelve a este mes (no a `all`).
-- [ ] Totales del filtrado (FR-06): por moneda; `type=expense` → suma gastos; `type=all` → breakdown ingresos/gastos/neto **sin** transferencias ni `fx_*`; independientes de la página.
+- [ ] Totales del filtrado (FR-06): por moneda; `type=expense` → suma gastos; `type=all` → breakdown ingresos/gastos/neto **sin** transferencias, `fx_*` ni `adjustment_*`; independientes de la página.
 - [ ] Cursor inválido → primera página (sin error de producto).
 - [ ] Formulario create permite elegir ARS/USD; default = `workspace.baseCurrency`.
 - [ ] Formulario create (income/expense): 4–5 atajos de categoría más usadas + selector; se puede crear una categoría nueva desde la búsqueda.
@@ -297,10 +300,10 @@ Helpers de periodo (puro; paridad dashboard):
 - **When** resolve  
 - **Then** rango = mes actual; from/to de URL no alteran el resultado
 
-### T-16 Type filter vs fx
+### T-16 Type filter vs fx y ajustes
 
-- **Given** txs `income`, `transfer`, `fx_debit` en rango  
-- **When** `type=all` → las tres pueden listarse; `type=transfer` → solo `transfer`; `type=income` → solo `income`
+- **Given** txs `income`, `transfer`, `fx_debit`, `adjustment_credit` en rango  
+- **When** `type=all` → las cuatro pueden listarse; `type=transfer` → solo `transfer`; `type=income` → solo `income`; `type=expense` → ninguna de `fx_*` / `adjustment_*`
 
 ### T-17 accountId en transfer
 
@@ -316,7 +319,7 @@ Helpers de periodo (puro; paridad dashboard):
 
 ### T-19 Normalización type/period inválidos
 
-- **When** `period="nope"` → tratar como `this_month`; `type="fx_debit"` u otro no permitido en URL → tratar como `all`
+- **When** `period="nope"` → tratar como `this_month`; `type="fx_debit"` o `type="adjustment_credit"` u otro no permitido en URL → tratar como `all`
 
 ### T-20 Totales por moneda sin mezclar
 
@@ -326,13 +329,13 @@ Helpers de periodo (puro; paridad dashboard):
 
 ### T-20b Totales `type=all` excluyen transferencias (KRI-34)
 
-- **Given** income 10000 ARS, expense 3000 ARS, transfer 500 ARS  
+- **Given** income 10000 ARS, expense 3000 ARS, transfer 500 ARS, `adjustment_debit` 400 ARS  
 - **When** `presentListTotals(..., "all")`  
-- **Then** breakdown ARS income=10000, expense=3000, net=7000; el recuento de movimientos es 2 (sin la transfer)
+- **Then** breakdown ARS income=10000, expense=3000, net=7000; el recuento de movimientos es 2 (sin la transfer ni el ajuste)
 
-- **Given** solo transfers en el filtro y `type=all`  
+- **Given** solo transfers y/o ajustes en el filtro y `type=all`  
 - **When** `presentListTotals`  
-- **Then** breakdown vacío (no fallback a SUMA de transfers)
+- **Then** breakdown vacío (no fallback a SUMA de transfers ni de ajustes)
 
 ### T-21 Totales independientes de la página
 
@@ -375,13 +378,14 @@ Helpers de periodo (puro; paridad dashboard):
 - Filtro por `createdByUserId`
 - Paginación hacia atrás / page numbers / page size configurable
 - Selector de timezone distinto del perfil (SPEC-01)
+- Ajuste de saldo (comando, tab, copy de deuda) → [SPEC-22](./22-balance-adjustment.md)
 
 ## 9. Notas
 
 Preferir un modelo único `Transaction` con `type` discriminado; tests cubren cada variante.
 
 - `amount.currency` = `account.currency` (invariante; multi-ledger OK).
-- Tipos `fx_debit` / `fx_credit` (SPEC-16) **no** cuentan en budget spent ni cashflow; **sí** pueden aparecer en Transacciones con `type=all`.
+- Tipos `fx_debit` / `fx_credit` (SPEC-16) y **ajustes de saldo** ([SPEC-22](./22-balance-adjustment.md)) **no** cuentan en budget spent ni cashflow; **sí** pueden aparecer en Transacciones con `type=all`.
 - DTO de listado puede incluir `recurring` (join SPEC-18) para indicador 🔄 / `Repeat` + tooltip “Generada por: {ruleName}”.
 
 Detalle de UI: [SPEC-13](./13-transaction-detail.md). Dinero entre workspaces: [SPEC-14](./14-cross-workspace-money.md).

@@ -16,4 +16,9 @@ describe("signedLedgerAmountCents (KRI-34)", () => {
   it("transfers keep the stored positive amount (not an expense)", () => {
     expect(signedLedgerAmountCents("transfer", 4_000)).toBe(4_000);
   });
+
+  it("adjustment credit is positive and debit is negative (SPEC-22)", () => {
+    expect(signedLedgerAmountCents("adjustment_credit", 2_000)).toBe(2_000);
+    expect(signedLedgerAmountCents("adjustment_debit", 2_000)).toBe(-2_000);
+  });
 });

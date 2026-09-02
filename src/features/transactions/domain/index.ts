@@ -1,6 +1,7 @@
 export {
   AccountArchivedError,
   AccountWorkspaceMismatchError,
+  AdjustmentLedgerFieldsImmutableError,
   CategoryKindMismatchError,
   CategoryNotAllowedError,
   CategoryRequiredError,
@@ -59,6 +60,7 @@ export type {
 export {
   assertAccountActive,
   assertAccountBelongsToWorkspace,
+  assertAdjustmentLedgerFieldsImmutable,
   assertCategoryKindMatches,
   assertCategoryRequiredForType,
   assertOccurredOnNotTooFuture,
@@ -86,18 +88,27 @@ export type { TransactionCreateParam } from "./create-param";
 
 export {
   CREATEABLE_TRANSACTION_TYPES,
+  NEW_TRANSACTION_FORM_TYPES,
   TRANSACTION_DESCRIPTION_MAX_LENGTH,
   TRANSACTION_TYPES,
   TRANSACTION_TYPE_TO_CATEGORY_KIND,
+  isAdjustmentType,
   isTransactionType,
 } from "./types";
 export type {
   CreateableTransactionType,
+  NewTransactionFormType,
   TransactionLike,
   TransactionType,
 } from "./types";
 
 export { toBalanceEffect, toBalanceEffects } from "./effect";
+
+export { planCreateBalanceAdjustment } from "./plan-balance-adjustment";
+export type {
+  CreateBalanceAdjustmentResult,
+  PlanCreateBalanceAdjustmentInput,
+} from "./plan-balance-adjustment";
 
 export { sortTransactionsForList } from "./sort";
 

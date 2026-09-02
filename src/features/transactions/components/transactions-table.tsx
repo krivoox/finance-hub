@@ -84,8 +84,20 @@ type TableTransaction = {
 function amountVariant(
   type: TransactionType,
 ): "income" | "expense" | "transfer" {
-  if (type === "fx_credit" || type === "income") return "income";
-  if (type === "fx_debit" || type === "expense") return "expense";
+  if (
+    type === "fx_credit" ||
+    type === "income" ||
+    type === "adjustment_credit"
+  ) {
+    return "income";
+  }
+  if (
+    type === "fx_debit" ||
+    type === "expense" ||
+    type === "adjustment_debit"
+  ) {
+    return "expense";
+  }
   return "transfer";
 }
 

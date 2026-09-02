@@ -1,5 +1,6 @@
 import { formatMoney, formatSignedMoney } from "@/lib/format-money";
 import type { Insight } from "@/features/dashboard/domain";
+import { signedLedgerAmountCents } from "@/features/transactions/domain";
 import type { ListedTransaction } from "@/features/transactions/services";
 
 export function formatPeriodLabel(periodStart: Date, timezone: string) {
@@ -34,8 +35,20 @@ export function formatShortDate(value: Date | string) {
 }
 
 export function amountVariant(type: ListedTransaction["type"]) {
-  if (type === "income") return "income" as const;
-  if (type === "expense") return "expense" as const;
+  if (
+    type === "income" ||
+    type === "fx_credit" ||
+    type === "adjustment_credit"
+  ) {
+    return "income" as const;
+  }
+  if (
+    type === "expense" ||
+    type === "fx_debit" ||
+    type === "adjustment_debit"
+  ) {
+    return "expense" as const;
+  }
   return "transfer" as const;
 }
 
@@ -44,9 +57,11 @@ export function formatSignedAmount(
   amountCents: number,
   currency: string,
 ) {
-  if (type === "income") return formatSignedMoney(amountCents, currency);
-  if (type === "expense") return formatSignedMoney(-amountCents, currency);
-  return formatMoney(amountCents, currency);
+  if (type === "transfer") return formatMoney(amountCents, currency);
+  return formatSignedMoney(
+    signedLedgerAmountCents(type, amountCents),
+    currency,
+  );
 }
 
 export function formatAccountCell(tx: ListedTransaction) {

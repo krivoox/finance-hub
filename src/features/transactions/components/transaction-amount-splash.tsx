@@ -11,10 +11,14 @@ import {
   useTransactionFeedbackStore,
 } from "../stores/transaction-feedback-store";
 
-const KIND_LABEL: Record<"income" | "expense" | "transfer", string> = {
+const KIND_LABEL: Record<
+  "income" | "expense" | "transfer" | "adjustment",
+  string
+> = {
   income: "Ingreso registrado",
   expense: "Gasto registrado",
   transfer: "Transferencia registrada",
+  adjustment: "Saldo ajustado",
 };
 
 function prefersReducedMotion() {
@@ -62,6 +66,7 @@ export function TransactionAmountSplash() {
 
   if (!splash) return null;
 
+  // Adjustment splash already receives signedEffect (target − current).
   const signed =
     splash.kind === "income"
       ? splash.amountCents
@@ -70,9 +75,9 @@ export function TransactionAmountSplash() {
         : splash.amountCents;
 
   const toneClass =
-    splash.kind === "income"
+    splash.kind === "income" || (splash.kind === "adjustment" && signed > 0)
       ? "text-income"
-      : splash.kind === "expense"
+      : splash.kind === "expense" || (splash.kind === "adjustment" && signed < 0)
         ? "text-expense"
         : "text-foreground";
 

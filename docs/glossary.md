@@ -15,7 +15,7 @@
 | Account | Cuenta: banco, efectivo, billetera, tarjeta de crédito, etc. |
 | Credit card (tipo de cuenta) | Pasivo: saldo positivo = deuda. Pago del resumen = transferencia hacia la tarjeta (SPEC-03 / SPEC-06) |
 | Tarjeta bimonetaria (ARS+USD) | Misma plástico con consumos en dos monedas: **dos** Accounts `credit_card` (una ARS, una USD). No es una cuenta multi-moneda (ADR-006 / SPEC-03 §5.1, KRI-11) |
-| Transaction | Movimiento / **transacción**: ingreso, gasto o transferencia |
+| Transaction | Movimiento / **transacción**: ingreso, gasto, transferencia, canje o **ajuste de saldo** (SPEC-22) |
 | Periodo de listado (Transacciones) | Ventana sobre `occurredOn`: `this_month` / `this_week` (lun–dom) / `all` / `custom`; default este mes en `User.timezone` (SPEC-05). Distinto del periodo weekly anclado de Budget |
 | Income | Ingreso que aumenta el saldo de una cuenta (en tarjeta: baja deuda) |
 | Expense | Gasto que disminuye el saldo de una cuenta (en tarjeta: sube deuda) |
@@ -37,6 +37,7 @@
 | Membership | Relación usuario–workspace con un rol. Unirse a un SplitGroup **no** crea Membership |
 | Money | Value object: monto en centavos + moneda |
 | Balance | Saldo derivado de una cuenta o entre miembros |
+| Ajuste de saldo / Balance adjustment | Corrección de ledger (KRI-36 / SPEC-22): el usuario carga el **saldo real** o la **deuda real**; el dominio persiste `adjustment_credit` o `adjustment_debit` (dirección = `type`, `amountCents > 0`). Cambia el saldo derivado; **no** es ingreso ni gasto (no entra en presupuestos, cashflow ni analytics). Distinto de **Ajustes** (pantalla de settings) |
 | Base currency | Moneda de consolidación del workspace |
 | Archive | Baja lógica de cuenta (u otra entidad): deja de usarse en flujos activos pero **conserva historial** (SPEC-03) |
 | Eliminar cuenta / DeleteAccount | Baja física (hard-delete): borra la cuenta y el historial asociado vía cascada; confirmación fuerte; no es el default frente a Archivar (SPEC-03) |

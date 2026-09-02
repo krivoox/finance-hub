@@ -9,17 +9,25 @@ import {
   createExpenseAction,
   createIncomeAction,
   createTransferAction,
+  createBalanceAdjustmentAction,
 } from "@/features/transactions/actions";
 import { createExpenseWithSplitAction } from "@/features/splits/actions";
 import { ExpenseSplitFields } from "@/features/splits/components/expense-split-fields";
 import type { ExpenseSplitGroupOption } from "@/features/splits/components/expense-split-fields";
 import { ACCOUNT_CURRENCIES } from "@/domain/money/currencies";
 import {
-  CREATEABLE_TRANSACTION_TYPES,
+  NEW_TRANSACTION_FORM_TYPES,
   filterAccountsByCurrency,
   resolveTransactionFormCurrency,
-  type CreateableTransactionType,
+  type NewTransactionFormType,
 } from "@/features/transactions/domain";
+import type { AccountType } from "@/features/accounts/domain";
+import {
+  adjustmentTargetLabel,
+  buildAdjustmentPreview,
+  formatAdjustmentCurrent,
+  isCreditCardAccount,
+} from "@/features/accounts/components/adjustment-preview";
 import { CategorySelectField } from "@/features/categories/components/category-select-field";
 import {
   FormActions,
@@ -43,11 +51,14 @@ import {
 import { refreshAfterMutation } from "@/lib/navigation";
 import { TRANSACTION_TYPE_LABEL_ES } from "./transaction-type-labels";
 import { useTransactionFeedbackStore } from "../stores/transaction-feedback-store";
+import { invalidateNewTransactionFormOptions } from "../stores/new-transaction-form-options-store";
 
 type AccountOption = {
   id: string;
   name: string;
   currency: string;
+  type: AccountType;
+  currentBalanceCents: number;
 };
 
 type CategoryOption = {
@@ -65,7 +76,7 @@ type NewTransactionFormProps = {
   splitGroups?: readonly ExpenseSplitGroupOption[];
   currentUserId?: string;
   /** Prefill from PWA shortcuts / `?new=expense|income`. */
-  initialType?: CreateableTransactionType;
+  initialType?: NewTransactionFormType;
   /**
    * `sheet`: fill the FormSheet, pin Registrar, no Cancelar (X closes).
    * `page`: standalone `/transactions/new` with Cancelar.
@@ -76,7 +87,7 @@ type NewTransactionFormProps = {
 };
 
 type FormValues = {
-  type: CreateableTransactionType;
+  type: NewTransactionFormType;
   currency: (typeof ACCOUNT_CURRENCIES)[number];
   amountUnits: string;
   occurredOn: string;
@@ -94,9 +105,10 @@ function todayIsoDate(): string {
   return `${y}-${m}-${d}`;
 }
 
-const TYPE_OPTIONS = CREATEABLE_TRANSACTION_TYPES.map((value) => ({
+const TYPE_OPTIONS = NEW_TRANSACTION_FORM_TYPES.map((value) => ({
   value,
-  label: TRANSACTION_TYPE_LABEL_ES[value],
+  label:
+    value === "adjustment" ? "Ajuste" : TRANSACTION_TYPE_LABEL_ES[value],
 }));
 
 const CURRENCY_OPTIONS = ACCOUNT_CURRENCIES.map((value) => ({
@@ -174,6 +186,7 @@ export function NewTransactionForm({
   const watchedCurrency = useWatch({ control, name: "currency" });
   const watchedAccountId = useWatch({ control, name: "accountId" });
   const watchedAmountUnits = useWatch({ control, name: "amountUnits" });
+  const isAdjustment = watchedType === "adjustment";
 
   const selectedCurrency = resolveTransactionFormCurrency({
     selected: watchedCurrency,
@@ -187,9 +200,9 @@ export function NewTransactionForm({
 
   const filteredCategories = useMemo(
     () =>
-      watchedType === "transfer"
-        ? []
-        : categories.filter((c) => c.kind === watchedType),
+      watchedType === "income" || watchedType === "expense"
+        ? categories.filter((c) => c.kind === watchedType)
+        : [],
     [categories, watchedType],
   );
 
@@ -218,19 +231,100 @@ export function NewTransactionForm({
     selectedSplitGroup?.members.find((m) => m.userId === currentUserId)
       ?.memberId ?? null;
   const splitAmountCents = parseAmountCents(watchedAmountUnits ?? "");
+  const selectedAccount = accountsForCurrency.find(
+    (account) => account.id === watchedAccountId,
+  );
+  const isCard = isCreditCardAccount(selectedAccount?.type);
+  const targetCents = isAdjustment
+    ? parseAmountCents(watchedAmountUnits ?? "", {
+        allowZero: true,
+        allowNegative: !isCard,
+      })
+    : null;
+  const adjustmentPreview = useMemo(
+    () =>
+      isAdjustment && selectedAccount
+        ? buildAdjustmentPreview({
+            accountType: selectedAccount.type,
+            currentBalanceCents: selectedAccount.currentBalanceCents,
+            targetBalanceCents: targetCents,
+            currency: selectedAccount.currency,
+          })
+        : null,
+    [
+      isAdjustment,
+      selectedAccount,
+      targetCents,
+    ],
+  );
 
   const onSubmit = handleSubmit((values) => {
-    const amountCents = parseAmountCents(values.amountUnits);
-    if (amountCents === null) {
-      toast.error("Monto inválido");
-      return;
-    }
-
     const description = values.description.trim() || null;
     const currency = resolveTransactionFormCurrency({
       selected: values.currency,
       workspaceBaseCurrency: workspaceCurrency,
     });
+
+    if (values.type === "adjustment") {
+      const selected = accounts.find((account) => account.id === values.accountId);
+      const parsedTarget = parseAmountCents(values.amountUnits, {
+        allowZero: true,
+        allowNegative: selected?.type !== "credit_card",
+      });
+      if (parsedTarget === null) {
+        toast.error(
+          selected?.type === "credit_card"
+            ? "Ingresá la deuda real (cero o positivo)."
+            : "Ingresá el saldo real.",
+        );
+        return;
+      }
+
+      startTransition(async () => {
+        const result = await createBalanceAdjustmentAction({
+          workspaceId,
+          accountId: values.accountId,
+          targetBalanceCents: parsedTarget,
+          occurredOn: values.occurredOn,
+          description,
+          currency,
+        });
+        if (!result.ok) {
+          toast.error(result.error ?? "No pudimos ajustar el saldo");
+          return;
+        }
+        showFeedback({
+          amountCents: result.data.signedEffect,
+          currency,
+          kind: "adjustment",
+        });
+        clearOfflineDraftFromStorage(
+          typeof window !== "undefined" ? window.sessionStorage : null,
+        );
+        invalidateNewTransactionFormOptions(workspaceId);
+        reset({
+          type: values.type,
+          currency,
+          amountUnits: "",
+          occurredOn: values.occurredOn,
+          accountId: values.accountId,
+          counterpartyAccountId:
+            values.counterpartyAccountId || defaultCounterpartyId,
+          categoryId: "",
+          description: "",
+        });
+        setShareExpense(false);
+        onSuccess?.();
+        refreshAfterMutation(router);
+      });
+      return;
+    }
+
+    const amountCents = parseAmountCents(values.amountUnits);
+    if (amountCents === null) {
+      toast.error("Monto inválido");
+      return;
+    }
 
     startTransition(async () => {
       let result: { ok: boolean; error?: string };
@@ -271,7 +365,7 @@ export function NewTransactionForm({
           description,
           currency,
         });
-      } else {
+      } else if (values.type === "transfer") {
         result = await createTransferAction({
           workspaceId,
           accountId: values.accountId,
@@ -281,6 +375,8 @@ export function NewTransactionForm({
           description,
           currency,
         });
+      } else {
+        return;
       }
 
       if (!result.ok) {
@@ -314,7 +410,7 @@ export function NewTransactionForm({
   });
 
   const isBusy = isPending || isSubmitting;
-  const showCategory = watchedType !== "transfer";
+  const showCategory = watchedType === "income" || watchedType === "expense";
   const showCounterparty = watchedType === "transfer";
   const hasAccountsForCurrency = accountsForCurrency.length > 0;
   const currencyHintLabel =
@@ -368,17 +464,48 @@ export function NewTransactionForm({
           />
 
           <FormField
-            label="Monto"
+            label={
+              isAdjustment
+                ? adjustmentTargetLabel(selectedAccount?.type)
+                : "Monto"
+            }
             htmlFor="tx-amount"
-            hint={`En ${currencyHintLabel}`}
+            hint={
+              isAdjustment && selectedAccount
+                ? isCard
+                  ? `Deuda hoy: ${formatAdjustmentCurrent(selectedAccount.type, selectedAccount.currentBalanceCents, selectedAccount.currency)}. El del resumen.`
+                  : `Hoy: ${formatAdjustmentCurrent(selectedAccount.type, selectedAccount.currentBalanceCents, selectedAccount.currency)}. El del banco o billetera.`
+                : `En ${currencyHintLabel}`
+            }
           >
             <AmountInput
               id="tx-amount"
               className="h-11 text-base sm:h-9 sm:text-sm"
+              allowNegative={isAdjustment && !isCard}
               aria-invalid={Boolean(errors.amountUnits)}
               {...register("amountUnits", { required: true })}
             />
           </FormField>
+
+          {isAdjustment && adjustmentPreview?.text ? (
+            <p
+              className={
+                adjustmentPreview.kind === "ready"
+                  ? "rounded-lg bg-muted/60 px-3 py-2.5 text-sm text-foreground"
+                  : "rounded-lg bg-muted/60 px-3 py-2.5 text-sm text-muted-foreground"
+              }
+            >
+              {adjustmentPreview.text}
+            </p>
+          ) : null}
+
+          {isAdjustment && isCard ? (
+            <p className="text-sm text-muted-foreground text-pretty">
+              Si pagaste el resumen desde otra cuenta, usá{" "}
+              <span className="font-medium text-foreground">Pagar</span> en
+              Cuentas. El ajuste no mueve dinero de otro lado.
+            </p>
+          ) : null}
 
           <FormField label="Descripción" htmlFor="tx-description" optional>
             <Input
@@ -389,7 +516,7 @@ export function NewTransactionForm({
           </FormField>
         </FormSection>
 
-        <FormSection title="Cuenta y categoría">
+        <FormSection title={isAdjustment ? "Cuenta" : "Cuenta y categoría"}>
           {!hasAccountsForCurrency ? (
             <p className="rounded-lg bg-muted/60 px-3 py-2.5 text-sm text-muted-foreground">
               No hay cuentas activas en {selectedCurrency}. Creá una cuenta en
@@ -403,7 +530,9 @@ export function NewTransactionForm({
                 ? "Cuenta origen"
                 : watchedType === "income"
                   ? "Se acredita en"
-                  : "Se descuenta de"
+                  : watchedType === "adjustment"
+                    ? "Cuenta"
+                    : "Se descuenta de"
             }
             htmlFor="tx-account"
           >
@@ -438,7 +567,7 @@ export function NewTransactionForm({
                 }))}
               />
             </FormField>
-          ) : (
+          ) : showCategory ? (
             <FormField label="Categoría" htmlFor="tx-category">
               <Controller
                 control={control}
@@ -459,7 +588,7 @@ export function NewTransactionForm({
                 )}
               />
             </FormField>
-          )}
+          ) : null}
 
           <FormField label="Fecha" htmlFor="tx-date">
             <Controller
@@ -512,13 +641,19 @@ export function NewTransactionForm({
       <Button
         type="submit"
         className="w-full"
-        disabled={isBusy || !hasAccountsForCurrency}
+        disabled={
+          isBusy ||
+          !hasAccountsForCurrency ||
+          (isAdjustment && adjustmentPreview?.kind !== "ready")
+        }
       >
         {isBusy
           ? "Guardando..."
-          : shareExpense && watchedType === "expense"
-            ? "Registrar gasto compartido"
-            : "Registrar"}
+          : isAdjustment
+            ? "Ajustar"
+            : shareExpense && watchedType === "expense"
+              ? "Registrar gasto compartido"
+              : "Registrar"}
       </Button>
     </FormActions>
   );

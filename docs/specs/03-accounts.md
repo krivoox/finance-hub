@@ -6,7 +6,7 @@
 | Estado | Ready (diseño ABM) |
 | Prioridad | P0 |
 | Dependencias | SPEC-02 |
-| Relacionadas | SPEC-05, SPEC-06, SPEC-08, SPEC-14, SPEC-15, SPEC-16, SPEC-18 |
+| Relacionadas | SPEC-05, SPEC-06, SPEC-08, SPEC-14, SPEC-15, SPEC-16, SPEC-18, **SPEC-22 (KRI-36 ajuste)** |
 
 ## 1. Contexto
 
@@ -66,7 +66,7 @@ Alineado a authz existente (`assertCanMutateAccounts`: viewer → `Forbidden`).
 |----|-----------|
 | FR-01 | Crear account con type, currency (ARS\|USD), initialBalance; `creditLimitCents` **opcional** si `type=credit_card` |
 | FR-02 | Listar accounts activas (y opción incluir archivadas); agrupar/mostrar por moneda |
-| FR-03 | Calcular `currentBalance` = initial + efectos de txs **solo en la moneda de la cuenta** |
+| FR-03 | Calcular `currentBalance` = initial + efectos de txs **solo en la moneda de la cuenta** (incluye ajustes SPEC-22; **no** se muta `initialBalance`) |
 | FR-04 | Actualizar name; creditLimit si type=credit_card (currency **inmutable**). UI de edición requerida |
 | FR-05 | Archivar / desarchivar |
 | FR-06 | Rechazar nuevas txs en cuenta archivada |
@@ -114,7 +114,8 @@ Alineado a authz existente (`assertCanMutateAccounts`: viewer → `Forbidden`).
 
 - `currentBalance >= 0` significa monto adeudado (no se modela la deuda como saldo negativo).
 - Un expense en la tarjeta **aumenta** el balance (más deuda).
-- Un income en la tarjeta **disminuye** deuda (ajuste/crédito; **no** mueve liquidez de otra cuenta).
+- Un income en la tarjeta **disminuye** deuda (crédito/nota; **no** mueve liquidez de otra cuenta).
+- **Ajuste de saldo (SPEC-22):** `adjustment_credit` = misma polaridad que income/`fx_credit`; `adjustment_debit` = misma que expense/`fx_debit`. Es el único comando para **corregir** el saldo derivado a un objetivo (no se edita `initialBalance`). En `credit_card` el objetivo es deuda ≥ 0 (0 = saldada; negativo = `InvalidTargetBalance`).
 - **Pago típico del resumen:** transferencia same-currency **hacia** la tarjeta (origen = banco/efectivo/billetera, destino = `credit_card`) → baja la deuda y descuenta el origen ([SPEC-06](./06-transfers.md)).
 - Transferencia **desde** la tarjeta (origen = tarjeta) → aumenta deuda (adelanto en efectivo).
 
@@ -214,8 +215,8 @@ Si cualquier paso falla → rollback total. Confirmación UI (`confirmName`) se 
 
 ## 8. Criterios de aceptación
 
-- [ ] Saldo refleja income/expense/transfer/fx_* correctamente (tests).
-- [ ] Cuenta archivada no acepta CreateTransaction.
+- [ ] Saldo refleja income/expense/transfer/fx_*/adjustment_* correctamente (tests).
+- [ ] Cuenta archivada no acepta CreateTransaction ni `CreateBalanceAdjustment`.
 - [ ] Currency no whitelisted → `UnsupportedAccountCurrency`.
 - [ ] Cuenta USD en workspace ARS → OK.
 - [ ] Create credit_card **sin** creditLimit → OK.
@@ -472,7 +473,7 @@ Orquestación de cascada, Prisma `onDelete: Restrict`, y revalidación de paths:
 
 ## 11. UI / copy (handoff ui-ux)
 
-- `/accounts`: editar (nombre; límite si credit_card); menú o acciones **Archivar** / **Desarchivar** / **Eliminar permanentemente**.
+- `/accounts`: editar (nombre; límite si credit_card); menú o acciones **Ajustar saldo** / **Ajustar deuda** (SPEC-22), **Archivar** / **Desarchivar** / **Eliminar permanentemente**.
 - Create form: creditLimit **opcional** (placeholder “Opcional”).
 - Eliminar: diálogo con consecuencias (“Se borrarán movimientos de esta cuenta, incluidas transferencias con otras cuentas”) + input de confirmación (nombre exacto).
 - Si guard `AccountLinkedToActiveGoal`: mensaje orientando a cancelar/completar o desvincular el objetivo (desvincular en v1 = cancelar goal o esperar; no hay UnlinkGoal dedicado salvo que SPEC-08 lo agregue — copy: “Cancelá o completá el objetivo vinculado”).
@@ -481,7 +482,7 @@ Orquestación de cascada, Prisma `onDelete: Restrict`, y revalidación de paths:
 
 ## 12. Fuera de alcance
 
-- Conciliación bancaria
+- Conciliación bancaria / import de extracto (el **ajuste puntual** de saldo es [SPEC-22](./22-balance-adjustment.md))
 - Canje ARS↔USD → [SPEC-16](./16-currency-exchange.md)
 - Cuentas de inversión
 - Monedas fuera de ARS\|USD
@@ -496,10 +497,11 @@ Orquestación de cascada, Prisma `onDelete: Restrict`, y revalidación de paths:
 - Sync open banking / extracto del emisor
 - Conversión automática del límite de crédito entre monedas
 - Pago de tramo USD con liquidez solo ARS en un solo comando (canje explícito + transfer)
+- **Mutar `initialBalance` para cuadrar** — el camino es [SPEC-22](./22-balance-adjustment.md) (ajuste con auditoría)
 
 ## 13. Notas
 
-- `calculateAccountBalance(account, transactions)` puro y testeable.
+- `calculateAccountBalance(account, transactions)` puro y testeable. Efecto de ajustes: [SPEC-22](./22-balance-adjustment.md).
 - Transferencias same-currency: [SPEC-06](./06-transfers.md). Canje: [SPEC-16](./16-currency-exchange.md).
 - Onboarding / `needsSetup`: [SPEC-15](./15-workspace-onboarding.md) — `accountCount` = no archivadas.
 - Auto-pause recurrentes: [SPEC-18](./18-recurring-transactions.md) §4.7; hard-delete de rules solo vía §5.5 de esta spec.

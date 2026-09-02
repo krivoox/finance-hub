@@ -10,7 +10,19 @@ export function signedLedgerAmountCents(
   type: TransactionType,
   amountCents: number,
 ): number {
-  if (type === "income" || type === "fx_credit") return amountCents;
-  if (type === "expense" || type === "fx_debit") return -amountCents;
+  if (
+    type === "income" ||
+    type === "fx_credit" ||
+    type === "adjustment_credit"
+  ) {
+    return amountCents;
+  }
+  if (
+    type === "expense" ||
+    type === "fx_debit" ||
+    type === "adjustment_debit"
+  ) {
+    return -amountCents;
+  }
   return amountCents;
 }

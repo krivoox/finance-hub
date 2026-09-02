@@ -51,6 +51,7 @@ Orden de ingeniería sugerido: SW policy + manifest shortcuts → prefetch nav �
 | 10e | [16-currency-exchange](./specs/16-currency-exchange.md) | Canje ARS↔USD + tasa de consolidación manual |
 | 10f | [19-usd-quotes-dolarapi](./specs/19-usd-quotes-dolarapi.md) | Snapshot diario Oficial/MEP (DolarApi) + convertidor + “Usar MEP de hoy” |
 | 10g | [02-workspaces](./specs/02-workspaces.md) (ABM) | **Superseded por KRI-29:** no hay ABM de group-tenant. Personal inborrable se mantiene |
+| 10h | [22-balance-adjustment](./specs/22-balance-adjustment.md) | **KRI-36:** ajuste de saldo/deuda. Enum `adjustment_credit` / `adjustment_debit` (dirección = `type`). Target → delta. Tab en Registrar + acción en `/accounts`. No muta `initialBalance`; no es income/expense |
 
 ## Fase 3 — P2 Insights
 

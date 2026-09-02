@@ -70,6 +70,33 @@ export const createTransferSchema = z
   });
 export type CreateTransferInput = z.infer<typeof createTransferSchema>;
 
+const targetBalanceCentsSchema = z
+  .number({ message: "Debe ser un número" })
+  .int("Debe ser entero (en centavos)")
+  .refine((value) => Number.isSafeInteger(value), "Monto fuera de rango");
+
+export const createBalanceAdjustmentSchema = z.object({
+  workspaceId: workspaceIdSchema,
+  accountId: accountIdSchema,
+  targetBalanceCents: targetBalanceCentsSchema,
+  occurredOn: occurredOnSchema,
+  description: descriptionSchema,
+  currency: currencySchema,
+});
+export type CreateBalanceAdjustmentInput = z.infer<
+  typeof createBalanceAdjustmentSchema
+>;
+
+export const updateBalanceAdjustmentSchema = z.object({
+  transactionId: transactionIdSchema,
+  targetBalanceCents: targetBalanceCentsSchema,
+  occurredOn: occurredOnSchema.optional(),
+  description: descriptionSchema,
+});
+export type UpdateBalanceAdjustmentInput = z.infer<
+  typeof updateBalanceAdjustmentSchema
+>;
+
 export const updateTransactionSchema = z.object({
   transactionId: transactionIdSchema,
   amountCents: amountCentsSchema.optional(),

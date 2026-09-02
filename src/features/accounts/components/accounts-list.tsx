@@ -34,6 +34,7 @@ import {
 } from "@/features/accounts/components/account-lifecycle-dialogs";
 import { ACCOUNT_TYPE_LABEL_ES } from "@/features/accounts/components/account-type-labels";
 import { EditAccountForm } from "@/features/accounts/components/edit-account-form";
+import { AdjustBalanceForm } from "@/features/accounts/components/adjust-balance-form";
 import {
   PayCreditCardForm,
   type PayCreditCardAccountOption,
@@ -102,6 +103,8 @@ type AccountActionTarget = {
   id: string;
   name: string;
   type: AccountType;
+  currency: string;
+  balanceCents: number;
   creditLimitCents: number | null;
 };
 
@@ -112,6 +115,9 @@ export function AccountsList({
 }: AccountsListProps) {
   const router = useRouter();
   const [payTargetId, setPayTargetId] = useState<string | null>(null);
+  const [adjustTarget, setAdjustTarget] = useState<AccountActionTarget | null>(
+    null,
+  );
   const [editTarget, setEditTarget] = useState<AccountActionTarget | null>(
     null,
   );
@@ -214,6 +220,7 @@ export function AccountsList({
             canMutate={canMutate}
             isUnarchiving={isUnarchiving}
             onPay={openPay}
+            onAdjust={setAdjustTarget}
             onEdit={setEditTarget}
             onArchive={setArchiveTarget}
             onDelete={setDeleteTarget}
@@ -248,6 +255,40 @@ export function AccountsList({
             sourceAccounts={sourceOptions}
             onSuccess={closePay}
             onCancel={closePay}
+          />
+        ) : null}
+      </FormSheet>
+
+      <FormSheet
+        open={adjustTarget != null}
+        onOpenChange={(open) => {
+          if (!open) setAdjustTarget(null);
+        }}
+        title={
+          adjustTarget?.type === "credit_card"
+            ? "Ajustar deuda"
+            : "Ajustar saldo"
+        }
+        description={
+          adjustTarget
+            ? `Indicá el valor real de ${adjustTarget.name} para alinear el ledger.`
+            : "Indicá el valor real de la cuenta."
+        }
+        size="md"
+      >
+        {adjustTarget ? (
+          <AdjustBalanceForm
+            key={adjustTarget.id}
+            workspaceId={workspaceId}
+            account={{
+              id: adjustTarget.id,
+              name: adjustTarget.name,
+              type: adjustTarget.type,
+              currency: adjustTarget.currency,
+              balanceCents: adjustTarget.balanceCents,
+            }}
+            onSuccess={() => setAdjustTarget(null)}
+            onCancel={() => setAdjustTarget(null)}
           />
         ) : null}
       </FormSheet>
@@ -301,6 +342,7 @@ type AccountGroupListProps = {
   canMutate: boolean;
   isUnarchiving: boolean;
   onPay: (accountId: string) => void;
+  onAdjust: (account: AccountActionTarget) => void;
   onEdit: (account: AccountActionTarget) => void;
   onArchive: (account: AccountActionTarget) => void;
   onDelete: (account: AccountActionTarget) => void;
@@ -312,6 +354,7 @@ function AccountGroupList({
   canMutate,
   isUnarchiving,
   onPay,
+  onAdjust,
   onEdit,
   onArchive,
   onDelete,
@@ -331,6 +374,8 @@ function AccountGroupList({
           id: account.id,
           name: account.name,
           type: account.type,
+          currency: account.currency,
+          balanceCents: account.balanceCents,
           creditLimitCents: account.creditLimitCents,
         };
 
@@ -429,6 +474,11 @@ function AccountGroupList({
                           ) : null}
                           <DropdownMenuItem onSelect={() => onEdit(target)}>
                             Editar
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onSelect={() => onAdjust(target)}>
+                            {account.type === "credit_card"
+                              ? "Ajustar deuda"
+                              : "Ajustar saldo"}
                           </DropdownMenuItem>
                           <DropdownMenuItem onSelect={() => onArchive(target)}>
                             Archivar

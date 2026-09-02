@@ -9,7 +9,10 @@ import {
   deleteTransactionAction,
   updateTransactionAction,
 } from "@/features/transactions/actions";
-import type { TransactionType } from "@/features/transactions/domain";
+import {
+  isAdjustmentType,
+  type TransactionType,
+} from "@/features/transactions/domain";
 import { CategorySelectField } from "@/features/categories/components/category-select-field";
 import {
   FormActions,
@@ -99,7 +102,7 @@ export function EditTransactionForm({
   });
 
   const onSubmit = handleSubmit((values) => {
-    if (!linkedToGoal) {
+    if (!ledgerLocked) {
       const parsed = parseAmountCents(values.amountUnits);
       if (parsed === null) {
         toast.error("Monto inválido");
@@ -111,7 +114,7 @@ export function EditTransactionForm({
         transactionId,
         occurredOn: values.occurredOn,
         description: values.description.trim() || null,
-        ...(linkedToGoal
+        ...(ledgerLocked
           ? {}
           : {
               amountCents: parseAmountCents(values.amountUnits)!,
@@ -144,12 +147,16 @@ export function EditTransactionForm({
   };
 
   const isBusy = isPending;
+  const isAdjustment = isAdjustmentType(type);
+  const ledgerLocked = linkedToGoal || isAdjustment;
   const accountLabel =
     type === "income"
       ? "Se acredita en"
       : type === "expense"
         ? "Se descuenta de"
-        : "Cuenta origen";
+        : isAdjustment
+          ? "Cuenta"
+          : "Cuenta origen";
 
   return (
     <div className="flex flex-col gap-6">
@@ -162,6 +169,13 @@ export function EditTransactionForm({
               el aporte).
             </p>
           ) : null}
+          {isAdjustment ? (
+            <p className="text-sm text-muted-foreground">
+              Este es un ajuste de saldo: podés cambiar fecha y nota. Para otro
+              valor, usá Ajustar en Cuentas o eliminá este movimiento y creá uno
+              nuevo.
+            </p>
+          ) : null}
           <FormSection>
             <FormField
               label="Monto"
@@ -170,7 +184,7 @@ export function EditTransactionForm({
             >
               <AmountInput
                 id="edit-tx-amount"
-                disabled={isBusy || linkedToGoal}
+                disabled={isBusy || ledgerLocked}
                 {...register("amountUnits")}
               />
             </FormField>
@@ -211,7 +225,7 @@ export function EditTransactionForm({
                 control={control}
                 name="accountId"
                 id="edit-tx-account"
-                disabled={isBusy || linkedToGoal}
+                disabled={isBusy || ledgerLocked}
                 options={accounts.map((a) => ({
                   value: a.id,
                   label: a.name,
@@ -228,14 +242,14 @@ export function EditTransactionForm({
                   control={control}
                   name="counterpartyAccountId"
                   id="edit-tx-counterparty"
-                  disabled={isBusy || linkedToGoal}
+                  disabled={isBusy || ledgerLocked}
                   options={accounts.map((a) => ({
                     value: a.id,
                     label: a.name,
                   }))}
                 />
               </FormField>
-            ) : (
+            ) : isAdjustment ? null : (
               <FormField label="Categoría" htmlFor="edit-tx-category">
                 <Controller
                   control={control}
@@ -300,7 +314,9 @@ export function EditTransactionForm({
             <p className="text-sm text-muted-foreground text-pretty">
               {linkedToGoal
                 ? "¿Eliminar este aporte? Se deshace el progreso del objetivo y no se puede deshacer."
-                : "¿Eliminar esta transacción? No se puede deshacer."}
+                : isAdjustment
+                  ? "¿Eliminar este ajuste? El saldo de la cuenta vuelve al valor anterior."
+                  : "¿Eliminar esta transacción? No se puede deshacer."}
             </p>
             <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
               <Button

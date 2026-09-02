@@ -9,6 +9,8 @@ export {
   InvalidAccountNameError,
   InvalidCreditLimitError,
   InvalidInitialBalanceError,
+  InvalidTargetBalanceError,
+  NoAdjustmentNeededError,
   UnsupportedAccountCurrencyError,
 } from "./errors";
 
@@ -33,5 +35,16 @@ export type { AccountBalance, AccountType } from "./types";
 
 export { calculateAccountBalance } from "./balance";
 export type { AccountForBalance, BalanceEffectTx } from "./balance";
+
+export {
+  ADJUSTMENT_LEDGER_TYPES,
+  computeBalanceAdjustment,
+  isAdjustmentLedgerType,
+} from "./balance-adjustment";
+export type {
+  AdjustmentLedgerType,
+  BalanceAdjustmentPlan,
+  ComputeBalanceAdjustmentInput,
+} from "./balance-adjustment";
 
 export { assertCanMutateAccounts, assertCanReadAccounts } from "./authz";

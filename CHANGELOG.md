@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **accounts:** Add computeBalanceAdjustment domain (KRI-36)
+
+- **transactions:** Persist balance adjustments as ledger types
+
+- **ui:** Add Ajuste tab and account balance adjust action
+
+[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.19.0...HEAD
+
 ## [0.19.0] - 2026-08-27
 
 ### Added
