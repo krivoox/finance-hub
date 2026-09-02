@@ -11,6 +11,7 @@ import {
   assertTransferAccounts,
   assertTransferCounterparty,
   assertTransferNotLinkedToGoal,
+  assertAdjustmentLedgerFieldsImmutable,
   assertValidAmount,
   normalizeDescription,
   TransactionDomainError,
@@ -73,6 +74,13 @@ export async function updateTransaction(
     goalContribution !== null,
     mutatingLedgerFields,
   );
+  assertAdjustmentLedgerFieldsImmutable({
+    type,
+    mutatingLedgerFields:
+      mutatingLedgerFields ||
+      (input.categoryId !== undefined &&
+        input.categoryId !== transaction.categoryId),
+  });
 
   assertValidAmount(nextAmount);
 

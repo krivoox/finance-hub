@@ -119,6 +119,8 @@ enum TransactionType {
   transfer
   fx_debit
   fx_credit
+  adjustment_credit
+  adjustment_debit
 }
 
 enum GoalKind {

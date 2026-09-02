@@ -2,6 +2,7 @@
 
 import { getSession } from "@/lib/session";
 import { listAccounts } from "@/features/accounts/services";
+import type { AccountType } from "@/features/accounts/domain";
 import { countCategoryUsage, listCategories } from "@/features/categories/services";
 import { getActiveWorkspaceForUser } from "@/features/workspaces/services";
 import { listSplitGroupsForExpenseForm } from "@/features/splits/services";
@@ -12,6 +13,8 @@ export type NewTransactionFormAccountOption = {
   id: string;
   name: string;
   currency: string;
+  type: AccountType;
+  currentBalanceCents: number;
 };
 
 export type NewTransactionFormCategoryOption = {
@@ -86,6 +89,8 @@ export async function getNewTransactionFormOptionsAction(): Promise<
           id: a.id,
           name: a.name,
           currency: a.currency,
+          type: a.type,
+          currentBalanceCents: a.currentBalance.amountCents,
         })),
         categories: activeCategories.map((c) => ({
           id: c.id,

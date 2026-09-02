@@ -52,7 +52,9 @@ export const TransactionType = {
   expense: 'expense',
   transfer: 'transfer',
   fx_debit: 'fx_debit',
-  fx_credit: 'fx_credit'
+  fx_credit: 'fx_credit',
+  adjustment_credit: 'adjustment_credit',
+  adjustment_debit: 'adjustment_debit'
 } as const
 
 export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType]
