@@ -50,7 +50,7 @@ export default async function NewTransactionPage() {
   return (
     <ContentPanel
       title="Nueva transacción"
-      description={`Gasto, ingreso o transferencia en ${workspace.baseCurrency}.`}
+      description={`Gasto, ingreso, transferencia o ajuste en ${workspace.baseCurrency}.`}
       actions={
         <Button asChild variant="outline">
           <Link href="/transactions">Volver</Link>
@@ -100,6 +100,8 @@ async function NewTransactionFormSection({
         id: a.id,
         name: a.name,
         currency: a.currency,
+        type: a.type,
+        currentBalanceCents: a.currentBalance.amountCents,
       }))}
       categories={categories
         .filter((c) => !c.isArchived)

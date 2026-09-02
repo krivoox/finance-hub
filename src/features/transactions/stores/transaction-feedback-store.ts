@@ -2,7 +2,11 @@
 
 import { create } from "zustand";
 
-export type TransactionFeedbackKind = "income" | "expense" | "transfer";
+export type TransactionFeedbackKind =
+  | "income"
+  | "expense"
+  | "transfer"
+  | "adjustment";
 
 export type TransactionFeedbackSplash = {
   amountCents: number;

@@ -123,7 +123,7 @@ function NewTransactionSheetInner({
       open={open}
       onOpenChange={(next) => handleOpenChange(next)}
       title="Nueva transacción"
-      description={`Gasto, ingreso o transferencia. Elegí la moneda (default ${options?.workspaceCurrency ?? "ARS o USD"}).`}
+      description={`Gasto, ingreso, transferencia o ajuste. Elegí la moneda (default ${options?.workspaceCurrency ?? "ARS o USD"}).`}
       size="lg"
       layout="fill"
     >

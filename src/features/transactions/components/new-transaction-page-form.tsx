@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 
+import type { AccountType } from "@/features/accounts/domain";
 import { NewTransactionForm } from "@/features/transactions/components/new-transaction-form";
 import type { ExpenseSplitGroupOption } from "@/features/splits/components/expense-split-fields";
 import { navigateAndRefresh } from "@/lib/navigation";
@@ -10,6 +11,8 @@ type AccountOption = {
   id: string;
   name: string;
   currency: string;
+  type: AccountType;
+  currentBalanceCents: number;
 };
 
 type CategoryOption = {
