@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-09-02
+
 ### Added
 
 - **accounts:** Add computeBalanceAdjustment domain (KRI-36)
@@ -15,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **ui:** Add Ajuste tab and account balance adjust action
 
-[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.19.0...HEAD
+[0.20.0]: https://github.com/krivoox/finance-hub/compare/v0.19.0...v0.20.0
 
 ## [0.19.0] - 2026-08-27
 
@@ -304,6 +306,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Baseline product release prior to Conventional Commits enforcement (accounts, workspaces, transactions, budgets, and related MVP surfaces)
 - Changelog automation (git-cliff), Conventional Commits (commitlint + husky), and SemVer GitHub Actions workflows
 
-[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.19.0...HEAD
-[0.19.0]: https://github.com/krivoox/finance-hub/compare/v0.18.1...v0.19.0
+[Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.20.0...HEAD
+[0.20.0]: https://github.com/krivoox/finance-hub/compare/v0.19.0...v0.20.0
 [0.1.0]: https://github.com/krivoox/finance-hub/releases/tag/v0.1.0
