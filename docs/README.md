@@ -26,6 +26,7 @@
 | [guides/maestro-mcp.md](./guides/maestro-mcp.md) | Maestro MCP: smoke UI web (Chromium) desde Cursor |
 | [guides/email-resend.md](./guides/email-resend.md) | Resend: reset password, marketing, MCP vs SDK (KRI-17) |
 | [security-audit.md](./security-audit.md) | Auditoría de seguridad (KRI-16): Supabase/RLS, authz, headers, plan |
+| [analysis/kri-35-ajustes-moneda-timezone.md](./analysis/kri-35-ajustes-moneda-timezone.md) | KRI-35: moneda default, timezone y tab Cuenta (análisis; sin rediseño de ledger) |
 | [DESIGN.md](../DESIGN.md) | Design system UI/UX (ledger navy, tokens, shell, variantes) |
 
 ## Specs (Spec-Driven Development)
