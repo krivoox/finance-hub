@@ -29,7 +29,7 @@ Herramientas de análisis para comprender hábitos de consumo, oportunidades de 
 
 ## 4. Reglas de negocio
 
-- Solo type expense/income; transfers y `fx_*` excluidas de “gastos”. Los expenses sin categoría se agrupan en “Sin categoría” para que el total coincida con el cashflow.
+- Solo type expense/income; transfers, `fx_*` y **ajustes de saldo** ([SPEC-22](./22-balance-adjustment.md)) excluidas de “gastos”. Los expenses sin categoría se agrupan en “Sin categoría” para que el total coincida con el cashflow.
 - Agregaciones en centavos; porcentajes con redondeo documentado (1 decimal en display, tests sobre base points o ratio racional).
 - Insights MVP (ejemplos):
   - Categoría con mayor gasto del periodo

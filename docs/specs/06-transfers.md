@@ -102,6 +102,7 @@ Una transferencia mueve valor entre dos cuentas del mismo workspace sin ser ingr
 - UI genérica: formulario “Nuevo movimiento” → tipo Transferencia; labels “Cuenta origen” / “Cuenta destino”.
 - UI dedicada: `/accounts` → **Pagar** abre FormSheet “Pagar tarjeta” (destino locked, origen seleccionable, monto default = deuda) y llama `createTransferAction`.
 - Un **Ingreso** registrado sobre la tarjeta también baja deuda (SPEC-03) pero no descuenta otra cuenta: no es el flujo recomendado para pagar el resumen.
+- Un **Ajuste** (SPEC-22) corrige deuda/saldo de **esta** cuenta sin mover otra: no es pagar el resumen.
 
 ## 10. Relación con objetivos (SPEC-08 H4)
 

@@ -5,15 +5,15 @@
 | ID | SPEC-05 |
 | Estado | Draft |
 | Prioridad | P0 |
-| Dependencias | SPEC-01 (timezone), SPEC-03, SPEC-04; canje SPEC-16 |
+| Dependencias | SPEC-01 (timezone), SPEC-03, SPEC-04; canje SPEC-16; ajuste SPEC-22 |
 
 > **KRI-29.** Alta de **expense**: toggle “Dividirlo con alguien” → `SplitGroup` (SPEC-09 / SPEC-10). Listado/cuentas **cross-workspace (SPEC-14) se retiran** con el epic.
 
 ## 1. Contexto
 
-Ingresos y gastos son el núcleo del ledger. Las transferencias se especifican en SPEC-06. El canje de moneda (`fx_debit` / `fx_credit`) en SPEC-16 forma parte del mismo ledger y aparece en el listado según las reglas de filtro de tipo.
+Ingresos y gastos son el núcleo del ledger. Las transferencias se especifican en SPEC-06. El canje de moneda (`fx_debit` / `fx_credit`) en SPEC-16 y el **ajuste de saldo** ([SPEC-22](./22-balance-adjustment.md)) forman parte del mismo ledger y aparecen en el listado según las reglas de filtro de tipo.
 
-La página `/transactions` (**Transacciones**; copy histórico “Movimientos”) es el listado principal del ledger del workspace activo: **no** es un cashflow (incluye transfers y, con `type=all`, también `fx_*`). Plantillas recurrentes y su bandeja viven en [SPEC-18](./18-recurring-transactions.md) (`/transactions/recurring`).
+La página `/transactions` (**Transacciones**; copy histórico “Movimientos”) es el listado principal del ledger del workspace activo: **no** es un cashflow (incluye transfers y, con `type=all`, también `fx_*` y **ajustes de saldo**, [SPEC-22](./22-balance-adjustment.md)). Plantillas recurrentes y su bandeja viven en [SPEC-18](./18-recurring-transactions.md) (`/transactions/recurring`).
 
 ## 2. Historias de usuario
 
@@ -56,7 +56,7 @@ La página `/transactions` (**Transacciones**; copy histórico “Movimientos”
 ### 4.2 Listado — alcance del ledger (FR-04)
 
 - El listado es del **ledger completo** del workspace (más txs que afectan cuentas locales con registro en otro workspace, SPEC-14 FR-05).
-- **No** es cashflow del dashboard: en el periodo pueden aparecer `income`, `expense`, `transfer` y (según filtro de tipo) `fx_debit` / `fx_credit`.
+- **No** es cashflow del dashboard: en el periodo pueden aparecer `income`, `expense`, `transfer`, `fx_debit` / `fx_credit` y ajustes (SPEC-22; visibles con `type=all`).
 - Orden: `occurredOn` desc, luego `createdAt` desc, luego `id` desc (desempate estable para cursor).
 - **Aporte a objetivo (SPEC-08 H4):** las transfers creadas por `ContributeToGoal` aparecen como `type=transfer`. El DTO de listado debe incluir `goalContribution: null | { contributionId, goalId, goalName, goalKind }` (join) para badge/label en UI — **sin** cambiar la matriz de filtro `type`.
 
@@ -107,7 +107,7 @@ Timezone: `User.timezone` ([SPEC-01](./01-auth.md)). Preferencias no reescriben 
 
 | `type` URL | Tipos de ledger incluidos |
 |------------|---------------------------|
-| `all` / ausente / inválido → `all` | `income`, `expense`, `transfer`, `fx_debit`, `fx_credit` |
+| `all` / ausente / inválido → `all` | `income`, `expense`, `transfer`, `fx_debit`, `fx_credit`, **ajustes (SPEC-22)** |
 | `income` | solo `income` |
 | `expense` | solo `expense` |
 | `transfer` | solo `transfer` (**no** incluye `fx_*`) |
@@ -146,7 +146,7 @@ Al aplicar los mismos filtros AND que el listado (§4.3–4.4 + alcance SPEC-14)
 | `expense` | **Suma gastos** por moneda (caso “cuánto gasté en X”) |
 | `income` | **Suma ingresos** por moneda |
 | `transfer` | **Suma transferencias** por moneda |
-| `all` | Breakdown **gastos + ingresos + neto** por moneda. `neto = ingresos − gastos`. Transferencias y `fx_*` **nunca** entran en ingresos, gastos, neto ni en el recuento de movimientos del strip (KRI-34). Si el set filtrado solo tiene transfers/`fx_*`, no hay totales de cashflow que mostrar. |
+| `all` | Breakdown **gastos + ingresos + neto** por moneda. `neto = ingresos − gastos`. Transferencias, `fx_*` y **ajustes (SPEC-22)** **nunca** entran en ingresos, gastos, neto ni en el recuento de movimientos del strip (KRI-34). Si el set filtrado solo tiene transfers/`fx_*`/ajustes, no hay totales de cashflow que mostrar. |
 
 **Paginación:** los totales **no** dependen de `cursor` ni de “Cargar más”. Query de agregación con el mismo `where` que `ListTransactions`.
 
@@ -375,13 +375,14 @@ Helpers de periodo (puro; paridad dashboard):
 - Filtro por `createdByUserId`
 - Paginación hacia atrás / page numbers / page size configurable
 - Selector de timezone distinto del perfil (SPEC-01)
+- Ajuste de saldo (comando, tab, copy de deuda) → [SPEC-22](./22-balance-adjustment.md)
 
 ## 9. Notas
 
 Preferir un modelo único `Transaction` con `type` discriminado; tests cubren cada variante.
 
 - `amount.currency` = `account.currency` (invariante; multi-ledger OK).
-- Tipos `fx_debit` / `fx_credit` (SPEC-16) **no** cuentan en budget spent ni cashflow; **sí** pueden aparecer en Transacciones con `type=all`.
+- Tipos `fx_debit` / `fx_credit` (SPEC-16) y **ajustes de saldo** ([SPEC-22](./22-balance-adjustment.md)) **no** cuentan en budget spent ni cashflow; **sí** pueden aparecer en Transacciones con `type=all`.
 - DTO de listado puede incluir `recurring` (join SPEC-18) para indicador 🔄 / `Repeat` + tooltip “Generada por: {ruleName}”.
 
 Detalle de UI: [SPEC-13](./13-transaction-detail.md). Dinero entre workspaces: [SPEC-14](./14-cross-workspace-money.md).

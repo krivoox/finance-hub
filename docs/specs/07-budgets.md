@@ -36,7 +36,7 @@ Los presupuestos limitan el gasto por categoría(s) en un periodo para controlar
 
 ## 4. Reglas de negocio
 
-- Solo expenses cuentan; transfers, incomes y `fx_*` (SPEC-16) no.
+- Solo expenses cuentan; transfers, incomes, `fx_*` (SPEC-16) y **ajustes de saldo** ([SPEC-22](./22-balance-adjustment.md)) no.
 - **Spent solo suma expenses con `tx.currency === budget.currency`.**
 - `budget.currency ∈ { ARS, USD }`; default al crear = `workspace.baseCurrency`.
 - categoryIds vacío = todas las expense del workspace **en esa moneda**.

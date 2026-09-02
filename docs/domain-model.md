@@ -107,7 +107,7 @@ type AccountType =
 
 **Invariantes**
 
-- El saldo actual se deriva: `initialBalance + Σ efectos de transacciones` (no se edita a mano salvo ajuste explícito).
+- El saldo actual se deriva: `initialBalance + Σ efectos de transacciones` (no se edita a mano salvo ajuste explícito — [SPEC-22](./specs/22-balance-adjustment.md) / KRI-36). **Prohibido** mutar `initialBalance` para “cuadrar”.
 - Cuentas archivadas no aceptan nuevas transacciones ni aparecen en selectores de flujos activos (SPEC-03).
 - En `credit_card`, el balance derivado es **deuda** (positivo = adeudado). Expense / transfer-out suben deuda; income / transfer-in (pago desde otra cuenta) la bajan. Detalle: SPEC-03 / SPEC-06.
 - Tarjeta física con consumos ARS+USD = **dos** Accounts `credit_card` (una por moneda). No hay Account multi-moneda (ADR-006 / SPEC-03 §5.1).
@@ -128,13 +128,14 @@ type AccountType =
 
 ### Transaction
 
-Movimiento financiero. Tres formas:
+Movimiento financiero. Formas de producto:
 
 | Tipo | Efecto |
 |------|--------|
 | Income | +Money en una Account |
 | Expense | −Money en una Account |
 | Transfer | −Money en origen, +Money en destino (mismo workspace) |
+| Ajuste (SPEC-22) | ±Money en **una** Account hasta el target; no es income/expense |
 
 Campos comunes:
 
@@ -142,7 +143,7 @@ Campos comunes:
 |-------|------|-------|
 | id | Id | |
 | workspaceId | Id | |
-| type | `income` \| `expense` \| `transfer` \| `fx_debit` \| `fx_credit` | |
+| type | `income` \| `expense` \| `transfer` \| `fx_debit` \| `fx_credit` \| *(ajuste: enum a cargo de SPEC-22 / arquitecto; no reusar income/expense)* | |
 | amount | Money | siempre > 0 |
 | occurredOn | Date | fecha contable |
 | description | string? | |
@@ -158,6 +159,7 @@ Campos comunes:
 - `amount.currency` debe coincidir con la cuenta afectada. El formulario de alta permite elegir ARS|USD (default = `workspace.baseCurrency`) y solo lista cuentas de esa moneda; mismatch → `TransactionCurrencyMismatchError`.
 - Transfer: `accountId ≠ counterpartyAccountId`, ambas del mismo workspace, **misma currency**.
 - Canje (`fx_debit` / `fx_credit`): ver `CurrencyExchange`; no cuentan en cashflow ni budget spent.
+- Ajuste de saldo (SPEC-22): un movimiento de auditoría sobre **una** cuenta; `amount > 0`; el usuario informa **target** (saldo/deuda real), no el delta. Afecta `currentBalance`; **no** cuenta como income/expense en budgets, cashflow ni analytics. Shape del `type` = `business-logic-architect`.
 - Income/expense: `accountId` del mismo workspace personal (SPEC-14 retirada; no hay cuenta foreign de otro tenant).
 - Un expense puede tener **como máximo un** `ExpenseSplit` (1:1 por `expenseTransactionId`). El split **no** es un campo `splitId` en Transaction: la FK vive en `ExpenseSplit`.
 - Baja de cuenta: **preferir Archivar** (conserva txs). `DeleteAccount` (SPEC-03) es excepción de producto: hard-delete con cascada explícita de txs/reglas/canjes de esa cuenta.

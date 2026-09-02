@@ -73,4 +73,4 @@ El historial de movimientos es una tabla densa. El usuario necesita abrir un mov
 
 UI mobile-first: héroe de monto arriba; hechos en lista label/value; acciones en footer.
 
-Edición de categoría (income/expense): mismo `CategoryPicker` modo `single` que el alta (SPEC-04 §9 / SPEC-05 §9.1). Transfers y `fx_*` sin categoría.
+Edición de categoría (income/expense): mismo `CategoryPicker` modo `single` que el alta (SPEC-04 §9 / SPEC-05 §9.1). Transfers, `fx_*` y **ajustes** ([SPEC-22](./22-balance-adjustment.md)) sin categoría.

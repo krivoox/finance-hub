@@ -53,6 +53,7 @@
 | 19 | [Cotizaciones USD (DolarApi)](./specs/19-usd-quotes-dolarapi.md) | P1 |
 | 20 | [Performance, navegación y PWA](./specs/20-performance-pwa.md) | P0 |
 | 21 | [Email transaccional y marketing (Resend)](./specs/21-email-resend.md) | P0 |
+| 22 | [Ajuste de saldo / deuda (KRI-36)](./specs/22-balance-adjustment.md) | P1 |
 
 ## Decisiones de arquitectura (ADR)
 
