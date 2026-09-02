@@ -38,6 +38,7 @@ Un canje mueve valor entre dos cuentas del mismo workspace con **monedas distint
 - TC implícito informativo: `toAmount / fromAmount` (documentar scale en dominio)
 - Fees de casa de cambio: **fuera de alcance** — el usuario registra un `expense` aparte si quiere
 - Update de montos: sync atómico de ambas txs o delete+recreate; no dejar el par inconsistente
+- No reutilizar `fx_*` para ajustes de saldo (eso es `adjustment_*`, SPEC-22)
 
 ## 5. Comandos y consultas
 

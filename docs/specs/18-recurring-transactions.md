@@ -67,7 +67,7 @@ Plantilla configurable por el usuario. **No** es una `Transaction`; no afecta sa
 | id | Id | |
 | workspaceId | Id | tenancy |
 | name | string | requerido, único-friendly por workspace (no unicidad forzada; UX puede sugerir) |
-| type | `expense` \| `income` \| `transfer` | subconjunto de `TransactionType` — sin `fx_*` en v1 |
+| type | `expense` \| `income` \| `transfer` | subconjunto de `TransactionType` — sin `fx_*` ni `adjustment_*` en v1 |
 | amountCents | number | > 0 |
 | currency | CurrencyCode | debe coincidir con `account.currency` (y con `counterpartyAccount.currency` en transfer) |
 | accountId | Id | cuenta principal. En transfer = origen |

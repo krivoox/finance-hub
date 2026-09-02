@@ -37,7 +37,7 @@
 | Membership | Relación usuario–workspace con un rol. Unirse a un SplitGroup **no** crea Membership |
 | Money | Value object: monto en centavos + moneda |
 | Balance | Saldo derivado de una cuenta o entre miembros |
-| Ajuste de saldo / Balance adjustment | Corrección de ledger (KRI-36 / SPEC-22): el usuario carga el **saldo real** o la **deuda real**; el sistema crea un movimiento de auditoría con el delta. Cambia el saldo de la cuenta; **no** es ingreso ni gasto (no entra en presupuestos, cashflow ni analytics). Distinto de **Ajustes** (pantalla de settings) |
+| Ajuste de saldo / Balance adjustment | Corrección de ledger (KRI-36 / SPEC-22): el usuario carga el **saldo real** o la **deuda real**; el dominio persiste `adjustment_credit` o `adjustment_debit` (dirección = `type`, `amountCents > 0`). Cambia el saldo derivado; **no** es ingreso ni gasto (no entra en presupuestos, cashflow ni analytics). Distinto de **Ajustes** (pantalla de settings) |
 | Base currency | Moneda de consolidación del workspace |
 | Archive | Baja lógica de cuenta (u otra entidad): deja de usarse en flujos activos pero **conserva historial** (SPEC-03) |
 | Eliminar cuenta / DeleteAccount | Baja física (hard-delete): borra la cuenta y el historial asociado vía cascada; confirmación fuerte; no es el default frente a Archivar (SPEC-03) |

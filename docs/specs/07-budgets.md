@@ -99,6 +99,11 @@ Los presupuestos limitan el gasto por categoría(s) en un periodo para controlar
 - **Given** budget ARS; expense USD misma categoría y periodo  
 - **Then** spent sin cambio
 
+### T-05c Ajuste de saldo ignorado (SPEC-22)
+
+- **Given** budget comida; `adjustment_debit` o `adjustment_credit` en el periodo  
+- **Then** spent sin cambio
+
 ### T-06 Todas las categorías
 
 - **Given** categoryIds=[]  

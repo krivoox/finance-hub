@@ -109,7 +109,7 @@ type AccountType =
 
 - El saldo actual se deriva: `initialBalance + Σ efectos de transacciones` (no se edita a mano salvo ajuste explícito — [SPEC-22](./specs/22-balance-adjustment.md) / KRI-36). **Prohibido** mutar `initialBalance` para “cuadrar”.
 - Cuentas archivadas no aceptan nuevas transacciones ni aparecen en selectores de flujos activos (SPEC-03).
-- En `credit_card`, el balance derivado es **deuda** (positivo = adeudado). Expense / transfer-out suben deuda; income / transfer-in (pago desde otra cuenta) la bajan. Detalle: SPEC-03 / SPEC-06.
+- En `credit_card`, el balance derivado es **deuda** (positivo = adeudado). Expense / transfer-out / `adjustment_debit` suben deuda; income / transfer-in / `adjustment_credit` la bajan. Detalle: SPEC-03 / SPEC-06 / SPEC-22.
 - Tarjeta física con consumos ARS+USD = **dos** Accounts `credit_card` (una por moneda). No hay Account multi-moneda (ADR-006 / SPEC-03 §5.1).
 - **Archivar** (soft): conserva historial; permitido aunque sea la última cuenta activa → el workspace deja de estar “listo” (`needsSetup`, SPEC-15).
 - **Eliminar** (hard-delete, SPEC-03): excepción de producto; pierde historial vía cascada de servicio. Bloqueado si es la última cuenta activa o si hay Goal `active` con `linkedAccountId`. El bloqueo histórico por `CrossWorkspaceLink` **desaparece** (SPEC-14 retirada).
@@ -135,7 +135,7 @@ Movimiento financiero. Formas de producto:
 | Income | +Money en una Account |
 | Expense | −Money en una Account |
 | Transfer | −Money en origen, +Money en destino (mismo workspace) |
-| Ajuste (SPEC-22) | ±Money en **una** Account hasta el target; no es income/expense |
+| Ajuste (SPEC-22) | `adjustment_credit` / `adjustment_debit`: ±Money en **una** Account hasta el target; no es income/expense |
 
 Campos comunes:
 
@@ -143,11 +143,11 @@ Campos comunes:
 |-------|------|-------|
 | id | Id | |
 | workspaceId | Id | |
-| type | `income` \| `expense` \| `transfer` \| `fx_debit` \| `fx_credit` \| *(ajuste: enum a cargo de SPEC-22 / arquitecto; no reusar income/expense)* | |
+| type | `income` \| `expense` \| `transfer` \| `fx_debit` \| `fx_credit` \| `adjustment_credit` \| `adjustment_debit` | |
 | amount | Money | siempre > 0 |
 | occurredOn | Date | fecha contable |
 | description | string? | |
-| categoryId | Id? | requerido en income/expense; null en transfer pura |
+| categoryId | Id? | requerido en income/expense; null en transfer, `fx_*` y `adjustment_*` |
 | accountId | Id | cuenta principal (origen en transfer) |
 | counterpartyAccountId | Id? | destino en transfer |
 | createdByUserId | Id | |
@@ -159,7 +159,7 @@ Campos comunes:
 - `amount.currency` debe coincidir con la cuenta afectada. El formulario de alta permite elegir ARS|USD (default = `workspace.baseCurrency`) y solo lista cuentas de esa moneda; mismatch → `TransactionCurrencyMismatchError`.
 - Transfer: `accountId ≠ counterpartyAccountId`, ambas del mismo workspace, **misma currency**.
 - Canje (`fx_debit` / `fx_credit`): ver `CurrencyExchange`; no cuentan en cashflow ni budget spent.
-- Ajuste de saldo (SPEC-22): un movimiento de auditoría sobre **una** cuenta; `amount > 0`; el usuario informa **target** (saldo/deuda real), no el delta. Afecta `currentBalance`; **no** cuenta como income/expense en budgets, cashflow ni analytics. Shape del `type` = `business-logic-architect`.
+- Ajuste de saldo (SPEC-22 / KRI-36): una `Transaction` `adjustment_credit` o `adjustment_debit` sobre **una** cuenta (`categoryId` y `counterparty` null). El usuario informa **target** (saldo o deuda real); el dominio deriva delta y `type`. `amountCents > 0`; dirección = `type` (mismo patrón que `fx_*`). Afecta `calculateAccountBalance`; **no** cuenta en budgets, cashflow, analytics ni `presentListTotals` income/expense/net. En `credit_card` el target de deuda es ≥ 0 (0 = saldada). Sin recurrentes de ajuste en MVP.
 - Income/expense: `accountId` del mismo workspace personal (SPEC-14 retirada; no hay cuenta foreign de otro tenant).
 - Un expense puede tener **como máximo un** `ExpenseSplit` (1:1 por `expenseTransactionId`). El split **no** es un campo `splitId` en Transaction: la FK vive en `ExpenseSplit`.
 - Baja de cuenta: **preferir Archivar** (conserva txs). `DeleteAccount` (SPEC-03) es excepción de producto: hard-delete con cascada explícita de txs/reglas/canjes de esa cuenta.
@@ -168,7 +168,7 @@ Campos comunes:
 - `recurringRuleId != null ⇔ scheduledOn != null`.
 - Borrar/editar una tx materializada **no** libera la ocurrencia: el par sigue consumido.
 
-**Listado (SPEC-05 FR-04):** filtros AND sobre periodo (timezone del usuario), tipo de UI (`all`|income|expense|transfer), cuenta y categoría; paginación cursor. El periodo `this_week` es lunes–domingo calendario — no el ancla weekly de Budget. DTO puede incluir `goalContribution` (join) para badge de aporte a objetivo — la tx sigue siendo `type=transfer`. DTO puede incluir `recurring: { ruleId, ruleName, scheduledOn, isDrifted }` (join) para indicador 🔄 / `Repeat` — `isDrifted = (occurredOn !== scheduledOn)`.
+**Listado (SPEC-05 FR-04):** filtros AND sobre periodo (timezone del usuario), tipo de UI (`all`|income|expense|transfer), cuenta y categoría; paginación cursor. `type=all` incluye `fx_*` y `adjustment_*`; `type=expense`/`income`/`transfer` no. El periodo `this_week` es lunes–domingo calendario — no el ancla weekly de Budget. DTO puede incluir `goalContribution` (join) para badge de aporte a objetivo — la tx sigue siendo `type=transfer`. DTO puede incluir `recurring: { ruleId, ruleName, scheduledOn, isDrifted }` (join) para indicador 🔄 / `Repeat` — `isDrifted = (occurredOn !== scheduledOn)`.
 
 ### CurrencyExchange
 
@@ -403,7 +403,7 @@ Plantilla que describe **qué** movimiento se repite y **cada cuánto**. No es u
 | id | Id | |
 | workspaceId | Id | tenancy |
 | name | string | descripción humana ("Alquiler", "Sueldo", "Netflix") |
-| type | `income` \| `expense` \| `transfer` | sin `fx_*` en v1 |
+| type | `income` \| `expense` \| `transfer` | sin `fx_*` ni `adjustment_*` en v1 |
 | amountCents | number | > 0 |
 | currency | CurrencyCode | = `account.currency` (y counterparty en transfer) |
 | accountId | Id | cuenta principal; en transfer = origen |

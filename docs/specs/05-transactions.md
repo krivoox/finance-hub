@@ -101,18 +101,18 @@ Timezone: `User.timezone` ([SPEC-01](./01-auth.md)). Preferencias no reescriben 
 |--------|---------|-----------|
 | `type` | `all` (default / ausente) \| `income` \| `expense` \| `transfer` | Ver matriz abajo |
 | `accountId` | id opcional | Match si `accountId` **o** `counterpartyAccountId` (cubre origen/destino de transfer y patas de fx) |
-| `categoryId` | id opcional | Match exacto `categoryId`. Transfers y `fx_*` tienen `categoryId = null` → **quedan fuera** cuando hay filtro de categoría |
+| `categoryId` | id opcional | Match exacto `categoryId`. Transfers, `fx_*` y `adjustment_*` tienen `categoryId = null` → **quedan fuera** cuando hay filtro de categoría |
 
 **Matriz `type` (MVP):**
 
 | `type` URL | Tipos de ledger incluidos |
 |------------|---------------------------|
-| `all` / ausente / inválido → `all` | `income`, `expense`, `transfer`, `fx_debit`, `fx_credit`, **ajustes (SPEC-22)** |
+| `all` / ausente / inválido → `all` | `income`, `expense`, `transfer`, `fx_debit`, `fx_credit`, `adjustment_credit`, `adjustment_debit` |
 | `income` | solo `income` |
 | `expense` | solo `expense` |
-| `transfer` | solo `transfer` (**no** incluye `fx_*`) |
+| `transfer` | solo `transfer` (**no** incluye `fx_*` ni `adjustment_*`) |
 
-- En MVP, `fx_*` **solo** son visibles con `type=all`.
+- En MVP, `fx_*` y `adjustment_*` **solo** son visibles con `type=all` (SPEC-16 / SPEC-22).
 - Filtros se combinan con **AND** (periodo ∩ tipo ∩ cuenta ∩ categoría).
 - `accountId` / `categoryId` inexistentes o fuera del workspace: el service/authz responde vacío o error de membresía según capa de I/O; el dominio de filtros no inventa ids.
 
@@ -138,6 +138,7 @@ Al aplicar los mismos filtros AND que el listado (§4.3–4.4 + alcance SPEC-14)
 | `expenseCents` | `expense` |
 | `transferCents` | `transfer` |
 | `fxDebitCents` / `fxCreditCents` | `fx_debit` / `fx_credit` (visibles con `type=all`; **no** son cashflow ni budget spent) |
+| *(sin bucket de cashflow)* | `adjustment_credit` / `adjustment_debit` (SPEC-22): visibles con `type=all`; **no** entran en income/expense/net ni en `movementCount` de `presentListTotals` |
 
 **Presentación según filtro `type` (`presentListTotals`):**
 
@@ -158,7 +159,9 @@ Al aplicar los mismos filtros AND que el listado (§4.3–4.4 + alcance SPEC-14)
 |------|--------|-----------------|
 | Command | `CreateIncome` | accountId, categoryId, amountCents, occurredOn, description?, currency? (opcional; si viene, debe = account.currency) |
 | Command | `CreateExpense` | igual |
-| Command | `UpdateTransaction` | campos mutables |
+| Command | `CreateBalanceAdjustment` | ver [SPEC-22](./22-balance-adjustment.md) — input = **target** (no delta); persiste `adjustment_credit` \| `adjustment_debit` |
+| Command | `UpdateBalanceAdjustment` | SPEC-22 — nuevo target; recalcula tipo/monto |
+| Command | `UpdateTransaction` | campos mutables; en ajustes solo description/occurredOn |
 | Command | `DeleteTransaction` | transactionId (UI: también en lote vía `BulkActionsBar`, una action por id) |
 | Query | `ListTransactions` | ver contrato abajo |
 | Query | `SumFilteredTransactions` | mismos filtros que list (sin cursor); agrega por currency+type |
@@ -199,11 +202,11 @@ Helpers de periodo (puro; paridad dashboard):
 - [ ] Default de listado: periodo **este mes** (timezone usuario), `type=all`, sin cuenta/categoría, primera página (25 ítems).
 - [ ] `this_week` = lunes–domingo en timezone; distinto del ancla weekly de presupuestos.
 - [ ] `custom` valida `from≤to`, inclusive, span ≤366; `from=to` OK; error `InvalidDateRange` si no.
-- [ ] Filtros AND; `type=transfer` no muestra `fx_*`; `type=all` sí puede mostrarlos.
+- [ ] Filtros AND; `type=transfer` no muestra `fx_*` ni `adjustment_*`; `type=all` sí puede mostrarlos.
 - [ ] `accountId` incluye transfers donde la cuenta es origen o destino.
-- [ ] `categoryId` excluye transfers/`fx_*` (sin categoría).
+- [ ] `categoryId` excluye transfers/`fx_*`/`adjustment_*` (sin categoría).
 - [ ] Cambiar filtros limpia `cursor`; limpiar filtros vuelve a este mes (no a `all`).
-- [ ] Totales del filtrado (FR-06): por moneda; `type=expense` → suma gastos; `type=all` → breakdown ingresos/gastos/neto **sin** transferencias ni `fx_*`; independientes de la página.
+- [ ] Totales del filtrado (FR-06): por moneda; `type=expense` → suma gastos; `type=all` → breakdown ingresos/gastos/neto **sin** transferencias, `fx_*` ni `adjustment_*`; independientes de la página.
 - [ ] Cursor inválido → primera página (sin error de producto).
 - [ ] Formulario create permite elegir ARS/USD; default = `workspace.baseCurrency`.
 - [ ] Formulario create (income/expense): 4–5 atajos de categoría más usadas + selector; se puede crear una categoría nueva desde la búsqueda.
@@ -297,10 +300,10 @@ Helpers de periodo (puro; paridad dashboard):
 - **When** resolve  
 - **Then** rango = mes actual; from/to de URL no alteran el resultado
 
-### T-16 Type filter vs fx
+### T-16 Type filter vs fx y ajustes
 
-- **Given** txs `income`, `transfer`, `fx_debit` en rango  
-- **When** `type=all` → las tres pueden listarse; `type=transfer` → solo `transfer`; `type=income` → solo `income`
+- **Given** txs `income`, `transfer`, `fx_debit`, `adjustment_credit` en rango  
+- **When** `type=all` → las cuatro pueden listarse; `type=transfer` → solo `transfer`; `type=income` → solo `income`; `type=expense` → ninguna de `fx_*` / `adjustment_*`
 
 ### T-17 accountId en transfer
 
@@ -316,7 +319,7 @@ Helpers de periodo (puro; paridad dashboard):
 
 ### T-19 Normalización type/period inválidos
 
-- **When** `period="nope"` → tratar como `this_month`; `type="fx_debit"` u otro no permitido en URL → tratar como `all`
+- **When** `period="nope"` → tratar como `this_month`; `type="fx_debit"` o `type="adjustment_credit"` u otro no permitido en URL → tratar como `all`
 
 ### T-20 Totales por moneda sin mezclar
 
@@ -326,13 +329,13 @@ Helpers de periodo (puro; paridad dashboard):
 
 ### T-20b Totales `type=all` excluyen transferencias (KRI-34)
 
-- **Given** income 10000 ARS, expense 3000 ARS, transfer 500 ARS  
+- **Given** income 10000 ARS, expense 3000 ARS, transfer 500 ARS, `adjustment_debit` 400 ARS  
 - **When** `presentListTotals(..., "all")`  
-- **Then** breakdown ARS income=10000, expense=3000, net=7000; el recuento de movimientos es 2 (sin la transfer)
+- **Then** breakdown ARS income=10000, expense=3000, net=7000; el recuento de movimientos es 2 (sin la transfer ni el ajuste)
 
-- **Given** solo transfers en el filtro y `type=all`  
+- **Given** solo transfers y/o ajustes en el filtro y `type=all`  
 - **When** `presentListTotals`  
-- **Then** breakdown vacío (no fallback a SUMA de transfers)
+- **Then** breakdown vacío (no fallback a SUMA de transfers ni de ajustes)
 
 ### T-21 Totales independientes de la página
 

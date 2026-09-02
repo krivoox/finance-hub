@@ -67,6 +67,12 @@ Pantalla principal: visión clara del estado financiero del workspace personal.
 - **Given** income 100000 ARS, expense 40000 ARS este mes; expense mes pasado 999  
 - **Then** cashflow.income=100000, expense=40000, net=60000 (en la moneda del resumen)
 
+### T-02c Ajustes excluidos del cashflow (SPEC-22)
+
+- **Given** `adjustment_debit` 5000 y `adjustment_credit` 2000 este mes, más expense 40000  
+- **When** `computeMonthlyCashflow`  
+- **Then** expense=40000; income/net **sin** los ajustes; el saldo de la cuenta **sí** refleja el ajuste
+
 ### T-02b Multi-moneda
 
 - **Given** 500_000 ARS + 1_000 USD; tasa 1 USD = 1_400 ARS  
