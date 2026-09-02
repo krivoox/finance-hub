@@ -138,6 +138,11 @@ export function summarizeListAmounts(
         bucket.fxCreditCents += row.amountCents;
         bucket.fxCount += n;
         break;
+      case "adjustment_credit":
+      case "adjustment_debit":
+        // SPEC-22: not cashflow. `count` already includes the row; movementCount
+        // for type=all uses incomeCount+expenseCount only.
+        break;
       default:
         break;
     }

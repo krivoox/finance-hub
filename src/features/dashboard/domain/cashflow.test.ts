@@ -69,6 +69,24 @@ describe("computeMonthlyCashflow — SPEC-12 §4 / T-02", () => {
     expect(cashflow.netCents).toBe(40_000);
   });
 
+  it("SPEC-22 T-29: excludes balance adjustments from income and expense", () => {
+    const txs: DashboardTransaction[] = [
+      tx({ type: "income", amountCents: 10_000 }),
+      tx({ type: "expense", amountCents: 4_000 }),
+      tx({ type: "adjustment_credit", amountCents: 2_000 }),
+      tx({ type: "adjustment_debit", amountCents: 1_500 }),
+    ];
+    const cashflow = computeMonthlyCashflow(
+      txs,
+      PERIOD_START,
+      PERIOD_END,
+      "ARS",
+    );
+    expect(cashflow.incomeCents).toBe(10_000);
+    expect(cashflow.expenseCents).toBe(4_000);
+    expect(cashflow.netCents).toBe(6_000);
+  });
+
   it("excludes fx debit/credit from income and expense", () => {
     const txs: DashboardTransaction[] = [
       tx({ type: "expense", amountCents: 10_000 }),

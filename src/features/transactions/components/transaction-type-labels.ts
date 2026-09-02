@@ -6,4 +6,6 @@ export const TRANSACTION_TYPE_LABEL_ES: Record<TransactionType, string> = {
   transfer: "Transferencia",
   fx_debit: "Cambio",
   fx_credit: "Cambio",
+  adjustment_credit: "Ajuste",
+  adjustment_debit: "Ajuste",
 };

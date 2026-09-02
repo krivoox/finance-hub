@@ -201,4 +201,35 @@ describe("presentListTotals (SPEC-05 §4.6 / KRI-34)", () => {
       byCurrency: [],
     });
   });
+
+  it("SPEC-22 T-27: type=all excludes adjustments from income/expense/net and count", () => {
+    const withAdj = summarizeListAmounts([
+      { type: "income", amountCents: 10_000, currency: "ARS" },
+      { type: "expense", amountCents: 3_000, currency: "ARS" },
+      { type: "adjustment_debit", amountCents: 500, currency: "ARS" },
+    ]);
+    expect(presentListTotals(withAdj, "all")).toEqual({
+      mode: "breakdown",
+      movementCount: 2,
+      byCurrency: [
+        {
+          currency: "ARS",
+          incomeCents: 10_000,
+          expenseCents: 3_000,
+          netCents: 7_000,
+        },
+      ],
+    });
+  });
+
+  it("SPEC-22 T-27: type=all with only adjustments has empty breakdown", () => {
+    const onlyAdj = summarizeListAmounts([
+      { type: "adjustment_credit", amountCents: 2_000, currency: "ARS" },
+    ]);
+    expect(presentListTotals(onlyAdj, "all")).toEqual({
+      mode: "breakdown",
+      movementCount: 0,
+      byCurrency: [],
+    });
+  });
 });

@@ -13,6 +13,12 @@ export type { CreateExpenseServiceInput } from "./create-expense";
 export { createTransfer } from "./create-transfer";
 export type { CreateTransferServiceInput } from "./create-transfer";
 
+export { createBalanceAdjustment } from "./create-balance-adjustment";
+export type { CreateBalanceAdjustmentServiceInput } from "./create-balance-adjustment";
+
+export { updateBalanceAdjustment } from "./update-balance-adjustment";
+export type { UpdateBalanceAdjustmentServiceInput } from "./update-balance-adjustment";
+
 export { updateTransaction } from "./update-transaction";
 export type { UpdateTransactionServiceInput } from "./update-transaction";
 

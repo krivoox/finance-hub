@@ -20,6 +20,10 @@
  * Currency exchange (SPEC-16):
  *   - `fx_debit`  → same polarity as `expense`
  *   - `fx_credit` → same polarity as `income` (incl. credit_card inversion)
+ *
+ * Balance adjustments (SPEC-22 / KRI-36):
+ *   - `adjustment_credit` → same polarity as `income` / `fx_credit`
+ *   - `adjustment_debit`  → same polarity as `expense` / `fx_debit`
  */
 
 import type { AccountBalance, AccountType } from "./types";
@@ -32,7 +36,14 @@ export type AccountForBalance = {
 };
 
 export type BalanceEffectTx = {
-  readonly type: "income" | "expense" | "transfer" | "fx_debit" | "fx_credit";
+  readonly type:
+    | "income"
+    | "expense"
+    | "transfer"
+    | "fx_debit"
+    | "fx_credit"
+    | "adjustment_credit"
+    | "adjustment_debit";
   readonly amountCents: number;
   readonly accountId: string;
   readonly counterpartyAccountId?: string | null;
@@ -72,10 +83,14 @@ function signedDelta(
 
   if (!isSource) return 0;
 
-  if (tx.type === "income" || tx.type === "fx_credit") {
+  if (
+    tx.type === "income" ||
+    tx.type === "fx_credit" ||
+    tx.type === "adjustment_credit"
+  ) {
     return isCredit ? -tx.amountCents : tx.amountCents;
   }
 
-  // expense | fx_debit
+  // expense | fx_debit | adjustment_debit
   return isCredit ? tx.amountCents : -tx.amountCents;
 }

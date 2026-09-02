@@ -44,6 +44,14 @@ describe("amount input parsing (KRI-33: comma decimal separator)", () => {
       expect(normalizeDecimalInput("10,")).toBe("10,");
     });
 
+    it("keeps a leading minus when allowNegative is true", () => {
+      expect(normalizeDecimalInput("-12,5", { allowNegative: true })).toBe(
+        "-12,5",
+      );
+      expect(normalizeDecimalInput("-", { allowNegative: true })).toBe("-");
+      expect(normalizeDecimalInput("-12,5")).toBe("12,5");
+    });
+
     it("treats the last separator as decimal when both comma and period appear (paste)", () => {
       expect(normalizeDecimalInput("1.234,56")).toBe("1234,56");
       expect(normalizeDecimalInput("1,234.56")).toBe("1234,56");
@@ -83,6 +91,16 @@ describe("amount input parsing (KRI-33: comma decimal separator)", () => {
       expect(parseAmountCents("", { allowZero: true })).toBeNull();
     });
 
+    it("parses a leading minus when allowNegative is true (SPEC-22 overdraft)", () => {
+      expect(
+        parseAmountCents("-10,00", { allowNegative: true }),
+      ).toBe(-1_000);
+      expect(
+        parseAmountCents("-0,50", { allowNegative: true, allowZero: true }),
+      ).toBe(-50);
+      expect(parseAmountCents("-10,00")).toBeNull();
+    });
+
     it("parses Argentine-formatted paste with thousands grouping", () => {
       expect(parseAmountCents("1.234,56")).toBe(123_456);
     });
@@ -110,6 +128,7 @@ describe("amount input parsing (KRI-33: comma decimal separator)", () => {
       expect(formatCentsAsAmountInput(1_250)).toBe("12,50");
       expect(formatCentsAsAmountInput(100)).toBe("1,00");
       expect(formatCentsAsAmountInput(0)).toBe("0,00");
+      expect(formatCentsAsAmountInput(-500)).toBe("-5,00");
     });
   });
 

@@ -44,7 +44,14 @@ export type Insight =
     };
 
 export type AnalyticsTransaction = {
-  type: "income" | "expense" | "transfer" | "fx_debit" | "fx_credit";
+  type:
+    | "income"
+    | "expense"
+    | "transfer"
+    | "fx_debit"
+    | "fx_credit"
+    | "adjustment_credit"
+    | "adjustment_debit";
   amountCents: number;
   categoryId: string | null;
   categoryName?: string | null;

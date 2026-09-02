@@ -12,10 +12,13 @@ export const AMOUNT_DECIMAL_SEPARATOR = "," as const;
 export type ParseAmountOptions = {
   /** When true, `0` / `0,00` parse as 0 instead of null. */
   allowZero?: boolean;
+  /** When true, a leading minus is kept (asset overdraft targets, SPEC-22). */
+  allowNegative?: boolean;
 };
 
 export type NormalizeDecimalOptions = {
   maxFractionDigits?: number;
+  allowNegative?: boolean;
 };
 
 function stripNonDecimalChars(raw: string): string {
@@ -64,16 +67,18 @@ export function normalizeDecimalInput(
   options: NormalizeDecimalOptions = {},
 ): string {
   const maxFractionDigits = options.maxFractionDigits ?? 2;
+  const allowNegative = options.allowNegative ?? false;
+  const negative = allowNegative && /^\s*-/.test(raw);
   const cleaned = stripNonDecimalChars(raw);
-  if (!cleaned) return "";
+  if (!cleaned) return negative ? "-" : "";
 
   const { intPart, fracPart, hasSeparator } = splitDecimalParts(cleaned);
   const clippedFrac = fracPart.slice(0, maxFractionDigits);
 
-  if (hasSeparator) {
-    return `${intPart},${clippedFrac}`;
-  }
-  return intPart;
+  const unsigned = hasSeparator
+    ? `${intPart},${clippedFrac}`
+    : intPart;
+  return negative ? `-${unsigned}` : unsigned;
 }
 
 function canonicalUnsignedDecimal(raw: string): {
@@ -102,7 +107,12 @@ export function parseAmountCents(
   raw: string,
   options: ParseAmountOptions = {},
 ): number | null {
-  const parts = canonicalUnsignedDecimal(raw);
+  const trimmed = raw.trim();
+  const negative = trimmed.startsWith("-");
+  if (negative && !options.allowNegative) return null;
+
+  const unsignedRaw = negative ? trimmed.slice(1) : trimmed;
+  const parts = canonicalUnsignedDecimal(unsignedRaw);
   if (!parts) return null;
 
   const { intPart, fracPart } = parts;
@@ -122,8 +132,11 @@ export function parseAmountCents(
   }
 
   if (!Number.isInteger(cents) || cents < 0) return null;
-  if (cents === 0 && !options.allowZero) return null;
-  return cents;
+  if (cents === 0) {
+    if (!options.allowZero) return null;
+    return 0;
+  }
+  return negative ? -cents : cents;
 }
 
 /**
