@@ -158,3 +158,43 @@ export class AdjustmentLedgerFieldsImmutableError extends TransactionDomainError
     this.name = "AdjustmentLedgerFieldsImmutableError";
   }
 }
+
+/** SPEC-23 — Ad-hoc group split (free-text members) validation. */
+export class GroupSplitError extends TransactionDomainError {
+  constructor(message: string) {
+    super(message);
+    this.name = "GroupSplitError";
+  }
+}
+
+export class InvalidGroupMemberNameError extends GroupSplitError {
+  constructor(message = "El nombre de la persona es obligatorio") {
+    super(message);
+    this.name = "InvalidGroupMemberNameError";
+  }
+}
+
+export class DuplicateGroupMemberError extends GroupSplitError {
+  constructor(name: string) {
+    super(`«${name}» ya está en el grupo`);
+    this.name = "DuplicateGroupMemberError";
+  }
+}
+
+export class GroupSplitNotAllowedError extends GroupSplitError {
+  constructor(
+    message = "El gasto grupal solo aplica a gastos e ingresos",
+  ) {
+    super(message);
+    this.name = "GroupSplitNotAllowedError";
+  }
+}
+
+export class RecurrenceNotAllowedError extends GroupSplitError {
+  constructor(
+    message = "Este tipo de movimiento no admite recurrencia",
+  ) {
+    super(message);
+    this.name = "RecurrenceNotAllowedError";
+  }
+}

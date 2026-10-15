@@ -147,7 +147,7 @@ Fuente de producto: [SPEC-20](./specs/20-performance-pwa.md). Arquitectura: [§7
 | `db:generate` / `db:migrate` / `db:push` / `db:studio` | Prisma local |
 | `db:deploy` | `prisma migrate deploy` — Vercel lo corre en el build (`vercel.json` `buildCommand`) contra `DIRECT_URL` |
 | `auth:generate` | Better Auth CLI → modelos en schema |
-| `supabase:start` / `stop` / `status` | DB local |
+| `db:local:up` / `db:local:down` / `db:local:reset` | Supabase local (Docker): levantar / frenar / recrear la DB (`prisma migrate reset`) |
 
 ## Rutas de producto (variables)
 

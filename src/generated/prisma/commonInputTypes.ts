@@ -287,6 +287,23 @@ export type EnumTransactionTypeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumTransactionTypeFilter<$PrismaModel>
 }
 
+export type EnumGroupSplitModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.GroupSplitMode | Prisma.EnumGroupSplitModeFieldRefInput<$PrismaModel>
+  in?: $Enums.GroupSplitMode[] | Prisma.ListEnumGroupSplitModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.GroupSplitMode[] | Prisma.ListEnumGroupSplitModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumGroupSplitModeFilter<$PrismaModel> | $Enums.GroupSplitMode
+}
+
+export type EnumGroupSplitModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.GroupSplitMode | Prisma.EnumGroupSplitModeFieldRefInput<$PrismaModel>
+  in?: $Enums.GroupSplitMode[] | Prisma.ListEnumGroupSplitModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.GroupSplitMode[] | Prisma.ListEnumGroupSplitModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumGroupSplitModeWithAggregatesFilter<$PrismaModel> | $Enums.GroupSplitMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumGroupSplitModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumGroupSplitModeFilter<$PrismaModel>
+}
+
 export type EnumRecurringFrequencyFilter<$PrismaModel = never> = {
   equals?: $Enums.RecurringFrequency | Prisma.EnumRecurringFrequencyFieldRefInput<$PrismaModel>
   in?: $Enums.RecurringFrequency[] | Prisma.ListEnumRecurringFrequencyFieldRefInput<$PrismaModel>
@@ -724,6 +741,23 @@ export type NestedEnumTransactionTypeWithAggregatesFilter<$PrismaModel = never> 
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumTransactionTypeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumTransactionTypeFilter<$PrismaModel>
+}
+
+export type NestedEnumGroupSplitModeFilter<$PrismaModel = never> = {
+  equals?: $Enums.GroupSplitMode | Prisma.EnumGroupSplitModeFieldRefInput<$PrismaModel>
+  in?: $Enums.GroupSplitMode[] | Prisma.ListEnumGroupSplitModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.GroupSplitMode[] | Prisma.ListEnumGroupSplitModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumGroupSplitModeFilter<$PrismaModel> | $Enums.GroupSplitMode
+}
+
+export type NestedEnumGroupSplitModeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.GroupSplitMode | Prisma.EnumGroupSplitModeFieldRefInput<$PrismaModel>
+  in?: $Enums.GroupSplitMode[] | Prisma.ListEnumGroupSplitModeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.GroupSplitMode[] | Prisma.ListEnumGroupSplitModeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumGroupSplitModeWithAggregatesFilter<$PrismaModel> | $Enums.GroupSplitMode
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumGroupSplitModeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumGroupSplitModeFilter<$PrismaModel>
 }
 
 export type NestedEnumRecurringFrequencyFilter<$PrismaModel = never> = {

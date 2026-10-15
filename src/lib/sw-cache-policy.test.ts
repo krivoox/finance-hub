@@ -19,7 +19,8 @@ describe("sw-cache-policy (SPEC-20 H4)", () => {
     expect(isSwForbiddenMoneyPath("/api/auth/session")).toBe(true);
     expect(isSwForbiddenMoneyPath("/dashboard")).toBe(true);
     expect(isSwForbiddenMoneyPath("/accounts")).toBe(true);
-    expect(isSwForbiddenMoneyPath("/transactions?new=expense")).toBe(true);
+    expect(isSwForbiddenMoneyPath("/new?type=expense")).toBe(true);
+    expect(isSwForbiddenMoneyPath("/new")).toBe(true);
     expect(isSwForbiddenMoneyPath("/transactions")).toBe(true);
     expect(isSwForbiddenMoneyPath("/offline")).toBe(false);
     expect(isSwForbiddenMoneyPath("/settings")).toBe(false);

@@ -5,8 +5,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { AlertTriangle } from "lucide-react";
 
-import { useNewTransactionSheetStore } from "@/features/transactions/stores/new-transaction-sheet-store";
-import { formOptionsIntentPrefetchHandlers } from "@/features/transactions/stores/new-transaction-form-options-store";
 import { cn } from "@/lib/utils";
 
 import type { SidebarUser } from "./app-sidebar";
@@ -38,8 +36,8 @@ export function MobileTabBar({
   cafecitoUrl = null,
 }: MobileTabBarProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [moreOpen, setMoreOpen] = useState(false);
-  const openNewTransaction = useNewTransactionSheetStore((s) => s.openSheet);
   const budgetsBadge = budgetNavBadgePresentation(navBadges);
 
   const moreActive =
@@ -69,11 +67,10 @@ export function MobileTabBar({
               return (
                 <div key={item.id} className="flex h-12 items-center justify-center">
                   {canRegister ? (
-                    <button
-                      type="button"
-                      onClick={() => openNewTransaction()}
+                    <Link
+                      href="/new?type=expense"
                       aria-label={item.title}
-                      {...formOptionsIntentPrefetchHandlers()}
+                      {...navIntentPrefetchHandlers(router, "/new")}
                       className={cn(
                         "flex size-11 items-center justify-center rounded-xl bg-cta text-primary-foreground shadow-card",
                         "transition-transform duration-200 ease-out active:scale-95",
@@ -82,7 +79,7 @@ export function MobileTabBar({
                       )}
                     >
                       <item.icon className="size-5" strokeWidth={2} />
-                    </button>
+                    </Link>
                   ) : (
                     <span className="size-11" aria-hidden />
                   )}

@@ -78,7 +78,7 @@ export function DashboardRecent({
             Todavía no registraste movimientos en este workspace.
           </p>
           <Button variant="outline" asChild>
-            <Link href="/transactions/new">Registrar el primero</Link>
+            <Link href="/new">Registrar el primero</Link>
           </Button>
         </div>
       ) : (

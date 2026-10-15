@@ -21,6 +21,8 @@ export function isSwForbiddenMoneyPath(pathname: string): boolean {
     "/budgets",
     "/goals",
     "/groups",
+    // SPEC-23: core registration screen renders account balances.
+    "/new",
   ];
   return moneyPrefixes.some(
     (prefix) => path === prefix || path.startsWith(`${prefix}/`),

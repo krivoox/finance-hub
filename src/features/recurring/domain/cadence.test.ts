@@ -106,8 +106,23 @@ describe("SPEC-18 T-05 — Yearly 29-feb sin drift", () => {
   });
 });
 
-describe("SPEC-18 T-06 — endDate respetada", () => {
-  it("no proyecta después de endDate", () => {
+describe("SPEC-23 — Daily", () => {
+  it("avanza de a 1 día", () => {
+    const dates = computeOccurrences(
+      rule({ frequency: "daily", startDate: "2026-01-01" }),
+      "2026-01-01",
+      "2026-01-04",
+    );
+    expect(dates).toEqual([
+      "2026-01-01",
+      "2026-01-02",
+      "2026-01-03",
+      "2026-01-04",
+    ]);
+  });
+});
+
+describe("SPEC-18 T-06 — endDate respetada", () => {  it("no proyecta después de endDate", () => {
     const dates = computeOccurrences(
       rule({
         frequency: "monthly",

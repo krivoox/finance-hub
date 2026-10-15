@@ -85,9 +85,7 @@ export function OfflinePageContent() {
   }
 
   const resumeHref =
-    draft.type === "income"
-      ? "/transactions?new=income"
-      : "/transactions?new=expense";
+    draft.type === "income" ? "/new?type=income" : "/new?type=expense";
 
   return (
     <main className="mx-auto flex min-h-dvh w-full max-w-lg flex-col justify-center gap-8 px-4 py-10">

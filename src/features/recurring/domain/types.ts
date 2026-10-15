@@ -8,6 +8,7 @@
 export type DateOnly = string;
 
 export const RECURRING_FREQUENCIES = [
+  "daily",
   "weekly",
   "biweekly",
   "monthly",

@@ -7,11 +7,16 @@ export {
   CategoryRequiredError,
   CounterpartyNotAllowedError,
   CounterpartyRequiredError,
+  DuplicateGroupMemberError,
+  GroupSplitError,
+  GroupSplitNotAllowedError,
   InvalidAmountError,
   InvalidDateRangeError,
   InvalidDescriptionError,
+  InvalidGroupMemberNameError,
   InvalidOccurredOnError,
   OccurredOnTooFutureError,
+  RecurrenceNotAllowedError,
   SameAccountTransferError,
   TransactionCurrencyMismatchError,
   TransactionDomainError,
@@ -116,3 +121,31 @@ export {
   assertCanMutateTransactions,
   assertCanReadTransactions,
 } from "./authz";
+
+export {
+  GROUP_MEMBER_NAME_MAX_LENGTH,
+  GROUP_SPLIT_MODES,
+  assertGroupMemberName,
+  assertUniqueGroupMemberNames,
+  computeGroupSplit,
+  hasGroupMemberName,
+  isGroupSplitMode,
+  normalizeGroupMemberName,
+} from "./group-split";
+export type {
+  ComputeGroupSplitInput,
+  GroupSplitMemberInput,
+  GroupSplitMemberShare,
+  GroupSplitMode,
+  GroupSplitResult,
+} from "./group-split";
+
+export {
+  TRANSACTION_FREQUENCIES,
+  TRANSACTION_FREQUENCY_LABELS,
+  frequencyHint,
+  isTransactionFrequency,
+  toRecurringFrequency,
+  transactionSupportsRecurrence,
+} from "./frequency";
+export type { TransactionFrequency } from "./frequency";

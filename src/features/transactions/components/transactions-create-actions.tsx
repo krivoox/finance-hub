@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Plus } from "lucide-react";
 
@@ -8,9 +9,6 @@ import { FormSheet } from "@/components/form-sheet";
 import { Button } from "@/components/ui/button";
 import { NewCurrencyExchangeForm } from "@/features/currency-exchange/components/new-currency-exchange-form";
 import { replaceAndRefresh } from "@/lib/navigation";
-
-import { formOptionsIntentPrefetchHandlers } from "../stores/new-transaction-form-options-store";
-import { useNewTransactionSheetStore } from "../stores/new-transaction-sheet-store";
 
 type AccountOption = {
   id: string;
@@ -53,7 +51,6 @@ export function TransactionsCreateActions({
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const newParam = searchParams.get("new");
-  const openNewTransaction = useNewTransactionSheetStore((s) => s.openSheet);
 
   const [fxOpen, setFxOpen] = useState(false);
 
@@ -72,14 +69,11 @@ export function TransactionsCreateActions({
 
   return (
     <>
-      <Button
-        type="button"
-        className="w-full gap-1.5 sm:w-auto"
-        onClick={() => openNewTransaction()}
-        {...formOptionsIntentPrefetchHandlers()}
-      >
-        <Plus className="size-4" strokeWidth={1.75} />
-        Nueva transacción
+      <Button asChild className="w-full gap-1.5 sm:w-auto">
+        <Link href="/new?type=expense">
+          <Plus className="size-4" strokeWidth={1.75} />
+          Nueva transacción
+        </Link>
       </Button>
 
       {/*

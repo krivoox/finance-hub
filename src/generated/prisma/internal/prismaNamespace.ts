@@ -393,6 +393,8 @@ export const ModelName = {
   Category: 'Category',
   FinanceAccount: 'FinanceAccount',
   Transaction: 'Transaction',
+  TransactionGroupSplit: 'TransactionGroupSplit',
+  TransactionGroupSplitMember: 'TransactionGroupSplitMember',
   RecurringRule: 'RecurringRule',
   CurrencyExchange: 'CurrencyExchange',
   WorkspaceConsolidationRate: 'WorkspaceConsolidationRate',
@@ -422,7 +424,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "session" | "account" | "verification" | "workspace" | "membership" | "category" | "financeAccount" | "transaction" | "recurringRule" | "currencyExchange" | "workspaceConsolidationRate" | "usdQuoteSnapshot" | "usdQuoteLine" | "budget" | "budgetCategory" | "goal" | "goalContribution" | "splitGroup" | "splitGroupMember" | "expenseSplit" | "expenseSplitShare" | "settlement"
+    modelProps: "user" | "session" | "account" | "verification" | "workspace" | "membership" | "category" | "financeAccount" | "transaction" | "transactionGroupSplit" | "transactionGroupSplitMember" | "recurringRule" | "currencyExchange" | "workspaceConsolidationRate" | "usdQuoteSnapshot" | "usdQuoteLine" | "budget" | "budgetCategory" | "goal" | "goalContribution" | "splitGroup" | "splitGroupMember" | "expenseSplit" | "expenseSplitShare" | "settlement"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1089,6 +1091,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.TransactionCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.TransactionCountAggregateOutputType> | number
+        }
+      }
+    }
+    TransactionGroupSplit: {
+      payload: Prisma.$TransactionGroupSplitPayload<ExtArgs>
+      fields: Prisma.TransactionGroupSplitFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TransactionGroupSplitFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionGroupSplitPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TransactionGroupSplitFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionGroupSplitPayload>
+        }
+        findFirst: {
+          args: Prisma.TransactionGroupSplitFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionGroupSplitPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TransactionGroupSplitFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionGroupSplitPayload>
+        }
+        findMany: {
+          args: Prisma.TransactionGroupSplitFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionGroupSplitPayload>[]
+        }
+        create: {
+          args: Prisma.TransactionGroupSplitCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionGroupSplitPayload>
+        }
+        createMany: {
+          args: Prisma.TransactionGroupSplitCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TransactionGroupSplitCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionGroupSplitPayload>[]
+        }
+        delete: {
+          args: Prisma.TransactionGroupSplitDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionGroupSplitPayload>
+        }
+        update: {
+          args: Prisma.TransactionGroupSplitUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionGroupSplitPayload>
+        }
+        deleteMany: {
+          args: Prisma.TransactionGroupSplitDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TransactionGroupSplitUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TransactionGroupSplitUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionGroupSplitPayload>[]
+        }
+        upsert: {
+          args: Prisma.TransactionGroupSplitUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionGroupSplitPayload>
+        }
+        aggregate: {
+          args: Prisma.TransactionGroupSplitAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTransactionGroupSplit>
+        }
+        groupBy: {
+          args: Prisma.TransactionGroupSplitGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TransactionGroupSplitGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TransactionGroupSplitCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TransactionGroupSplitCountAggregateOutputType> | number
+        }
+      }
+    }
+    TransactionGroupSplitMember: {
+      payload: Prisma.$TransactionGroupSplitMemberPayload<ExtArgs>
+      fields: Prisma.TransactionGroupSplitMemberFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TransactionGroupSplitMemberFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionGroupSplitMemberPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TransactionGroupSplitMemberFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionGroupSplitMemberPayload>
+        }
+        findFirst: {
+          args: Prisma.TransactionGroupSplitMemberFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionGroupSplitMemberPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TransactionGroupSplitMemberFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionGroupSplitMemberPayload>
+        }
+        findMany: {
+          args: Prisma.TransactionGroupSplitMemberFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionGroupSplitMemberPayload>[]
+        }
+        create: {
+          args: Prisma.TransactionGroupSplitMemberCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionGroupSplitMemberPayload>
+        }
+        createMany: {
+          args: Prisma.TransactionGroupSplitMemberCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TransactionGroupSplitMemberCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionGroupSplitMemberPayload>[]
+        }
+        delete: {
+          args: Prisma.TransactionGroupSplitMemberDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionGroupSplitMemberPayload>
+        }
+        update: {
+          args: Prisma.TransactionGroupSplitMemberUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionGroupSplitMemberPayload>
+        }
+        deleteMany: {
+          args: Prisma.TransactionGroupSplitMemberDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TransactionGroupSplitMemberUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TransactionGroupSplitMemberUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionGroupSplitMemberPayload>[]
+        }
+        upsert: {
+          args: Prisma.TransactionGroupSplitMemberUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TransactionGroupSplitMemberPayload>
+        }
+        aggregate: {
+          args: Prisma.TransactionGroupSplitMemberAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTransactionGroupSplitMember>
+        }
+        groupBy: {
+          args: Prisma.TransactionGroupSplitMemberGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TransactionGroupSplitMemberGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TransactionGroupSplitMemberCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TransactionGroupSplitMemberCountAggregateOutputType> | number
         }
       }
     }
@@ -2302,6 +2452,28 @@ export const TransactionScalarFieldEnum = {
 export type TransactionScalarFieldEnum = (typeof TransactionScalarFieldEnum)[keyof typeof TransactionScalarFieldEnum]
 
 
+export const TransactionGroupSplitScalarFieldEnum = {
+  id: 'id',
+  transactionId: 'transactionId',
+  method: 'method',
+  userShareCents: 'userShareCents',
+  createdAt: 'createdAt'
+} as const
+
+export type TransactionGroupSplitScalarFieldEnum = (typeof TransactionGroupSplitScalarFieldEnum)[keyof typeof TransactionGroupSplitScalarFieldEnum]
+
+
+export const TransactionGroupSplitMemberScalarFieldEnum = {
+  id: 'id',
+  groupSplitId: 'groupSplitId',
+  name: 'name',
+  amountCents: 'amountCents',
+  position: 'position'
+} as const
+
+export type TransactionGroupSplitMemberScalarFieldEnum = (typeof TransactionGroupSplitMemberScalarFieldEnum)[keyof typeof TransactionGroupSplitMemberScalarFieldEnum]
+
+
 export const RecurringRuleScalarFieldEnum = {
   id: 'id',
   workspaceId: 'workspaceId',
@@ -2659,6 +2831,20 @@ export type ListEnumTransactionTypeFieldRefInput<$PrismaModel> = FieldRefInputTy
 
 
 /**
+ * Reference to a field of type 'GroupSplitMode'
+ */
+export type EnumGroupSplitModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GroupSplitMode'>
+    
+
+
+/**
+ * Reference to a field of type 'GroupSplitMode[]'
+ */
+export type ListEnumGroupSplitModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'GroupSplitMode[]'>
+    
+
+
+/**
  * Reference to a field of type 'RecurringFrequency'
  */
 export type EnumRecurringFrequencyFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'RecurringFrequency'>
@@ -2916,6 +3102,8 @@ export type GlobalOmitConfig = {
   category?: Prisma.CategoryOmit
   financeAccount?: Prisma.FinanceAccountOmit
   transaction?: Prisma.TransactionOmit
+  transactionGroupSplit?: Prisma.TransactionGroupSplitOmit
+  transactionGroupSplitMember?: Prisma.TransactionGroupSplitMemberOmit
   recurringRule?: Prisma.RecurringRuleOmit
   currencyExchange?: Prisma.CurrencyExchangeOmit
   workspaceConsolidationRate?: Prisma.WorkspaceConsolidationRateOmit
