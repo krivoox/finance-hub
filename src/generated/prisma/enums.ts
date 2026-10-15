@@ -112,6 +112,7 @@ export type SplitMemberKind = (typeof SplitMemberKind)[keyof typeof SplitMemberK
 
 
 export const RecurringFrequency = {
+  daily: 'daily',
   weekly: 'weekly',
   biweekly: 'biweekly',
   monthly: 'monthly',
@@ -136,3 +137,11 @@ export const RecurringPausedReason = {
 } as const
 
 export type RecurringPausedReason = (typeof RecurringPausedReason)[keyof typeof RecurringPausedReason]
+
+
+export const GroupSplitMode = {
+  equal: 'equal',
+  custom: 'custom'
+} as const
+
+export type GroupSplitMode = (typeof GroupSplitMode)[keyof typeof GroupSplitMode]

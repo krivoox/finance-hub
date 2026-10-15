@@ -87,6 +87,16 @@ export type FinanceAccount = Prisma.FinanceAccountModel
  */
 export type Transaction = Prisma.TransactionModel
 /**
+ * Model TransactionGroupSplit
+ * 
+ */
+export type TransactionGroupSplit = Prisma.TransactionGroupSplitModel
+/**
+ * Model TransactionGroupSplitMember
+ * 
+ */
+export type TransactionGroupSplitMember = Prisma.TransactionGroupSplitMemberModel
+/**
  * Model RecurringRule
  * 
  */

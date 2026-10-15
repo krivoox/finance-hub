@@ -13,6 +13,7 @@ export const RECURRING_TYPE_LABEL_ES: Record<RecurringRuleType, string> = {
 };
 
 export const RECURRING_FREQUENCY_LABEL_ES: Record<RecurringFrequency, string> = {
+  daily: "Diaria",
   weekly: "Semanal",
   biweekly: "Quincenal",
   monthly: "Mensual",

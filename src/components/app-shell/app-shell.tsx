@@ -9,7 +9,6 @@ import {
 import { InstallPrompt } from "@/components/pwa/install-prompt";
 import { OfflineBanner } from "@/components/pwa/offline-banner";
 import { CafecitoDonationDialog } from "@/features/cafecito/components/cafecito-donation-dialog";
-import { NewTransactionSheet } from "@/features/transactions/components/new-transaction-sheet";
 import { TransactionAmountSplash } from "@/features/transactions/components/transaction-amount-splash";
 import { MoneyFreshnessFrame } from "@/features/transactions/components/money-freshness-frame";
 
@@ -96,10 +95,6 @@ export function AppShell({
           cafecitoUrl={cafecitoUrl}
         />
 
-        <NewTransactionSheet
-          enabled={Boolean(activeWorkspace) && canMutate}
-          workspaceId={activeWorkspace?.id ?? null}
-        />
         <TransactionAmountSplash />
       </SidebarProvider>
     </>

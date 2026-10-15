@@ -38,8 +38,6 @@ import { signOut } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
 import { navigateAndRefresh } from "@/lib/navigation";
 import { useCafecitoDialogStore } from "@/features/cafecito/stores/cafecito-dialog-store";
-import { useNewTransactionSheetStore } from "@/features/transactions/stores/new-transaction-sheet-store";
-import { formOptionsIntentPrefetchHandlers } from "@/features/transactions/stores/new-transaction-form-options-store";
 import {
   WorkspaceSwitcher,
   type WorkspaceOption,
@@ -264,7 +262,7 @@ export function AppSidebar({
   cafecitoUrl = null,
 }: AppSidebarProps) {
   const { isMobile, setOpenMobile } = useSidebar();
-  const openNewTransaction = useNewTransactionSheetStore((s) => s.openSheet);
+  const router = useRouter();
   const mainItems = applyNavBadges(mainNavItems, navBadges);
   const groups = navGroups.map((group) => ({
     ...group,
@@ -288,9 +286,8 @@ export function AppSidebar({
               className="h-10 w-full justify-center gap-2 rounded-xl px-3 text-sm font-bold group-data-[collapsible=icon]:size-8 group-data-[collapsible=icon]:w-auto group-data-[collapsible=icon]:rounded-lg group-data-[collapsible=icon]:p-0"
               onClick={() => {
                 if (isMobile) setOpenMobile(false);
-                openNewTransaction();
+                router.push("/new?type=expense");
               }}
-              {...formOptionsIntentPrefetchHandlers()}
             >
               <Plus className="size-4" strokeWidth={1.75} />
               <span className="flex flex-wrap group-data-[collapsible=icon]:sr-only">

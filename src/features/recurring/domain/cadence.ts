@@ -18,6 +18,9 @@ function occurrenceAt(
   if (n < 0) {
     throw new RangeError("n must be >= 0");
   }
+  if (frequency === "daily") {
+    return addDays(startDate, n);
+  }
   if (frequency === "weekly") {
     return addDays(startDate, 7 * n);
   }

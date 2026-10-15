@@ -157,6 +157,7 @@ enum SplitMemberKind {
 }
 
 enum RecurringFrequency {
+  daily
   weekly
   biweekly
   monthly
@@ -172,6 +173,12 @@ enum RecurringRuleStatus {
 enum RecurringPausedReason {
   manual
   account_archived
+}
+
+/// SPEC-23 — Ad-hoc "gasto grupal" split methods exposed by the core form.
+enum GroupSplitMode {
+  equal
+  custom
 }
 
 model Workspace {
@@ -296,6 +303,7 @@ model Transaction {
   counterpartyAccount FinanceAccount? @relation("TxCounterparty", fields: [counterpartyAccountId], references: [id], onDelete: Restrict)
   recurringRule              RecurringRule?      @relation(fields: [recurringRuleId], references: [id], onDelete: Restrict)
   expenseSplit               ExpenseSplit?
+  groupSplit                 TransactionGroupSplit?
   currencyExchangeAsFrom     CurrencyExchange?   @relation("ExchangeFromTx")
   currencyExchangeAsTo       CurrencyExchange?   @relation("ExchangeToTx")
   goalContribution           GoalContribution?
@@ -308,6 +316,34 @@ model Transaction {
   @@index([categoryId])
   @@index([recurringRuleId])
   @@map("transaction")
+}
+
+// SPEC-23 — Ad-hoc group split attached to a single movement. Members are
+// free-text names (no SplitGroup); 1:1 with the expense/income transaction.
+model TransactionGroupSplit {
+  id             String         @id @default(cuid())
+  transactionId  String         @unique
+  method         GroupSplitMode
+  userShareCents Int
+  createdAt      DateTime       @default(now())
+
+  transaction Transaction                  @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  members     TransactionGroupSplitMember[]
+
+  @@map("transaction_group_split")
+}
+
+model TransactionGroupSplitMember {
+  id           String @id @default(cuid())
+  groupSplitId String
+  name         String
+  amountCents  Int
+  position     Int    @default(0)
+
+  groupSplit TransactionGroupSplit @relation(fields: [groupSplitId], references: [id], onDelete: Cascade)
+
+  @@index([groupSplitId])
+  @@map("transaction_group_split_member")
 }
 
 // SPEC-18 — Recurring transaction templates (not ledger entries until materialized).

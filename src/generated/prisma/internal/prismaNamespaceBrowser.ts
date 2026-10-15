@@ -60,6 +60,8 @@ export const ModelName = {
   Category: 'Category',
   FinanceAccount: 'FinanceAccount',
   Transaction: 'Transaction',
+  TransactionGroupSplit: 'TransactionGroupSplit',
+  TransactionGroupSplitMember: 'TransactionGroupSplitMember',
   RecurringRule: 'RecurringRule',
   CurrencyExchange: 'CurrencyExchange',
   WorkspaceConsolidationRate: 'WorkspaceConsolidationRate',
@@ -225,6 +227,28 @@ export const TransactionScalarFieldEnum = {
 } as const
 
 export type TransactionScalarFieldEnum = (typeof TransactionScalarFieldEnum)[keyof typeof TransactionScalarFieldEnum]
+
+
+export const TransactionGroupSplitScalarFieldEnum = {
+  id: 'id',
+  transactionId: 'transactionId',
+  method: 'method',
+  userShareCents: 'userShareCents',
+  createdAt: 'createdAt'
+} as const
+
+export type TransactionGroupSplitScalarFieldEnum = (typeof TransactionGroupSplitScalarFieldEnum)[keyof typeof TransactionGroupSplitScalarFieldEnum]
+
+
+export const TransactionGroupSplitMemberScalarFieldEnum = {
+  id: 'id',
+  groupSplitId: 'groupSplitId',
+  name: 'name',
+  amountCents: 'amountCents',
+  position: 'position'
+} as const
+
+export type TransactionGroupSplitMemberScalarFieldEnum = (typeof TransactionGroupSplitMemberScalarFieldEnum)[keyof typeof TransactionGroupSplitMemberScalarFieldEnum]
 
 
 export const RecurringRuleScalarFieldEnum = {

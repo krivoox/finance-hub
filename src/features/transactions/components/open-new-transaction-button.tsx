@@ -1,51 +1,54 @@
 "use client";
 
 import type { ComponentProps } from "react";
+import Link from "next/link";
 import { Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-import { formOptionsIntentPrefetchHandlers } from "../stores/new-transaction-form-options-store";
-import { useNewTransactionSheetStore } from "../stores/new-transaction-sheet-store";
+import type { CoreTransactionType } from "./transaction-type-theme";
 
 type OpenNewTransactionButtonProps = Omit<
   ComponentProps<typeof Button>,
-  "onClick" | "asChild"
+  "onClick" | "asChild" | "type"
 > & {
   /** Visible label (hidden via `sr-only` / parent classes when collapsed). */
   label?: string;
   showIcon?: boolean;
+  /** Pre-selects the movement type on the core screen. */
+  type?: CoreTransactionType;
+  /** Override the destination (defaults to the core screen with `type`). */
+  href?: string;
 };
 
 /**
- * Opens the global new-transaction FormSheet without navigating.
+ * SPEC-23 — Entry point to the core transaction screen. Navigates to `/new`
+ * (dedicated route) instead of opening the legacy global FormSheet.
  */
 export function OpenNewTransactionButton({
   label = "Registrar",
   showIcon = true,
+  type = "expense",
+  href,
   className,
   children,
   ...props
 }: OpenNewTransactionButtonProps) {
-  const openSheet = useNewTransactionSheetStore((s) => s.openSheet);
+  const target = href ?? `/new?type=${type}`;
 
   return (
-    <Button
-      type="button"
-      className={cn(className)}
-      {...props}
-      onClick={() => openSheet()}
-      {...formOptionsIntentPrefetchHandlers()}
-    >
-      {children ?? (
-        <>
-          {showIcon ? (
-            <Plus className="size-4" strokeWidth={1.75} />
-          ) : null}
-          <span>{label}</span>
-        </>
-      )}
+    <Button asChild className={cn(className)} {...props}>
+      <Link href={target}>
+        {children ?? (
+          <>
+            {showIcon ? (
+              <Plus className="size-4" strokeWidth={1.75} />
+            ) : null}
+            <span>{label}</span>
+          </>
+        )}
+      </Link>
     </Button>
   );
 }

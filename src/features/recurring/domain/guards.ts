@@ -177,6 +177,7 @@ export function isRecurringFrequency(
   value: string,
 ): value is RecurringFrequency {
   return (
+    value === "daily" ||
     value === "weekly" ||
     value === "biweekly" ||
     value === "monthly" ||

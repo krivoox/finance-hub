@@ -16,6 +16,13 @@ export type { CreateTransferServiceInput } from "./create-transfer";
 export { createBalanceAdjustment } from "./create-balance-adjustment";
 export type { CreateBalanceAdjustmentServiceInput } from "./create-balance-adjustment";
 
+export { createCoreTransaction } from "./create-core-transaction";
+export type {
+  CoreGroupSplitInput,
+  CreateCoreTransactionResult,
+  CreateCoreTransactionServiceInput,
+} from "./create-core-transaction";
+
 export { updateBalanceAdjustment } from "./update-balance-adjustment";
 export type { UpdateBalanceAdjustmentServiceInput } from "./update-balance-adjustment";
 
