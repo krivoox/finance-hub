@@ -54,6 +54,7 @@
 | 20 | [Performance, navegación y PWA](./specs/20-performance-pwa.md) | P0 |
 | 21 | [Email transaccional y marketing (Resend)](./specs/21-email-resend.md) | P0 |
 | 22 | [Ajuste de saldo / deuda (KRI-36)](./specs/22-balance-adjustment.md) | P1 |
+| 23 | [Pantalla core de registro de movimiento](./specs/23-core-transaction-screen.md) | P0 |
 
 ## Decisiones de arquitectura (ADR)
 

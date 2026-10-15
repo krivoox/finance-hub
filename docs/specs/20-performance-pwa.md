@@ -47,12 +47,12 @@ Prefetch calienta shells RSC livianos; **no** implica cachear saldos entre sesio
 
 ### Shortcuts PWA (rutas canónicas)
 
-Reutilizar el sheet existente cuando aplique:
+Reutilizar la pantalla núcleo de registro (SPEC-23) para el alta de movimientos:
 
 | Shortcut | URL sugerida |
 |----------|----------------|
-| Nuevo gasto | `/transactions?new=expense` |
-| Nuevo ingreso | `/transactions?new=income` |
+| Nuevo gasto | `/new?type=expense` |
+| Nuevo ingreso | `/new?type=income` |
 | Cuentas | `/accounts` |
 
 ## 4. Reglas / invariantes de producto
@@ -61,7 +61,7 @@ Reutilizar el sheet existente cuando aplique:
 2. **Offline honesto** — sin red en Panel/Cuentas → `/offline` o mensaje claro; nunca patrimonio stale.
 3. **Acción frecuente primero** — registrar gasto/ingreso es el happy path móvil (acceso &lt;2 taps / shortcut OS). El acuse de recibo (splash del monto) cubre el round-trip; el patrimonio se atenúa, no se inventa.
 4. Auth sigue **Better Auth**; hosting **Vercel**. No PocketBase, no Caddy self-host, no Workbox “offline app” genérico.
-5. **Tab bar en el viewport visual** — `MobileTabBar` y `NewTransactionSheet` se montan **fuera** del flex (`SidebarFrame`: solo sidebar + inset) y **dentro** del contexto `SidebarProvider` (`position: fixed; left: 0; bottom: 0; width: 100%`). Overflow horizontal del canvas saca la barra `fixed` del área visible; contrato `min-w-0` + `overflow-x-hidden` ([DESIGN.md](../../DESIGN.md) §3.1.1, [architecture §7.2](../architecture.md)). No `100vw`/`100dvw` en la nav (incluyen el gutter del scrollbar).
+5. **Tab bar en el viewport visual** — `MobileTabBar` se monta **fuera** del flex (`SidebarFrame`: solo sidebar + inset) y **dentro** del contexto `SidebarProvider` (`position: fixed; left: 0; bottom: 0; width: 100%`). Overflow horizontal del canvas saca la barra `fixed` del área visible; contrato `min-w-0` + `overflow-x-hidden` ([DESIGN.md](../../DESIGN.md) §3.1.1, [architecture §7.2](../architecture.md)). No `100vw`/`100dvw` en la nav (incluyen el gutter del scrollbar).
 
 ## 5. Criterios de aceptación
 

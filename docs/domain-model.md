@@ -374,6 +374,50 @@ type SplitShare = {
 - Delete del expense: cascade split+shares; settlements no se tocan.
 - **Derivado (detalle autenticado):** gastos del grupo por categoría = Σ `expense.amountCents` de los splits, agrupados por `categoryId` de la tx (SPEC-09 FR-11 / SPEC-10 T-24). Settlements no entran. Vista pública no expone categorías.
 
+### TransactionGroupSplit (gasto grupal ad-hoc — SPEC-23)
+
+Distribución **libre** de un gasto/ingreso creado desde la pantalla core de registro, sin `SplitGroup` ni `User` de por medio. Los integrantes son **nombres de texto** que viven solo en la transacción. Convive con `ExpenseSplit` (SPEC-10): son modelos distintos y **no se mezclan** (`ExpenseSplit` sigue siendo el gasto compartido con miembros persistidos).
+
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| id | Id | |
+| transactionId | Id | unique; 1:1; `onDelete: Cascade` |
+| method | `equal` \| `custom` | |
+| userShareCents | number | lo que paga el usuario actual (≥ 0) |
+| createdAt | DateTime | |
+
+`TransactionGroupSplitMember`:
+
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| id | Id | |
+| groupSplitId | Id | |
+| name | string | 1…40 chars, único case-insensitive dentro del split |
+| amountCents | number | ≥ 0 |
+| position | number | orden de carga (default 0) |
+
+```ts
+type GroupSplitMode = "equal" | "custom"
+type GroupSplitMemberInput = { name: string; amountCents?: number }
+type GroupSplitResult = {
+  mode: GroupSplitMode
+  members: { name: string; amountCents: number }[]
+  userShareCents: number
+  unassignedCents: number
+  exceededCents: number
+  hasExcess: boolean
+}
+```
+
+**Invariantes**
+
+- Solo aplica a `income` / `expense` (no `transfer` ni `adjustment_*`).
+- `equal`: cada integrante recibe `floor(total / (n + 1))`; el usuario absorbe el resto (`total − Σ integrantes`).
+- `custom`: los montos son del usuario; `userShareCents = total − Σ integrantes` (clamp a 0 si se pasa; se reporta `exceededCents`).
+- `amountCents ≥ 0`, entero (ADR-001); nombres normalizados y únicos.
+- El total del split es el `amountCents` de la tx; no hay FX.
+- No altera los totales de budget/cashflow más allá del gasto ya registrado (es la misma tx).
+
 ### Settlement
 
 Pago entre miembros de un `SplitGroup` para ajustar nets (no mueve el ledger de cuentas).
@@ -410,7 +454,7 @@ Plantilla que describe **qué** movimiento se repite y **cada cuánto**. No es u
 | counterpartyAccountId | Id? | destino en transfer; null en income/expense |
 | categoryId | Id? | requerido en income/expense; null en transfer |
 | description | string? | espejo opcional para la tx generada |
-| frequency | `weekly` \| `biweekly` \| `monthly` \| `yearly` | sin `daily` ni custom |
+| frequency | `daily` \| `weekly` \| `biweekly` \| `monthly` \| `yearly` | `daily` agregado en SPEC-23 (pantalla core); sin custom |
 | startDate | Date | primera ocurrencia proyectada (ancla) |
 | endDate | Date? | inclusiva; no proyecta `scheduledOn > endDate` |
 | status | `active` \| `paused` \| `ended` | |

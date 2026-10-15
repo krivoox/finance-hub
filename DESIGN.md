@@ -74,43 +74,51 @@ Rail navy flush a la izquierda (`Sidebar` `variant="sidebar"`) — **no** inset 
 |------|---------|--------|
 | Panel | `/dashboard` | Home |
 | Transacciones | `/transactions` | Actividad diaria |
-| **+ Registrar** | acción (no ruta) | Abre `NewTransactionSheet`; CTA `bg-cta` rounded-xl |
+| **+ Registrar** | `/new` | Abre la pantalla núcleo de registro (SPEC-23); CTA `bg-cta` rounded-xl |
 | Presupuestos | `/budgets` | Planificación; badge at-risk si aplica |
 | Más | sheet bottom | Cuentas, Objetivos, Grupos, Recurrentes, Ajustes; tema inline (segmented); identidad + salir una vez al pie |
 
 **Craft:** barra full-width, no pill flotante. Cada tab muestra **icono + label debajo** (activo = `bg-info-muted` + `text-info-muted-foreground`). Clearance: `pb-[calc(4.75rem+env(safe-area-inset-bottom))]`.
 
-**Montaje (obligatorio):** `SidebarProvider` (contexto) envuelve el shell entero, incluido el tab bar. `MobileTabBar` y `NewTransactionSheet` viven **fuera** del flex (`SidebarFrame`: solo sidebar + inset). Si la `<nav>` es hermana flex de `SidebarInset`, ensancha la página, aparece scroll lateral y la barra sale del viewport. Contrato: `position: fixed; left: 0; bottom: 0; width: 100%; max-width: 100%; z-50`. No usar `100vw` / `100dvw` (incluyen el gutter del scrollbar).
+**Montaje (obligatorio):** `SidebarProvider` (contexto) envuelve el shell entero, incluido el tab bar. `MobileTabBar` vive **fuera** del flex (`SidebarFrame`: solo sidebar + inset). Si la `<nav>` es hermana flex de `SidebarInset`, ensancha la página, aparece scroll lateral y la barra sale del viewport. Contrato: `position: fixed; left: 0; bottom: 0; width: 100%; max-width: 100%; z-50`. No usar `100vw` / `100dvw` (incluyen el gutter del scrollbar).
 
 **Desktop (`md+`):** sidebar navy intacto; tab bar `md:hidden`.
 
 ### 3.2 Create flows — FormSheet (no forms en la lista)
 
-Los formularios de carga (movimientos, cuentas, presupuestos, objetivos) **no viven en la página de lista**. Se abren en un **FormSheet**.
+Los formularios de carga (cuentas, presupuestos, objetivos, aportes, splits) **no viven en la página de lista**. Se abren en un **FormSheet**.
+
+**Excepción — alta de movimientos (SPEC-23):** registrar un gasto/ingreso/transferencia/ajuste es la superficie central del producto y **no** usa FormSheet: es una **pantalla dedicada full-screen** en `/new` (ver §3.2.1).
 
 | Viewport | Comportamiento |
 |----------|----------------|
 | Móvil | **Bottom sheet** (~92dvh, esquinas superiores redondeadas). El teclado **empuja** el sheet (`interactive-widget: resizes-content` + `visualViewport`) y el cuerpo scrollea para que el campo con foco no quede tapado. |
-| `md+` | Drawer fijo a la **derecha** (`sm:max-w-md` / `lg` para movimientos) — la lista queda visible detrás |
+| `md+` | Drawer fijo a la **derecha** (`sm:max-w-md`) — la lista queda visible detrás |
 
 **Cerrar:** botón X en el header del sheet — `outline`, `rounded-full`, target táctil ≥40px en móvil (`size-10`). Neutro; no usar `destructive` (reservado a egresos y acciones destructivas). En sheets de alta/filtros **no** hay botón Cancelar: el pie es solo el CTA primario.
 
-**Pie anclado:** `FormSheet layout="fill"` + `FormSheetBody` (campos scrolleables) + `FormActions sticky`. Registrar / Aplicar quedan fijos al borde inferior; el contenido de fondo no scrollea mientras el sheet está abierto.
+**Pie anclado:** `FormSheet layout="fill"` + `FormSheetBody` (campos scrolleables) + `FormActions sticky`. El CTA (Aplicar / Guardar) queda fijo al borde inferior; el contenido de fondo no scrollea mientras el sheet está abierto.
 
 **Por qué no modal centrado en desktop:** los forms tienen muchos campos y secciones condicionales (splits, categorías). El sheet escala mejor mobile (bottom) → desktop (drawer).
+
+### 3.2.1 Alta de movimientos — pantalla dedicada `/new` (SPEC-23)
+
+El registro de movimientos es la superficie central: ruta full-screen `/new` con **monto grande primero**, tabs de tipo (gasto / ingreso / transferencia / ajuste), cuentas como **tarjetas** con saldo, categorías en **grilla**, fecha/nota, **frecuencia** y **gasto grupal ad-hoc**. CTA `bg-cta` fijo al pie. Detalle completo: `docs/specs/23-core-transaction-screen.md`.
+
+Entradas: sidebar “Registrar”, tab bar “+ Registrar”, CTA de dashboard/empty states y shortcuts PWA (`/new?type=expense|income`). `/transactions/new` redirige a `/new`.
 
 ### 3.3 Onboarding first-run (excepción)
 
 El setup inicial del workspace (`/onboarding`, SPEC-15) **no** usa AppShell ni FormSheet: es un **modal full-viewport** sobre canvas soft, sin sidebar. Progreso = línea hairline superior. Detalle: `docs/specs/15-workspace-onboarding.md`.
 
 **Patrón FormSheet (resto de creates):**
-- CTA en `ContentPanel.actions` (y sidebar “Registrar” → abre el FormSheet global al instante)
-- Deep-link opcional: `/transactions?new=1` abre el mismo sheet
+- CTA en `ContentPanel.actions`
+- Sidebar “Registrar” / tab bar “+ Registrar” → navegan a `/new` (SPEC-23), no abren un sheet
 - Lista limpia: tablas / progreso sin formulario encima
 - Formulario: 1 columna, secciones tipadas, `SegmentedControl` para ≤4 opciones
 - Cerrar al éxito / X en el header (sin Cancelar en el sheet)
 - Campos requeridos: asterisco en `FormField`; opcionales llevan la etiqueta “opcional”
-- Selector de categorías: no autofocus al buscador (el teclado no debe abrirse solo). En alta de movimiento: fila de **atajos** (emoji en squircle + label; 4 o 5 según el ancho del sheet) y tile **Más** que abre el picker. Alta rápida: emoji a la izquierda del nombre si la búsqueda no coincide.
+- Selector de categorías: no autofocus al buscador (el teclado no debe abrirse solo). Alta rápida: emoji a la izquierda del nombre si la búsqueda no coincide.
 
 Componentes: `src/components/form-sheet/*`
 
