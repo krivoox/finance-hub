@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **transactions:** Core transaction screen at /new
+
+### Fixed
+
+- **pwa:** Point entry points and links to /new
+
 [Unreleased]: https://github.com/krivoox/finance-hub/compare/v0.20.0...HEAD
 
 ## [0.20.0] - 2026-09-02
