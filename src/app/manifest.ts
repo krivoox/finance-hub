@@ -37,7 +37,7 @@ export default function manifest(): MetadataRoute.Manifest {
         name: "Nuevo gasto",
         short_name: "Gasto",
         description: "Registrar un gasto",
-        url: "/transactions?new=expense",
+        url: "/new?type=expense",
         icons: [
           {
             src: "/icons/icon-192.png",
@@ -50,7 +50,7 @@ export default function manifest(): MetadataRoute.Manifest {
         name: "Nuevo ingreso",
         short_name: "Ingreso",
         description: "Registrar un ingreso",
-        url: "/transactions?new=income",
+        url: "/new?type=income",
         icons: [
           {
             src: "/icons/icon-192.png",
